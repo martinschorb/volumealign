@@ -1,7 +1,4 @@
 
-
-
-
 # Render basic requirements:
 
 
