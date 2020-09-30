@@ -19,7 +19,7 @@ Repo: [https://github.com/martinschorb/render-modules](https://github.com/martin
 
 # SBEMImage to Render:
 
-Status:
+## Status:
 1. metadata and conversion to Render tilespecs and stack: [`generate_EM_tilespecs_from_SBEMImage.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py)
 
 This script does:
@@ -34,23 +34,13 @@ Will then feed into [`generate_mipmaps.py`](https://github.com/martinschorb/rend
 Then [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
 
-### Problems:
+
+# Naming conventions:
+
+I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) amd the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janeila.
+
+# Problems:
 
 Mac: scripts:
 - brew install coreutils (for greadlines)
 - install JDK with install script
-
-# steps
-
-1) create tilespec metadata
-  - SBEM: OK (`sbem2renderstack.py` in `render-python-apps/.../dataimport`)
-
-
-
-2) generate mipmaps
-  - SBEM: OK (`create_mipmaps` - need to check URLs to files, depends on where this runs)
-
-3) create stacks
-  - OK
-
-4) populate render
