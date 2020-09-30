@@ -16,12 +16,29 @@
 Repo: [https://github.com/martinschorb/render-modules](https://github.com/martinschorb/render-modules)
 
 
-problems:
+
+# SBEMImage to Render:
+
+Status:
+1. metadata and conversion to Render tilespecs and stack: [`generate_EM_tilespecs_from_SBEMImage.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py)
+
+This script does:
+- convert the metadata from SBEMImage to Render format
+- connect to the EMBL render server
+- create a new stack if defined stack not yet present
+
+2. Mipmap generation: working on a wrapper to include project location on group share to store mipmaps. [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py)
+
+Will then feed into [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) to compute the mipmaps.
+
+Then [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
+
+
+### Problems:
 
 Mac: scripts:
 - brew install coreutils (for greadlines)
 - install JDK with install script
-
 
 # steps
 
