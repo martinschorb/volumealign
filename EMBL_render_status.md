@@ -24,9 +24,8 @@ This script does:
 - connect to the EMBL render server
 - create a new stack if defined stack not yet present
 
-2. Mipmap generation: working on a wrapper to include project location on group share to store mipmaps. [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py)
-
-Will then feed into [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py) that generates the parameters (local mimap directory in the data root) for [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) to compute the mipmaps.
+2. Mipmap generation: wrapper that includes project location on group share to store mipmaps. [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py)
+ that generates the parameters (local mimap directory in the data root) for [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) which calls functionality from [`create_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/create_mipmaps.py) (TODO: Type conversion) to compute the mipmaps.
 
 Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
