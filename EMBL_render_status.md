@@ -30,11 +30,13 @@ Will then feed into [`generate_mipmaps.py`](https://github.com/martinschorb/rend
 
 Then [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
+###Problem:
+Prefix for the mipmaps is always the full URL. This makes sense if the mipmaps are stored in a central location (Janelia: scratch) but not if we want to keep them with the datasets.
 
 
 # Naming conventions:
 
-I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) amd the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janeila.
+I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) amd the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janelia.
 
 # Problems:
 
