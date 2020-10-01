@@ -26,12 +26,11 @@ This script does:
 
 2. Mipmap generation: working on a wrapper to include project location on group share to store mipmaps. [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py)
 
-Will then feed into [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) to compute the mipmaps.
+Will then feed into [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py) that generates the parameters (local mimap directory in the data root) for [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) to compute the mipmaps.
 
-Then [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
+Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
-###Problem:
-Prefix for the mipmaps is always the full URL. This makes sense if the mipmaps are stored in a central location (Janelia: scratch) but not if we want to keep them with the datasets.
+#
 
 
 # Naming conventions:
