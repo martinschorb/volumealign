@@ -29,12 +29,14 @@ This script does:
 
 Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
-#
+# Render to BDV:
+
+I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/master/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Maven build has worked, but I could not yet get the converter/exporter running. 
 
 
 # Naming conventions:
 
-I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) amd the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janelia.
+I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) and the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janelia.
 
 # Problems:
 
