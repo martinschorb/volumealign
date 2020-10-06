@@ -29,9 +29,14 @@ This script does:
 
 Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
 
+3. Tilepair generation: `create_tilepairs.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/create_tilepairs.py)
+
+4. SIFT-Alignment: Spark client does not work [Issue](https://github.com/saalfeldlab/render/issues/107)
+  Try [openCV](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/generate_point_matches_opencv.py) instead to get forward...
+
 # Render to BDV:
 
-I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/master/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Maven build has worked, but I could not yet get the converter/exporter running. 
+I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/master/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Maven build has worked, but I could not yet get the converter/exporter running.
 
 
 # Naming conventions:
