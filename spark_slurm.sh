@@ -11,14 +11,19 @@ module load Java/1.8.0_221
 
 export SPARK_HOME=/g/emcf/software/spark-3.0.0-bin-hadoop3.2
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
+
+
+
+
 export MASTER_URL="spark://$(hostname):7077"
 
 export MASTER=$(hostname -f):7077
 
-export SPARK_LOG_DIR="$SLURM_SUBMIT_DIR/$JOB/logs"
-export SPARK_WORKER_DIR="$SLURM_SUBMIT_DIR/$JOB/worker"
-export START_WORKER_SCRIPT="$SLURM_SUBMIT_DIR/$JOB/.worker.sh"
-export START_MASTER_SCRIPT="$SLURM_SUBMIT_DIR/$JOB/.master.sh"
+echo $MASTER > ./$JOB/master
+export SPARK_LOG_DIR="./$JOB/logs"
+export SPARK_WORKER_DIR="./$JOB/worker"
+export START_WORKER_SCRIPT="./$JOB/.worker.sh"
+export START_MASTER_SCRIPT="./$JOB/.master.sh"
 export SPARK_LOCAL_DIRS="$TMPDIR/$JOB"
 
 
