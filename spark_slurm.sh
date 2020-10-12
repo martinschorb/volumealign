@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=spark-pi      # create a short name for your job
+#SBATCH --job-name=spark-slurm      # create a short name for your job
 #SBATCH --ntasks=2
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048
@@ -42,4 +42,4 @@ sleep 10s
 echo Starting slaves
 srun $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker $MASTER -d $SPARK_WORKER_DIR &
 # again, sleep a tiny little bit
-sleep 10s
+sleep infinity
