@@ -85,7 +85,7 @@
 		<td>&nbsp;</td>
 	</tr> -->
 	<tr>
-		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;<b>Caller script</b></td>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;**Caller script**</td>
 		<td>&nbsp; <a title="generate_EM_tilespecs_from_SBEMImage.py" href="dataimport/generate_EM_tilespecs_from_SBEMImage.py">generate_EM_tilespecs<wbr>_from_SBEMImage.py</a></td>
 		<td>&nbsp; <a title="generate_mipmaps.py" href="dataimport/generate_mipmaps.py">generate_mipmaps.py</a></td>
 		<td>&nbsp; <a title="apply_mipmaps_to_render.py" href="dataimport/apply_mipmaps_to_render.py">apply_mipmaps_to_render.py</a></td>
@@ -96,7 +96,7 @@
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
-		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;<b>Parameters</b></td>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;**Parameters**</td>
 		<td>&nbsp;<a title="GenerateSBEMTileSpecsParameters" href="dataimport/README.md#SBEM">GenerateSBEM<wbr>TileSpecsParameters</a></td>
 		<td>&nbsp;<a title="GenerateMipMapsParameters" href="dataimport/README.md#mipmaps">GenerateMipMapsParameters</a></td>
 		<td>&nbsp;<a title="AddMipMapsToStackParameters" href="dataimport/README.md#mipmaps2render">AddMipMapsToStackParameters</a></td>
@@ -107,7 +107,7 @@
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
-		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;<b>Client script</b></td>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;**Client script**</td>
 		<td>&nbsp;<a href="https://github.com/fcollman/render-python-apps">renderapi</a>.import_tilespecs, .create_stack -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#import-json-client"><i>ImportJsonClient</i></a></td>
 		<td>&nbsp;None - Python-based (PIL). <a href="dataimport/create_mipmaps.py">dataimport.create_mipmaps_uri</a></td>
 		<td>&nbsp;<a href="https://github.com//AllenInstitute/render-python/tree/master/renderapi">renderapi</a>.resolvedtiles, .create_stack -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#import-json-client"><i>ImportJsonClient</i></a></td>
@@ -118,7 +118,7 @@
 		<td>&nbsp;</td>
 	</tr>
 	<tr>
-		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;<b>Parallelisation</b></td>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;**Parallelisation**</td>
 		<td>&nbsp;mp.Pool in <a href="https://github.com/fcollman/render-python-apps">renderapi</a>.import_tilespecs</td>
 		<td>&nbsp;mp.Pool in <a title="generate_mipmaps.py" href="dataimport/generate_mipmaps.py">make_tilespecs_and_cmds</a></td>
 		<td>&nbsp;mp.Pool</td>
