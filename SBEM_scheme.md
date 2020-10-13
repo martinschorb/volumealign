@@ -1,4 +1,4 @@
-<style>
+<!-- <style>
 	.render-table {
 		border:3px solid #C0C0C0;
 		border-collapse:collapse;
@@ -26,7 +26,7 @@
 
 	tr:hover {background-color: #f5f5f5;}
 
-</style>
+</style> -->
 
 <head>
 	<!-- this should be the modules URL -->
@@ -34,10 +34,10 @@
 </head>
 
 
-<h2 style="text-align:center;padding:28px;font-family: sans-serif;border:3px solid #C0C0C0; border-radius: 25px">SBEMImage Alignment/Stitching routine</h2>
-<table class="render-table">
+<h2 style="text-align:center;padding:28px;font-family:sans-serif;border:3px solid #C0C0C0; border-radius: 25px">SBEMImage Alignment/Stitching routine</h2>
+<table style="font-family: monospace; border:3px solid #C0C0C0;border-collapse:collapse;padding:28px;" class="render-table">
 	<!-- <caption>Table 1</caption> -->
-	<thead>
+	<thead style="border:3px solid #C0C0C0;	border-right: 4px solid #000;	color: #100080;	padding:28px;	background:#F0FDE0;">
 	<tr>
 		<th style="background:#F0CCCC">Processing</th>
 		<th>Input converter</th>
@@ -50,7 +50,7 @@
 		<th>Header 9</th>
 	</tr>
 	</thead>
-	<tbody>
+	<tbody style="border:3px solid #C0C0C0;	border-right: 4px solid #000;	padding:28px;">
 	<!-- <tr>
 		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Metadata</td>
 		<td style="font-family: sans-serif;">&nbsp;SBEMImage</td>
