@@ -1,0 +1,132 @@
+<style>
+	.render-table {
+		border:3px solid #C0C0C0;
+		border-collapse:collapse;
+		padding:28px;
+		font-size: 134%;
+		font-family: sans-serif
+	}
+	.render-table th {
+		border:3px solid #C0C0C0;
+		border-right: 4px solid #000;
+		color: #100080;
+		padding:28px;
+		background:#F0FDE0;
+	}
+	.render-table td {
+		border:3px solid #C0C0C0;
+		border-right: 4px solid #000;
+		padding:28px;
+		font-family: monospace;
+	}
+
+	i {
+		color: #FF00F0
+	}
+
+	tr:hover {background-color: #f5f5f5;}
+
+</style>
+
+<head>
+	<!-- this should be the modules URL -->
+  <base href="https://github.com/martinschorb/render-modules/blob/master/rendermodules/" target="_blank" rel="noopener">
+</head>
+
+
+<h2 style="text-align:center;padding:28px;font-family: sans-serif;border:3px solid #C0C0C0; border-radius: 25px">SBEMImage Alignment/Stitching routine</h2>
+<table class="render-table">
+	<!-- <caption>Table 1</caption> -->
+	<thead>
+	<tr>
+		<th style="background:#F0CCCC">Processing</th>
+		<th>Input converter</th>
+		<th>generate MipMaps</th>
+		<th>Apply MipMaps to Render</th>
+		<th>Tilepair generation</th>
+		<th>Match features (SIFT)</th>
+		<th>Header 7</th>
+		<th>Header 8</th>
+		<th>Header 9</th>
+	</tr>
+	</thead>
+	<tbody>
+	<!-- <tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Metadata</td>
+		<td style="font-family: sans-serif;">&nbsp;SBEMImage</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+		<td style="font-family: sans-serif;">&nbsp;</td>
+	</tr> -->
+	<tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Stack suffix</td>
+		<td>&nbsp;-</td>
+		<td>&nbsp;-</td>
+		<td>&nbsp;_mipmaps</td>
+		<td>&nbsp;_tp</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<!-- <tr>
+		<td style="background:#F3E3A0">&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr> -->
+	<tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Caller script</td>
+		<td>&nbsp; <a title="generate_EM_tilespecs_from_SBEMImage.py" href="dataimport/generate_EM_tilespecs_from_SBEMImage.py">generate_EM_tilespecs<wbr>_from_SBEMImage.py</a></td>
+		<td>&nbsp; <a title="generate_mipmaps.py" href="dataimport/generate_mipmaps.py">generate_mipmaps.py</a></td>
+		<td>&nbsp; <a title="apply_mipmaps_to_render.py" href="dataimport/apply_mipmaps_to_render.py">apply_mipmaps_to_render.py</a></td>
+		<td>&nbsp; <a title="create_tilepairs.py" href="pointmatch/create_tilepairs.py">create_tilepairs.py</a></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Parameters</td>
+		<td>&nbsp;<a title="GenerateSBEMTileSpecsParameters" href="dataimport/README.md#SBEM">GenerateSBEM<wbr>TileSpecsParameters</a></td>
+		<td>&nbsp;<a title="GenerateMipMapsParameters" href="dataimport/README.md#mipmaps">GenerateMipMapsParameters</a></td>
+		<td>&nbsp;<a title="AddMipMapsToStackParameters" href="dataimport/README.md#mipmaps2render">AddMipMapsToStackParameters</a></td>
+		<td>&nbsp;<a title="TilePairClientParameters" href="pointmatch/README.md#tilepairs">TilePairClientParameters</a> Can be 2D or 3D.</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Client script</td>
+		<td>&nbsp;<a href="https://github.com/fcollman/render-python-apps">renderapi</a>.import_tilespecs, .create_stack -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#import-json-client"><i>ImportJsonClient</i></a></td>
+		<td>&nbsp;None - Python-based (PIL). <a href="dataimport/create_mipmaps.py">dataimport.create_mipmaps_uri</a></td>
+		<td>&nbsp;<a href="https://github.com//AllenInstitute/render-python/tree/master/renderapi">renderapi</a>.resolvedtiles, .create_stack -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#import-json-client"><i>ImportJsonClient</i></a></td>
+		<td>&nbsp;<a href="/AllenInstitute/render-python/tree/master/renderapi/client/client_calls.py">renderapi.client</a>.tilePairClient -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#tile-pair-client"><i>TilePairClient</i></a></td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Parallelisation</td>
+		<td>&nbsp;mp.Pool in <a href="https://github.com/fcollman/render-python-apps">renderapi</a>.import_tilespecs</td>
+		<td>&nbsp;mp.Pool in <a title="generate_mipmaps.py" href="dataimport/generate_mipmaps.py">make_tilespecs_and_cmds</a></td>
+		<td>&nbsp;mp.Pool</td>
+		<td>&nbsp;<a href="/AllenInstitute/render-python/tree/master/renderapi/client/client_calls.py">renderapi.client</a>.run_<b>subprocess</b>_mode</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tbody>
+</table>
