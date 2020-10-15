@@ -50,7 +50,9 @@ $SPARK_HOME/sbin/start-master.sh
 
 # sleep a tiny little bit to allow master to start
 sleep 10s
+
 #echo Starting slaves
 srun --pack-group=1 $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker $MASTER_URL -d $SPARK_WORKER_DIR &
+
 # again, sleep a tiny little bit
 sleep infinity
