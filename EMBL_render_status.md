@@ -15,6 +15,7 @@ Repo: [https://github.com/martinschorb/render-modules](https://github.com/martin
 
 
 # SBEMImage to Render:
+[Pipeline schema](https://schorb.embl-community.io/volumealign/SBEM_scheme.html)
 
 ## Status:
 1. metadata and conversion to Render tilespecs and stack: [`generate_EM_tilespecs_from_SBEMImage.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py)
@@ -31,7 +32,7 @@ Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modul
 
 3. Tilepair generation: `create_tilepairs.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/create_tilepairs.py)
 
-4. SIFT-Alignment: Spark client does not work [Issue](https://github.com/saalfeldlab/render/issues/107)
+4. SIFT-Alignment: Spark client does not work [Issue](https://github.com/saalfeldlab/render/issues/110)
   Try [openCV](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/generate_point_matches_opencv.py) instead to get forward...  z-Distance needs to be physical distance.
 
 5. Solve (Allen's `bigfeta` [solver](https://github.com/martinschorb/render-modules/blob/master/rendermodules/solver/solve.py)) - Need to activate MogoDB's network access (in `/etc/mongod.conf`, add local IP).
