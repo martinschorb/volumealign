@@ -519,7 +519,7 @@ prop "start" "$(date +'%F %T')"
 ###
 
 # Set up node local scratch directories on all the nodes
-export SCRATCH="$TMPDIR"
+export SCRATCH="/scratch/schorb/spark-slurm"
 
 export SPARK_CONF_DIR="${SCRATCH}/conf"
 
@@ -554,7 +554,7 @@ prop "tunnel" "ssh -L ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_HOST}:${SPARK_MA
 
 # create config file in tmp dir
 # NOTE: SPARK_WORKER_INSTANCES IS DEPRECATED
-cat > "$TMPDIR/spark-env.sh" <<EOF
+cat > "$SCRATCH/spark-env.sh" <<EOF
 SPARK_WORKER_CORES=$soc_cpu
 SPARK_WORKER_MEMORY=$(( $soc_mem * $soc_cpu ))
 SPARK_WORKER_DIR=${SCRATCH}/work
@@ -569,7 +569,7 @@ SPARK_MASTER_PORT=${SPARK_MASTER_PORT}
 EOF
 
 # broadcast config file to each node
-sbcast /tmp/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
+sbcast $SCRATCH/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
     || fail "Could not broadcast config file to nodes"
 
 # modify the local copy of the config file to use fewer resources
@@ -578,13 +578,13 @@ sbcast /tmp/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
 #     "${SPARK_CONF_DIR}/spark-env.sh"
 
 # create a starter script for non-daemonized spark workers
-cat > /tmp/sparkworker.sh <<EOF
+cat > $SCRATCH/sparkworker.sh <<EOF
 #! /bin/bash
 ulimit -u 16384 -n 16384
 export SPARK_CONF_DIR=${SPARK_CONF_DIR}
 
 logf="${SCRATCH}/logs/spark-worker-\$(hostname).out"
-exec spark-class org.apache.spark.deploy.worker.Worker "${master}" --executor-memory "$(( $soc_mem * $soc_cpu ))" &> "\${logf}"
+exec spark-class org.apache.spark.deploy.worker.Worker "${master}" --executor-memory "$(( $soc_mem * $soc_cpu ))"" &> "\${logf}"
 EOF
 
 chmod +x /tmp/sparkworker.sh
