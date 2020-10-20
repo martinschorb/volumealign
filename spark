@@ -519,7 +519,7 @@ prop "start" "$(date +'%F %T')"
 ###
 
 # Set up node local scratch directories on all the nodes
-export SCRATCH="/scratch/${SLURM_JOB_ID}"
+export SCRATCH="$TMPDIR"
 
 export SPARK_CONF_DIR="${SCRATCH}/conf"
 
