@@ -525,13 +525,12 @@ export SPARK_CONF_DIR="${SCRATCH}/conf"
 
 
 if [[ ! -d "${SCRATCH}" ]]; then
-  srun -l mkdir "${SCRATCH}"
-  srun -l mkdir "${SPARK_CONF_DIR}"
-  srun -l mkdir "${SCRATCH}/logs" \
-    && srun -l mkdir "${SCRATCH}/work" \
-    && srun -l mkdir "${SCRATCH}/local" \
-    && srun -l mkdir "${SCRATCH}/pid" \
-    || fail "Could not set up node local directories"
+  mkdir "${SCRATCH}"
+  mkdir "${SPARK_CONF_DIR}"
+  mkdir "${SCRATCH}/logs"
+  mkdir "${SCRATCH}/work"
+  mkdir "${SCRATCH}/local"
+  mkdir "${SCRATCH}/pid" 
 fi
 
 # slave node list - includes the batch host
