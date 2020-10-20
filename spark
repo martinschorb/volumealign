@@ -157,7 +157,7 @@ function start {
     local soc_time=30
     local soc_copy_logs=0
     local opt
-    while getopts ':lt:' opt; do
+    while getopts 't:m:c:l' opt; do
         case ${opt} in
             t)
                 soc_time="${OPTARG}"
@@ -460,7 +460,6 @@ exit
 
 #__SBATCH__
 #! /bin/bash
-## SBATCH --constraint=cpu56,g256
 #SBATCH --nodes=<SOC_NNODES>
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=<SOC_CPU>
