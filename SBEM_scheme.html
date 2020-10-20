@@ -48,9 +48,8 @@
 		<th>Apply MipMaps to Render</th>
 		<th>Tilepair generation</th>
 		<th>Match features (SIFT)</th>
-		<th>Header 7</th>
-		<th>Header 8</th>
-		<th>Header 9</th>
+		<th>Solve (2D or 3D depending on tilepairs)</th>
+		<th>Export to N5</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -72,9 +71,8 @@
 		<td>&nbsp;_mipmaps</td>
 		<td>&nbsp;_tp</td>
 		<td>&nbsp;no new stack, point matches are generated</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<td>&nbsp;_solved</td>
+		<td>&nbsp;output volume generated</td>
 	</tr>
 	<!-- <tr>
 		<td style="background:#F3E3A0">&nbsp;</td>
@@ -94,9 +92,8 @@
 		<td>&nbsp; <a title="apply_mipmaps_to_render.py" href="dataimport/apply_mipmaps_to_render.py">apply_mipmaps_to_render.py</a></td>
 		<td>&nbsp; <a title="create_tilepairs.py" href="pointmatch/create_tilepairs.py">create_tilepairs.py</a></td>
 		<td>&nbsp; <a title="generate_point_matches_opencv.py" href="pointmatch/generate_point_matches_opencv.py">generate_point_matches_opencv.py</a></td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<td>&nbsp; <a title="solve.py" href="solver/solve.py">solve.py</a></td>
+		<td>&nbsp; <a title="SparkConvertRenderStackToN5.java" href="https://github.com/saalfeldlab/hot-knife/blob/render-to-n5-no-fit/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java">SparkConvertRenderStackToN5.java</a></td>
 	</tr>
 	<tr>
 		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Parameters</td>
@@ -104,10 +101,9 @@
 		<td>&nbsp;<a title="GenerateMipMapsParameters" href="dataimport/README.md#mipmaps">GenerateMipMapsParameters</a></td>
 		<td>&nbsp;<a title="AddMipMapsToStackParameters" href="dataimport/README.md#mipmaps2render">AddMipMapsToStackParameters</a></td>
 		<td>&nbsp;<a title="TilePairClientParameters" href="pointmatch/README.md#tilepairs">TilePairClientParameters</a> Can be 2D or 3D.</td>
-		<td>&nbsp;<a title="PointMatchOpenCVParameters" href="pointmatch/README.md#pm_opencv">PointMatchOpenCVParameters</a></td></td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<td>&nbsp;<a title="PointMatchOpenCVParameters" href="pointmatch/README.md#pm_opencv">PointMatchOpenCVParameters</a></td>
+		<td>&nbsp;<a title="BigFetaSchema" href="https://bigfeta.readthedocs.io/en/latest/api/bigfeta/schemas.html">BigFetaSchema</a></td>
+		<td>&nbsp;see code</td>
 	</tr>
 	<tr>
 		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Client script</td>
@@ -116,9 +112,8 @@
 		<td>&nbsp;<a href="https://github.com/AllenInstitute/render-python/tree/master/renderapi">renderapi</a>.resolvedtiles, .create_stack -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#import-json-client"><i>ImportJsonClient</i></a></td>
 		<td>&nbsp;<a href="https://github.com/AllenInstitute/render-python/tree/master/renderapi/client/client_calls.py">renderapi.client</a>.tilePairClient -><a href="https://github.com/saalfeldlab/render/blob/master/docs/src/site/markdown/render-ws-java-client.md#tile-pair-client"><i>TilePairClient</i></a></td>
 		<td>&nbsp;standalone</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<td>&nbsp;<a title="BigFeta" href="https://bigfeta.readthedocs.io/en/latest/index.html">BigFeta</a></td>
+		<td>&nbsp;standalone</td>
 	</tr>
 	<tr>
 		<td style="font-family: sans-serif;background:#F3E3A0">&nbsp;Parallelisation</td>
@@ -127,9 +122,8 @@
 		<td>&nbsp;mp.Pool</td>
 		<td>&nbsp;<a href="https://github.com/AllenInstitute/render-python/tree/master/renderapi/client/client_calls.py">renderapi.client</a>.run_<b>subprocess</b>_mode</td>
 		<td>&nbsp;mp.Pool</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
+		<td>&nbsp;??</td>
+		<td>&nbsp;spark</td>
 	</tr>
 	<tbody>
 </table>
