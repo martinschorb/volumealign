@@ -584,7 +584,7 @@ ulimit -u 16384 -n 16384
 export SPARK_CONF_DIR=${SPARK_CONF_DIR}
 
 logf="${SCRATCH}/logs/spark-worker-\$(hostname).out"
-exec spark-class org.apache.spark.deploy.worker.Worker "${master}" &> "\${logf}"
+exec spark-class org.apache.spark.deploy.worker.Worker "${master}" --executor-memory "$(( $soc_mem * $soc_cpu ))" &> "\${logf}"
 EOF
 
 chmod +x /tmp/sparkworker.sh
