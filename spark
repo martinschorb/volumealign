@@ -495,7 +495,7 @@ EOF
 }
 
 prop "start" "$(date +'%F %T')"
-module load spark/<SOC_SPARKVER> || fail "Could not load spark module"
+# module load spark/<SOC_SPARKVER> || fail "Could not load spark module"
 
 ###
 ### configuration files and job setup
