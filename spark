@@ -554,7 +554,7 @@ prop "tunnel" "ssh -L ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_HOST}:${SPARK_MA
 
 # create config file in tmp dir
 # NOTE: SPARK_WORKER_INSTANCES IS DEPRECATED
-cat > "/tmp/spark-env.sh" <<EOF
+cat > "$TMPDIR/spark-env.sh" <<EOF
 SPARK_WORKER_CORES=$soc_cpu
 SPARK_WORKER_MEMORY=$(( $soc_mem * $soc_cpu ))
 SPARK_WORKER_DIR=${SCRATCH}/work
