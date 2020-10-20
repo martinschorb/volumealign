@@ -145,10 +145,15 @@ function check_time {
 #             10. Default is 30. Actual runtime of the cluster
 #             is slightly less to allow for startup and clean
 #             shutdown
+#       -m    memory per CPU in Gigabytes (default 4)
+#       -c    number of CPUs per node (default 16)
 #       -l    copy the spark node logs back to the spark cluster
 #             directory in shared space
 #__START__
 function start {
+    local soc_nnodes=2
+    local soc_mem=4
+    local soc_cpu=16
     local soc_time=30
     local soc_copy_logs=0
     local opt
@@ -159,6 +164,12 @@ function start {
                 ;;
             l)
                 soc_copy_logs=1
+                ;;
+            m)
+                soc_mem="${OPTARG}"
+                ;;
+            c)
+                soc_cpu="${OPTARG}"
                 ;;
             ?)
                 error "-${OPTARG} is not a valid option"
@@ -189,9 +200,13 @@ function start {
     prop "nodes" "${soc_nnodes}" "${soc_prop}"
     prop "max_time" "${soc_time}" "${soc_prop}"
     prop "spark" "${soc_sparkver}" "${soc_prop}"
+    prop "numcpus" "${soc_cpu}" "${soc_prop}"
+    prop "mem" "${soc_mem}" "${soc_prop}"
 
     file_chunk '^#__SBATCH__' "${soc_script}" \
         | sed "s/<SOC_NNODES>/${soc_nnodes}/g" \
+        | sed "s/<SOC_MEM>/${soc_mem}G/g" \
+        | sed "s/<SOC_CPU>/${soc_cpu}/g" \
         | sed "s/<SOC_TIME>/${soc_time}/g" \
         | sed "s:<SOC_SPARKLOGDIR>:${cluster}/logs:g" \
         | sed "s/<SOC_SPARKVER>/${soc_sparkver}/g" \
@@ -448,8 +463,8 @@ exit
 ## SBATCH --constraint=cpu56,g256
 #SBATCH --nodes=<SOC_NNODES>
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem-per-cpu=4096
+#SBATCH --cpus-per-task=<SOC_CPU>
+#SBATCH --mem-per-cpu=<SOC_MEM>
 #SBATCH --time=<SOC_TIME>
 #SBATCH --out=<SOC_SPARKLOGDIR>/slurm.log
 
