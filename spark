@@ -526,10 +526,8 @@ export SPARK_CONF_DIR="${SCRATCH}/conf"
 
 if [[ ! -d "${SCRATCH}" ]]; then
   srun -l mkdir "${SCRATCH}"
-fi
-if [[ ! -d "${SPARK_CONF_DIR}" ]]; then
-srun -l mkdir "${SPARK_CONF_DIR}" \
-    && srun -l mkdir "${SCRATCH}/logs" \
+  srun -l mkdir "${SPARK_CONF_DIR}"
+  srun -l mkdir "${SCRATCH}/logs" \
     && srun -l mkdir "${SCRATCH}/work" \
     && srun -l mkdir "${SCRATCH}/local" \
     && srun -l mkdir "${SCRATCH}/pid" \
