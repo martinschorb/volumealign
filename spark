@@ -484,9 +484,9 @@ function shutdown_cluster {
 cp -r ${SCRATCH}/logs/* <SOC_SPARKLOGDIR>
 EOF
         chmod +x /tmp/soc_copy_logs.sh
-        sbcast /tmp/soc_copy_logs.sh /lscratch/${SLURM_JOB_ID}/copy_logs.sh
+        sbcast /tmp/soc_copy_logs.sh /scratch/${SLURM_JOB_ID}/copy_logs.sh
 
-    srun /lscratch/${SLURM_JOB_ID}/copy_logs.sh
+    srun /scratch/${SLURM_JOB_ID}/copy_logs.sh
     rm /tmp/soc_copy_logs.sh
     fi
 
@@ -502,7 +502,7 @@ prop "start" "$(date +'%F %T')"
 ###
 
 # Set up node local scratch directories on all the nodes
-export SCRATCH="/lscratch/${SLURM_JOB_ID}"
+export SCRATCH="/scratch/${SLURM_JOB_ID}"
 export SPARK_CONF_DIR="${SCRATCH}/conf"
 srun -l mkdir "${SPARK_CONF_DIR}" \
     && srun -l mkdir "${SCRATCH}/logs" \
