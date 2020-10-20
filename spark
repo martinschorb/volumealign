@@ -573,9 +573,9 @@ sbcast /tmp/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
     || fail "Could not broadcast config file to nodes"
 
 # modify the local copy of the config file to use fewer resources
-sed -i 's/SPARK_WORKER_CORES=52/SPARK_WORKER_CORES=44/;
-        s/SPARK_WORKER_MEMORY=235g/SPARK_WORKER_MEMORY=230g/' \
-    "${SPARK_CONF_DIR}/spark-env.sh"
+# sed -i 's/SPARK_WORKER_CORES=52/SPARK_WORKER_CORES=44/;
+#         s/SPARK_WORKER_MEMORY=235g/SPARK_WORKER_MEMORY=230g/' \
+#     "${SPARK_CONF_DIR}/spark-env.sh"
 
 # create a starter script for non-daemonized spark workers
 cat > /tmp/sparkworker.sh <<EOF
