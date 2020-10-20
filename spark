@@ -523,12 +523,14 @@ export SCRATCH="/scratch/${SLURM_JOB_ID}"
 srun -l mkdir "${SCRATCH}"
 
 export SPARK_CONF_DIR="${SCRATCH}/conf"
-srun -l mkdir "${SPARK_CONF_DIR}" \
+if [[ ! -d "${SPARK_CONF_DIR}" ]]; then
+  srun -l mkdir "${SPARK_CONF_DIR}" \
     && srun -l mkdir "${SCRATCH}/logs" \
     && srun -l mkdir "${SCRATCH}/work" \
     && srun -l mkdir "${SCRATCH}/local" \
     && srun -l mkdir "${SCRATCH}/pid" \
     || fail "Could not set up node local directories"
+fi
 
 # slave node list - includes the batch host
 prop "nodelist" "${SLURM_JOB_NODELIST}"
