@@ -445,16 +445,14 @@ exit
 
 #__SBATCH__
 #! /bin/bash
-##SBATCH --constraint=cpu56,g256
+## SBATCH --constraint=cpu56,g256
 #SBATCH --nodes=<SOC_NNODES>
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem-per-cpu=4096
 #SBATCH --time=<SOC_TIME>
-#SBATCH --partition=multinode
-#SBATCH --gres=lscratch:380
 #SBATCH --out=<SOC_SPARKLOGDIR>/slurm.log
-#SBATCH --signal=B:USR1@180
+
 
 ulimit -u 16384 -n 16384
 
