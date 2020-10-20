@@ -46,6 +46,8 @@ soc_sparkver=3.0.0
 
 export SPARK_HOME=/g/emcf/software/spark-3.0.0-bin-hadoop3.2
 export JAVA_HOME=`readlink -m /g/emcf/software/render/deploy/jdk*`
+export DISPLAY=""
+
 
 PATH=${SPARK_HOME}/sbin:$PATH
 PATH=${SPARK_HOME}/bin:$PATH
