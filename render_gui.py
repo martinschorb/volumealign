@@ -1,158 +1,177 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
-Created on Wed Aug  5 10:01:12 2020
+ZetCode Tkinter e-book
 
-@author: schorb
+This script produces a long-running task of calculating 
+a large Pi number, while keeping the GUI responsive.
+
+Author: Jan Bodnar
+Last modified: January 2016
+Website: www.zetcode.com
 """
 
+from tkinter import (Tk, BOTH, Text, E, W, S, N, END, 
+    NORMAL, DISABLED, StringVar, RIGHT, BOTH, RAISED)
+from tkinter.ttk import Frame, Label, Button, Progressbar, Entry, Style
+from tkinter import scrolledtext
 
-from tkinter import *
-from tkinter import ttk
-import os
-import time
+from multiprocessing import Queue, Process
+import queue 
+from decimal import Decimal, getcontext
 
-def calculate(*args):
-    numcpus.set(int(numcpus.get()*2))
-def calculate1(*args):
-    numcpus.set(int(numcpus.get()/2))
+DELAY1 = 80
+DELAY2 = 20
 
-
-
-def cluster_fiji(*args):
-    timelim = s_t.get()
-    memlim = s_mem.get()
-    n_cpu = s_cpu.get()
-
-    callcmd = 'srun -N1 --pty --x11 -n'
-
-    callcmd += n_cpu
-
-    callcmd += ' --mem '+memlim+'G '
-
-    callcmd += '-t 0-'+timelim+':00 '
-
-    callcmd += 'bash /g/emcf/schorb/code/cluster/fijicluster.sh\n'
-
-    mainframe.destroy()  
-    
-    prepcmd = 'cp /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg.orig\n'
-    prepcmd += 'echo -Xmx'+memlim+'g > /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg\n'  
-    prepcmd += 'cat /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg.orig >> /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg\n'
-    
-    os.system(prepcmd)
-    
-    callcmd += 'cp /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg.template /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg'
-    callcmd += 'rm /g/emcf/software/Fiji/Fiji.app/ImageJ.cfg.orig'
-    
-    os.popen(callcmd)
-
-                 
-    # Declaration of variables 
-    hour=StringVar() 
-    minute=StringVar() 
-    second=StringVar() 
-       
-    starttime = str(timelim)
-    
-    # setting the default value as 0 
-    hour.set(starttime) 
-
-    ttk.Label(root, text="This Fiji cluster job will terminate in: ").grid(column=2, row=1, sticky=W)
-       
-    # Use of Entry class to take input from the user 
-    hourEntry= ttk.Label(root, font=("Arial",18,""), 
-                     textvariable=hour).grid(column=2, row=2, sticky=W) 
-
-    
-    temp = int(hour.get())*3600
-
-    while temp >-1: 
-          
-        # divmod(firstvalue = temp//60, secondvalue = temp%60) 
-        mins,secs = divmod(temp,60)  
+# class Example1(Frame):
+  
+#     def __init__(self, parent, q):
+#         Frame.__init__(self, parent)   
+         
+#         self.queue = q 
+#         self.parent = parent
+#         self.initUI()
         
-        # Converting the input entered in mins or secs to hours, 
-        # mins ,secs(input = 110 min --> 120*60 = 6600 => 1hr : 
-        # 50min: 0sec) 
-        hours=0
-        if mins >60: 
-              
-            # divmod(firstvalue = temp//60, secondvalue  
-            # = temp%60) 
-            hours, mins = divmod(mins, 60) 
+        
+#     def initUI(self):
+      
+#         self.parent.title("Pi computation")
+#         self.pack(fill=BOTH, expand=True)
+        
+#         self.grid_columnconfigure(4, weight=1)
+#         self.grid_rowconfigure(3, weight=1)
+        
+#         lbl1 = Label(self, text="Digits:")
+#         lbl1.grid(row=0, column=0, sticky=E, padx=10, pady=10)
+        
+#         self.ent1 = Entry(self, width=10)
+#         self.ent1.insert(END, "4000")
+#         self.ent1.grid(row=0, column=1, sticky=W)
+        
+#         lbl2 = Label(self, text="Accuracy:")
+#         lbl2.grid(row=0, column=2, sticky=E, padx=10, pady=10)
+
+#         self.ent2 = Entry(self, width=10)
+#         self.ent2.insert(END, "100")
+#         self.ent2.grid(row=0, column=3, sticky=W)        
+        
+#         self.startBtn = Button(self, text="Start", 
+#             command=self.onStart)
+#         self.startBtn.grid(row=1, column=0, padx=10, pady=5, sticky=W)
+        
+#         self.pbar = Progressbar(self, mode='indeterminate')        
+#         self.pbar.grid(row=1, column=1, columnspan=3, sticky=W+E)     
+        
+#         self.txt = scrolledtext.ScrolledText(self)  
+#         self.txt.grid(row=2, column=0, rowspan=4, padx=10, pady=5,
+#             columnspan=5, sticky=E+W+S+N)
+       
+        
+#     def onStart(self):
+        
+#         self.startBtn.config(state=DISABLED)
+#         self.txt.delete("1.0", END)
+        
+#         self.digits = int(self.ent1.get())
+#         self.accuracy = int(self.ent2.get())
+        
+#         self.p1 = Process(target=self.generatePi, args=(self.queue,))
+#         self.p1.start()
+#         self.pbar.start(DELAY2)
+#         self.after(DELAY1, self.onGetValue)
+        
+       
+#     def onGetValue(self):
+        
+#         if (self.p1.is_alive()):
             
+#             self.after(DELAY1, self.onGetValue)
+#             return
+#         else:    
         
-        # using format () method to store the value up to  
-        # two decimal places 
-        t_str = "{} : {} : {}".format(str(hours),str(mins),str(secs))   
-                
-        hour.set(t_str) 
-        # updating the GUI window after decrementing the 
-        # temp value every time 
-        root.update() 
-        time.sleep(5) 
-   
-        # when temp value = 0; then a messagebox pop's up 
-        # with a message:"Time's up" 
-        if (temp == 0): 
-            exit() 
-          
-        # after every one sec the value of temp will be decremented 
-        # by one 
-        temp -= 5  
+#             try:
+#                 self.txt.insert('end', self.queue.get(0))
+#                 self.txt.insert('end', "\n")
+#                 self.pbar.stop()
+#                 self.startBtn.config(state=NORMAL)
+            
+#             except queue.Empty:
+#                 print("queue is empty")
+            
+            
+#     def generatePi(self, queue):
+        
+#         getcontext().prec = self.digits
+        
+#         pi = Decimal(0)
+#         k = 0
+#         n = self.accuracy
+        
+#         while k < n:
+#             pi += (Decimal(1)/(16**k))*((Decimal(4)/(8*k+1)) - \
+#                 (Decimal(2)/(8*k+4)) - (Decimal(1)/(8*k+5))- \
+#                 (Decimal(1)/(8*k+6)))
+#             k += 1
+#             print (self.p1.is_alive())
+            
+#         queue.put(pi)    
+#         print("end")    
+
+
+
+class Example(Frame):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+
+    def initUI(self):
+
+        self.master.title("Buttons")
+        self.style = Style()
+        self.style.theme_use("default")
+        
+        self.columnconfigure(0, pad=3)
+        self.columnconfigure(1, pad=3)
+        
+        self.rowconfigure(0, pad=3)
+        self.rowconfigure(1, pad=3)
+        self.rowconfigure(2, pad=3)
+        self.rowconfigure(3, pad=3)
+        self.rowconfigure(4, pad=3)
+
+        frame0 = Frame(self, relief=RAISED, borderwidth=1)
+        frame0.grid(column=0, rowspan=4, sticky=W+E)
+        # frame.pack(fill=BOTH, expand=True)
+
+        self.pack(fill=BOTH, expand=True)
+
+        self.closeButton = Button(self, text="Close",command=self.cb_CloseButton)
+        self.closeButton.grid(column=0, row=4, sticky=W+E)
+        # closeButton.pack(side=RIGHT, padx=5, pady=5)
+        self.okButton = Button(self, text="OK")
+        self.okButton.grid(column=0, row=3, sticky=W+E)
+        # okButton.pack(side=RIGHT, padx=5, pady=5)
+
+    def cb_CloseButton(self):
+        self.okButton.config(state=DISABLED)
+
+
+
+def main():
     
-
-    exit()
-
-
-
-
-
-
-
-root = Tk()
-root.title("Cluster Parameters")
-
-mainframe = ttk.Frame(root, padding="3 3 12 12")
-mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
-root.columnconfigure(0, weight=1)
-root.rowconfigure(0, weight=1)
-
-ttk.Label(mainframe, text="Set Parameters for Cluster Fiji").grid(column=2, row=1, sticky=W)
-
-numcpus = DoubleVar()
-numcpus.set(2)
-s_cpu = Spinbox(mainframe, from_=1, to=100, textvariable=numcpus)
-s_cpu.grid(column=1, row=2, sticky=E)
+    q = Queue()  
+    root = Tk()
+    # root.geometry("400x350+300+300")
+    # app = Example(root, q)
+    # root.mainloop()  
+    root.geometry("300x200+300+300")
+    app = Example()
+    root.mainloop()
 
 
-ttk.Label(mainframe, text="Number of CPUs").grid(column=2, row=2, sticky=W)
-
-
-mem = DoubleVar()
-mem.set(4)
-s_mem = Spinbox(mainframe, from_=1, to=128, textvariable=mem)
-s_mem.grid(column=1, row=3, sticky=E)
-
-
-ttk.Label(mainframe, text="Memory (GB)").grid(column=2, row=3, sticky=W)
-
-
-time_in = DoubleVar()
-time_in.set(24)
-s_t = Spinbox(mainframe, from_=1, to=240, increment=6, textvariable=time_in)
-s_t.grid(column=1, row=4, sticky=E)
-
-ttk.Label(mainframe, text="Job time limit (h)").grid(column=2, row=4, sticky=W)
-
-ttk.Button(mainframe, text="Go",command=cluster_fiji).grid(column=2, row=5, sticky=W)
-
-# ttk.Label(mainframe, text="blabla").grid(column=3, row=2, sticky=W)
-
-for child in mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
-
-root.bind('<Return>', calculate)
-root.bind('<minus>', calculate1)
-
-root.mainloop()
+if __name__ == '__main__':
+    main()  
