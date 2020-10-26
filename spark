@@ -519,18 +519,19 @@ prop "start" "$(date +'%F %T')"
 ###
 
 # Set up node local scratch directories on all the nodes
-export SCRATCH="/scratch/schorb/spark-slurm/${SLURM_JOB_ID}"
+export SCRATCH="/scratch/${SLURM_JOB_ID}"
 
 export SPARK_CONF_DIR="${SCRATCH}/conf"
 
 
 if [[ ! -d "${SCRATCH}" ]]; then
-  mkdir "${SCRATCH}"
-  mkdir "${SPARK_CONF_DIR}"
-  mkdir "${SCRATCH}/logs"
-  mkdir "${SCRATCH}/work"
-  mkdir "${SCRATCH}/local"
-  mkdir "${SCRATCH}/pid" 
+  srun -l mkdir "${SCRATCH}"
+srun -l mkdir "${SPARK_CONF_DIR}" \
+    && srun -l mkdir "${SCRATCH}/logs" \
+    && srun -l mkdir "${SCRATCH}/work" \
+    && srun -l mkdir "${SCRATCH}/local" \
+    && srun -l mkdir "${SCRATCH}/pid" \
+    || fail "Could not set up node local directories"
 fi
 
 # slave node list - includes the batch host
@@ -551,7 +552,7 @@ prop "tunnel" "ssh -L ${SPARK_MASTER_WEBUI_PORT}:${SPARK_MASTER_HOST}:${SPARK_MA
 
 # create config file in tmp dir
 # NOTE: SPARK_WORKER_INSTANCES IS DEPRECATED
-cat > "$SCRATCH/spark-env.sh" <<EOF
+cat > "/tmp/spark-env.sh" <<EOF
 SPARK_WORKER_CORES=$soc_cpu
 SPARK_WORKER_MEMORY=$(( $soc_mem * $soc_cpu ))
 SPARK_WORKER_DIR=${SCRATCH}/work
@@ -566,22 +567,22 @@ SPARK_MASTER_PORT=${SPARK_MASTER_PORT}
 EOF
 
 # broadcast config file to each node
-sbcast $SCRATCH/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
+sbcast /tmp/spark-env.sh ${SPARK_CONF_DIR}/spark-env.sh \
     || fail "Could not broadcast config file to nodes"
 
 # modify the local copy of the config file to use fewer resources
-# sed -i 's/SPARK_WORKER_CORES=52/SPARK_WORKER_CORES=44/;
-#         s/SPARK_WORKER_MEMORY=235g/SPARK_WORKER_MEMORY=230g/' \
-#     "${SPARK_CONF_DIR}/spark-env.sh"
+sed -i 's/SPARK_WORKER_CORES=52/SPARK_WORKER_CORES=44/;
+        s/SPARK_WORKER_MEMORY=235g/SPARK_WORKER_MEMORY=230g/' \
+    "${SPARK_CONF_DIR}/spark-env.sh"
 
 # create a starter script for non-daemonized spark workers
-cat > $SCRATCH/sparkworker.sh <<EOF
+cat > /tmp/sparkworker.sh <<EOF
 #! /bin/bash
 ulimit -u 16384 -n 16384
 export SPARK_CONF_DIR=${SPARK_CONF_DIR}
 
 logf="${SCRATCH}/logs/spark-worker-\$(hostname).out"
-exec spark-class org.apache.spark.deploy.worker.Worker "${master}" --executor-memory "$(( $soc_mem * $soc_cpu ))"" &> "\${logf}"
+exec spark-class org.apache.spark.deploy.worker.Worker "${master}" &> "\${logf}"
 EOF
 
 chmod +x /tmp/sparkworker.sh
