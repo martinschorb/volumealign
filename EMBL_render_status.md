@@ -37,11 +37,11 @@ Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modul
 
 5. Solve (Allen's `bigfeta` [solver](https://github.com/martinschorb/render-modules/blob/master/rendermodules/solver/solve.py)) - Need to activate MogoDB's network access (in `/etc/mongod.conf`, add local IP). Alternatively: set `db_interface` to `render`.
 
-6. 2D montage and 3D cross-layer matching can be iterated
+6. 2D montage and 3D cross-layer matching can be iterated.
 
 # Render to BDV:
 
-I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/master/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Maven build has worked, but I could not yet get the converter/exporter running.
+I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/master/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Build and conversion works. I cannot visualize the output ([Fiji](https://github.com/saalfeldlab/n5-viewer)). Eric has suggested this [viewer](https://github.com/saalfeldlab/n5-utils/blob/master/src/main/java/org/janelia/saalfeldlab/View.java#L512-L515). Some data is in `/g/emcf/schorb/render-output`
 
 
 # Naming conventions:
