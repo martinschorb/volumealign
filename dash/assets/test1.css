@@ -9,7 +9,7 @@
 
 .header a{
   text-decoration: none;
-  color: #666666;  
+  color: #666666;
 }
 
 /* Create two columns/boxes that floats next to each other */
@@ -46,37 +46,6 @@
   color: #f1f1f1;
 }
 
-.sidebar_active {
-  height: 100%;
-  width: 15%;
-  position: fixed;
-  float: left;
-  z-index: 1;
-  background-color: #ccc;
-  overflow-x: hidden;
-  text-align: center;
-  font-size: 18px;
-  padding: 1%;
-  padding-top: 16px;
-}
-
-/* Style sidebar links */
-.sidebar_active a {
-  padding: 8px 8px 8px 12px;
-  display: block;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 20px;
-  color: #f1f1f1;
-  background-color: #077;
-}
-
-/* Style links on mouse-over */
-.sidebar_active a:hover {
-  background-color: #BFDEE0;
-  color: #f1f1f1;
-}
-
 
 @media screen and (max-height: 450px) {
   .sidebar {padding-top: 15px;}
@@ -85,8 +54,8 @@
 
 .main {
   float: right;
-  padding: 10px;
   width: 80%;
   background-color: #f1f1f1;
+  font-size: 14px;
   padding: 1%;
 }
