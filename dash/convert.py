@@ -8,6 +8,8 @@ Created on Tue Nov  3 13:30:16 2020
 import dash_core_components as dcc
 import dash_html_components as html
 
+from sbem import sbem_conv
+
 
 base = html.Div([html.H4("Import volume EM datasets - Choose type:"),dcc.Dropdown(
         id='conv_dropdown1',persistence=True,
@@ -18,7 +20,6 @@ base = html.Div([html.H4("Import volume EM datasets - Choose type:"),dcc.Dropdow
     )])
 
 
-directory_sel = html.Div([html.H4("Select dataset root directory:"),
-                          dcc.Input(id="conv_input1", type="text", placeholder="",persistence=True),
-                          html.Button('Browse',id="conv_browse1")]
-                          )
+
+sbem = sbem_conv.page
+

@@ -29,6 +29,14 @@
   padding-top: 16px;
 }
 
+.sidebar_back {
+  height: auto;
+  width: 15%;
+  z-index: 1;
+  background-color: #eee;
+  display: block;
+}
+
 /* Style sidebar links */
 .sidebar a {
   padding: 8px 8px 8px 12px;

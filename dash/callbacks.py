@@ -24,7 +24,7 @@ import convert
     [Input('conv_dropdown1', 'value')])
 def convert_output(value):
     if value=='SBEMImage':
-        return convert.directory_sel
+        return convert.sbem
     else:
         return [html.Br(),'No data type selected.']
 
@@ -36,7 +36,7 @@ def convert_filebrowse1(click):
     root.withdraw()
     conv_inputdir = filedialog.askdirectory()
     root.destroy()
-    return 'No data type selected.'
+    return conv_inputdir
 
 
 
