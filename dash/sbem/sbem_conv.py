@@ -16,15 +16,25 @@ from app import app
 from params import *
 
 
+# SELECT input directory
 
+# get user name and main group to pre-polulate input directory
 
 p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
 group = p.communicate()[0].decode(encoding='utf8').strip("\n")
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
-                          dcc.Input(id="conv_input1", type="text", placeholder="/g/"+group,persistence=True),
-                          html.Button('Browse',id="conv_browse1"),' graphical browsing works on cluster login node ONLY!']
-                          )
+                          dcc.Input(id="conv_input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True),
+                          html.Button('Browse',id="conv_browse1"),' graphical browsing works on cluster login node ONLY!',
+                          html.Div(id='warning-popup')])
+
+
+
+# Choose Render parameters
+
+
+
+
 
 
 
