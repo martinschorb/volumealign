@@ -34,6 +34,8 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
 # set up render parameters
 
 owner = "SBEM"
+#------------------
+# SET PROJECT
 
 # get list of projects on render server
 url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects'
@@ -51,10 +53,18 @@ project_dd = html.Div([html.H4("Select Render Project:"),
                        html.Div([html.Br(),html.A('Browse Project',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
                                 id='sbem_conv_browse_proj',target="_blank")])
                        ])
+
+stack_div = html.Div(children=[html.H4("Select Target Stack:")],
+                    style = {'display':'none'},
+                    id='sbem_conv_stack_div'
+                       )
+
+
                        
-
-
-@app.callback([Output('sbem_conv_browse_proj','href'),Output('render_project','children'),Output('render_project','style')],
+#dropdown callback
+@app.callback([Output('sbem_conv_browse_proj','href'),
+               Output('render_project','children'),
+               Output('render_project','style')],
     Input('sbem_conv_project_dd', 'value'))
 def proj_dd_sel(project_sel):     
     if project_sel=='newproj':       
@@ -69,8 +79,6 @@ def proj_dd_sel(project_sel):
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
     return [href_out,div_out,divstyle]
 
-
-
 # Create a new Project
 
 @app.callback([Output('sbem_conv_project_dd', 'options'),Output('sbem_conv_project_dd', 'value')],
@@ -80,6 +88,55 @@ def new_proj(project_name,dd_options):
     dd_options.append({'label':project_name, 'value':project_name})
     return dd_options,project_name
 
+#------------------
+# SET STACK
+
+
+
+
+
+stack_dd = html.Div(children=[html.H4("Select Target Stack:")],
+                    style = {'display':'none'},
+                    id='sbem_conv_stack_div'
+                       )
+
+                      
+
+
+@app.callback([Output('sbem_conv_stack_div','style'),Output('sbem_conv_stack_div','children')],
+    Input('sbem_conv_project_dd', 'value'))
+def proj_stack_activate(project_sel):
+    if project_sel=='newproj':
+        return {'display':'none'},''
+    else:        
+        # get list of STACKS on render server
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects/' + project_sel
+        stacks = requests.get(url).json()        
+        print(stacks)            
+        # assemble dropdown
+        dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
+        for item in stacks: dd_options.append({'label':item, 'value':item})
+        stacks_dd = [html.H4("Select Target Stack:"),
+                       dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
+                                    options=dd_options,clearable=False,value=stacks[0]),
+                       html.Br(),
+                       html.Div(id='render_stack',style={'display':'none'}),                               
+                       # html.Div([html.Br(),html.A('Browse Stack',href=params.render_base_url+'view/stack-details.html?renderStackOwner='+owner,
+                                # id='sbem_conv_browse_proj',target="_blank")])
+                       ]
+        return {'display':'block'},stack_dd
+    
+    
+
+
+
+
+
+
+
+
+# =============================================
+# PROGRESS OUTPUT
 
 
 consolefile = './out.txt'
@@ -150,4 +207,4 @@ def update_output(n,outfile):
 
 # ---- page layout
 
-page = html.Div([directory_sel,project_dd,collapse_stdout])
+page = html.Div([directory_sel, project_dd, stack_div, collapse_stdout])
