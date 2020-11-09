@@ -41,9 +41,14 @@ owner = "SBEM"
 url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects'
 projects = requests.get(url).json()
 
+orig_projdiv=html.Div(id='orig_proj',style={'display':'none'},children=projects)
+
+
 # assemble dropdown
 dd_options = [{'label':'Create new Project', 'value':'newproj'}]
-for item in projects: dd_options.append({'label':item, 'value':item})
+for item in projects: 
+    dd_options.append({'label':item, 'value':item})
+
 
 project_dd = html.Div([html.H4("Select Render Project:"),
                        dcc.Dropdown(id='sbem_conv_project_dd',persistence=True,
@@ -51,14 +56,9 @@ project_dd = html.Div([html.H4("Select Render Project:"),
                        html.Br(),
                        html.Div(id='render_project',style={'display':'none'}),                               
                        html.Div([html.Br(),html.A('Browse Project',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
-                                id='sbem_conv_browse_proj',target="_blank")])
+                                id='sbem_conv_browse_proj',target="_blank")]),
+                       orig_projdiv
                        ])
-
-stack_div = html.Div(children=[html.H4("Select Target Stack:")],
-                    style = {'display':'none'},
-                    id='sbem_conv_stack_div'
-                       )
-
 
                        
 #dropdown callback
@@ -92,40 +92,55 @@ def new_proj(project_name,dd_options):
 # SET STACK
 
 
-
-
-
-stack_dd = html.Div(children=[html.H4("Select Target Stack:")],
-                    style = {'display':'none'},
-                    id='sbem_conv_stack_div'
+stack_div = html.Div(id='sbem_conv_stack_div',children=[dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
+                                    options=dd_options,clearable=False,style={'display':'none'}),
+                                                         html.Div(id='stack_state',style={'display':'none'}),
+                                                          html.Br(),
+                                                          html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
+                                id='sbem_conv_browse_stack',target="_blank")]
                        )
 
-                      
 
-
-@app.callback([Output('sbem_conv_stack_div','style'),Output('sbem_conv_stack_div','children')],
-    Input('sbem_conv_project_dd', 'value'))
-def proj_stack_activate(project_sel):
-    if project_sel=='newproj':
-        return {'display':'none'},''
-    else:        
-        # get list of STACKS on render server
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects/' + project_sel
-        stacks = requests.get(url).json()        
-        print(stacks)            
-        # assemble dropdown
-        dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
-        for item in stacks: dd_options.append({'label':item, 'value':item})
-        stacks_dd = [html.H4("Select Target Stack:"),
-                       dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
-                                    options=dd_options,clearable=False,value=stacks[0]),
-                       html.Br(),
-                       html.Div(id='render_stack',style={'display':'none'}),                               
-                       # html.Div([html.Br(),html.A('Browse Stack',href=params.render_base_url+'view/stack-details.html?renderStackOwner='+owner,
-                                # id='sbem_conv_browse_proj',target="_blank")])
-                       ]
-        return {'display':'block'},stack_dd
+@app.callback([Output('sbem_conv_stack_dd','options'),   
+               Output('sbem_conv_stack_dd','style'), 
+               Output('stack_state','children')],
+    [Input('sbem_conv_project_dd', 'value'),
+     Input('orig_proj','children')],
+    )
+def proj_stack_activate(project_sel,orig_proj):    
     
+    dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
+    
+    if project_sel in orig_proj:
+        # get list of STACKS on render server
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project_sel + '/stacks'
+        stacks = requests.get(url).json()  
+        
+        # assemble dropdown
+        
+        for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+                
+        return dd_options, {'display':'block'}, stacks[0]['stackId']['stack']
+        
+    else:    
+        return dd_options,{'display':'none'}, 'newstack'
+    
+    
+            
+@app.callback(Output('stack_state','children'),
+    Input('sbem_conv_stack_dd','value'))
+def update_stack_state(stack_dd):        
+    return stack_dd
+    
+@app.callback([Output('sbem_conv_browse_stack','href'),Output('sbem_conv_browse_stack','style')],
+    Input('stack_state','children'),
+    State('sbem_conv_project_dd', 'value'))
+def update_stack_browse(stack_state,project_sel):      
+    if stack_state == 'newstack':
+        return params.render_base_url, {'display':'none'}
+    else:
+        return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
+                                
     
 
 
