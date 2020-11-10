@@ -92,12 +92,15 @@ def new_proj(project_name,dd_options):
 # SET STACK
 
 
-stack_div = html.Div(id='sbem_conv_stack_div',children=[dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
+stack_div = html.Div(id='sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
+                                    dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
                                     options=dd_options,clearable=False,style={'display':'none'}),
-                                                         html.Div(id='stack_state',style={'display':'none'}),
-                                                          html.Br(),
-                                                          html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
-                                id='sbem_conv_browse_stack',target="_blank")]
+                                                         html.Div(id='stack_state',style={'display':'none'},children=''),
+                                                         html.Br(),
+                                                         html.Div(id='newstack'),                                                          
+                                                         html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
+                                id='sbem_conv_browse_stack',target="_blank"),
+                                 html.Br(),]
                        )
 
 
@@ -131,6 +134,7 @@ def proj_stack_activate(project_sel,orig_proj):
     Input('sbem_conv_stack_dd','value'))
 def update_stack_state(stack_dd):        
     return stack_dd
+
     
 @app.callback([Output('sbem_conv_browse_stack','href'),Output('sbem_conv_browse_stack','style')],
     Input('stack_state','children'),
@@ -142,9 +146,48 @@ def update_stack_browse(stack_state,project_sel):
         return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
                                 
     
+@app.callback(Output('newstack','children'),
+    Input('stack_state','children'))
+def new_stack_input(stack_value):
+    if stack_value=='newstack':
+        st_div_out = ['Enter new stack name: ',
+                   dcc.Input(id="conv_stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
+                   ]
+    else:
+        st_div_out = ''
+    
+    return st_div_out
 
 
 
+@app.callback([Output('sbem_conv_stack_dd', 'options'),Output('sbem_conv_stack_dd', 'value'),Output('sbem_conv_stack_dd','style')],
+              [Input('conv_stack_input', 'value')],
+              State('sbem_conv_stack_dd', 'options'),)
+def new_stack(project_name,dd_options): 
+    dd_options.append({'label':project_name, 'value':project_name})
+    return dd_options,project_name,{'display':'block'}
+
+ 
+# =============================================
+# Start Button
+
+gobutton = html.Div([html.Br(),
+                     html.Button('Start conversion',id="conv_go",disabled=True),                     
+            
+    
+            ])
+
+@app.callback(Output('conv_go', 'disabled'),
+              Input('stack_state', 'children'),
+              State('sbem_conv_project_dd', 'value'))
+def activate_gobutton(stack_state1,proj_dd_sel1):    
+    print('st-state -- '+stack_state1)
+    print('render-porj: -- '+proj_dd_sel1)    
+    if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
+        return True
+    else:
+        return False
+ 
 
 
 
@@ -222,4 +265,4 @@ def update_output(n,outfile):
 
 # ---- page layout
 
-page = html.Div([directory_sel, project_dd, stack_div, collapse_stdout])
+page = html.Div([directory_sel, project_dd, stack_div, gobutton, collapse_stdout])
