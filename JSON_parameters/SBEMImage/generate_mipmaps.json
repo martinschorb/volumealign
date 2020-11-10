@@ -1,0 +1,19 @@
+{
+    "render": {
+        "host": "pc-emcf-16.embl.de",
+        "port": 8080,
+        "owner": "SBEM",
+        "project": "tests",
+        "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"
+        },
+    "method": "PIL",
+    "input_stack": "giovanna0",
+    "output_dir": "/g/emcf/schorb/render-output/mipmaps/giovanna0",
+    "convert_to_8bit": "False",
+    "method": "PIL",
+    "imgformat": "png",
+    "levels": 6,
+    "force_redo": "True",
+    "zstart": 0,
+    "zend": 2348
+}

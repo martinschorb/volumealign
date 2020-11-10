@@ -1,0 +1,18 @@
+{
+    "render": {
+        "host": "pc-emcf-16.embl.de",
+        "port": 8080,
+        "owner": "SBEM",
+        "project": "tests",
+        "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"},
+    "minZ":123,
+    "maxZ":124,
+    "zNeighborDistance":0,
+    "stack":"giovanna1_mipmap",
+    "xyNeighborFactor": 0.9,
+    "excludeCornerNeighbors":"True",
+    "excludeSameLayerNeighbors":"False",
+    "excludeCompletelyObscuredTiles":"True",
+    "output_dir":"/g/emcf/schorb/render-output/",
+    "output_json":"/g/emcf/schorb/render-output/tiles_test2_montage.json"
+}

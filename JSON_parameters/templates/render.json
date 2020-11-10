@@ -1,0 +1,8 @@
+{
+  "render": {
+    "host": "pc-emcf-16.embl.de",
+    "port": 8080,
+    "owner": "SBEM",
+    "project": "tests",
+    "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"}
+}

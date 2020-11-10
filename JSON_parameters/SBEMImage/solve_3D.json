@@ -1,0 +1,55 @@
+{
+   "first_section": 442,
+   "last_section": 450,
+   "solve_type": "3D",
+   "close_stack": "True",
+   "transformation": "affine",
+   "start_from_file": "",
+   "output_mode": "stack",
+   "output_json":"/g/emcf/schorb/solve.json",
+   "input_stack": {
+       "owner": "SBEM",
+       "project": "tests",
+       "name":"test0_mipmap",
+       "host": "pc-emcf-16",
+       "port": 8080,
+       "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts",
+       "collection_type": "stack",
+       "db_interface": "render"
+   },
+   "pointmatch": {
+       "owner": "test",
+       "name": "test0_mipmap_2D",
+       "host": "pc-emcf-16",
+       "port": 8080,
+       "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts",
+       "collection_type": "pointmatch",
+       "db_interface": "render"
+   },
+   "output_stack": {
+       "owner": "SBEM",
+       "project": "tests",
+       "name": "3D_results0",
+       "host": "pc-emcf-16",
+       "port": 8080,
+       "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts",
+       "collection_type": "stack",
+       "db_interface": "render"
+   },
+   "hdf5_options": {
+       "output_dir": "/g/emcf/schorb/example_output/",
+       "chunks_per_file": 256
+   },
+   "matrix_assembly": {
+       "depth": 2,
+       "montage_pt_weight": 1.0,
+       "cross_pt_weight": 0.5,
+       "npts_min": 5,
+       "npts_max": 500,
+       "inverse_dz":"True"
+   },
+   "regularization": {
+       "default_lambda": 1.0e3,
+       "translation_factor": 1.0e-5
+   }
+}
