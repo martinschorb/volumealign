@@ -1,0 +1,15 @@
+{
+    "render": {
+        "host": "pc-emcf-16.embl.de",
+        "port": 8080,
+        "owner": "SBEM",
+        "project": "tests",
+        "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"
+        },
+    "image_directory": "/g/emcf/ronchi/Benvenuto-Giovanna-seaurchin_SBEMtest_5833/giovanna_G3-1_20-07-07_3view/S010_acquisition",
+    "stack": "giovanna_1",
+    "overwrite_zlayer": "True",
+    "pool_size": 24,
+    "close_stack": "True",
+    "z_index": 1
+}

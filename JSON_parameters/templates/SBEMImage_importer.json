@@ -1,0 +1,6 @@
+{
+    "overwrite_zlayer": "True",
+    "pool_size": 8,
+    "close_stack": "True",
+    "z_index": 1
+}

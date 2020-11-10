@@ -1,0 +1,28 @@
+{
+    "render": {
+        "host": "pc-emcf-16.embl.de",
+        "port": 8080,
+        "owner": "test",
+        "project": "RENDERmodule_TEST",
+        "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"},
+    "sparkhome": "/g/emcf/software/spark-3.0.0-bin-hadoop3.2",
+    "masterUrl":"spark://replacemebeforestarting",
+    "logdir": "/g/emcf/schorb/render-output/",
+    "jarfile": "/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar",
+    "className":"org.janelia.render.client.spark.SIFTPointMatchClient",
+    "collection": "test2_mipmap_2D",
+    "pairJson": "/g/emcf/schorb/render-output/tile_pairs_test2_mipmap_z_442_to_450_dist_0.json",
+    "SIFTfdSize": 6,
+    "SIFTsteps": 5,
+    "SIFTminScale":0.75,
+    "SIFTmaxScale":1,
+    "matchMaxEpsilon": 3.0,
+    "maxFeatureCacheGb": 5,
+    "renderScale": 0.052,
+    "matchRod": 0.5,
+    "matchMinInlierRatio": 0.0,
+    "matchMinNumInliers": 9,
+    "matchMaxNumInliers": 200,
+    "matchIterations": 500,
+    "matchMaxTrust": 4
+}

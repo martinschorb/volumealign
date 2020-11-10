@@ -21,6 +21,8 @@ import convert
 # Webapp Layout
 STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 
+sidebar_back = html.Nav(className='sidebar_back',children='')
+                   
 sidebar = html.Nav(className='sidebar',children=[dcc.Link(id='menu1',href='/convert',children='Convert & upload'),
                                                  html.Br(),
                                                  dcc.Link(id='menu2',href='/mipmaps',children='Generate MipMaps'),
@@ -35,9 +37,9 @@ app.layout = html.Div(
     html.Div(className='header', children=[html.H1(dcc.Link(href='/',children='Volume EM alignment with Render'))]),
     html.Section([
         dcc.Location(id='url', refresh=False),
+    sidebar_back,
     sidebar,
-    mainbody,
-    html.Div(id='convert-data',children='None') 
+    mainbody
     ])])
 
 

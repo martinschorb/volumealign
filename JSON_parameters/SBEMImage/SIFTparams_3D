@@ -1,0 +1,1 @@
+--SIFTfdSize 9 --SIFTminScale 0.6 --SIFTmaxScale 1 --SIFTsteps 5 --matchRod 0.92 --matchMaxEpsilon 3.0 --matchMinInlierRatio 0.0 --matchMinNumInliers 9 --matchMaxNumInliers 200 --maxFeatureCacheGb 4 --renderScale 0.052 --matchIterations 500 --matchMaxTrust 4
