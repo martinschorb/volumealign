@@ -13,6 +13,8 @@ import os
 from dash.dependencies import Input,Output,State
 import json
 import requests
+import importlib
+
 
 from app import app
 import params
@@ -181,13 +183,31 @@ gobutton = html.Div([html.Br(),
               Input('stack_state', 'children'),
               State('sbem_conv_project_dd', 'value'))
 def activate_gobutton(stack_state1,proj_dd_sel1):    
-    print('st-state -- '+stack_state1)
-    print('render-porj: -- '+proj_dd_sel1)    
+   
     if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
         return True
     else:
         return False
  
+
+
+@app.callback(Output('conv_go', 'disabled'),
+              Input('conv_go', 'n_clicks'),
+              [State('sbem_conv_project_dd', 'value'),
+               State('stack_state','children'),
+               
+              ])
+                  
+def execute_gobutton(stack_state1,proj_dd_sel1):    
+    #prepare parameters:
+    importlib.reload(params)
+        
+    param_file = params.json_run_dir + '/' + 'sbem_conv-' + params.run_prefix + '.json' 
+    
+    run_params = dict()
+    run_params['render'] = params.render_json
+    
+    
 
 
 

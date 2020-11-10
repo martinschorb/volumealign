@@ -42,7 +42,7 @@ def convert_filebrowse1(click):
         outpage=''
     else:
         outpage=dcc.ConfirmDialog(        
-        id='danger-danger-provider',displayed=True,
+        id='danger-wrong_host',displayed=True,
         message='This functionality only works when accessing this page from the graphical login node.'
         )
         conv_inputdir = ''

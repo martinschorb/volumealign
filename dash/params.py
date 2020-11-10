@@ -5,11 +5,48 @@
 
 import json   
 import os 
-    
+import time
+
+#=============================================================
+## Directory presets
+
+json_template_dir = '/Volumes/emcf/schorb/code/JSON_parameters/templates'
+
+json_run_dir = '/Volumes/emcf/schorb/code/JSON_parameters/runs'
+
+render_log_dir = '/g/emcf/software/render-logs'
+
+
+
+
+#==============================================================
+## Compute resources presets
+
+
+
+
+
+
+
+#=============================================================
+## UI parameters
+
+# controls refresh rate and length of console output
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-json_template_dir = '/Volumes/emcf/schorb/code/JSON_parameters/templates'
+
+
+
+# -------------  
+# derived parameters
+
+user = os.getlogin()
+
+timestamp = time.localtime()
+
+run_prefix = user + '_' + timestamp.tm_year + timestamp.tm_mon + timestamp.tm_mday + '-' + timestamp.tm_hour + timestamp.tm_min
+
 
 v_base_url = '/render-ws/'
 render_version = 'v1/'
@@ -19,7 +56,12 @@ render_version = 'v1/'
 with open(os.path.join(json_template_dir,'render.json'),'r') as f:
     render_json = json.load(f)
 
-
 render_base_url = 'http://' + render_json['render']['host']
 render_base_url += ':' + str(render_json['render']['port'])
 render_base_url += v_base_url
+
+
+
+# Choose SBEM-Importer parameters
+with open(os.path.join(json_template_dir,'SBEMImage_importer.json'),'r') as f:
+    sbem_conv_json = json.load(f)
