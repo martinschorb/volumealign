@@ -8,5 +8,5 @@ Created on Tue Nov  3 15:25:59 2020
 
 import dash
 
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
+app = dash.Dash(__name__,title='Volume EM alignment with Render', suppress_callback_exceptions=True)
 server = app.server

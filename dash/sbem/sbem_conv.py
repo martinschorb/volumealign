@@ -23,7 +23,7 @@ import importlib
 
 from app import app
 import params
-
+from utils import launch_jobs
 
 
 # element prefix
@@ -38,6 +38,7 @@ p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
 group = p.communicate()[0].decode(encoding='utf8').strip("\n")
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
+                                   html.Script(type="text/javascript",children="alert('test')"),                                   
                           dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True),
                           html.Button('Browse',id=label+"browse1"),' graphical browsing works on cluster login node ONLY!',
                           html.Div(id=label+'warning-popup')])
@@ -231,7 +232,7 @@ def activate_gobutton(stack_state1,in_dir,proj_dd_sel1):
         id=label+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
         )
-    print('----'+str(in_dir)+'....')
+
     if any([in_dir=='',in_dir==None]):
         return True,'No input directory chosen.'    
     elif os.path.isdir(in_dir):        
@@ -264,18 +265,19 @@ def dir_warning(sub_c,canc_c):
                Output(label+'interval1','interval')],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
-               State(label+'project_dd', 'value')]
+               State(label+'project_dd', 'value'),
+               State(label+'stack_state', 'children'),
+               State(label+'outfile','children')]
               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel):    
+def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):    
     # prepare parameters:
     
     importlib.reload(params)
         
     param_file = params.json_run_dir + '/' + 'sbem_conv-' + params.run_prefix + '.json' 
     
-    run_params = dict()
-    run_params['render'] = params.render_json
+    run_params = params.render_json.copy()
     run_params['render']['owner'] = owner
     run_params['render']['project'] = proj_dd_sel
     
@@ -283,16 +285,27 @@ def execute_gobutton(click,sbemdir,proj_dd_sel):
         run_params.update(json.load(f))
     
     run_params['image_directory'] = sbemdir
+    run_params['stack'] = stack_sel
+    
+    with open(param_file,'w') as f:
+        json.dump(run_params,f,indent=4)
+
+    log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix + '.log'
+    
+    if os.path.isfile(log_file):
+        out=log_file
+    else:
+        out=outfile
+        
+        
+    #launch
+    # -----------------------
+    
+    launch_jobs.run()
+    
 
 
-
-
-
-
-
-
-
-    return True,'/Users/schorb/export.xml',params.refresh_interval
+    return True,out,params.refresh_interval
 
 
 
