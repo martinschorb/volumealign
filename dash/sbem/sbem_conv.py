@@ -264,18 +264,18 @@ def dir_warning(sub_c,canc_c):
                Output(label+'interval1','interval')],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
-               State(label+'project_dd', 'value')]
+               State(label+'project_dd', 'value'),
+               State(label+'stack_state', 'children')]
               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel):    
+def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel):    
     # prepare parameters:
     
     importlib.reload(params)
         
     param_file = params.json_run_dir + '/' + 'sbem_conv-' + params.run_prefix + '.json' 
     
-    run_params = dict()
-    run_params['render'] = params.render_json
+    run_params = params.render_json.copy()
     run_params['render']['owner'] = owner
     run_params['render']['project'] = proj_dd_sel
     
@@ -283,8 +283,10 @@ def execute_gobutton(click,sbemdir,proj_dd_sel):
         run_params.update(json.load(f))
     
     run_params['image_directory'] = sbemdir
-
-
+    run_params['stack'] = stack_sel
+    
+    with open(param_file,'w') as f:
+        json.dump(run_params,f,indent=4)
 
 
 
