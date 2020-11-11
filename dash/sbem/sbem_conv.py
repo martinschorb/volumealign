@@ -8,8 +8,13 @@ Created on Wed Nov  4 08:42:12 2020
 import dash_core_components as dcc
 import dash_html_components as html
 import subprocess
-import sys
+# import sys
 import os
+import socket
+#for file browsing dialogs
+import tkinter
+from tkinter import filedialog
+
 from dash.dependencies import Input,Output,State
 import json
 import requests
@@ -20,6 +25,12 @@ from app import app
 import params
 
 
+
+# element prefix
+label = "sbem_conv_"
+lstore = dcc.Store(id=label+"label")
+
+
 # SELECT input directory
 
 # get user name and main group to pre-polulate input directory
@@ -28,9 +39,36 @@ p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
 group = p.communicate()[0].decode(encoding='utf8').strip("\n")
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
-                          dcc.Input(id="conv_input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True),
-                          html.Button('Browse',id="conv_browse1"),' graphical browsing works on cluster login node ONLY!',
-                          html.Div(id='warning-popup')])
+                          dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True),
+                          html.Button('Browse',id=label+"browse1"),' graphical browsing works on cluster login node ONLY!',
+                          html.Div(id=label+'warning-popup')])
+
+
+
+
+@app.callback([Output(label+'input1', 'value'),Output(label+'warning-popup','children')],
+    [Input(label+'browse1', 'n_clicks')])
+def convert_filebrowse1(click):
+    
+    hostname = socket.gethostname()
+    
+    if hostname=='login-gui.cluster.embl.de':    
+        root = tkinter.Tk()
+        root.withdraw()
+        conv_inputdir = filedialog.askdirectory()
+        root.destroy()
+        outpage=''
+    else:
+        outpage=dcc.ConfirmDialog(        
+        id=label+'danger-wrong_host',displayed=True,
+        message='This functionality only works when accessing this page from the graphical login node.'
+        )
+        conv_inputdir = ''
+    return conv_inputdir,outpage
+
+
+
+
 
 # ============================
 # set up render parameters
@@ -43,7 +81,7 @@ owner = "SBEM"
 url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects'
 projects = requests.get(url).json()
 
-orig_projdiv=html.Div(id='orig_proj',style={'display':'none'},children=projects)
+orig_projdiv=html.Div(id=label+'orig_proj',style={'display':'none'},children=projects)
 
 
 # assemble dropdown
@@ -53,27 +91,27 @@ for item in projects:
 
 
 project_dd = html.Div([html.H4("Select Render Project:"),
-                       dcc.Dropdown(id='sbem_conv_project_dd',persistence=True,
+                       dcc.Dropdown(id=label+'project_dd',persistence=True,
                                     options=dd_options,clearable=False,value=projects[0]),
                        html.Br(),
-                       html.Div(id='render_project',style={'display':'none'}),                               
+                       html.Div(id=label+'render_project',style={'display':'none'}),                               
                        html.Div([html.Br(),html.A('Browse Project',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
-                                id='sbem_conv_browse_proj',target="_blank")]),
+                                id=label+'browse_proj',target="_blank")]),
                        orig_projdiv
                        ])
 
                        
 #dropdown callback
-@app.callback([Output('sbem_conv_browse_proj','href'),
-               Output('render_project','children'),
-               Output('render_project','style')],
-    Input('sbem_conv_project_dd', 'value'))
+@app.callback([Output(label+'browse_proj','href'),
+               Output(label+'render_project','children'),
+               Output(label+'render_project','style')],
+    Input(label+'project_dd', 'value'))
 def proj_dd_sel(project_sel):     
     if project_sel=='newproj':       
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
         divstyle = {'display':'block'}                       
         div_out = ['Enter new project name: ',
-                   dcc.Input(id="conv_proj_input", type="text", debounce=True,placeholder="new_project",persistence=False)
+                   dcc.Input(id=label+"proj_input", type="text", debounce=True,placeholder="new_project",persistence=False)
                    ]
     else:
         div_out = project_sel
@@ -83,9 +121,9 @@ def proj_dd_sel(project_sel):
 
 # Create a new Project
 
-@app.callback([Output('sbem_conv_project_dd', 'options'),Output('sbem_conv_project_dd', 'value')],
-              [Input('conv_proj_input', 'value')],
-              State('sbem_conv_project_dd', 'options'),)
+@app.callback([Output(label+'project_dd', 'options'),Output(label+'project_dd', 'value')],
+              [Input(label+'proj_input', 'value')],
+              State(label+'project_dd', 'options'))
 def new_proj(project_name,dd_options): 
     dd_options.append({'label':project_name, 'value':project_name})
     return dd_options,project_name
@@ -94,23 +132,23 @@ def new_proj(project_name,dd_options):
 # SET STACK
 
 
-stack_div = html.Div(id='sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
-                                    dcc.Dropdown(id='sbem_conv_stack_dd',persistence=True,
-                                    options=dd_options,clearable=False,style={'display':'none'}),
-                                                         html.Div(id='stack_state',style={'display':'none'},children=''),
-                                                         html.Br(),
-                                                         html.Div(id='newstack'),                                                          
-                                                         html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
-                                id='sbem_conv_browse_stack',target="_blank"),
-                                 html.Br(),]
+stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
+                                                              dcc.Dropdown(id=label+'stack_dd',persistence=True,
+                                                                           options=dd_options,clearable=False,style={'display':'none'}),
+                                                              html.Div(id=label+'stack_state',style={'display':'none'},children=''),
+                                                              html.Br(),
+                                                              html.Div(id=label+'newstack'),                                                          
+                                                              html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
+                                                                     id=label+'browse_stack',target="_blank"),
+                                                              html.Br(),]
                        )
 
 
-@app.callback([Output('sbem_conv_stack_dd','options'),   
-               Output('sbem_conv_stack_dd','style'), 
-               Output('stack_state','children')],
-    [Input('sbem_conv_project_dd', 'value'),
-     Input('orig_proj','children')],
+@app.callback([Output(label+'stack_dd','options'),   
+               Output(label+'stack_dd','style'), 
+               Output(label+'stack_state','children')],
+    [Input(label+'project_dd', 'value'),
+     Input(label+'orig_proj','children')],
     )
 def proj_stack_activate(project_sel,orig_proj):    
     
@@ -132,15 +170,15 @@ def proj_stack_activate(project_sel,orig_proj):
     
     
             
-@app.callback(Output('stack_state','children'),
-    Input('sbem_conv_stack_dd','value'))
+@app.callback(Output(label+'stack_state','children'),
+    Input(label+'stack_dd','value'))
 def update_stack_state(stack_dd):        
     return stack_dd
 
     
-@app.callback([Output('sbem_conv_browse_stack','href'),Output('sbem_conv_browse_stack','style')],
-    Input('stack_state','children'),
-    State('sbem_conv_project_dd', 'value'))
+@app.callback([Output(label+'browse_stack','href'),Output(label+'browse_stack','style')],
+    Input(label+'stack_state','children'),
+    State(label+'project_dd', 'value'))
 def update_stack_browse(stack_state,project_sel):      
     if stack_state == 'newstack':
         return params.render_base_url, {'display':'none'}
@@ -148,12 +186,12 @@ def update_stack_browse(stack_state,project_sel):
         return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
                                 
     
-@app.callback(Output('newstack','children'),
-    Input('stack_state','children'))
+@app.callback(Output(label+'newstack','children'),
+    Input(label+'stack_state','children'))
 def new_stack_input(stack_value):
     if stack_value=='newstack':
         st_div_out = ['Enter new stack name: ',
-                   dcc.Input(id="conv_stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
+                   dcc.Input(id=label+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
                    ]
     else:
         st_div_out = ''
@@ -162,54 +200,60 @@ def new_stack_input(stack_value):
 
 
 
-@app.callback([Output('sbem_conv_stack_dd', 'options'),Output('sbem_conv_stack_dd', 'value'),Output('sbem_conv_stack_dd','style')],
-              [Input('conv_stack_input', 'value')],
-              State('sbem_conv_stack_dd', 'options'),)
+@app.callback([Output(label+'stack_dd', 'options'),
+               Output(label+'stack_dd', 'value'),
+               Output(label+'stack_dd','style')],
+              [Input(label+'stack_input', 'value')],
+              State(label+'stack_dd', 'options'))
 def new_stack(project_name,dd_options): 
     dd_options.append({'label':project_name, 'value':project_name})
     return dd_options,project_name,{'display':'block'}
 
  
+
+
 # =============================================
 # Start Button
 
-gobutton = html.Div([html.Br(),
-                     html.Button('Start conversion',id="conv_go",disabled=True),                     
-            
-    
-            ])
+gobutton = html.Div(children=[html.Br(),
+                              html.Button('Start conversion',id=label+"go",disabled=True),
+                              html.Div(id=label+'buttondiv')])
 
-@app.callback(Output('conv_go', 'disabled'),
-              Input('stack_state', 'children'),
-              State('sbem_conv_project_dd', 'value'))
-def activate_gobutton(stack_state1,proj_dd_sel1):    
-   
+
+@app.callback(Output(label+'go', 'disabled'),
+              Input(label+'stack_state', 'children'),
+              State(label+'project_dd', 'value'))
+def activate_gobutton(stack_state1,proj_dd_sel1):
     if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
         return True
     else:
         return False
- 
+    
 
+@app.callback([Output(label+'go', 'disabled'),
+               Output(label+'outfile','children'),
+               Output(label+'interval1','interval')],
+              Input(label+'go', 'n_clicks')
+              )                 
 
-@app.callback(Output('conv_go', 'disabled'),
-              Input('conv_go', 'n_clicks'),
-              [State('sbem_conv_project_dd', 'value'),
-               State('stack_state','children'),
-               
-              ])
-                  
-def execute_gobutton(stack_state1,proj_dd_sel1):    
-    #prepare parameters:
+def execute_gobutton(v1):    
+    # prepare parameters:
+    
     importlib.reload(params)
         
     param_file = params.json_run_dir + '/' + 'sbem_conv-' + params.run_prefix + '.json' 
     
     run_params = dict()
     run_params['render'] = params.render_json
+    run_params['render']['owner'] = 'SBEM'
+    run_params['render']['project'] = proj_dd_sel
     
+    with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
+        run_params.update(json.load(f))
     
+    run_params['image_directory'] = v1
 
-
+    return True,'/Users/schorb/export.xml',params.refresh_interval
 
 
 
@@ -219,51 +263,40 @@ def execute_gobutton(stack_state1,proj_dd_sel1):
 
 consolefile = './out.txt'
     
-f = open(consolefile, 'w')
-f.close() 
+# f = open(consolefile, 'w')
+# f.close() 
     
 
 # code block to insert the python/slurm console output:    
 
 outfile=os.path.abspath(consolefile)
-label = "-sbem_convert"
 
-orig_stdout = sys.stdout
-f = open(outfile, 'a')
-sys.stdout = f
-
+# orig_stdout = sys.stdout
+# f = open(outfile, 'a')
+# sys.stdout = f
+# f.close()
 # CODE EXECUTION GOES HERE!!!
-
-# print('Intervals Passed: ' + str(n))
-sys.stdout = orig_stdout
-f.close()
-
 
 
 collapse_stdout = html.Div([
     html.Br(),
     html.Details([
                 html.Summary('Console output:'),
-                html.Div(id="collapse"+label,                 
+                html.Div(id=label+"collapse",                 
                      children=[
-                         dcc.Interval(id='interval1'+label, interval= params.refresh_interval,
+                         dcc.Interval(id=label+'interval1', interval=10000,
                                       n_intervals=0),
-                         html.Div(id='div-out'+label,children='Console output logged into: '+outfile),
-                         dcc.Textarea(id='console-out'+label,
-                                      style={'width': '100%','height':200},disabled='True'),
-                         html.Div(id='outfile'+label,children=outfile,style={'display':'none'})
+                         html.Div(id=label+'div-out',children=['Log file: ',html.Div(id=label+'outfile',children=outfile,style={"font-family":"Courier New"})]),
+                         dcc.Textarea(id=label+'console-out',
+                                      style={'width': '100%','height':200},disabled='True')                         
                          ])
                 ])
             ])
 
 
-@app.callback(Output('div-out'+label,'children'),
-    [Input('interval1'+label, 'n_intervals'),Input('outfile'+label,'children')])
-def update_interval(n,outfile):    
-    return 'Console output logged into: '+outfile
 
-@app.callback(Output('console-out'+label,'value'),
-    [Input('interval1'+label, 'n_intervals'),Input('outfile'+label,'children')])
+@app.callback(Output(label+'console-out','value'),
+    [Input(label+'interval1', 'n_intervals'),Input(label+'outfile','children')])
 def update_output(n,outfile):
     file = open(outfile, 'r')
     data=''

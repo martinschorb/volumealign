@@ -10,9 +10,9 @@ import time
 #=============================================================
 ## Directory presets
 
-json_template_dir = '/Volumes/emcf/schorb/code/JSON_parameters/templates'
+json_template_dir = '/Users/Schorb/code/volumealign/JSON_parameters/templates'
 
-json_run_dir = '/Volumes/emcf/schorb/code/JSON_parameters/runs'
+json_run_dir = '/Users/Schorb/code/volumealign/JSON_parameters/runs'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
@@ -45,8 +45,7 @@ user = os.getlogin()
 
 timestamp = time.localtime()
 
-run_prefix = user + '_' + timestamp.tm_year + timestamp.tm_mon + timestamp.tm_mday + '-' + timestamp.tm_hour + timestamp.tm_min
-
+run_prefix = user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 
 v_base_url = '/render-ws/'
 render_version = 'v1/'

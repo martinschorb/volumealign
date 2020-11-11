@@ -12,7 +12,7 @@ from dash.dependencies import Input, Output
 
 from app import app
 
-import callbacks
+# import callbacks
 
 #import UI page elements
 import convert
