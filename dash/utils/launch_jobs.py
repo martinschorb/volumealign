@@ -6,10 +6,13 @@ Created on Wed Nov 11 14:24:32 2020
 @author: schorb
 """
 
-def run(target='standalone',pyscript=None,json=None,run_args=None):
+import os
+
+def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='~/render.log'):
     
     if target=='standalone':
-        return 'ada'
+        os.system('echo here I am '+pyscript+'fff'+json+' > '+logfile)
+        
     
         
     

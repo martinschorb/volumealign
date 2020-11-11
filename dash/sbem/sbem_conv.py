@@ -301,7 +301,8 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):
     #launch
     # -----------------------
     
-    launch_jobs.run()
+    launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+                    json=param_file,run_args=None,logfile=log_file)
     
 
 
