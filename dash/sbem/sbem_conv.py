@@ -28,7 +28,6 @@ import params
 
 # element prefix
 label = "sbem_conv_"
-lstore = dcc.Store(id=label+"label")
 
 
 # SELECT input directory
@@ -217,26 +216,58 @@ def new_stack(project_name,dd_options):
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion',id=label+"go",disabled=True),
-                              html.Div(id=label+'buttondiv')])
+                              html.Div(id=label+'buttondiv'),
+                              html.Div(id=label+'directory-popup')])
 
 
-@app.callback(Output(label+'go', 'disabled'),
-              Input(label+'stack_state', 'children'),
-              State(label+'project_dd', 'value'))
-def activate_gobutton(stack_state1,proj_dd_sel1):
-    if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-        return True
+@app.callback([Output(label+'go', 'disabled'),
+               Output(label+'directory-popup','children')],              
+              [Input(label+'stack_state', 'children'),
+               Input(label+'input1','value')],
+              [State(label+'project_dd', 'value')],
+               )
+def activate_gobutton(stack_state1,in_dir,proj_dd_sel1):           
+    out_pop=dcc.ConfirmDialog(        
+        id=label+'danger-novaliddir',displayed=True,
+        message='The selected directory does not exist or is not readable!'
+        )
+    print('----'+str(in_dir)+'....')
+    if any([in_dir=='',in_dir==None]):
+        return True,'No input directory chosen.'    
+    elif os.path.isdir(in_dir):        
+        if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
+            return True,''
+        else:
+            return False,''
+        
     else:
-        return False
+        return True, out_pop
+
+@app.callback(Output(label+'input1','value'),
+              [Input(label+'danger-novaliddir','submit_n_clicks'),
+                Input(label+'danger-novaliddir','cancel_n_clicks')])
+def dir_warning(sub_c,canc_c):
+    return ''
+        
+    
+    
+# =============================================
+   
+#  LAUNCH CALLBACK FUNCTION
+
+# =============================================
+  
     
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'outfile','children'),
                Output(label+'interval1','interval')],
-              Input(label+'go', 'n_clicks')
+              Input(label+'go', 'n_clicks'),
+              [State(label+'input1','value'),               
+               State(label+'project_dd', 'value')]
               )                 
 
-def execute_gobutton(v1):    
+def execute_gobutton(click,sbemdir,proj_dd_sel):    
     # prepare parameters:
     
     importlib.reload(params)
@@ -245,13 +276,21 @@ def execute_gobutton(v1):
     
     run_params = dict()
     run_params['render'] = params.render_json
-    run_params['render']['owner'] = 'SBEM'
+    run_params['render']['owner'] = owner
     run_params['render']['project'] = proj_dd_sel
     
     with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
         run_params.update(json.load(f))
     
-    run_params['image_directory'] = v1
+    run_params['image_directory'] = sbemdir
+
+
+
+
+
+
+
+
 
     return True,'/Users/schorb/export.xml',params.refresh_interval
 
