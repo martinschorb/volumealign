@@ -12,7 +12,7 @@ import subprocess
 
 def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err' ):
     
-    command = 'bash ../'+target
+    command = 'pwd ; bash ../'+target
     command += '/launcher.sh'
 
     

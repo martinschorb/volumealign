@@ -28,6 +28,7 @@ from utils import launch_jobs
 
 # element prefix
 label = "sbem_conv_"
+parent = "convert_"
 
 
 # SELECT input directory
@@ -261,13 +262,13 @@ def dir_warning(sub_c,canc_c):
     
 
 @app.callback([Output(label+'go', 'disabled'),
-               Output(label+'outfile','children'),
+               Output(parent+'outfile','children'),
                Output(label+'interval1','interval')],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
                State(label+'project_dd', 'value'),
                State(label+'stack_state', 'children'),
-               State(label+'outfile','children')]
+               State(parent+'outfile','children')]
               )                 
 
 def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):    
@@ -309,65 +310,7 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):
 
 
 
-# =============================================
-# PROGRESS OUTPUT
-
-
-consolefile = './out.txt'
-    
-# f = open(consolefile, 'w')
-# f.close() 
-    
-
-# code block to insert the python/slurm console output:    
-
-outfile=os.path.abspath(consolefile)
-
-# orig_stdout = sys.stdout
-# f = open(outfile, 'a')
-# sys.stdout = f
-# f.close()
-# CODE EXECUTION GOES HERE!!!
-
-
-collapse_stdout = html.Div([
-    html.Br(),
-    html.Details([
-                html.Summary('Console output:'),
-                html.Div(id=label+"collapse",                 
-                     children=[
-                         dcc.Interval(id=label+'interval1', interval=10000,
-                                      n_intervals=0),
-                         html.Div(id=label+'div-out',children=['Log file: ',html.Div(id=label+'outfile',children=outfile,style={"font-family":"Courier New"})]),
-                         dcc.Textarea(id=label+'console-out',className="console_out",
-                                      style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
-                         ])
-                ])
-            ])
-
-
-
-@app.callback(Output(label+'console-out','value'),
-    [Input(label+'interval1', 'n_intervals'),Input(label+'outfile','children')])
-def update_output(n,outfile):
-    file = open(outfile, 'r')
-    data=''
-    lines = file.readlines()
-    if lines.__len__()<=params.disp_lines:
-        last_lines=lines
-    else:
-        last_lines = lines[-params.disp_lines:]
-    for line in last_lines:
-        data=data+line
-    file.close()    
-    
-        
-    return data
-
-
-
-
 
 # ---- page layout
 
-page = html.Div([directory_sel, project_dd, stack_div, gobutton, collapse_stdout])
+page = html.Div([directory_sel, project_dd, stack_div, gobutton])
