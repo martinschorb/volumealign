@@ -51,8 +51,8 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
 def convert_filebrowse1(click):
     
     hostname = socket.gethostname()
-    
-    if hostname=='login-gui.cluster.embl.de':    
+
+    if hostname=='login-gui01.cluster.embl.de':    
         root = tkinter.Tk()
         root.withdraw()
         conv_inputdir = filedialog.askdirectory()
@@ -340,8 +340,8 @@ collapse_stdout = html.Div([
                          dcc.Interval(id=label+'interval1', interval=10000,
                                       n_intervals=0),
                          html.Div(id=label+'div-out',children=['Log file: ',html.Div(id=label+'outfile',children=outfile,style={"font-family":"Courier New"})]),
-                         dcc.Textarea(id=label+'console-out',
-                                      style={'width': '100%','height':200},disabled='True')                         
+                         dcc.Textarea(id=label+'console-out',className="console_out",
+                                      style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
                          ])
                 ])
             ])

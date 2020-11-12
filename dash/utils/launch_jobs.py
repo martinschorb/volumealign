@@ -7,11 +7,13 @@ Created on Wed Nov 11 14:24:32 2020
 """
 
 import os
+import subprocess
+
 
 def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='~/render.log'):
     
     if target=='standalone':
-        os.system('echo here I am '+pyscript+'fff'+json+' > '+logfile)
+        p=subprocess.run('echo here I am '+'123f'+json+' > '+logfile,shell=True)
         
     
         
