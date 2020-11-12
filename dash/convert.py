@@ -14,7 +14,7 @@ from app import app
 from sbem import sbem_conv
 
 
-base = html.Div([html.H4("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
+main = html.Div([html.H4("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id='conv_dropdown1',persistence=True,
         options=[
             {'label': 'SBEMImage', 'value': 'SBEMImage'}            

@@ -14,7 +14,7 @@ from pydoc import locate
 import importlib
 from app import app
 
-
+import startpage
 
 # Webapp Layout
 STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
@@ -70,7 +70,8 @@ def display_page(pathname):
     s1 = STYLE_active
     styles = [{}]*len(menu_items)    
     
-    outlist=[html.Div([html.H3('You are on another page.')])]
+    outlist=[html.Div([html.H3('Welcome to the Render-based alignment suite.'),
+                       startpage.content])]
            
     for m_ind,m_item in enumerate(menu_items):
         thispage = locate(m_item+".main")
