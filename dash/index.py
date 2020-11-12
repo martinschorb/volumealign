@@ -9,25 +9,41 @@ Created on Tue Nov  3 15:26:45 2020
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+from pydoc import locate
 
+import importlib
 from app import app
 
-# import callbacks
-
-#import UI page elements
-import convert
 
 
 # Webapp Layout
 STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 
 sidebar_back = html.Nav(className='sidebar_back',children='')
+
+
+menu_items=['convert',
+            'mipmaps',
+            'tilepairs']
+
+menu_text=['Convert & upload',
+           'Generate MipMaps',
+           'Find Tile Pairs']
+
+
+#import UI page elements from dynamic menu
+
+for lib in menu_items:
+    globals()[lib] = importlib.import_module(lib)
                    
-sidebar = html.Nav(className='sidebar',children=[dcc.Link(id='menu1',href='/convert',children='Convert & upload'),
-                                                 html.Br(),
-                                                 dcc.Link(id='menu2',href='/mipmaps',children='Generate MipMaps'),
-                                                 html.Br(),
-                                                 dcc.Link(id='menu3',href='/tilepairs',children='Find Tile Pairs')])
+menu=[]
+
+for m_ind,m_item in enumerate(menu_items):
+    menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
+    menu.append(html.Br())
+
+sidebar = html.Nav(className='sidebar',children=menu)
+
 
 mainbody = html.Div(className='main',id='page-content')
 
@@ -44,28 +60,32 @@ app.layout = html.Div(
 
 
 
+menu_cb_out = [Output('page-content', 'children')]
+for m_i in menu_items: menu_cb_out.append(Output('menu_'+m_i,'style'))
 
-@app.callback([Output('page-content', 'children'),Output('menu1','style'),Output('menu2','style'),Output('menu3','style')],
+
+@app.callback(menu_cb_out,
               [Input('url', 'pathname')])
 def display_page(pathname):
     s1 = STYLE_active
+    styles = [{}]*len(menu_items)    
     
-    if pathname=="/convert":
-        return [[convert.base,
-                 html.Div(id='convert-page1')],s1,{},{}]    
-    elif pathname=="/mipmaps":
-        s1=STYLE_active
-        return [html.Div([
-        html.H3('You are on page {}'.format(pathname))
-        ]),{},s1,{}]
-    elif pathname=="/tilepairs":
-        s1=STYLE_active
-        return [html.Div('You are on tilepairs')
-        ,{},{},s1]
-    else:
-        return [html.Div([
-        html.H3('You are on another page.')
-        ]),{},{},{}]
+    outlist=[html.Div([html.H3('You are on another page.')])]
+           
+    for m_ind,m_item in enumerate(menu_items):
+        thispage = locate(m_item+".main")
+        
+        if pathname=="/"+m_item:            
+            styles[m_ind]=s1
+            mod_page = [thispage,html.Div(id=m_item+'-page1')]            
+            outlist=[mod_page]
+        
+            
+            
+    outlist.extend(styles)
+        
+    return outlist
+    
     
     
 
