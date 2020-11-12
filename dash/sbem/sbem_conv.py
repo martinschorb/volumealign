@@ -290,23 +290,22 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):
     with open(param_file,'w') as f:
         json.dump(run_params,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix + '.log'
+    log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
+    err_file = log_file + '.err'
+    log_file += '.log'
     
-    if os.path.isfile(log_file):
-        out=log_file
-    else:
-        out=outfile
+
         
         
     #launch
     # -----------------------
     
     launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-                    json=param_file,run_args=None,logfile=log_file)
+                    json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
 
 
-    return True,out,params.refresh_interval
+    return True,log_file,params.refresh_interval
 
 
 

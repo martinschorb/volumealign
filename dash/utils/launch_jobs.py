@@ -10,10 +10,16 @@ import os
 import subprocess
 
 
-def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='~/render.log'):
+def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err' ):
     
-    if target=='standalone':
-        p=subprocess.run('echo here I am '+'123f'+json+' > '+logfile,shell=True)
+    command = 'bash ../'+target
+    command += '/launcher.sh'
+
+    
+    
+    with open(logfile,"wb") as out, open(errfile,"wb") as err:
+        subprocess.Popen(command, stdout=out,stderr=err, shell=True)
+   
         
     
         

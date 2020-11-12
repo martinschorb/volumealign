@@ -1,2 +1,5 @@
 __pycache__/
 JSON_parameters/runs/
+.DS_Store
+*.DS_Store
+._*
