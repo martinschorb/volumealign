@@ -93,14 +93,7 @@ def update_output(n,outfile):
               [Input(module+'page1', 'children'),
                Input(module+'store', 'data')]
               )
-def on_click(update,data):
-    print(data)
-    
-
-    # Give a default data dict with 0 clicks if there's no data.
-    
-    data['clicks'] = data['clicks'] + 1
-           
+def update_outfile(update,data):           
     return data['log_file']
 
 
