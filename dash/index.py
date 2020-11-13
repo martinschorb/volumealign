@@ -14,6 +14,8 @@ from pydoc import locate
 import importlib
 from app import app
 
+import params
+
 import startpage
 
 # Webapp Layout
@@ -48,6 +50,22 @@ sidebar = html.Nav(className='sidebar',children=menu)
 mainbody = html.Div(className='main',id='page-content')
 
 
+# ==================================================
+
+# STORAGE of important values across sub-modules
+
+
+consolefile = params.render_log_dir+'/out.txt'
+
+storediv=html.Div(dcc.Store(id='convert_store', storage_type='memory',data={'log_file':consolefile,'clicks':13}))
+
+
+
+# ==================================================
+
+# MAIN LAYOUT
+
+
 app.layout = html.Div(
     [
     html.Div(className='header', children=[html.H1(dcc.Link(href='/',children='Volume EM alignment with Render'))]),
@@ -55,10 +73,17 @@ app.layout = html.Div(
         dcc.Location(id='url', refresh=False),
     sidebar_back,
     sidebar,
-    mainbody
+    mainbody,
+    storediv
     ])])
 
 
+
+
+
+# ==================================================
+
+# CALLBACKS
 
 menu_cb_out = [Output('page-content', 'children')]
 for m_i in menu_items: menu_cb_out.append(Output('menu_'+m_i,'style'))

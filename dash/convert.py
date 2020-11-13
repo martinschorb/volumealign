@@ -50,24 +50,6 @@ def convert_output(value):
 # PROGRESS OUTPUT
 
 
-consolefile = params.render_log_dir+'/out.txt'
-    
-# f = open(consolefile, 'w')
-# f.close() 
-    
-
-# code block to insert the python/slurm console output:    
-
-outfile=os.path.abspath(consolefile)
-
-
-# orig_stdout = sys.stdout
-# f = open(outfile, 'a')
-# sys.stdout = f
-# f.close()
-# CODE EXECUTION GOES HERE!!!
-
-
 collapse_stdout = html.Div(children=[
                 html.Br(),
                 html.Div(id=module+'job-status',children=['Status of current processing run: ',html.Div(id=module+'get-status',style={"font-family":"Courier New"},children='not running')]),
@@ -78,7 +60,7 @@ collapse_stdout = html.Div(children=[
                      children=[
                          dcc.Interval(id=module+'interval1', interval=10000,
                                       n_intervals=0),
-                         html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"},children=outfile)]),
+                         html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
                          dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
                          ])
@@ -104,6 +86,22 @@ def update_output(n,outfile):
         file.close()    
         
     return data
+
+
+
+@app.callback(Output(module+'outfile', 'children'),
+              [Input(module+'page1', 'children'),
+               Input(module+'store', 'data')]
+              )
+def on_click(update,data):
+    print(data)
+    
+
+    # Give a default data dict with 0 clicks if there's no data.
+    
+    data['clicks'] = data['clicks'] + 1
+           
+    return data['log_file']
 
 
 

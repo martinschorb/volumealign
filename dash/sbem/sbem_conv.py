@@ -16,6 +16,7 @@ import tkinter
 from tkinter import filedialog
 
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
 import json
 import requests
 import importlib
@@ -267,16 +268,16 @@ def dir_warning(sub_c,canc_c):
     
 
 @app.callback([Output(label+'go', 'disabled'),
-               Output(parent+'outfile','children'),
+               Output(parent+'store','data'),
                Output(parent+'interval1','interval')],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
                State(label+'project_dd', 'value'),
                State(label+'stack_state', 'children'),
-               State(parent+'outfile','children')]
+               State(parent+'store','data')]
               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):    
+def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):    
     # prepare parameters:
     
     importlib.reload(params)
@@ -309,10 +310,10 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):
     sbem_conv_p = launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
+    storage['log_file']=log_file
 
 
-
-    return True,log_file,params.refresh_interval
+    return True,storage,params.refresh_interval
 
 
 
