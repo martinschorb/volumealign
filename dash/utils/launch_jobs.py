@@ -10,19 +10,29 @@ import os
 import subprocess
 
 
-def run(target='standalone',pyscript=None,json=None,run_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err' ):
+def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
+    my_env = os.environ.copy()
+    command = '../'+target
+    command += '/launcher.sh '
+    command += pyscript
+    command += ' '+json
     
-    command = 'pwd ; bash ../'+target
-    command += '/launcher.sh'
+    
+    
+    # DEBUG function.......
+    
+    command = 'hostname '
+    
+    for i in range(10): command+='&& sleep 1 && echo '+str(i)
+    
+
 
     
-    
     with open(logfile,"wb") as out, open(errfile,"wb") as err:
-        subprocess.Popen(command, stdout=out,stderr=err, shell=True)
+        p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
    
         
-    
-        
-    
-    
-    
+    return p
+     
+if __name__ == '__main__':
+    run()    

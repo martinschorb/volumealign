@@ -1,9 +1,9 @@
 #!/bin/bash
 
-source ../dash/utils/setup_py_environment.sh
+source /g/emcf/schorb/code/volumealign/dash/utils/setup_py_environment.sh
 
-cat ../dash/utils/setup_py_environment.sh
+echo "Launching Render standalone processing script on " `hostname`
 
-echo $rendermodules 123
+echo python $rendermodules$1 --input_json $2
 
-#--input_json $1
+python $rendermodules$1 --input_json $2

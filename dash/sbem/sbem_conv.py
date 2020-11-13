@@ -263,7 +263,7 @@ def dir_warning(sub_c,canc_c):
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(parent+'outfile','children'),
-               Output(label+'interval1','interval')],
+               Output(parent+'interval1','interval')],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
                State(label+'project_dd', 'value'),
@@ -301,9 +301,10 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,outfile):
     #launch
     # -----------------------
     
-    launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+    sbem_conv_p = launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
+
 
 
     return True,log_file,params.refresh_interval
