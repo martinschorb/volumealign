@@ -225,30 +225,38 @@ gobutton = html.Div(children=[html.Br(),
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'directory-popup','children'),
-               Output(parent+'get-status','children'),
-               Output(parent+'get-status','style'),],              
+               Output(parent+'store','data')],              
               [Input(label+'stack_state', 'children'),
                Input(label+'input1','value')],
               [State(label+'project_dd', 'value'),
-               State(parent+'get-status','children')],
+               State(parent+'store','data')],
                )
-def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,status):   
-    status_style = {"font-family":"Courier New",'color':'#000'}        
+def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
+           
+    print(storage)
     out_pop=dcc.ConfirmDialog(        
         id=label+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
         )
-
     if any([in_dir=='',in_dir==None]):
-        return True,'No input directory chosen.','not running',status_style    
+        if not (storage['run_state'] == 'running'): 
+                storage['run_state'] = 'wait'
+        return True,'No input directory chosen.',storage
     elif os.path.isdir(in_dir):        
         if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-            return True,'','not running',status_style
+            if not (storage['run_state'] == 'running'): 
+                storage['run_state'] = 'wait'
+            return True,'',storage
         else:
-            return False,'','click will launch new job',status_style
+            if not (storage['run_state'] == 'running'): 
+                storage['run_state'] = 'input'
+            return False,'',storage
         
     else:
-        return True, out_pop,'not running',status_style
+        if not (storage['run_state'] == 'running'): 
+            storage['run_state'] = 'wait'
+        return True, out_pop,storage
+    
     
 
 @app.callback(Output(label+'input1','value'),
@@ -269,7 +277,8 @@ def dir_warning(sub_c,canc_c):
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(parent+'store','data'),
-               Output(parent+'interval1','interval')],
+               Output(parent+'interval1','interval')
+               ],
               Input(label+'go', 'n_clicks'),
               [State(label+'input1','value'),               
                State(label+'project_dd', 'value'),
@@ -310,12 +319,31 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):
     sbem_conv_p = launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
-    storage['log_file']=log_file
-
+    storage['log_file'] = log_file
+    storage['run_state'] = 'running'
+    
 
     return True,storage,params.refresh_interval
 
 
+
+
+
+@app.callback([Output(parent+'get-status','children'),
+              Output(parent+'get-status','style')],
+              Input(parent+'store','data'))
+def get_status(storage):
+    status_style = {"font-family":"Courier New",'color':'#000'} 
+    
+    if storage['run_state'] == 'running':        
+        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])        
+    elif storage['run_state'] == 'input':
+        status='process will start on click.'
+    else:
+        status='not running'
+    
+    return status,status_style
+        
 
 
 # ---- page layout
