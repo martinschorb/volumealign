@@ -70,6 +70,8 @@ outfile=os.path.abspath(consolefile)
 
 collapse_stdout = html.Div(children=[
                 html.Br(),
+                html.Div(id=module+'job-status',children=['Status of current processing run: ',html.Div(id=module+'get-status',style={"font-family":"Courier New"},children='not running')]),
+                html.Br(),
                 html.Details([
                     html.Summary('Console output:'),
                     html.Div(id=module+"collapse",                 

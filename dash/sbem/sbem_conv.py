@@ -223,27 +223,32 @@ gobutton = html.Div(children=[html.Br(),
 
 
 @app.callback([Output(label+'go', 'disabled'),
-               Output(label+'directory-popup','children')],              
+               Output(label+'directory-popup','children'),
+               Output(parent+'get-status','children'),
+               Output(parent+'get-status','style'),],              
               [Input(label+'stack_state', 'children'),
                Input(label+'input1','value')],
-              [State(label+'project_dd', 'value')],
+              [State(label+'project_dd', 'value'),
+               State(parent+'get-status','children')],
                )
-def activate_gobutton(stack_state1,in_dir,proj_dd_sel1):           
+def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,status):   
+    status_style = {"font-family":"Courier New",'color':'#000'}        
     out_pop=dcc.ConfirmDialog(        
         id=label+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
         )
 
     if any([in_dir=='',in_dir==None]):
-        return True,'No input directory chosen.'    
+        return True,'No input directory chosen.','not running',status_style    
     elif os.path.isdir(in_dir):        
         if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-            return True,''
+            return True,'','not running',status_style
         else:
-            return False,''
+            return False,'','click will launch new job',status_style
         
     else:
-        return True, out_pop
+        return True, out_pop,'not running',status_style
+    
 
 @app.callback(Output(label+'input1','value'),
               [Input(label+'danger-novaliddir','submit_n_clicks'),
