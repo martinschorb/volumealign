@@ -233,7 +233,6 @@ gobutton = html.Div(children=[html.Br(),
                )
 def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
            
-    print(storage)
     out_pop=dcc.ConfirmDialog(        
         id=label+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
@@ -316,7 +315,7 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):
     #launch
     # -----------------------
     
-    sbem_conv_p = launch_jobs.run(target='standalone',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+    sbem_conv_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
     storage['log_file'] = log_file

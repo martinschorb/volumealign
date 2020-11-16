@@ -10,7 +10,7 @@ import os
 import subprocess
 
 
-def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
+def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,target_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
     my_env = os.environ.copy()
     command = '../'+target
     command += '/launcher.sh '
@@ -21,18 +21,38 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,lo
     
     # DEBUG function.......
     
-    command = 'hostname '
+    # command = 'hostname '
     
-    for i in range(10): command+='&& sleep 1 && echo '+str(i)
+    # for i in range(10): command+='&& sleep 1 && echo '+str(i)
     
-
-
+    if target=='standalone':
+                
+        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+           
+        return p
     
-    with open(logfile,"wb") as out, open(errfile,"wb") as err:
-        p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-   
+    elif target == 'slurm':
         
-    return p
+        if target_args==None:
+            slurm_args = '-N1 -n 8 --mem 8G -t 30:00'
+        else:
+            slurm_args = target_args
+            
+        
+        slurm_args += '-e '+errfile+' -o '+logfile
+        
+        
+        
+        command = 'srun '+slurm_args+' '+command
+        
+        os.system('echo waiting for cluster job to start > '+logfile)
+        
+        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash')
+           
+        return p
+        
+        
      
 if __name__ == '__main__':
     run()    
