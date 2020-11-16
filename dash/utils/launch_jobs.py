@@ -35,7 +35,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     elif target == 'slurm':
         
         if target_args==None:
-            slurm_args = '-N1 -n 8 --mem 8G -t 00:30:00'
+            slurm_args = '-N1 -n 8 --mem 8G -t 10'
         else:
             slurm_args = target_args
             
