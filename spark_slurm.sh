@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=spark-master      # create a short name for your job
-#SBATCH --time=02:00:00          # total run time limit (HH:MM:SS)
+#SBATCH --time=00:20:00          # total run time limit (HH:MM:SS)
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=schorb@embl.de
 # #  --- Master resources ---
@@ -11,8 +11,8 @@
 # # --- Worker resources ---
 #SBATCH packjob
 #SBATCH --job-name spark-worker
-#SBATCH --nodes=16
-#SBATCH --mem-per-cpu=6G
+#SBATCH --nodes=5
+#SBATCH --mem-per-cpu=8G
 #SBATCH --cpus-per-task=4
 #SBATCH --ntasks-per-node=1
 
@@ -38,14 +38,19 @@ export SPARK_LOCAL_DIRS="$TMPDIR/$JOB"
 
 
 export SPARK_WORKER_CORES=$SLURM_CPUS_PER_TASK_PACK_GROUP_1
-export SPARK_MEM=$(( $SLURM_MEM_PER_CPU_PACK_GROUP_1 * $SLURM_CPUS_PER_TASK_PACK_GROUP_1 ))m
+
+# export SPARK_DRIVER_MEM=$((4 * 1024))
+
+export SPARK_MEM=$(( $SLURM_MEM_PER_CPU_PACK_GROUP_1 * $SLURM_CPUS_PER_TASK_PACK_GROUP_1))m
 export SPARK_DAEMON_MEMORY=$SPARK_MEM
 export SPARK_WORKER_MEMORY=$SPARK_MEM
 
+
+
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
 JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner test --collection test0_mipmap_2D --pairJson /g/emcf/schorb/render-output/tile_pairs_test0_mipmap_z_442_to_450_dist_1.json"
-PARAMS=`cat /g/emcf/schorb/code/JSON_parameters/SBEMImage/SIFTparams_3D`
+RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM --collection platy_test0_mipmap_2D --pairJson /g/emcf/schorb/render-output/tile_pairs_platy_test0_mipmap_z_442_to_450_dist_0.json"
+PARAMS=`cat /g/emcf/schorb/code/JSON_parameters/SBEMImage/SIFTparams_2D`
 
 
 # start MASTER
@@ -62,6 +67,6 @@ srun --pack-group=1 $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.W
 sleep 5s
 
 
-$SPARK_HOME/bin/spark-submit --master $MASTER_URL --driver-memory 6g --conf spark.default.parallelism=$SPARK_WORKER_CORES --conf spark.executor.cores=$SPARK_WORKER_CORES --executor-memory $SPARK_MEM --class $CLASS $JARFILE $RENDERPARAMS $PARAMS
+$SPARK_HOME/bin/spark-submit --master $MASTER_URL --driver-memory 2g --conf spark.default.parallelism=$SPARK_WORKER_CORES --conf spark.executor.cores=$SPARK_WORKER_CORES --executor-memory $SPARK_MEM --class $CLASS $JARFILE $RENDERPARAMS $PARAMS
 
 sleep infinity

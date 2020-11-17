@@ -6,8 +6,8 @@
         "project": "tests",
         "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"
         },
-    "input_stack": "giovanna_1",
-    "output_stack": "giovanna1_mipmap",
+    "input_stack": "giovanna_0",
+    "output_stack": "giovanna0_mipmap",
     "mipmap_prefix": "file:///g/emcf/schorb/render-output/mipmaps/giovanna0/",
     "imgformat": "png",
     "pool_size": 16,
