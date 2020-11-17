@@ -49,7 +49,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         os.system('echo waiting for cluster job to start > '+logfile)
         
 	
-        p = subprocess.Popen(command, stdout=PIPE, shell=True, env=my_env, executable='bash')
+        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash')
            
         return p
        
