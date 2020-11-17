@@ -57,9 +57,15 @@ mainbody = html.Div(className='main',id='page-content')
 
 consolefile = params.render_log_dir+'/out.txt'
 
-storediv=html.Div(dcc.Store(id='convert_store', storage_type='memory',
+storediv=html.Div([dcc.Store(id='convert_store', storage_type='memory',
                             data={'log_file':consolefile,
-                                  'run_state':'wait'}))
+                                  'run_state':'wait'}),
+                   dcc.Store(id='active_project', storage_type='memory',
+                             data={'owner':'SBEM',
+                                   'project':'-',
+                                   'stack':'-'
+                                   })
+                  ])
 
 
 

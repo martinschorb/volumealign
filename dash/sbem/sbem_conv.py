@@ -177,6 +177,19 @@ def proj_stack_activate(project_sel,orig_proj):
 def update_stack_state(stack_dd):        
     return stack_dd
 
+
+@app.callback(Output('active_project','data'),
+    Input(label+'stack_state','children'),
+    [State(label+'project_dd', 'value'),
+     State('active_project','data')]
+    )
+def update_active_project(stack,project,output):
+    output['owner']=owner
+    output['project']=project
+    output['stack']=stack
+    return output
+
+
     
 @app.callback([Output(label+'browse_stack','href'),Output(label+'browse_stack','style')],
     Input(label+'stack_state','children'),
