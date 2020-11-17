@@ -35,7 +35,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     elif target == 'slurm':
         
         if target_args==None:
-            slurm_args = '-N1 -n 8 --mem 8G -t 00:10:00 '
+            slurm_args = '-N1 -n1 -c 8 --mem 8G -t 00:10:00 -W '
         else:
             slurm_args = target_args
             
@@ -48,10 +48,11 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         os.system('echo waiting for cluster job to start > '+logfile)
         
-        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash')
+	
+        p = subprocess.Popen(command, stdout=PIPE, shell=True, env=my_env, executable='bash')
            
         return p
-        
+       
         
      
 if __name__ == '__main__':
