@@ -6,7 +6,7 @@
         "project": "seaurchin_paolo_test",
         "client_scripts": "/g/emcf/software/render/render-ws-java-client/src/main/scripts"},
     "minZ":0,
-    "maxZ":1280,
+    "maxZ":2348,
     "zNeighborDistance":0,
     "stack":"giovanna_test0_mipmaps",
     "xyNeighborFactor": 0.9,

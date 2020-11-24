@@ -1,8 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=spark-master      # create a short name for your job
 #SBATCH --time=00:30:00          # total run time limit (HH:MM:SS)
-#SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --mail-user=schorb@embl.de
 # #  --- Master resources ---
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=1G
@@ -11,10 +9,12 @@
 # # --- Worker resources ---
 #SBATCH hetjob
 #SBATCH --job-name spark-worker
-#SBATCH --nodes=40
+#SBATCH --nodes=30
 #SBATCH --mem-per-cpu=4G
 #SBATCH --cpus-per-task=10
 #SBATCH --ntasks-per-node=1
+#SBATCH --mail-type=FAIL,BEGIN,END
+#SBATCH --mail-user=schorb@embl.de
 
 
 
@@ -51,9 +51,9 @@ export SPARK_WORKER_MEMORY=$SPARK_MEM
 
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
 JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM --collection giovanna_test0_full --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_985_dist_0.json
+RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM_seaurchin --collection giovanna_test0_full --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p000.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p001.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p002.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p003.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p004.json
 "
-PARAMS=`cat /g/emcf/schorb/code/volumealign/JSON_parameters/SBEMImage/SIFTparams_2D`
+PARAMS=`cat /g/emcf/schorb/code/volumealign/JSON_parameters/SBEMImage/SIFTparams_3D`
 
 
 # start MASTER
