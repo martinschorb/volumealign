@@ -49,10 +49,7 @@ export SPARK_WORKER_MEMORY=$SPARK_MEM
 
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
 JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-PARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM_seaurchin --collection giovanna_test0_full --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_0_p000.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_0_p001.json
-"
-PARAMS=$PARAMS`cat /g/emcf/schorb/code/volumealign/JSON_parameters/SBEMImage/SIFTparams_2D`
-
+PARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM"
 
 
 # PARSE COMMAND LINE ARGUMENTS
@@ -63,26 +60,34 @@ while [ "$1" != "" ]; do
     case $PARAM in
         --java_home)
             JAVA_HOME=$VALUE
+            shift
             ;;
         --logdir)
             LOGDIR=$VALUE
+            shift
             ;;
         --class)
             CLASS=$VALUE
+            shift
             ;;
         --jarfile)
             JARFILE=$VALUE
+            shift
+            ;;
+        --spark_home)
+            SPARK_HOME=$VALUE
+            shift
             ;;
         --params)
-            PARAMS=$VALUE
-
+            shift
+            PARAMS=$@
+            break
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage
             exit 1
             ;;
     esac
-    shift
 done
 
 
