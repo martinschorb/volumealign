@@ -178,10 +178,10 @@ def update_stack_state(stack_dd):
     return stack_dd
 
 
-@app.callback(Output('active_project','data'),
+@app.callback(Output(parent+'store','data'),
     Input(label+'stack_state','children'),
     [State(label+'project_dd', 'value'),
-     State('active_project','data')]
+     State(parent+'store','data')]
     )
 def update_active_project(stack,project,output):
     output['owner']=owner

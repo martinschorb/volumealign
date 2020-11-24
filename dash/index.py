@@ -37,12 +37,22 @@ menu_text=['Convert & upload',
 
 for lib in menu_items:
     globals()[lib] = importlib.import_module(lib)
-                   
+ 
+consolefile = params.render_log_dir+'/out.txt'                 
 menu=[]
+store=[]
 
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
     menu.append(html.Br())
+    
+    store.append(dcc.Store(id=m_item+'_store', storage_type='memory',
+                            data={'log_file':consolefile,
+                                  'run_state':'wait',
+                                  'owner':'SBEM',
+                                   'project':'-',
+                                   'stack':'-'}) )
+
 
 sidebar = html.Nav(className='sidebar',children=menu)
 
@@ -55,17 +65,8 @@ mainbody = html.Div(className='main',id='page-content')
 # STORAGE of important values across sub-modules
 
 
-consolefile = params.render_log_dir+'/out.txt'
-
-storediv=html.Div([dcc.Store(id='convert_store', storage_type='memory',
-                            data={'log_file':consolefile,
-                                  'run_state':'wait'}),
-                   dcc.Store(id='active_project', storage_type='memory',
-                             data={'owner':'SBEM',
-                                   'project':'-',
-                                   'stack':'-'
-                                   })
-                  ])
+storediv=html.Div(store)                   
+                  
 
 
 
@@ -108,7 +109,7 @@ def display_page(pathname):
            
     for m_ind,m_item in enumerate(menu_items):
         thispage = locate(m_item+".main")
-        
+        print(thispage)
         if pathname=="/"+m_item:  
             subpage = locate(m_item+".page")
             styles[m_ind]=s1
