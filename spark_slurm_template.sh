@@ -19,7 +19,7 @@
 
 export DISPLAY=""
 export JAVA_HOME=`readlink -m /g/emcf/software/render/deploy/jdk*`
-export LOGDIR=`pwd`
+export LOGDIR="/g/emcf/software/render-logs/"
 
 # CLEAN LOGDIR
 
@@ -30,27 +30,9 @@ JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
 export MASTER_URL="spark://$(hostname):7077"
 export MASTER_WEB="http://$(hostname):8080"
 
-echo $MASTER_WEB > $LOGDIR/$JOB/master
-
-export SPARK_LOG_DIR="$LOGDIR/$JOB/logs"
-export SPARK_WORKER_DIR="$LOGDIR/$JOB/worker"
-export SPARK_LOCAL_DIRS="$TMPDIR/$JOB"
-
-
-export SPARK_WORKER_CORES=$SLURM_CPUS_PER_TASK_HET_GROUP_1
-
-export TOTAL_CORES=$(($SPARK_WORKER_CORES * $SLURM_JOB_NUM_NODES_HET_GROUP_1))
-
-# export SPARK_DRIVER_MEM=$((4 * 1024))
-
-export SPARK_MEM=$(( $SLURM_MEM_PER_CPU_HET_GROUP_1 * $SLURM_CPUS_PER_TASK_HET_GROUP_1))m
-export SPARK_DAEMON_MEMORY=$SPARK_MEM
-export SPARK_WORKER_MEMORY=$SPARK_MEM
-
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
 JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
 PARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM"
-
 
 # PARSE COMMAND LINE ARGUMENTS
 
@@ -82,20 +64,35 @@ while [ "$1" != "" ]; do
             shift
             PARAMS=$@
             break
+            ;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
-            usage
             exit 1
             ;;
     esac
 done
 
+# SET UP ENV for the spark run
+
+echo $MASTER_WEB > $LOGDIR/$JOB/master
+
+export SPARK_LOG_DIR="$LOGDIR/$JOB/logs"
+export SPARK_WORKER_DIR="$LOGDIR/$JOB/worker"
+export SPARK_LOCAL_DIRS="$TMPDIR/$JOB"
 
 
+export SPARK_WORKER_CORES=$SLURM_CPUS_PER_TASK_HET_GROUP_1
 
+export TOTAL_CORES=$(($SPARK_WORKER_CORES * $SLURM_JOB_NUM_NODES_HET_GROUP_1))
 
+# export SPARK_DRIVER_MEM=$((4 * 1024))
 
+export SPARK_MEM=$(( $SLURM_MEM_PER_CPU_HET_GROUP_1 * $SLURM_CPUS_PER_TASK_HET_GROUP_1))m
+export SPARK_DAEMON_MEMORY=$SPARK_MEM
+export SPARK_WORKER_MEMORY=$SPARK_MEM
 
+# MAIN CALLS
+#======================================
 
 
 
