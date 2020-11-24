@@ -42,12 +42,11 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         slurm_args += '-e '+errfile+' -o '+logfile
         
-        
-        
-        command = 'srun '+slurm_args+' '+command
+        command = 'sbatch '+slurm_args+' '+command
         
         os.system('echo waiting for cluster job to start > '+logfile)
-        
+	
+        print(command)
 	
         p = subprocess.Popen(command, shell=True, env=my_env, executable='bash')
            
