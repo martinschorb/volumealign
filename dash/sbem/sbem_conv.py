@@ -301,11 +301,11 @@ def dir_warning(sub_c,canc_c):
               )                 
 
 def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):    
-    # prepare parameters:
+    # prepare parameters:∂
     
     importlib.reload(params)
         
-    param_file = params.json_run_dir + '/' + 'sbem_conv-' + params.run_prefix + '.json' 
+    param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
     
     run_params = params.render_json.copy()
     run_params['render']['owner'] = owner

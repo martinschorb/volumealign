@@ -46,7 +46,7 @@ mipmapdir = 'mipmaps'
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-
+idle_interval = 20000   # ms
 
 
 # -------------  
@@ -72,6 +72,6 @@ render_base_url += v_base_url
 
 
 
-# Choose SBEM-Importer parameters
-with open(os.path.join(json_template_dir,'SBEMImage_importer.json'),'r') as f:
-    sbem_conv_json = json.load(f)
+# # Choose SBEM-Importer parameters
+# with open(os.path.join(json_template_dir,'SBEMImage_importer.json'),'r') as f:
+#     sbem_conv_json = json.load(f)

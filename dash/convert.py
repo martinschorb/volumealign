@@ -62,7 +62,7 @@ collapse_stdout = html.Div(children=[
                     html.Summary('Console output:'),
                     html.Div(id=module+"collapse",                 
                      children=[
-                         dcc.Interval(id=module+'interval1', interval=10000,
+                         dcc.Interval(id=module+'interval1', interval=params.idle_interval,
                                       n_intervals=0),
                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
                          dcc.Textarea(id=module+'console-out',className="console_out",

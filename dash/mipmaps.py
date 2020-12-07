@@ -12,6 +12,7 @@ import params
 import json
 import requests
 import os
+import importlib
 
 from app import app
 
@@ -162,7 +163,7 @@ def stacktodir(stack_sel,thisstore):
 # Start Button
 
 gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start MipMap generation',id=module+"go",disabled=True),
+                              html.Button('Start MipMap generation & apply to current stack',id=module+"go",disabled=True),
                               html.Div(id=module+'buttondiv'),
                               html.Div(id=module+'directory-popup')])
 
@@ -170,11 +171,10 @@ gobutton = html.Div(children=[html.Br(),
 @app.callback([Output(module+'go', 'disabled'),
                Output(module+'directory-popup','children'),
                Output(module+'store','data')],              
-              [Input(module+'input1','value')],
-              [State(module+'project_dd', 'value'),
-               State(module+'store','data')],
+              Input(module+'input1','value'),
+              State(module+'store','data'),
                )
-def activate_gobutton(in_dir,proj_dd_sel1,storage):   
+def activate_gobutton(in_dir,storage):   
            
     out_pop=dcc.ConfirmDialog(        
         id=module+'danger-novaliddir',displayed=True,
@@ -200,6 +200,63 @@ def activate_gobutton(in_dir,proj_dd_sel1,storage):
             storage['run_state'] = 'wait'
         return True, out_pop,storage
     
+
+
+@app.callback([Output(module+'go', 'disabled'),
+               Output(module+'store','data'),
+               Output(module+'interval1','interval')
+               ],
+              Input(module+'go', 'n_clicks'),
+              [State(module+'input1','value'),
+               State(module+'store','data')]
+              )                 
+
+def execute_gobutton(click,mipmapdir,storage):    
+    # prepare parameters:
+    
+    importlib.reload(params)
+        
+    param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '.json' 
+    
+    run_params = params.render_json.copy()
+    run_params['render']['owner'] = storage['owner']
+    run_params['render']['project'] = storage['project']
+   
+    run_params_generate = run_params.copy()
+    
+    
+    #generate mipmaps script call...
+    
+    run_params_generate['input_stack'] = storage['stack']
+    run_params_generate['output_dir'] = mipmapdir
+    
+    with open(os.path.join(params.json_template_dir,'generate_mipmaps.json'),'r') as f:
+        run_params_generate.update(json.load(f))
+    
+    
+    
+    
+    with open(param_file,'w') as f:
+        json.dump(run_params_generate,f,indent=4)
+
+    log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix
+    err_file = log_file + '.err'
+    log_file += '.log'
+    
+
+        
+        
+    #launch
+    # -----------------------
+    
+    mipmap_generate_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
+                    json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+    
+    storage['log_file'] = log_file
+    storage['run_state'] = 'running'
+    
+
+    return True,storage,params.refresh_interval
 
 
 
