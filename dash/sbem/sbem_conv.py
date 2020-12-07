@@ -187,6 +187,8 @@ def update_active_project(stack,project,output):
     output['owner']=owner
     output['project']=project
     output['stack']=stack
+    # print('conv_store:')
+    # print(output)
     return output
 
 

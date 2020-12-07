@@ -109,7 +109,7 @@ def display_page(pathname):
            
     for m_ind,m_item in enumerate(menu_items):
         thispage = locate(m_item+".main")
-        print(thispage)
+
         if pathname=="/"+m_item:  
             subpage = locate(m_item+".page")
             styles[m_ind]=s1
@@ -120,7 +120,8 @@ def display_page(pathname):
             
             
     outlist.extend(styles)
-        
+
+    
     return outlist
     
     
