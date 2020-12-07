@@ -40,7 +40,7 @@ page1 = html.Div(id=module+'page1')
               State(module+'store','data'))
 def convert_output(value,thisstore):
     if value=='SBEMImage':
-        thisstore['datasubdir']='/tiles'        
+        thisstore['owner']='SBEM'
         return sbem_conv.page, thisstore
     
     else:

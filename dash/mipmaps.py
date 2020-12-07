@@ -44,7 +44,7 @@ page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
      
 
 
-page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory'),
+page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
                                              dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
                                              html.Button('Browse',id=module+"browse1"),' graphical browsing works on cluster login node ONLY!'
                                              ])
@@ -74,7 +74,7 @@ def update_stack_state(prevstore,page,thisstore):
     dd_options = list(dict())
     for item in owners: 
         dd_options.append({'label':item, 'value':item})
-    
+        
                  
     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
@@ -133,14 +133,14 @@ def proj_dd_sel(proj_sel,thisstore):
 @app.callback([Output(module+'input1','value'),
                Output(module+'store','data')],
               Input(module+'stack_dd', 'value'),
-              State(module+'store','data'),
-              State('convert_'+'store','data'))
-def stacktodir(stack_sel,thisstore,convertstore):
+              State(module+'store','data')
+              )
+def stacktodir(stack_sel,thisstore):
 
     if stack_sel=='-':
         dir_out=''
     else:
-             
+        
         thisstore['stack'] = stack_sel
         # get list of projects on render server
         url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/zValues'
@@ -151,12 +151,55 @@ def stacktodir(stack_sel,thisstore,convertstore):
         
         tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
         
-        basedirsep = convertstore['datasubdir']        
+        basedirsep = params.datasubdirs[thisstore['owner']]
         dir_out = tilefile0[:tilefile0.find(basedirsep)]
 
     
     return dir_out, thisstore
 
+
+# =============================================
+# Start Button
+
+gobutton = html.Div(children=[html.Br(),
+                              html.Button('Start MipMap generation',id=module+"go",disabled=True),
+                              html.Div(id=module+'buttondiv'),
+                              html.Div(id=module+'directory-popup')])
+
+
+@app.callback([Output(module+'go', 'disabled'),
+               Output(module+'directory-popup','children'),
+               Output(module+'store','data')],              
+              [Input(module+'input1','value')],
+              [State(module+'project_dd', 'value'),
+               State(module+'store','data')],
+               )
+def activate_gobutton(in_dir,proj_dd_sel1,storage):   
+           
+    out_pop=dcc.ConfirmDialog(        
+        id=module+'danger-novaliddir',displayed=True,
+        message='The selected directory does not exist or is not readable!'
+        )
+    if any([in_dir=='',in_dir==None]):
+        if not (storage['run_state'] == 'running'): 
+                storage['run_state'] = 'wait'
+        return True,'No input directory chosen.',storage
+    
+    elif os.path.isdir(in_dir):
+            if os.path.exists(os.path.join(in_dir,params.mipmapdir)):
+                storage['run_state'] = 'wait'
+                out_pop.message = 'Warning: there already exists a MipMap directory. Will overwrite it.'
+                return False,out_pop,storage
+
+            if not (storage['run_state'] == 'running'): 
+                storage['run_state'] = 'input'
+            
+            return False,'',storage       
+    else:
+        if not (storage['run_state'] == 'running'): 
+            storage['run_state'] = 'wait'
+        return True, out_pop,storage
+    
 
 
 
@@ -233,5 +276,5 @@ def get_status(storage):
 
 # Full page layout:
     
-page = [page1, page2]
+page = [page1, page2, gobutton]
 page.append(collapse_stdout)

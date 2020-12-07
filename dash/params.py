@@ -20,6 +20,17 @@ render_log_dir = '/g/emcf/software/render-logs'
 
 
 #==============================================================
+## Data type presets
+
+# directory structure
+
+datasubdirs = {
+    'SBEM':'/tiles'}
+
+mipmapdir = 'mipmaps'
+
+
+#==============================================================
 ## Compute resources presets
 
 
