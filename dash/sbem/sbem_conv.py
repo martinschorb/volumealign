@@ -41,7 +41,7 @@ group = p.communicate()[0].decode(encoding='utf8').strip("\n")
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                                    html.Script(type="text/javascript",children="alert('test')"),                                   
-                          dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True),
+                          dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True,className='dir_textinput'),
                           html.Button('Browse',id=label+"browse1"),' graphical browsing works on cluster login node ONLY!',
                           html.Div(id=label+'warning-popup')])
 

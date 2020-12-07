@@ -20,7 +20,7 @@ from sbem import sbem_conv
 module='convert_'
 
 
-main = html.Div([html.H4("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
+main = html.Div([html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id=module+'dropdown1',persistence=True,
         options=[
             {'label': 'SBEMImage', 'value': 'SBEMImage'}            
@@ -34,13 +34,17 @@ page1 = html.Div(id=module+'page1')
 
 
 
-@app.callback(Output(module+'page1', 'children'),
-    [Input(module+'dropdown1', 'value')])
-def convert_output(value):
+@app.callback([Output(module+'page1', 'children'),
+               Output(module+'store','data')],
+              Input(module+'dropdown1', 'value'),
+              State(module+'store','data'))
+def convert_output(value,thisstore):
     if value=='SBEMImage':
-        return sbem_conv.page
+        thisstore['datasubdir']='/tiles'        
+        return sbem_conv.page, thisstore
+    
     else:
-        return [html.Br(),'No data type selected.']
+        return [html.Br(),'No data type selected.'],thisstore
 
 
 # sbem = sbem_conv.page

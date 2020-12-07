@@ -78,3 +78,7 @@
   display: inline-block;
   vertical-align:"middle";
 }
+
+.dir_textinput{
+  width: 400px;
+}

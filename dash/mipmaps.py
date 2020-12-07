@@ -11,6 +11,7 @@ from dash.dependencies import Input,Output,State
 import params
 import json
 import requests
+import os
 
 from app import app
 
@@ -19,7 +20,7 @@ from app import app
 module='mipmaps_'
 
 
-main=html.Div(id=module+'main',children=html.H4("Generate MipMaps for Render stack"))
+main=html.Div(id=module+'main',children=html.H3("Generate MipMaps for Render stack"))
 
 
 page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
@@ -41,6 +42,14 @@ page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              ],style=dict(display='flex'))
                                              ])
      
+
+
+page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory'),
+                                             dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
+                                             html.Button('Browse',id=module+"browse1"),' graphical browsing works on cluster login node ONLY!'
+                                             ])
+
+
 
 @app.callback([Output(module+'store','data'),
                Output(module+'owner_dd','options'),
@@ -70,6 +79,9 @@ def update_stack_state(prevstore,page,thisstore):
     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
 
+
+###  SELECT STACK TO WORK....
+##============================================================
 #dropdown callback
 @app.callback([Output(module+'browse_proj','href'),
                Output(module+'project_dd','options'),
@@ -114,6 +126,40 @@ def proj_dd_sel(proj_sel,thisstore):
     thisstore['project'] = proj_sel
     
     return href_out, dd_options, thisstore
+
+
+# ===============================================
+
+@app.callback([Output(module+'input1','value'),
+               Output(module+'store','data')],
+              Input(module+'stack_dd', 'value'),
+              State(module+'store','data'),
+              State('convert_'+'store','data'))
+def stacktodir(stack_sel,thisstore,convertstore):
+
+    if stack_sel=='-':
+        dir_out=''
+    else:
+             
+        thisstore['stack'] = stack_sel
+        # get list of projects on render server
+        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/zValues'
+        stackslices = requests.get(url).json()
+        
+        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackslices[0]) +'/render-parameters'
+        tiles0 = requests.get(url).json()
+        
+        tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+        
+        basedirsep = convertstore['datasubdir']        
+        dir_out = tilefile0[:tilefile0.find(basedirsep)]
+
+    
+    return dir_out, thisstore
+
+
+
+
 
 
 # =============================================
@@ -187,6 +233,5 @@ def get_status(storage):
 
 # Full page layout:
     
-page = []
-page.append(page1)
+page = [page1, page2]
 page.append(collapse_stdout)
