@@ -19,21 +19,34 @@ from app import app
 module='mipmaps_'
 
 
-
 main=html.Div(id=module+'main',children=html.H4("Generate MipMaps for Render stack"))
 
 
 page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
-                                             html.Div('Owner:'),
-                                             dcc.Dropdown(id=module+'owner_dd',persistence=True,
-                                    clearable=False,value='123')
+                                             html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
+                                                       dcc.Dropdown(id=module+'owner_dd',className='dropdown_inline',style={'width':'120px'},
+                                                          persistence=True,
+                                                          clearable=False),
+                                                       html.Div('Project',style={'margin-left': '2em'}),
+                                                       html.A('(Browse)',id=module+'browse_proj',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
+                                                       dcc.Dropdown(id=module+'project_dd',className='dropdown_inline',
+                                                          persistence=True,
+                                                          clearable=False),
+                                                       html.Div('Stack',style={'margin-left': '2em'}),
+                                                       html.A('(Browse)',id=module+'browse_stack',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
+                                                       dcc.Dropdown(id=module+'stack_dd',className='dropdown_inline',
+                                                          persistence=True,
+                                                          clearable=False)
                                              
+                                             ],style=dict(display='flex'))
                                              ])
      
 
 @app.callback([Output(module+'store','data'),
                Output(module+'owner_dd','options'),
-               Output(module+'owner_dd','value')],
+               Output(module+'owner_dd','value'),
+               Output(module+'project_dd','value'),
+               Output(module+'stack_dd','value')],
               [Input('convert_'+'store','data'),
                Input(module+'page1','children')],
               State(module+'store','data'))
@@ -54,10 +67,53 @@ def update_stack_state(prevstore,page,thisstore):
         dd_options.append({'label':item, 'value':item})
     
                  
-    return thisstore,dd_options,thisstore['owner']
+    return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
 
+#dropdown callback
+@app.callback([Output(module+'browse_proj','href'),
+               Output(module+'project_dd','options'),
+               Output(module+'store','data')],
+    Input(module+'owner_dd', 'value'),
+    State(module+'store','data'))
+def own_dd_sel(owner_sel,thisstore):         
+    href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
+    
+   # get list of projects on render server
+    url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
+    projects = requests.get(url).json()
+    
+    # assemble dropdown
+    dd_options = list(dict())
+    for item in projects: 
+        dd_options.append({'label':item, 'value':item})
+    
+    thisstore['owner'] = owner_sel
+    
+    return href_out, dd_options, thisstore
 
+
+#dropdown callback
+@app.callback([Output(module+'browse_stack','href'),
+               Output(module+'stack_dd','options'),
+               Output(module+'store','data')],
+              Input(module+'project_dd', 'value'),
+              State(module+'store','data'))
+def proj_dd_sel(proj_sel,thisstore):         
+    href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
+    
+   # get list of projects on render server
+    url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + proj_sel + '/stacks'
+    stacks = requests.get(url).json()
+     
+    # assemble dropdown
+    dd_options = list(dict())
+    for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+
+    
+    thisstore['project'] = proj_sel
+    
+    return href_out, dd_options, thisstore
 
 
 # =============================================
