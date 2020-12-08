@@ -10,6 +10,20 @@ import os
 import subprocess
 
 
+def args2string(args):
+    if args==None:
+        argstring=''
+    elif type(args)==list:
+        argstring=" ".join(map(str,args))
+    elif type(args)==dict:
+        argstring=str()
+        for item in args.items():argstring+=' '+' '.join(map(str,item))
+    elif type(args)==str:
+        argstring=args
+    else:
+        raise TypeError('ERROR! command line arguments need to be passed as string, list or dict.')
+    return argstring
+
 def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,target_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
     my_env = os.environ.copy()
     command = '../'+target
@@ -37,12 +51,12 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         if target_args==None:
             slurm_args = '-N1 -n1 -c 8 --mem 8G -t 00:10:00 -W '
         else:
-            slurm_args = target_args
+            slurm_args = args2string(target_args)
             
         
         slurm_args += '-e '+errfile+' -o '+logfile
         
-        command = 'sbatch '+slurm_args+' '+command
+        command = 'sbatch '+slurm_args+' '+command+' '+args2string(run_args)
         
         os.system('echo waiting for cluster job to start > '+logfile)
 	

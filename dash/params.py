@@ -70,8 +70,3 @@ render_base_url = 'http://' + render_json['render']['host']
 render_base_url += ':' + str(render_json['render']['port'])
 render_base_url += v_base_url
 
-
-
-# # Choose SBEM-Importer parameters
-# with open(os.path.join(json_template_dir,'SBEMImage_importer.json'),'r') as f:
-#     sbem_conv_json = json.load(f)

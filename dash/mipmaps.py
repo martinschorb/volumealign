@@ -15,6 +15,7 @@ import os
 import importlib
 
 from app import app
+from utils import launch_jobs
 
 
 
@@ -58,7 +59,7 @@ page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (s
                Output(module+'project_dd','value'),
                Output(module+'stack_dd','value')],
               [Input('convert_'+'store','data'),
-               Input(module+'page1','children')],
+               Input('url', 'pathname')],
               State(module+'store','data'))
 def update_stack_state(prevstore,page,thisstore):   
 
@@ -71,6 +72,10 @@ def update_stack_state(prevstore,page,thisstore):
     owners = requests.get(url).json()
     # print(owners)    
     
+    url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
+    stacks = requests.get(url).json()
+    thisstore['allstacks'] = stacks
+
     # assemble dropdown
     dd_options = list(dict())
     for item in owners: 
@@ -125,6 +130,7 @@ def proj_dd_sel(proj_sel,thisstore):
 
     
     thisstore['project'] = proj_sel
+    thisstore['allstacks'] = stacks
     
     return href_out, dd_options, thisstore
 
@@ -141,20 +147,23 @@ def stacktodir(stack_sel,thisstore):
     if stack_sel=='-':
         dir_out=''
     else:
+
+        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
+        thisstore['stack'] = stackparams['stackId']['stack']
         
-        thisstore['stack'] = stack_sel
-        # get list of projects on render server
-        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/zValues'
-        stackslices = requests.get(url).json()
+        thisstore['stackparams'] = stackparams
+        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
+        thisstore['numtiles']=stackparams['stats']['tileCount']
         
-        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackslices[0]) +'/render-parameters'
+        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
         tiles0 = requests.get(url).json()
         
         tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
         
         basedirsep = params.datasubdirs[thisstore['owner']]
         dir_out = tilefile0[:tilefile0.find(basedirsep)]
-
+        
+        
     
     return dir_out, thisstore
 
@@ -229,6 +238,7 @@ def execute_gobutton(click,mipmapdir,storage):
     
     run_params_generate['input_stack'] = storage['stack']
     run_params_generate['output_dir'] = mipmapdir
+    run_params_generate['zend'] = storage['zmax']
     
     with open(os.path.join(params.json_template_dir,'generate_mipmaps.json'),'r') as f:
         run_params_generate.update(json.load(f))
