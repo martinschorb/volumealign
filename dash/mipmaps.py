@@ -13,6 +13,7 @@ import json
 import requests
 import os
 import importlib
+import numpy as np
 
 from app import app
 from utils import launch_jobs
@@ -43,12 +44,25 @@ page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              
                                              ],style=dict(display='flex'))
                                              ])
-     
+
+table_cols = ['stack', 'slices','tiles','Gigapixels']
+
+compute_table_cols = ['Num_CPUs','runtime_minutes']
 
 
 page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
                                              dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
-                                             html.Button('Browse',id=module+"browse1"),' graphical browsing works on cluster login node ONLY!'
+                                             html.Button('Browse',id=module+"browse1"),
+                                             'graphical browsing works on cluster login node ONLY!',
+                                             html.Br(),
+                                             html.H3('Compute settings:'),
+                                             html.Table([html.Tr([html.Th(col) for col in table_cols]),
+                                                  html.Tr([html.Td('',id=module+'t_'+col) for col in table_cols])
+                                             ],className='table'),
+                                             html.Br(),
+                                             html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                  html.Tr([html.Td(dcc.Input(id=module+'input_'+col,type='number',min=1)) for col in compute_table_cols])
+                                             ],className='table'),
                                              ])
 
 
@@ -137,8 +151,16 @@ def proj_dd_sel(proj_sel,thisstore):
 
 # ===============================================
 
-@app.callback([Output(module+'input1','value'),
-               Output(module+'store','data')],
+stackoutput = [Output(module+'input1','value'),
+               Output(module+'store','data')]
+
+tablefields = [Output(module+'t_'+col,'children') for col in table_cols]
+compute_tablefields = [Output(module+'input_'+col,'value') for col in compute_table_cols]
+
+stackoutput.extend(tablefields)  
+stackoutput.extend(compute_tablefields)        
+
+@app.callback(stackoutput,
               Input(module+'stack_dd', 'value'),
               State(module+'store','data')
               )
@@ -146,6 +168,9 @@ def stacktodir(stack_sel,thisstore):
 
     if stack_sel=='-':
         dir_out=''
+        
+        t_fields = ['']*len(table_cols)
+        ct_fields = [0]*len(compute_table_cols)
     else:
 
         stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
@@ -163,9 +188,20 @@ def stacktodir(stack_sel,thisstore):
         basedirsep = params.datasubdirs[thisstore['owner']]
         dir_out = tilefile0[:tilefile0.find(basedirsep)]
         
+        thisstore['gigapixels']=thisstore['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
         
-    
-    return dir_out, thisstore
+        t_fields=[thisstore['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %thisstore['gigapixels']]
+        
+        n_cpu = params.n_cpu_script
+        
+        timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer))
+        
+        ct_fields = [n_cpu,timelim]
+        
+    outlist=[dir_out, thisstore]        
+    outlist.extend(t_fields)
+    outlist.extend(ct_fields)
+    return outlist
 
 
 # =============================================

@@ -1,0 +1,8 @@
+{
+    "method": "PIL",
+    "convert_to_8bit": "False",
+    "imgformat": "png",
+    "levels": 6,
+    "force_redo": "True",
+    "zstart": 0
+}

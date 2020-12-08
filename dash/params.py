@@ -17,6 +17,18 @@ json_run_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/runs'
 render_log_dir = '/g/emcf/software/render-logs'
 
 
+#==============================================================
+## Compute resources presets
+
+time_add_buffer = 0.2 # time buffer for job submission (relative)
+
+n_cpu_script = 24 
+
+mipmaps=dict()
+mipmaps['min/Gpix/CPU'] = 6
+
+
+
 
 
 #==============================================================
@@ -28,13 +40,6 @@ datasubdirs = {
     'SBEM':'/tiles'}
 
 mipmapdir = 'mipmaps'
-
-
-#==============================================================
-## Compute resources presets
-
-
-
 
 
 

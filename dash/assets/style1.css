@@ -82,3 +82,17 @@
 .dir_textinput{
   width: 400px;
 }
+
+.table {
+  font-family: sans-serif;
+  text-align: center;
+  border-collapse: collapse;
+  width: 60%;
+}
+
+.table td, .table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table tr:nth-child(even){background-color: #f2f2f2;}
