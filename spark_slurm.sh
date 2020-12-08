@@ -51,9 +51,9 @@ export SPARK_WORKER_MEMORY=$SPARK_MEM
 
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
 JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM_seaurchin --collection giovanna_test0_full --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p000.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p001.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p002.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p003.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p004.json
+RENDERPARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM_seaurchin --collection giovanna_test0_translation --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p000.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p001.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p002.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p003.json --pairJson /g/emcf/schorb/render-output/tile_pairs_giovanna_test0_mipmaps_z_0_to_2348_dist_1_p004.json
 "
-PARAMS=`cat /g/emcf/schorb/code/volumealign/JSON_parameters/SBEMImage/SIFTparams_3D`
+PARAMS=`cat /g/emcf/schorb/code/volumealign/JSON_parameters/SBEMImage/SIFTparams_2D`
 
 
 # start MASTER
