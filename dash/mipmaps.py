@@ -75,12 +75,11 @@ page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (s
               [Input('convert_'+'store','data'),
                Input('url', 'pathname')],
               State(module+'store','data'))
-def update_stack_state(prevstore,page,thisstore):   
-
+def update_stack_state(prevstore,page,thisstore):  
     for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
     # print('mipmaps-store')
     # print(thisstore)
-    
+    # print(thisstore['stack'])
     # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()
@@ -108,9 +107,9 @@ def update_stack_state(prevstore,page,thisstore):
                Output(module+'store','data')],
     Input(module+'owner_dd', 'value'),
     State(module+'store','data'))
-def own_dd_sel(owner_sel,thisstore):         
+def own_dd_sel(owner_sel,thisstore):
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
-    
+
    # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
     projects = requests.get(url).json()
@@ -131,9 +130,9 @@ def own_dd_sel(owner_sel,thisstore):
                Output(module+'store','data')],
               Input(module+'project_dd', 'value'),
               State(module+'store','data'))
-def proj_dd_sel(proj_sel,thisstore):         
+def proj_dd_sel(proj_sel,thisstore): 
+        
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
-    
    # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + proj_sel + '/stacks'
     stacks = requests.get(url).json()
@@ -145,7 +144,7 @@ def proj_dd_sel(proj_sel,thisstore):
     
     thisstore['project'] = proj_sel
     thisstore['allstacks'] = stacks
-    
+
     return href_out, dd_options, thisstore
 
 
@@ -165,17 +164,15 @@ stackoutput.extend(compute_tablefields)
               State(module+'store','data')
               )
 def stacktodir(stack_sel,thisstore):
-
     if stack_sel=='-':
         dir_out=''
         
         t_fields = ['']*len(table_cols)
         ct_fields = [0]*len(compute_table_cols)
     else:
-
+        
         stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
         thisstore['stack'] = stackparams['stackId']['stack']
-        
         thisstore['stackparams'] = stackparams
         thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
         thisstore['numtiles']=stackparams['stats']['tileCount']
@@ -196,12 +193,24 @@ def stacktodir(stack_sel,thisstore):
         
         timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer))
         
-        ct_fields = [n_cpu,timelim]
-        
+        ct_fields = [n_cpu,timelim]    
+   
     outlist=[dir_out, thisstore]        
     outlist.extend(t_fields)
-    outlist.extend(ct_fields)
+    outlist.extend(ct_fields)     
+    
     return outlist
+
+
+@app.callback(Output(module+'store','data'),                            
+              Input(module+'run_state','children'),
+              State(module+'store','data')
+               )
+def store_runstate(runstate,storage):  
+
+    storage['run_state']=runstate
+    
+    return storage
 
 
 # =============================================
@@ -210,40 +219,41 @@ def stacktodir(stack_sel,thisstore):
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start MipMap generation & apply to current stack',id=module+"go",disabled=True),
                               html.Div(id=module+'buttondiv'),
+                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait'),
                               html.Div(id=module+'directory-popup')])
 
 
 @app.callback([Output(module+'go', 'disabled'),
                Output(module+'directory-popup','children'),
-               Output(module+'store','data')],              
+               Output(module+'run_state','children')],              
               Input(module+'input1','value'),
               State(module+'store','data'),
                )
-def activate_gobutton(in_dir,storage):   
-           
+def activate_gobutton(in_dir,storage):      
+              
     out_pop=dcc.ConfirmDialog(        
         id=module+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
         )
     if any([in_dir=='',in_dir==None]):
         if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'wait'
-        return True,'No input directory chosen.',storage
+                rstate = 'wait'
+        return True,'No input directory chosen.',rstate
     
     elif os.path.isdir(in_dir):
             if os.path.exists(os.path.join(in_dir,params.mipmapdir)):
-                storage['run_state'] = 'wait'
+                rstate = 'wait'
                 out_pop.message = 'Warning: there already exists a MipMap directory. Will overwrite it.'
-                return False,out_pop,storage
+                return False,out_pop,rstate
 
             if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'input'
+                rstate = 'input'
             
-            return False,'',storage       
+            return False,'',rstate       
     else:
         if not (storage['run_state'] == 'running'): 
-            storage['run_state'] = 'wait'
-        return True, out_pop,storage
+            rstate = 'wait'
+        return True, out_pop, rstate
     
 
 
@@ -259,6 +269,11 @@ def activate_gobutton(in_dir,storage):
 def execute_gobutton(click,mipmapdir,storage):    
     # prepare parameters:
     
+    # print('output log1!')
+    # print(storage['stack'])
+    # with open('log1.json','w') as f:
+    #     json.dump(storage,f,indent=4)
+
     importlib.reload(params)
         
     param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '.json' 
