@@ -230,7 +230,7 @@ gobutton = html.Div(children=[html.Br(),
               State(module+'store','data'),
                )
 def activate_gobutton(in_dir,storage):      
-              
+    rstate = 'wait'          
     out_pop=dcc.ConfirmDialog(        
         id=module+'danger-novaliddir',displayed=True,
         message='The selected directory does not exist or is not readable!'
