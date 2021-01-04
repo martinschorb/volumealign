@@ -15,6 +15,7 @@ import params
 from app import app
 
 from sbem import sbem_conv
+from utils import launch_jobs
 
 
 module='convert_'
@@ -64,13 +65,14 @@ collapse_stdout = html.Div(children=[
                      children=[
                          dcc.Interval(id=module+'interval1', interval=params.idle_interval,
                                       n_intervals=0),
+                         dcc.Interval(id=module+'interval2', interval=params.idle_interval,
+                                      n_intervals=0),
                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
                          dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
                          ])
                 ])
             ],id=module+'consolebox')
-
 
 
 @app.callback(Output(module+'console-out','value'),
@@ -90,6 +92,47 @@ def update_output(n,outfile):
         file.close()    
         
     return data
+
+
+
+
+@app.callback(Output(module+'store','data'),
+     Input(module+'interval2', 'n_intervals'),
+     State(module+'store','data'))
+     
+def update_status(n,storage):
+    
+    processes = storage['processes']
+    print(processes)
+    
+    if len(processes)>0:
+        status,processes = launch_jobs.status(processes)    
+        storage['run_state'] = status    
+        storage['processes'] = processes    
+    
+    return storage
+
+
+@app.callback([Output(module+'get-status','children'),
+              Output(module+'get-status','style')],
+              Input(module+'store','data'))
+def get_status(storage):
+    status_style = {"font-family":"Courier New",'color':'#000'} 
+    
+    if storage['run_state'] == 'running':        
+        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])        
+    elif storage['run_state'] == 'input':
+        status='process will start on click.'
+    elif storage['run_state'] == 'done':
+        status='DONE'
+    elif storage['run_state'] == 'pending':
+        status = 'Waiting for cluster resources to be allocated.'
+    elif storage['run_state'] == 'pending':
+        status='not running'
+    else:
+        status=storage['run_state']
+    
+    return status,status_style
 
 
 

@@ -53,7 +53,7 @@ mipmapdir = 'mipmaps'
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 20000   # ms
+idle_interval = 10000   # ms
 
 
 # -------------  

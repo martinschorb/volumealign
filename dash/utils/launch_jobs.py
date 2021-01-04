@@ -28,6 +28,35 @@ def args2string(args):
     return argstring
 
 
+def status(processes):
+    res_status,processes = checkstatus(processes) 
+    
+    
+    
+    if res_status=='error':
+        out_stat = 'Error while excecuting '+processes+'.'
+    else:
+        out_stat=res_status
+        
+    if type(res_status) is list:
+        out_stat='wait'
+        # multiple cluster job IDs
+        if 'error' in res_status:
+            out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
+        elif 'running' in res_status:
+            out_stat = 'running'
+        elif 'pending' in res_status:
+            out_stat = 'pending'
+        elif 'canceled' in res_status:
+            out_stat = 'Cluster Job '+processes[res_status.index('canceled')]+' was canceled.'
+        elif all(item=='done' for item in res_status):
+            out_stat = 'done'
+        
+        
+    
+    return out_stat
+
+
 def checkstatus(runvar):    
     if type(runvar) is subprocess.Popen:
         if runvar.poll() is None:
@@ -37,7 +66,7 @@ def checkstatus(runvar):
             return 'done',None
             
         else:
-            return 'error',runvar
+            return 'error',runvar.args
     
     elif type(runvar) is str:
         return cluster_status(runvar),[runvar]
@@ -49,9 +78,9 @@ def checkstatus(runvar):
                 if rv.poll() is None:
                     outvar.append(rv)
                 elif rv.poll() > 0:
-                    return 'error',rv
+                    return 'error',rv.args
             elif type(rv) is str:
-                return cluster_status(rv),outvar 
+                return cluster_status(outvar)[0],outvar 
             
             
         if len(outvar)>1:
@@ -98,6 +127,10 @@ def cluster_status(job_ids):
                 out_stat.append('done')
             elif slurm_stat=='FAILED':
                 out_stat.append('error')
+            elif slurm_stat=='PENDING':
+                out_stat.append('pending')
+            elif 'CANCELLED' in slurm_stat:
+                out_stat.append('canceled')
                 
         
     return out_stat

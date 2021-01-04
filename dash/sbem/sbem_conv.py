@@ -333,30 +333,16 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):
     sbem_conv_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
+    
+    
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
+    storage['processes'] = sbem_conv_p
     
 
     return True,storage,params.refresh_interval
 
 
-
-
-
-@app.callback([Output(parent+'get-status','children'),
-              Output(parent+'get-status','style')],
-              Input(parent+'store','data'))
-def get_status(storage):
-    status_style = {"font-family":"Courier New",'color':'#000'} 
-    
-    if storage['run_state'] == 'running':        
-        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])        
-    elif storage['run_state'] == 'input':
-        status='process will start on click.'
-    else:
-        status='not running'
-    
-    return status,status_style
         
 
 

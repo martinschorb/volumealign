@@ -49,6 +49,7 @@ for m_ind,m_item in enumerate(menu_items):
     store.append(dcc.Store(id=m_item+'_store', storage_type='local',
                             data={'log_file':consolefile,
                                   'run_state':'wait',
+                                  'processes':[],
                                   'owner':'SBEM',
                                    'project':'-',
                                    'stack':'-'}) )
