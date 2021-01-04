@@ -16,6 +16,8 @@ json_run_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/runs'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
+# base directory for launchers etc...
+workdir = '/g/emcf/schorb/code/volumealign/dash'
 
 #==============================================================
 ## Compute resources presets
