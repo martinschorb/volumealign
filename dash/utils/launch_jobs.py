@@ -9,6 +9,7 @@ Created on Wed Nov 11 14:24:32 2020
 import os
 import subprocess
 import params
+import time
 
 workdir = params.workdir
 
@@ -173,13 +174,27 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         command = 'sbatch '+slurm_args+' '+command+' '+args2string(run_args)
         
-        os.system('echo waiting for cluster job to start > '+logfile)
+        
+        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+        
+        
+        with open(logfile,'w+') as f:
+            f.writelines('waiting for cluster job to start')
+            time.sleep(3)
+            jobid = p.stdout.readline().decode()
+            
+            f.write(jobid)
+            
+            jobid='slurm_'+jobid.strip('\n')
+            
+        
+        os.system('echo  > '+logfile)
 	
-        print(command)
+        # print(command)
 	
-        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash')
-           
-        return p
+        
+        
+        return jobid
        
         
      
