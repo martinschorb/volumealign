@@ -8,7 +8,7 @@ Created on Tue Nov  3 13:30:16 2020
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
-import os
+# import os
 import params
 import subprocess
 
@@ -36,11 +36,13 @@ main = html.Div([html.H3("Import volume EM datasets - Choose type:",id='conv_hea
 page1 = html.Div(id=module+'page1')
 
 
+# =============================================
+# Page content
 
 @app.callback([Output(module+'page1', 'children'),
                Output(module+'store','data')],
-              Input(module+'dropdown1', 'value'),
-              State(module+'store','data'))
+               Input(module+'dropdown1', 'value'),
+               State(module+'store','data'))
 def convert_output(value,thisstore):
     if value=='SBEMImage':
         thisstore['owner']='SBEM'
@@ -50,7 +52,78 @@ def convert_output(value,thisstore):
         return [html.Br(),'No data type selected.'],thisstore
 
 
-# sbem = sbem_conv.page
+
+# =============================================
+# Processing status
+
+
+@app.callback(Output(module+'store','data'),
+     Input(module+'interval2', 'n_intervals'),
+     State(module+'store','data'))     
+def convert_update_status(n,storage):     
+    # processes = storage['processes']
+    procs=processes[module.strip('_')]
+    if procs==[]:
+        storage['run_state']='wait'
+    
+    if (type(procs) is subprocess.Popen or len(procs)>0): 
+        status = launch_jobs.status(procs)   
+        storage['run_state'] = status    
+        # storage['processes'] = processes    
+    
+    return storage
+
+cancelbutton = html.Div(html.Button('cancel cluster job(s)',id=module+"cancel"))
+
+
+@app.callback([Output(module+'get-status','children'),
+              Output(module+'get-status','style'),
+              Output(module+'interval1', 'interval')],
+              Input(module+'store','data'))
+def convert_get_status(storage):
+    status_style = {"font-family":"Courier New",'color':'#000'} 
+    log_refresh = params.idle_interval
+    
+    if storage['run_state'] == 'running':        
+        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
+        log_refresh = params.refresh_interval        
+    elif storage['run_state'] == 'input':
+        status='process will start on click.'
+    elif storage['run_state'] == 'done':
+        status='DONE'
+        status_style = {'color':'#0E0'}
+    elif storage['run_state'] == 'pending':
+        status = ['Waiting for cluster resources to be allocated.',cancelbutton]
+    elif storage['run_state'] == 'wait':
+        status='not running'
+    else:
+        status=storage['run_state']
+    
+    
+    return status,status_style,log_refresh
+
+
+
+@app.callback(Output(module+'store','data'),
+              Input(module+'cancel', 'n_clicks'),
+              State(module+'store','data'))
+def convert_cancel_jobs(a,click,storage):
+    print(a)
+    print('this was the mysterious a')
+    print(click)
+    
+    procs = processes[module.strip('_')]
+    
+    p_status = launch_jobs.canceljobs(procs)
+    
+    processes[module.strip('_')] = []    
+    
+    storage['run_state'] = p_status
+    
+    return storage
+    
+    
+
 
 
 # =============================================
@@ -79,7 +152,7 @@ collapse_stdout = html.Div(children=[
 
 @app.callback(Output(module+'console-out','value'),
     [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
-def update_output(n,outfile):    
+def convert_update_output(n,outfile):    
     data=''
     
     if outfile is not None:
@@ -98,52 +171,13 @@ def update_output(n,outfile):
 
 
 
-@app.callback(Output(module+'store','data'),
-     Input(module+'interval2', 'n_intervals'),
-     State(module+'store','data'))     
-def update_status(a,n,storage):     
-    # processes = storage['processes']
-    procs=processes[module.strip('_')]
-    
-    if (type(procs) is subprocess.Popen or len(procs)>0):        
-        status = launch_jobs.status(procs)    
-        storage['run_state'] = status    
-        # storage['processes'] = processes    
-    
-    return storage
-
-
-@app.callback([Output(module+'get-status','children'),
-              Output(module+'get-status','style'),
-              Output(module+'interval1', 'interval')],
-              Input(module+'store','data'))
-def get_status(storage):
-    status_style = {"font-family":"Courier New",'color':'#000'} 
-    log_refresh = params.idle_interval
-    
-    if storage['run_state'] == 'running':        
-        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
-        log_refresh = params.refresh_interval        
-    elif storage['run_state'] == 'input':
-        status='process will start on click.'
-    elif storage['run_state'] == 'done':
-        status='DONE'
-    elif storage['run_state'] == 'pending':
-        status = 'Waiting for cluster resources to be allocated.'
-    elif storage['run_state'] == 'wait':
-        status='not running'
-    else:
-        status=storage['run_state']
-    
-    return status,status_style,log_refresh
-
 
 
 @app.callback(Output(module+'outfile', 'children'),
               [Input(module+'page1', 'children'),
                Input(module+'store', 'data')]
               )
-def update_outfile(update,data):           
+def convert_update_outfile(update,data):           
     return data['log_file']
 
 

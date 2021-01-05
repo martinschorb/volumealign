@@ -32,8 +32,6 @@ def args2string(args):
 def status(processes):
     res_status,processes = checkstatus(processes) 
     
-    
-    
     if res_status=='error':
         out_stat = 'Error while excecuting '+processes+'.'
     else:
@@ -48,8 +46,8 @@ def status(processes):
             out_stat = 'running'
         elif 'pending' in res_status:
             out_stat = 'pending'
-        elif 'canceled' in res_status:
-            out_stat = 'Cluster Job '+processes[res_status.index('canceled')]+' was canceled.'
+        elif 'cancelled' in res_status:
+            out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
         
@@ -81,7 +79,7 @@ def checkstatus(runvar):
                 elif rv.poll() > 0:
                     return 'error',rv.args
             elif type(rv) is str:
-                return cluster_status(outvar)[0],outvar 
+                return cluster_status(runvar),runvar 
             
             
         if len(outvar)>1:
@@ -90,13 +88,12 @@ def checkstatus(runvar):
             return 'running',rv
         else:
             return 'done',outvar        
-               
 
-            
-def cluster_status(job_ids):
-    
-    out_stat=list
-    
+
+
+def cluster_status_init(job_ids):
+    out_ids=list()
+    out_type=list()
     if type(job_ids) is str:
         job_ids=[job_ids]
     
@@ -107,37 +104,82 @@ def cluster_status(job_ids):
         if (type(jobid) is not str or not '__' in jobid): raise TypeError('ERROR! JOB IDs need to be passed as string with cluster type __ ID!')
         
         cl_type = jobid[:jobid.find('__')]
+        out_type.append(cl_type)
         j_id = jobid[jobid.rfind('__')+2:]
+        out_ids.append(j_id)
+                      
+    return out_ids,out_type
+
+
+
+            
+def cluster_status(job_ids):
+    my_env = os.environ.copy()
+    out_stat=list()
+    
+    j_ids,j_types = cluster_status_init(job_ids)
+    
+    for j_idx,j_id in enumerate(j_ids):
+    
+        cl_type = j_types[j_idx]
         
         if cl_type == 'slurm':
             command =  'sacct --jobs='
             command += j_id
-            command += '--format=state'
+            command += '--format=jobid,state --parsable'
             
         # commands for other cluster types go HERE
             
             
-        result = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
         
         if cl_type == 'slurm':
-            slurm_stat = result.splitlines()[-1].decode()
+            slurm_stat0 = result.splitlines().decode()
             
-            if slurm_stat=='RUNNING':
+            while slurm_stat0[slurm_stat0.find(j_id)+len(j_id)]=='.':
+                slurm_stat0=slurm_stat0[slurm_stat0.find(j_id)+len(j_id):]  
+                
+            slurm_stat0=slurm_stat0[slurm_stat0.find(j_id):]
+            slurm_stat = slurm_stat0[slurm_stat0.find('|')+1:slurm_stat0.find('\n')-1]
+            
+            if 'RUNNING' in slurm_stat:
                 out_stat.append('running')
             elif slurm_stat=='COMPLETED':
                 out_stat.append('done')
-            elif slurm_stat=='FAILED':
+            elif 'FAILED' in slurm_stat:
                 out_stat.append('error')
-            elif slurm_stat=='PENDING':
+            elif 'PENDING' in slurm_stat:
                 out_stat.append('pending')
             elif 'CANCELLED' in slurm_stat:
-                out_stat.append('canceled')
+                out_stat.append('cancelled')
                 
-        
+        print(out_stat)
     return out_stat
+
+
+
         
+def canceljobs(job_ids):
+    out_status=list()
+    j_ids,j_types=cluster_status_init(job_ids)
+
+    for j_idx,j_id in enumerate(j_ids):
+    
+        cl_type = j_types[j_idx]
         
+        if cl_type=='slurm':
+            command = 'scancel '+j_id
+            os.system(command)
         
+    
+    out_status = 'cancelled'
+    
+    
+    return out_status
+        
+    
+    
+    
 
 def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,target_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
     my_env = os.environ.copy()
@@ -165,7 +207,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     elif target == 'slurm':
         
         if target_args==None:
-            slurm_args = '-N1 -n1 -c 8 --mem 8G -t 00:10:00 -W '
+            slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
         else:
             slurm_args = args2string(target_args)
             
@@ -179,18 +221,17 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         
         with open(logfile,'w+') as f:
-            f.writelines('waiting for cluster job to start')
+            f.write('waiting for cluster job to start\n\n')
             time.sleep(3)
             jobid = p.stdout.readline().decode()
             
             f.write(jobid)
             
-            jobid='slurm_'+jobid.strip('\n')
+            jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
             
-        
-        os.system('echo  > '+logfile)
-	
-        # print(command)
+            jobid=['slurm__'+jobid]
+            
+    
 	
         
         

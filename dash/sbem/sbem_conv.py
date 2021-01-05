@@ -138,7 +138,7 @@ def new_proj(project_name,dd_options):
 stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
                                                               dcc.Dropdown(id=label+'stack_dd',persistence=True,
                                                                            options=dd_options,clearable=False,style={'display':'none'}),
-                                                              html.Div(id=label+'stack_state',style={'display':'none'},children=''),
+                                                              html.Div(children='',id=label+'stack_state',style={'display':'none'}),
                                                               html.Br(),
                                                               html.Div(id=label+'newstack'),                                                          
                                                               html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
