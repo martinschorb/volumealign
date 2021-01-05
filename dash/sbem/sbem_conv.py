@@ -25,6 +25,7 @@ import importlib
 from app import app
 import params
 from utils import launch_jobs
+from index import processes
 
 
 # element prefix
@@ -255,20 +256,24 @@ def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):
     if any([in_dir=='',in_dir==None]):
         if not (storage['run_state'] == 'running'): 
                 storage['run_state'] = 'wait'
+                processes[parent.strip('_')] = []
         return True,'No input directory chosen.',storage
     elif os.path.isdir(in_dir):        
         if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
             if not (storage['run_state'] == 'running'): 
                 storage['run_state'] = 'wait'
+                processes[parent.strip('_')] = []
             return True,'',storage
         else:
             if not (storage['run_state'] == 'running'): 
                 storage['run_state'] = 'input'
+                processes[parent.strip('_')] = []
             return False,'',storage
         
     else:
         if not (storage['run_state'] == 'running'): 
             storage['run_state'] = 'wait'
+            processes[parent.strip('_')] = []
         return True, out_pop,storage
     
     
@@ -337,7 +342,7 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):
     
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
-    storage['processes'] = sbem_conv_p
+    processes[parent.strip('_')] = sbem_conv_p
     
 
     return True,storage,params.refresh_interval

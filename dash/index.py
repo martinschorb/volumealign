@@ -41,6 +41,7 @@ for lib in menu_items:
 consolefile = params.render_log_dir+'/out.txt'                 
 menu=[]
 store=[]
+processes=dict()
 
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
@@ -49,10 +50,13 @@ for m_ind,m_item in enumerate(menu_items):
     store.append(dcc.Store(id=m_item+'_store', storage_type='local',
                             data={'log_file':consolefile,
                                   'run_state':'wait',
-                                  'processes':[],
+                                  #'processes':[],
                                   'owner':'SBEM',
-                                   'project':'-',
-                                   'stack':'-'}) )
+                                  'project':'-',
+                                  'stack':'-'}) )
+    processes[m_item]=[]
+    
+    
 
 
 sidebar = html.Nav(className='sidebar',children=menu)

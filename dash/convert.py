@@ -10,7 +10,9 @@ import dash_html_components as html
 from dash.dependencies import Input,Output,State
 import os
 import params
+import subprocess
 
+from index import processes
 
 from app import app
 
@@ -77,7 +79,7 @@ collapse_stdout = html.Div(children=[
 
 @app.callback(Output(module+'console-out','value'),
     [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
-def update_output(n,outfile):
+def update_output(n,outfile):    
     data=''
     
     if outfile is not None:
@@ -98,41 +100,42 @@ def update_output(n,outfile):
 
 @app.callback(Output(module+'store','data'),
      Input(module+'interval2', 'n_intervals'),
-     State(module+'store','data'))
-     
-def update_status(n,storage):
+     State(module+'store','data'))     
+def update_status(a,n,storage):     
+    # processes = storage['processes']
+    procs=processes[module.strip('_')]
     
-    processes = storage['processes']
-    print(processes)
-    
-    if len(processes)>0:
-        status,processes = launch_jobs.status(processes)    
+    if (type(procs) is subprocess.Popen or len(procs)>0):        
+        status = launch_jobs.status(procs)    
         storage['run_state'] = status    
-        storage['processes'] = processes    
+        # storage['processes'] = processes    
     
     return storage
 
 
 @app.callback([Output(module+'get-status','children'),
-              Output(module+'get-status','style')],
+              Output(module+'get-status','style'),
+              Output(module+'interval1', 'interval')],
               Input(module+'store','data'))
 def get_status(storage):
     status_style = {"font-family":"Courier New",'color':'#000'} 
+    log_refresh = params.idle_interval
     
     if storage['run_state'] == 'running':        
-        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])        
+        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
+        log_refresh = params.refresh_interval        
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
         status='DONE'
     elif storage['run_state'] == 'pending':
         status = 'Waiting for cluster resources to be allocated.'
-    elif storage['run_state'] == 'pending':
+    elif storage['run_state'] == 'wait':
         status='not running'
     else:
         status=storage['run_state']
     
-    return status,status_style
+    return status,status_style,log_refresh
 
 
 
