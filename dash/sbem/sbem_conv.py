@@ -138,7 +138,7 @@ def new_proj(project_name,dd_options):
 stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
                                                               dcc.Dropdown(id=label+'stack_dd',persistence=True,
                                                                            options=dd_options,clearable=False,style={'display':'none'}),
-                                                              html.Div(children='',id=label+'stack_state',style={'display':'none'}),
+                                                              html.Div(children='-',id=label+'stack_state',style={'display':'none'}),
                                                               html.Br(),
                                                               html.Div(id=label+'newstack'),                                                          
                                                               html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
@@ -180,17 +180,17 @@ def update_stack_state(stack_dd):
 
 
 @app.callback(Output(parent+'store','data'),
-    Input(label+'stack_state','children'),
-    [State(label+'project_dd', 'value'),
-     State(parent+'store','data')]
+    [Input(label+'stack_state','children'),
+    Input(label+'project_dd', 'value')],
+    [State(parent+'store','data')]
     )
-def update_active_project(stack,project,output):
-    output['owner']=owner
-    output['project']=project
-    output['stack']=stack
-    # print('conv_store:')
-    # print(output)
-    return output
+def update_active_project(stack,project,storage):
+    storage['owner']=owner
+    storage['project']=project
+    storage['stack']=stack    
+    # print('sbem -> store')
+    # print(storage)
+    return storage
 
 
     
@@ -223,9 +223,9 @@ def new_stack_input(stack_value):
                Output(label+'stack_dd','style')],
               [Input(label+'stack_input', 'value')],
               State(label+'stack_dd', 'options'))
-def new_stack(project_name,dd_options): 
-    dd_options.append({'label':project_name, 'value':project_name})
-    return dd_options,project_name,{'display':'block'}
+def new_stack(stack_name,dd_options): 
+    dd_options.append({'label':stack_name, 'value':stack_name})
+    return dd_options,stack_name,{'display':'block'}
 
  
 
@@ -239,113 +239,113 @@ gobutton = html.Div(children=[html.Br(),
                               html.Div(id=label+'directory-popup')])
 
 
-@app.callback([Output(label+'go', 'disabled'),
-               Output(label+'directory-popup','children'),
-               Output(parent+'store','data')],              
-              [Input(label+'stack_state', 'children'),
-               Input(label+'input1','value')],
-              [State(label+'project_dd', 'value'),
-               State(parent+'store','data')],
-               )
-def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
-           
-    out_pop=dcc.ConfirmDialog(        
-        id=label+'danger-novaliddir',displayed=True,
-        message='The selected directory does not exist or is not readable!'
-        )
-    if any([in_dir=='',in_dir==None]):
-        if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'wait'
-                processes[parent.strip('_')] = []
-        return True,'No input directory chosen.',storage
-    elif os.path.isdir(in_dir):        
-        if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-            if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'wait'
-                processes[parent.strip('_')] = []
-            return True,'',storage
-        else:
-            if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'input'
-                processes[parent.strip('_')] = []
-            return False,'',storage
+# @app.callback([Output(label+'go', 'disabled'),
+#                Output(label+'directory-popup','children'),
+#                Output(parent+'store','data')],              
+#               [Input(label+'stack_state', 'children'),
+#                Input(label+'input1','value')],
+#               [State(label+'project_dd', 'value'),
+#                State(parent+'store','data')],
+#                )
+# def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
+
+#     out_pop=dcc.ConfirmDialog(        
+#         id=label+'danger-novaliddir',displayed=True,
+#         message='The selected directory does not exist or is not readable!'
+#         )
+#     if any([in_dir=='',in_dir==None]):
+#         if not (storage['run_state'] == 'running'): 
+#                 storage['run_state'] = 'wait'
+#                 processes[parent.strip('_')] = []
+#         return True,'No input directory chosen.',storage
+#     elif os.path.isdir(in_dir):        
+#         if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
+#             if not (storage['run_state'] == 'running'): 
+#                 storage['run_state'] = 'wait'
+#                 processes[parent.strip('_')] = []
+#             return True,'',storage
+#         else:
+#             if not (storage['run_state'] == 'running'): 
+#                 storage['run_state'] = 'input'
+#                 processes[parent.strip('_')] = []
+#             return False,'',storage
         
-    else:
-        if not (storage['run_state'] == 'running'): 
-            storage['run_state'] = 'wait'
-            processes[parent.strip('_')] = []
-        return True, out_pop,storage
+#     else:
+#         if not (storage['run_state'] == 'running'): 
+#             storage['run_state'] = 'wait'
+#             processes[parent.strip('_')] = []
+#         return True, out_pop,storage
     
     
 
-@app.callback(Output(label+'input1','value'),
-              [Input(label+'danger-novaliddir','submit_n_clicks'),
-                Input(label+'danger-novaliddir','cancel_n_clicks')])
-def dir_warning(sub_c,canc_c):
-    return ''
+# @app.callback(Output(label+'input1','value'),
+#               [Input(label+'danger-novaliddir','submit_n_clicks'),
+#                 Input(label+'danger-novaliddir','cancel_n_clicks')])
+# def dir_warning(sub_c,canc_c):
+#     return ''
         
     
     
-# =============================================
+# # =============================================
    
-#  LAUNCH CALLBACK FUNCTION
+# #  LAUNCH CALLBACK FUNCTION
 
-# =============================================
+# # =============================================
   
     
 
-@app.callback([Output(label+'go', 'disabled'),
-               Output(parent+'store','data'),
-               Output(parent+'interval1','interval')
-               ],
-              Input(label+'go', 'n_clicks'),
-              [State(label+'input1','value'),               
-               State(label+'project_dd', 'value'),
-               State(label+'stack_state', 'children'),
-               State(parent+'store','data')]
-              )                 
+# @app.callback([Output(label+'go', 'disabled'),
+#                Output(parent+'store','data'),
+#                Output(parent+'interval1','interval')
+#                ],
+#               Input(label+'go', 'n_clicks'),
+#               [State(label+'input1','value'),               
+#                State(label+'project_dd', 'value'),
+#                State(label+'stack_state', 'children'),
+#                State(parent+'store','data')]
+#               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):    
-    # prepare parameters:∂
+# def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):    
+#     # prepare parameters:∂
     
-    importlib.reload(params)
+#     importlib.reload(params)
         
-    param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+#     param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
     
-    run_params = params.render_json.copy()
-    run_params['render']['owner'] = owner
-    run_params['render']['project'] = proj_dd_sel
+#     run_params = params.render_json.copy()
+#     run_params['render']['owner'] = owner
+#     run_params['render']['project'] = proj_dd_sel
     
-    with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
-        run_params.update(json.load(f))
+#     with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
+#         run_params.update(json.load(f))
     
-    run_params['image_directory'] = sbemdir
-    run_params['stack'] = stack_sel
+#     run_params['image_directory'] = sbemdir
+#     run_params['stack'] = stack_sel
     
-    with open(param_file,'w') as f:
-        json.dump(run_params,f,indent=4)
+#     with open(param_file,'w') as f:
+#         json.dump(run_params,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
-    err_file = log_file + '.err'
-    log_file += '.log'
+#     log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
+#     err_file = log_file + '.err'
+#     log_file += '.log'
     
 
         
         
-    #launch
-    # -----------------------
+#     #launch
+#     # -----------------------
     
-    sbem_conv_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-                    json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+#     sbem_conv_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+#                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
     
     
-    storage['log_file'] = log_file
-    storage['run_state'] = 'running'
-    processes[parent.strip('_')] = sbem_conv_p
+#     storage['log_file'] = log_file
+#     storage['run_state'] = 'running'
+#     processes[parent.strip('_')] = sbem_conv_p
     
 
-    return True,storage,params.refresh_interval
+#     return True,storage,params.refresh_interval
 
 
         

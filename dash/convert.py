@@ -23,26 +23,35 @@ from utils import launch_jobs
 module='convert_'
 
 
-main = html.Div([html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
+main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id=module+'dropdown1',persistence=True,
         options=[
             {'label': 'SBEMImage', 'value': 'SBEMImage'}            
         ],
         value='SBEMImage'
-        )
-    
+        )    
     ])
+
+
+intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Interval(id=module+'interval2', interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Store(id=module+'tmpstore')
+                      ])
+
+junk = html.Div(id=module+'junk')
 
 page1 = html.Div(id=module+'page1')
 
 
 # =============================================
-# Page content
+# # Page content
 
 @app.callback([Output(module+'page1', 'children'),
-               Output(module+'store','data')],
-               Input(module+'dropdown1', 'value'),
-               State(module+'store','data'))
+                Output(module+'store','data')],
+                Input(module+'dropdown1', 'value'),
+                State(module+'store','data'))
 def convert_output(value,thisstore):
     if value=='SBEMImage':
         thisstore['owner']='SBEM'
@@ -57,23 +66,26 @@ def convert_output(value,thisstore):
 # Processing status
 
 
-@app.callback(Output(module+'store','data'),
-     Input(module+'interval2', 'n_intervals'),
-     State(module+'store','data'))     
-def convert_update_status(n,storage):     
-    # processes = storage['processes']
-    procs=processes[module.strip('_')]
-    if procs==[]:
-        storage['run_state']='wait'
-    
-    if (type(procs) is subprocess.Popen or len(procs)>0): 
-        status = launch_jobs.status(procs)   
-        storage['run_state'] = status    
-        # storage['processes'] = processes    
-    
-    return storage
 
-cancelbutton = html.Div(html.Button('cancel cluster job(s)',id=module+"cancel"))
+@app.callback([Output(module+'interval2','interval'),
+               Output(module+'store','data')],
+              Input(module+'interval2','n_intervals'),
+              State(module+'store','data'))
+def convert_update_status(n,storage):  
+    if n>0:        
+        # processes = storage['processes']
+        procs=processes[module.strip('_')]
+        if procs==[]:        
+            storage['run_state']='wait'
+        
+        if (type(procs) is subprocess.Popen or len(procs)>0): 
+            status = launch_jobs.status(procs)   
+            storage['run_state'] = status    
+            # storage['processes'] = processes    
+    return params.idle_interval,storage 
+    
+
+cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
 
 
 @app.callback([Output(module+'get-status','children'),
@@ -104,23 +116,22 @@ def convert_get_status(storage):
 
 
 
-@app.callback(Output(module+'store','data'),
-              Input(module+'cancel', 'n_clicks'),
-              State(module+'store','data'))
-def convert_cancel_jobs(a,click,storage):
-    print(a)
-    print('this was the mysterious a')
-    print(click)
+# @app.callback(Output(module+'store','data'),
+#               Input(module+'cancel', 'n_clicks'),
+#               State(module+'store','data'))
+# def convert_cancel_jobs(click,storage):
+
+#     print(click)
+#     print('this was the mysterious click')
+#     procs = processes[module.strip('_')]
     
-    procs = processes[module.strip('_')]
+#     p_status = launch_jobs.canceljobs(procs)
     
-    p_status = launch_jobs.canceljobs(procs)
+#     processes[module.strip('_')] = []    
     
-    processes[module.strip('_')] = []    
+#     storage['run_state'] = p_status
     
-    storage['run_state'] = p_status
-    
-    return storage
+#     return storage
     
     
 
@@ -137,15 +148,11 @@ collapse_stdout = html.Div(children=[
                 html.Details([
                     html.Summary('Console output:'),
                     html.Div(id=module+"collapse",                 
-                     children=[
-                         dcc.Interval(id=module+'interval1', interval=params.idle_interval,
-                                      n_intervals=0),
-                         dcc.Interval(id=module+'interval2', interval=params.idle_interval,
-                                      n_intervals=0),
-                         html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
-                         dcc.Textarea(id=module+'console-out',className="console_out",
+                      children=[                         
+                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
+                          dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
-                         ])
+                          ])
                 ])
             ],id=module+'consolebox')
 
@@ -172,10 +179,9 @@ def convert_update_output(n,outfile):
 
 
 
-
 @app.callback(Output(module+'outfile', 'children'),
               [Input(module+'page1', 'children'),
-               Input(module+'store', 'data')]
+                Input(module+'store', 'data')]
               )
 def convert_update_outfile(update,data):           
     return data['log_file']
@@ -183,11 +189,29 @@ def convert_update_outfile(update,data):
 
 
 
+# @app.callback(Output('test','children'),
+#               Input(module+'interval2','n_intervals')
+#               )
+# def check_interval1(n):
+#     print('this is interval 1:')
+#     print(n)
+#     return str(n)
+
+
+
+# @app.callback(Output('test2','children'),
+#               Input(module+'interval2','n_intervals')
+#               )
+# def check_interval2(n):
+#     print('this is interval 2 bottom:')
+#     print(n)
+#     return str(n)
 
 
 # Full page layout:
     
 page = []
+page.append(intervals)
 page.append(page1)
 page.append(collapse_stdout)
 
