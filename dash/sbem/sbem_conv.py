@@ -51,7 +51,7 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
 
 @app.callback([Output(label+'input1', 'value'),Output(label+'warning-popup','children')],
     [Input(label+'browse1', 'n_clicks')])
-def convert_filebrowse1(click):
+def sbem_conv_convert_filebrowse1(click):
     
     hostname = socket.gethostname()
 
@@ -109,7 +109,7 @@ project_dd = html.Div([html.H4("Select Render Project:"),
                Output(label+'render_project','children'),
                Output(label+'render_project','style')],
     Input(label+'project_dd', 'value'))
-def proj_dd_sel(project_sel):     
+def sbem_conv_proj_dd_sel(project_sel):     
     if project_sel=='newproj':       
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
         divstyle = {'display':'block'}                       
@@ -127,7 +127,7 @@ def proj_dd_sel(project_sel):
 @app.callback([Output(label+'project_dd', 'options'),Output(label+'project_dd', 'value')],
               [Input(label+'proj_input', 'value')],
               State(label+'project_dd', 'options'))
-def new_proj(project_name,dd_options): 
+def sbem_conv_new_proj(project_name,dd_options): 
     dd_options.append({'label':project_name, 'value':project_name})
     return dd_options,project_name
 
@@ -153,7 +153,7 @@ stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Re
     [Input(label+'project_dd', 'value'),
      Input(label+'orig_proj','children')],
     )
-def proj_stack_activate(project_sel,orig_proj):    
+def sbem_conv_proj_stack_activate(project_sel,orig_proj):    
     
     dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
     
@@ -175,7 +175,7 @@ def proj_stack_activate(project_sel,orig_proj):
             
 @app.callback(Output(label+'stack_state','children'),
     Input(label+'stack_dd','value'))
-def update_stack_state(stack_dd):        
+def sbem_conv_update_stack_state(stack_dd):        
     return stack_dd
 
 
@@ -184,7 +184,7 @@ def update_stack_state(stack_dd):
     Input(label+'project_dd', 'value')],
     [State(parent+'store','data')]
     )
-def update_active_project(stack,project,storage):
+def sbem_conv_update_active_project(stack,project,storage):
     storage['owner']=owner
     storage['project']=project
     storage['stack']=stack    
@@ -197,7 +197,7 @@ def update_active_project(stack,project,storage):
 @app.callback([Output(label+'browse_stack','href'),Output(label+'browse_stack','style')],
     Input(label+'stack_state','children'),
     State(label+'project_dd', 'value'))
-def update_stack_browse(stack_state,project_sel):      
+def sbem_conv_update_stack_browse(stack_state,project_sel):      
     if stack_state == 'newstack':
         return params.render_base_url, {'display':'none'}
     else:
@@ -206,7 +206,7 @@ def update_stack_browse(stack_state,project_sel):
     
 @app.callback(Output(label+'newstack','children'),
     Input(label+'stack_state','children'))
-def new_stack_input(stack_value):
+def sbem_conv_new_stack_input(stack_value):
     if stack_value=='newstack':
         st_div_out = ['Enter new stack name: ',
                    dcc.Input(id=label+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
@@ -223,7 +223,7 @@ def new_stack_input(stack_value):
                Output(label+'stack_dd','style')],
               [Input(label+'stack_input', 'value')],
               State(label+'stack_dd', 'options'))
-def new_stack(stack_name,dd_options): 
+def sbem_conv_new_stack(stack_name,dd_options): 
     dd_options.append({'label':stack_name, 'value':stack_name})
     return dd_options,stack_name,{'display':'block'}
 
@@ -258,7 +258,7 @@ gobutton = html.Div(children=[html.Br(),
               [State(label+'project_dd', 'value'),
                 State(parent+'store','data')],
                 )
-def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
+def sbem_conv_activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
 
     out_pop=dcc.ConfirmDialog(        
         id=label+'danger-novaliddir',displayed=True,
@@ -292,7 +292,7 @@ def activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):
 @app.callback(Output(label+'input1','value'),
               [Input(label+'danger-novaliddir','submit_n_clicks'),
                 Input(label+'danger-novaliddir','cancel_n_clicks')])
-def dir_warning(sub_c,canc_c):
+def sbem_conv_dir_warning(sub_c,canc_c):
     return ''
         
     
@@ -317,7 +317,7 @@ def dir_warning(sub_c,canc_c):
                 State(parent+'store','data')]
               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
+def sbem_conv_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
     # prepare parameters:∂
     
     importlib.reload(params)

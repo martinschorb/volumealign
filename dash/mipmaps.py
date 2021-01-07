@@ -78,7 +78,7 @@ page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (s
               [Input('convert_'+'store','data'),
                Input('url', 'pathname')],
               State(module+'store','data'))
-def update_stack_state(prevstore,page,thisstore):  
+def mipmaps_update_stack_state(prevstore,page,thisstore):  
     for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
     # print('mipmaps-store')
     # print(thisstore)
@@ -110,7 +110,7 @@ def update_stack_state(prevstore,page,thisstore):
                Output(module+'store','data')],
     Input(module+'owner_dd', 'value'),
     State(module+'store','data'))
-def own_dd_sel(owner_sel,thisstore):
+def mipmaps_own_dd_sel(owner_sel,thisstore):
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
 
    # get list of projects on render server
@@ -133,7 +133,7 @@ def own_dd_sel(owner_sel,thisstore):
                Output(module+'store','data')],
               Input(module+'project_dd', 'value'),
               State(module+'store','data'))
-def proj_dd_sel(proj_sel,thisstore): 
+def mipmaps_proj_dd_sel(proj_sel,thisstore): 
         
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
    # get list of projects on render server
@@ -166,7 +166,7 @@ stackoutput.extend(compute_tablefields)
               Input(module+'stack_dd', 'value'),
               State(module+'store','data')
               )
-def stacktodir(stack_sel,thisstore):
+def mipmaps_stacktodir(stack_sel,thisstore):
     if stack_sel=='-':
         dir_out=''
         
@@ -219,7 +219,7 @@ stackstate.append(State(module+'store','data'))
               stackinput,
               stackstate
                )
-def store_compute_settings(*inputs): 
+def mipmaps_store_compute_settings(*inputs): 
     comp_numset=len(compute_table_cols)
     storage=inputs[-1]
     
@@ -247,7 +247,7 @@ def store_compute_settings(*inputs):
               Input(module+'run_state','children'),
               State(module+'store','data')
                 )
-def store_runstate(runstate,storage):  
+def mipmaps_store_runstate(runstate,storage):  
 
     storage['run_state']=runstate
     
@@ -282,7 +282,7 @@ gobutton = html.Div(children=[html.Br(),
               Input(module+'input1','value'),
               State(module+'store','data'),
                )
-def activate_gobutton(in_dir,storage):      
+def mipmaps_activate_gobutton(in_dir,storage):      
     rstate = 'wait'          
     out_pop=dcc.ConfirmDialog(        
         id=module+'danger-novaliddir',displayed=True,
@@ -320,7 +320,7 @@ def activate_gobutton(in_dir,storage):
                State(module+'store','data')]
               )                 
 
-def execute_gobutton(click,mipmapdir,comp_sel,storage):    
+def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):    
     # prepare parameters:
     
     # print('output log1!')
@@ -405,7 +405,7 @@ collapse_stdout = html.Div(children=[
 
 @app.callback(Output(module+'console-out','value'),
     [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
-def update_output(n,outfile):
+def mipmaps_update_output(n,outfile):
     data=''
     
     if outfile is not None:
@@ -427,7 +427,7 @@ def update_output(n,outfile):
               [Input(module+'page1', 'children'),
                Input(module+'store', 'data')]
               )
-def update_outfile(update,data):           
+def mipmaps_update_outfile(update,data):           
     return data['log_file']
 
 
@@ -435,7 +435,7 @@ def update_outfile(update,data):
 @app.callback([Output(module+'get-status','children'),
               Output(module+'get-status','style')],
               Input(module+'store','data'))
-def get_status(storage):
+def mipmaps_get_status(storage):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     
     if storage['run_state'] == 'running':        
