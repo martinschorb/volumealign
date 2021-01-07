@@ -29,7 +29,7 @@ n_cpu_script = 24
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
-
+z_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)
 
 
 

@@ -25,8 +25,8 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
 menu_items=['convert',
-            # 'mipmaps',
-            # 'tilepairs'
+            'mipmaps',
+            'tilepairs'
             ]
 
 menu_text=['Convert & upload',

@@ -310,6 +310,9 @@ def execute_gobutton(click,mipmapdir,storage):
     #launch
     # -----------------------
     
+    
+    
+    
     mipmap_generate_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
