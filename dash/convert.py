@@ -12,8 +12,6 @@ from dash.dependencies import Input,Output,State
 import params
 import subprocess
 
-from index import processes
-
 from app import app
 
 from sbem import sbem_conv
@@ -74,7 +72,7 @@ def convert_output(value,thisstore):
 def convert_update_status(n,storage):  
     if n>0:        
         # processes = storage['processes']
-        procs=processes[module.strip('_')]
+        procs=params.processes[module.strip('_')]
         if procs==[]:        
             storage['run_state']='wait'
         
@@ -123,7 +121,7 @@ def convert_get_status(storage):
 
 #     print(click)
 #     print('this was the mysterious click')
-#     procs = processes[module.strip('_')]
+#     procs = params.processes[module.strip('_')]
     
 #     p_status = launch_jobs.canceljobs(procs)
     

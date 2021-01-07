@@ -15,6 +15,8 @@ import os
 import importlib
 import numpy as np
 
+# from index import processes
+
 from app import app
 from utils import launch_jobs
 
@@ -24,7 +26,7 @@ module='mipmaps_'
 
 table_cols = ['stack', 'slices','tiles','Gigapixels']
 
-compute_table_cols = ['Num_CPUs','runtime_minutes','slices_split']
+compute_table_cols = ['Num_CPUs','runtime_minutes','section_split']
 
 
 
@@ -177,8 +179,10 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
         thisstore['stack'] = stackparams['stackId']['stack']
         thisstore['stackparams'] = stackparams
+        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
         thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
         thisstore['numtiles']=stackparams['stats']['tileCount']
+        thisstore['numsections']=stackparams['stats']['sectionCount']
         
         url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
         tiles0 = requests.get(url).json()
@@ -196,7 +200,7 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         
         timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer))
         
-        ct_fields = [n_cpu,timelim,params.z_split]  
+        ct_fields = [n_cpu,timelim,params.section_split]  
         
         
    
@@ -236,7 +240,6 @@ def mipmaps_store_compute_settings(*inputs):
         # print(in_values[input_idx])
         
         storage['comp_settings'][label] = in_values[input_idx]
-        
     return storage
 
 
@@ -248,7 +251,6 @@ def mipmaps_store_compute_settings(*inputs):
               State(module+'store','data')
                 )
 def mipmaps_store_runstate(runstate,storage):  
-
     storage['run_state']=runstate
     
     return storage['owner'],storage
@@ -295,7 +297,7 @@ def mipmaps_activate_gobutton(in_dir,storage):
     
     elif os.path.isdir(in_dir):
             if os.path.exists(os.path.join(in_dir,params.mipmapdir)):
-                rstate = 'wait'
+                rstate = 'input'
                 out_pop.message = 'Warning: there already exists a MipMap directory. Will overwrite it.'
                 return False,out_pop,rstate
 
@@ -330,7 +332,6 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
 
     importlib.reload(params)
         
-    param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '.json' 
     
     run_params = params.render_json.copy()
     run_params['render']['owner'] = storage['owner']
@@ -343,37 +344,53 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     
     run_params_generate['input_stack'] = storage['stack']
     run_params_generate['output_dir'] = mipmapdir
-    run_params_generate['zend'] = storage['zmax']
     
     with open(os.path.join(params.json_template_dir,'generate_mipmaps.json'),'r') as f:
-        run_params_generate.update(json.load(f))
+            run_params_generate.update(json.load(f))
+        
+    sec_start = 0
+    sliceblock_idx = 0
+    sec_end = sec_start
     
+    while sec_end <= storage['numsections']:
+        sec_end = int(np.min([sec_start+params.section_split,storage['numsections']]))
+        run_params_generate['zstart'] = sec_start
+        run_params_generate['zend'] = sec_end
+        
+         
+        param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_sb' + str(sliceblock_idx)+'.json' 
     
+               
+        with open(param_file,'w') as f:
+            json.dump(run_params_generate,f,indent=4)
     
-    
-    with open(param_file,'w') as f:
-        json.dump(run_params_generate,f,indent=4)
-
-    log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix
-    err_file = log_file + '.err'
-    log_file += '.log'
-    
-
+        log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix+ '_sb' + str(sliceblock_idx)
+        err_file = log_file + '.err'
+        log_file += '.log'
         
         
-    #launch
-    # -----------------------
+        sec_start = sec_end + 1
+        sec_end = sec_start
+        sliceblock_idx += 1
     
-    
-    
-    
-    mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
-                    json=param_file,run_args=None,logfile=log_file,errfile=err_file)
-    
+            
+            
+        #launch
+        # -----------------------
+        
+        
+        
+        
+        mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
+                        json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+        
+        params.processes[module.strip('_')].append(mipmap_generate_p)
+        print(params.processes)
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
+        
+        
     
-
     return True,storage,params.refresh_interval
 
 

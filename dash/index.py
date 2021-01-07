@@ -43,7 +43,7 @@ for lib in menu_items:
 consolefile = params.render_log_dir+'/out.txt'                 
 menu=list()
 store=list()
-processes=dict()
+params.processes=dict()
 
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
@@ -56,7 +56,7 @@ for m_ind,m_item in enumerate(menu_items):
                                   'project':'-',
                                   'stack':'-'}) )
     
-    processes[m_item]=[]
+    params.processes[m_item]=[]
     
     
 
