@@ -73,8 +73,9 @@ def convert_update_status(n,storage):
     if n>0:        
         # processes = storage['processes']
         procs=params.processes[module.strip('_')]
-        if procs==[]:        
-            storage['run_state']='wait'
+        if procs==[]:
+            if storage['run_state'] not in ['input','wait']:
+                storage['run_state'] = 'wait'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
             status = launch_jobs.status(procs)   
@@ -93,10 +94,18 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
 def convert_get_status(storage):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
-    
+    procs=params.processes[module.strip('_')]    
     if storage['run_state'] == 'running':        
-        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
-        log_refresh = params.refresh_interval        
+        if procs == []:
+            status = 'not running'
+        else:
+            status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
+            log_refresh = params.refresh_interval
+            if not type(procs) is subprocess.Popen:
+               if  type(procs) is str:
+                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
+               elif not type(procs[0]) is subprocess.Popen:
+                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
@@ -114,22 +123,21 @@ def convert_get_status(storage):
 
 
 
-# @app.callback(Output(module+'store','data'),
-#               Input(module+'cancel', 'n_clicks'),
-#               State(module+'store','data'))
-# def convert_cancel_jobs(click,storage):
+@app.callback([Output(module+'get-status','children'),
+               Output(module+'store','data')],
+              Input(module+'cancel', 'n_clicks'),
+              State(module+'store','data'))
+def convert_cancel_jobs(click,storage):
 
-#     print(click)
-#     print('this was the mysterious click')
-#     procs = params.processes[module.strip('_')]
+    procs = params.processes[module.strip('_')]
     
-#     p_status = launch_jobs.canceljobs(procs)
+    p_status = launch_jobs.canceljobs(procs)
     
-#     processes[module.strip('_')] = []    
+    params.processes[module.strip('_')] = []    
     
-#     storage['run_state'] = p_status
+    storage['run_state'] = p_status
     
-#     return storage
+    return p_status,storage
     
     
 

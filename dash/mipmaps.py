@@ -15,7 +15,7 @@ import os
 import importlib
 import numpy as np
 
-# from index import processes
+import subprocess
 
 from app import app
 from utils import launch_jobs
@@ -384,18 +384,98 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
                         json=param_file,run_args=None,logfile=log_file,errfile=err_file)
         
-        params.processes[module.strip('_')].append(mipmap_generate_p)
-        print(params.processes)
+        params.processes[module.strip('_')].extend(mipmap_generate_p)
+        
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
-        
-        
     
     return True,storage,params.refresh_interval
 
 
 
+# =============================================
+# Processing status
 
+
+
+@app.callback([Output(module+'interval2','interval'),
+               Output(module+'store','data')],
+              Input(module+'interval2','n_intervals'),
+              State(module+'store','data'))
+def mipmaps_update_status(n,storage): 
+    if n>0:        
+        # processes = storage['processes']
+        procs=params.processes[module.strip('_')]
+        if procs==[]:
+            if storage['run_state'] not in ['input','wait']:
+                storage['run_state'] = 'wait'               
+        
+        if (type(procs) is subprocess.Popen or len(procs)>0): 
+            status = launch_jobs.status(procs)   
+            storage['run_state'] = status    
+            # storage['processes'] = processes    
+    return params.idle_interval,storage
+    
+
+cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
+
+
+@app.callback([Output(module+'get-status','children'),
+              Output(module+'get-status','style'),
+              Output(module+'interval1', 'interval')],
+              Input(module+'store','data'))
+def mipmaps_get_status(storage):
+    status_style = {"font-family":"Courier New",'color':'#000'} 
+    log_refresh = params.idle_interval
+    procs=params.processes[module.strip('_')]
+         
+    if storage['run_state'] == 'running':
+        if procs == []:
+            status = 'not running'
+        else:
+            status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
+            log_refresh = params.refresh_interval
+            if not type(procs) is subprocess.Popen:
+               if  type(procs) is str:
+                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
+               elif not type(procs[0]) is subprocess.Popen:
+                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])        
+    elif storage['run_state'] == 'input':
+        status='process will start on click.'
+    elif storage['run_state'] == 'done':
+        status='DONE'
+        status_style = {'color':'#0E0'}
+    elif storage['run_state'] == 'pending':
+        status = ['Waiting for cluster resources to be allocated.',cancelbutton]
+    elif storage['run_state'] == 'wait':
+        status='not running'
+    else:
+        status=storage['run_state']
+    
+    
+    return status,status_style,log_refresh
+
+
+
+
+@app.callback([Output(module+'get-status','children'),
+               Output(module+'store','data')],
+              Input(module+'cancel', 'n_clicks'),
+              State(module+'store','data'))
+def convert_cancel_jobs(click,storage):
+
+    procs = params.processes[module.strip('_')]
+    
+    print(procs)
+    
+    p_status = launch_jobs.canceljobs(procs)
+    
+    params.processes[module.strip('_')] = []    
+    
+    storage['run_state'] = p_status
+    
+    return p_status,storage
+    
 
 # =============================================
 # PROGRESS OUTPUT
@@ -446,23 +526,6 @@ def mipmaps_update_output(n,outfile):
               )
 def mipmaps_update_outfile(update,data):           
     return data['log_file']
-
-
-
-@app.callback([Output(module+'get-status','children'),
-              Output(module+'get-status','style')],
-              Input(module+'store','data'))
-def mipmaps_get_status(storage):
-    status_style = {"font-family":"Courier New",'color':'#000'} 
-    
-    if storage['run_state'] == 'running':        
-        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])        
-    elif storage['run_state'] == 'input':
-        status='process will start on click.'
-    else:
-        status='not running'
-    
-    return status,status_style
 
 
 

@@ -148,12 +148,13 @@ def cluster_status(job_ids):
                 out_stat.append('done')
             elif 'FAILED' in slurm_stat:
                 out_stat.append('error')
+            elif 'TIMEOUT' in slurm_stat:
+                out_stat.append('error')    
             elif 'PENDING' in slurm_stat:
                 out_stat.append('pending')
             elif 'CANCELLED' in slurm_stat:
                 out_stat.append('cancelled')
-                
-        print(out_stat)
+
     return out_stat
 
 
@@ -202,7 +203,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
            
-        return p
+        return [p]
     
     elif target == 'slurm':
         
