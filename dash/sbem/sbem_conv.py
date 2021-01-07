@@ -235,8 +235,19 @@ def new_stack(stack_name,dd_options):
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion',id=label+"go",disabled=True),
-                              html.Div(id=label+'buttondiv'),
-                              html.Div(id=label+'directory-popup')])
+                              html.Details([html.Summary('Compute location:'),
+                                            dcc.RadioItems(
+                                                options=[
+                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
+                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
+                                                ],
+                                                value='slurm',
+                                                labelStyle={'display': 'inline-block'},
+                                                id=label+'compute_sel'
+                                                )],
+                                  id=label+'compute'),
+                              html.Div(id=label+'directory-popup')]
+                    ,style={'display': 'inline-block'})
 
 
 @app.callback([Output(label+'go', 'disabled'),
@@ -302,10 +313,11 @@ def dir_warning(sub_c,canc_c):
               [State(label+'input1','value'),               
                 State(label+'project_dd', 'value'),
                 State(label+'stack_state', 'children'),
+                State(label+'compute_sel','value'),
                 State(parent+'store','data')]
               )                 
 
-def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):    
+def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
     # prepare parameters:∂
     
     importlib.reload(params)
@@ -331,11 +343,10 @@ def execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,storage):
     
 
         
-        
     #launch
     # -----------------------
     
-    sbem_conv_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+    sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
     
