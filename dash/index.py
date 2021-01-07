@@ -49,7 +49,7 @@ for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
     menu.append(html.Br())
     
-    store.append(dcc.Store(id=m_item+'_store', #storage_type='session',
+    store.append(dcc.Store(id=m_item+'_store', storage_type='session',
                             data={'log_file':consolefile,
                                   'run_state':'wait',
                                   'owner':'SBEM',

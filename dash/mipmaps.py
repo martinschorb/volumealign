@@ -22,6 +22,13 @@ from utils import launch_jobs
 
 module='mipmaps_'
 
+table_cols = ['stack', 'slices','tiles','Gigapixels']
+
+compute_table_cols = ['Num_CPUs','runtime_minutes','slices_split']
+
+
+
+# =========================================
 
 main=html.Div(id=module+'main',children=html.H3("Generate MipMaps for Render stack"))
 
@@ -44,10 +51,6 @@ page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              
                                              ],style=dict(display='flex'))
                                              ])
-
-table_cols = ['stack', 'slices','tiles','Gigapixels']
-
-compute_table_cols = ['Num_CPUs','runtime_minutes']
 
 
 page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
@@ -168,7 +171,7 @@ def stacktodir(stack_sel,thisstore):
         dir_out=''
         
         t_fields = ['']*len(table_cols)
-        ct_fields = [0]*len(compute_table_cols)
+        ct_fields = [1]*len(compute_table_cols)
     else:
         
         stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
@@ -193,7 +196,9 @@ def stacktodir(stack_sel,thisstore):
         
         timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer))
         
-        ct_fields = [n_cpu,timelim]    
+        ct_fields = [n_cpu,timelim,params.z_split]  
+        
+        
    
     outlist=[dir_out, thisstore]        
     outlist.extend(t_fields)
@@ -202,15 +207,51 @@ def stacktodir(stack_sel,thisstore):
     return outlist
 
 
+
+comp_values = [Input(module+'input_'+col,'value') for col in compute_table_cols]
+comp_labels = [State(module+'input_'+col,'id') for col in compute_table_cols]
+
+stackinput = comp_values
+stackstate = comp_labels
+stackstate.append(State(module+'store','data'))
+
 @app.callback(Output(module+'store','data'),                            
+              stackinput,
+              stackstate
+               )
+def store_compute_settings(*inputs): 
+    comp_numset=len(compute_table_cols)
+    storage=inputs[-1]
+    
+    storage['comp_settings']=dict()
+    
+    in_values = np.array(inputs)[range(comp_numset)]
+    in_labels = np.array(inputs)[np.array(range(comp_numset))+ comp_numset]
+    
+    for input_idx,label in enumerate(in_labels):
+        
+        # print('label:')
+        # print(label)    
+        # print('value:')
+        # print(in_values[input_idx])
+        
+        storage['comp_settings'][label] = in_values[input_idx]
+        
+    return storage
+
+
+
+
+@app.callback([Output(module+'owner_dd', 'value'),
+               Output(module+'store','data')],                            
               Input(module+'run_state','children'),
               State(module+'store','data')
-               )
+                )
 def store_runstate(runstate,storage):  
 
     storage['run_state']=runstate
     
-    return storage
+    return storage['owner'],storage
 
 
 # =============================================
@@ -219,8 +260,20 @@ def store_runstate(runstate,storage):
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start MipMap generation & apply to current stack',id=module+"go",disabled=True),
                               html.Div(id=module+'buttondiv'),
-                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait'),
-                              html.Div(id=module+'directory-popup')])
+                              html.Div(id=module+'directory-popup'),
+                              html.Br(),
+                              html.Details([html.Summary('Compute location:'),
+                                            dcc.RadioItems(
+                                                options=[
+                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
+                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
+                                                ],
+                                                value='slurm',
+                                                labelStyle={'display': 'inline-block'},
+                                                id=module+'compute_sel'
+                                                )],
+                                  id=module+'compute'),
+                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
 
 
 @app.callback([Output(module+'go', 'disabled'),
@@ -233,7 +286,7 @@ def activate_gobutton(in_dir,storage):
     rstate = 'wait'          
     out_pop=dcc.ConfirmDialog(        
         id=module+'danger-novaliddir',displayed=True,
-        message='The selected directory does not exist or is not readable!'
+        message='The selected directory does not exist or is not writable!'
         )
     if any([in_dir=='',in_dir==None]):
         if not (storage['run_state'] == 'running'): 
@@ -253,7 +306,7 @@ def activate_gobutton(in_dir,storage):
     else:
         if not (storage['run_state'] == 'running'): 
             rstate = 'wait'
-        return True, out_pop, rstate
+        return True, [out_pop, 'The selected directory does not exist or is not writable!'], rstate
     
 
 
@@ -263,10 +316,11 @@ def activate_gobutton(in_dir,storage):
                ],
               Input(module+'go', 'n_clicks'),
               [State(module+'input1','value'),
+               State(module+'compute_sel','value'),
                State(module+'store','data')]
               )                 
 
-def execute_gobutton(click,mipmapdir,storage):    
+def execute_gobutton(click,mipmapdir,comp_sel,storage):    
     # prepare parameters:
     
     # print('output log1!')
@@ -313,7 +367,7 @@ def execute_gobutton(click,mipmapdir,storage):
     
     
     
-    mipmap_generate_p = launch_jobs.run(target='slurm',pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
+    mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
     storage['log_file'] = log_file
