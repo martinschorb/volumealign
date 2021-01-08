@@ -364,7 +364,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         run_params_generate['zstart'] = sec_start
         run_params_generate['zend'] = sec_end
         
-         
+        print(sec_start)
         param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
     
                
@@ -391,6 +391,8 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         
         if comp_sel == 'slurm':
             cset = storage['comp_settings']
+            
+            print(cset)
             
             slurm_args=['-N1']
             slurm_args.append('-n1')
