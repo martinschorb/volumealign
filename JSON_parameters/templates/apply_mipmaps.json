@@ -3,5 +3,5 @@
     "pool_size": 24,
     "close_stack": "True",
     "levels": 6,
-    "zstart": 0,
+    "zstart": 0
 }
