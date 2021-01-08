@@ -26,6 +26,9 @@ def args2string(args):
         argstring=args
     else:
         raise TypeError('ERROR! command line arguments need to be passed as string, list or dict.')
+    
+    argstring+=' '
+    
     return argstring
 
 
