@@ -71,16 +71,20 @@ def convert_output(value,thisstore):
               State(module+'store','data'))
 def convert_update_status(n,storage):  
     if n>0:        
-        # processes = storage['processes']
+        status = storage['run_state']
         procs=params.processes[module.strip('_')]
         if procs==[]:
             if storage['run_state'] not in ['input','wait']:
-                storage['run_state'] = 'wait'               
+                storage['run_state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
             status = launch_jobs.status(procs)   
             storage['run_state'] = status    
-            # storage['processes'] = processes    
+
+        if 'Error' in status:
+            if storage['log_file'].endswith('.log'):
+                storage['log_file'] = storage['log_file'][:storage['log_file'].rfind('.log')]+'.err'
+            
     return params.idle_interval,storage 
     
 

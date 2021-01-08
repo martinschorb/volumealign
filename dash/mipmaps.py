@@ -34,6 +34,13 @@ compute_table_cols = ['Num_CPUs','runtime_minutes','section_split']
 
 main=html.Div(id=module+'main',children=html.H3("Generate MipMaps for Render stack"))
 
+intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Interval(id=module+'interval2', interval=params.idle_interval,
+                                       n_intervals=0),
+                      html.Div(id='dummy',style={'display':'none'}),
+                      dcc.Store(id=module+'tmpstore')
+                      ])
 
 page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
@@ -358,13 +365,13 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         run_params_generate['zend'] = sec_end
         
          
-        param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_sb' + str(sliceblock_idx)+'.json' 
+        param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
     
                
         with open(param_file,'w') as f:
             json.dump(run_params_generate,f,indent=4)
     
-        log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix+ '_sb' + str(sliceblock_idx)
+        log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix+ '_' + str(sliceblock_idx)
         err_file = log_file + '.err'
         log_file += '.log'
         
@@ -398,23 +405,33 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
 
 
 
+
 @app.callback([Output(module+'interval2','interval'),
                Output(module+'store','data')],
               Input(module+'interval2','n_intervals'),
               State(module+'store','data'))
-def mipmaps_update_status(n,storage): 
+def convert_update_status(n,storage):  
     if n>0:        
-        # processes = storage['processes']
-        procs=params.processes[module.strip('_')]
-        if procs==[]:
-            if storage['run_state'] not in ['input','wait']:
-                storage['run_state'] = 'wait'               
         
-        if (type(procs) is subprocess.Popen or len(procs)>0): 
-            status = launch_jobs.status(procs)   
-            storage['run_state'] = status    
-            # storage['processes'] = processes    
-    return params.idle_interval,storage
+        status = storage['run_state']
+        procs=params.processes[module.strip('_')]
+        if not 'Error' in status:
+            if procs==[]:
+                if storage['run_state'] not in ['input','wait']:
+                    storage['run_state'] = 'input'               
+            
+            if (type(procs) is subprocess.Popen or len(procs)>0): 
+                status = launch_jobs.status(procs)   
+                storage['run_state'] = status    
+        
+        print(status[:5])
+        print(procs)
+        
+        if 'Error' in status: 
+            if storage['log_file'].endswith('.log'):
+                storage['log_file'] = storage['log_file'][:storage['log_file'].rfind('.log')]+'.err'
+            
+    return params.idle_interval,storage 
     
 
 cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
@@ -466,8 +483,6 @@ def convert_cancel_jobs(click,storage):
 
     procs = params.processes[module.strip('_')]
     
-    print(procs)
-    
     p_status = launch_jobs.canceljobs(procs)
     
     params.processes[module.strip('_')] = []    
@@ -489,8 +504,6 @@ collapse_stdout = html.Div(children=[
                     html.Summary('Console output:'),
                     html.Div(id=module+"collapse",                 
                      children=[
-                         dcc.Interval(id=module+'interval1', interval=10000,
-                                      n_intervals=0),
                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
                          dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
@@ -531,5 +544,5 @@ def mipmaps_update_outfile(update,data):
 
 # Full page layout:
     
-page = [page1, page2, gobutton]
+page = [intervals,page1, page2, gobutton]
 page.append(collapse_stdout)
