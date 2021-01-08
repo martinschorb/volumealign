@@ -352,6 +352,11 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     #generate mipmaps script call...
     
     run_params_generate['input_stack'] = storage['stack']
+    
+    mipmapdir += 'mipmaps'
+    
+    if not os.path.exists(mipmapdir): os.path.makedirs(mipmapdir)
+    
     run_params_generate['output_dir'] = mipmapdir
     
     with open(os.path.join(params.json_template_dir,'generate_mipmaps.json'),'r') as f:
@@ -362,11 +367,12 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     sec_end = sec_start
     
     while sec_end <= storage['zmax']:
-        sec_end = int(np.min([sec_start+params.section_split,storage['zmax']]))
+        sec_end = int(np.min([sec_start+storage['comp_settings']['section_split'],storage['zmax']]))
         run_params_generate['zstart'] = sec_start
         run_params_generate['zend'] = sec_end
         
-        print(sec_start)
+        run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' )
+        
         param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
     
                
