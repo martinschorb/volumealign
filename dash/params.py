@@ -24,7 +24,8 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
-n_cpu_script = 24 
+n_cpu_script = 24
+mem_per_cpu = 8     # GB 
 
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6

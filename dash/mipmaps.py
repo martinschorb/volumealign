@@ -386,10 +386,24 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         # -----------------------
         
         
+        # check resource settings
+        run_args=None
+        
+        if comp_sel == 'slurm':
+            cset = storage['comp_settings']
+            
+            slurm_args=['-N1']
+            slurm_args.append('-n1')
+            slurm_args.append('-c '+str(cset['Num_CPUs']))
+            slurm_args.append('--mem  '+str(params.mem_per_cpu)+'G')
+            slurm_args.append('-t 00:%02i:00' %cset['runtime_minutes'])
+            
+            run_args=slurm_args
+        
         
         
         mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
-                        json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+                        json=param_file,run_args=run_args,logfile=log_file,errfile=err_file)
         
         params.processes[module.strip('_')].extend(mipmap_generate_p)
         
