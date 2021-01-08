@@ -355,7 +355,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     
     mipmapdir += 'mipmaps'
     
-    if not os.path.exists(mipmapdir): os.path.makedirs(mipmapdir)
+    if not os.path.exists(mipmapdir): os.makedirs(mipmapdir)
     
     run_params_generate['output_dir'] = mipmapdir
     
