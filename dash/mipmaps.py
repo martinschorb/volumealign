@@ -357,12 +357,12 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     with open(os.path.join(params.json_template_dir,'generate_mipmaps.json'),'r') as f:
             run_params_generate.update(json.load(f))
         
-    sec_start = 0
+    sec_start = storage['zmin']
     sliceblock_idx = 0
     sec_end = sec_start
     
-    while sec_end <= storage['numsections']:
-        sec_end = int(np.min([sec_start+params.section_split,storage['numsections']]))
+    while sec_end <= storage['zmax']:
+        sec_end = int(np.min([sec_start+params.section_split,storage['zmax']]))
         run_params_generate['zstart'] = sec_start
         run_params_generate['zend'] = sec_end
         
