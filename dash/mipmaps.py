@@ -464,9 +464,9 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
               Output(module+'get-status','style'),
               Output(module+'interval1', 'interval'),
               Output('runstep','children')],
-              Input(module+'store','data'),
-              [State('runstep','children'),
-               State(module+'compute_sel','value'),
+              [Input(module+'store','data'),
+               Input('runstep','children')],
+               [State(module+'compute_sel','value'),
                State(module+'input1','value')])
 def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     status_style = {"font-family":"Courier New",'color':'#000'} 
@@ -487,6 +487,8 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
+        print(runstep)
+        status = storage['run_state']
         # run the apply_mipmaps routine
         if runstep == 'generate':
             runstep = 'apply'
