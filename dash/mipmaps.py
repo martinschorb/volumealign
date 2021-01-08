@@ -523,7 +523,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             
             
             mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
-                        # json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+                         json=param_file,run_args=None,logfile=log_file,errfile=err_file)
             
             storage['run_state'] = 'running'
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
