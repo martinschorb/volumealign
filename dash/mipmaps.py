@@ -28,8 +28,6 @@ table_cols = ['stack', 'slices','tiles','Gigapixels']
 
 compute_table_cols = ['Num_CPUs','runtime_minutes','section_split']
 
-
-
 # =========================================
 
 main=html.Div(id=module+'main',children=html.H3("Generate MipMaps for Render stack"))
@@ -38,7 +36,7 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                                        n_intervals=0),
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
-                      html.Div(id='dummy',style={'display':'none'}),
+                      html.Div(id='runstep',style={'display':'none'}),
                       dcc.Store(id=module+'tmpstore')
                       ])
 
@@ -191,6 +189,8 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         thisstore['numtiles']=stackparams['stats']['tileCount']
         thisstore['numsections']=stackparams['stats']['sectionCount']
         
+        num_blocks = int(np.max((np.floor(thisstore['numsections']/params.section_split),1)))
+        
         url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
         tiles0 = requests.get(url).json()
         
@@ -205,7 +205,7 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         
         n_cpu = params.n_cpu_script
         
-        timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer))
+        timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
         
         ct_fields = [n_cpu,timelim,params.section_split]  
         
@@ -323,15 +323,17 @@ def mipmaps_activate_gobutton(in_dir,storage):
 
 @app.callback([Output(module+'go', 'disabled'),
                Output(module+'store','data'),
-               Output(module+'interval1','interval')
+               Output(module+'interval1','interval'),
+               Output('runstep','children')
                ],
               Input(module+'go', 'n_clicks'),
               [State(module+'input1','value'),
                State(module+'compute_sel','value'),
+               State('runstep','children'),
                State(module+'store','data')]
               )                 
 
-def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):    
+def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):    
     # prepare parameters:
     
     # print('output log1!')
@@ -340,7 +342,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     #     json.dump(storage,f,indent=4)
 
     importlib.reload(params)
-        
+    runstep = 'generate'
     
     run_params = params.render_json.copy()
     run_params['render']['owner'] = storage['owner']
@@ -353,7 +355,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     
     run_params_generate['input_stack'] = storage['stack']
     
-    mipmapdir += 'mipmaps'
+    mipmapdir += '/mipmaps'
     
     if not os.path.exists(mipmapdir): os.makedirs(mipmapdir)
     
@@ -373,13 +375,13 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
         
         run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' )
         
-        param_file = params.json_run_dir + '/' + 'generate_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
+        param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
     
                
         with open(param_file,'w') as f:
             json.dump(run_params_generate,f,indent=4)
     
-        log_file = params.render_log_dir + '/' + 'generate_' + module + params.run_prefix+ '_' + str(sliceblock_idx)
+        log_file = params.render_log_dir + '/' + runstep+ '_' + module + params.run_prefix+ '_' + str(sliceblock_idx)
         err_file = log_file + '.err'
         log_file += '.log'
         
@@ -420,7 +422,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,storage):
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
     
-    return True,storage,params.refresh_interval
+    return True,storage,params.refresh_interval,runstep
 
 
 
@@ -448,9 +450,6 @@ def convert_update_status(n,storage):
                 status = launch_jobs.status(procs)   
                 storage['run_state'] = status    
         
-        print(status[:5])
-        print(procs)
-        
         if 'Error' in status: 
             if storage['log_file'].endswith('.log'):
                 storage['log_file'] = storage['log_file'][:storage['log_file'].rfind('.log')]+'.err'
@@ -463,9 +462,13 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
 
 @app.callback([Output(module+'get-status','children'),
               Output(module+'get-status','style'),
-              Output(module+'interval1', 'interval')],
-              Input(module+'store','data'))
-def mipmaps_get_status(storage):
+              Output(module+'interval1', 'interval'),
+              Output('runstep','children')],
+              Input(module+'store','data'),
+              [State('runstep','children'),
+               State(module+'compute_sel','value'),
+               State(module+'input1','value')])
+def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')]
@@ -484,8 +487,51 @@ def mipmaps_get_status(storage):
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
-        status='DONE'
-        status_style = {'color':'#0E0'}
+        # run the apply_mipmaps routine
+        if runstep == 'generate':
+            runstep = 'apply'
+            importlib.reload(params)
+            
+            run_params = params.render_json.copy()
+            run_params['render']['owner'] = storage['owner']
+            run_params['render']['project'] = storage['project']
+            
+            mipmapdir += '/mipmaps/'
+            
+            run_params_generate = run_params.copy()
+            
+            with open(os.path.join(params.json_template_dir,'apply_mipmaps.json'),'r') as f:
+                    run_params_generate.update(json.load(f))
+                
+            # run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '.json' )
+            run_params_generate["input_stack"] = storage['stack']
+            run_params_generate["output_stack"] = storage['project'] + "_mipmaps"
+            run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
+            
+            param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '.json' 
+            run_params_generate["zstart"] = storage['zmin']
+            run_params_generate["zend"] = storage['zmax']
+            run_params_generate["pool_size"] = params.n_cpu_script
+                   
+            with open(param_file,'w') as f:
+                json.dump(run_params_generate,f,indent=4)
+        
+            log_file = params.render_log_dir + '/' + runstep+ '_' + module + params.run_prefix
+            err_file = log_file + '.err'
+            log_file += '.log'
+            
+            
+            
+            mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
+                        # json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+            
+            storage['run_state'] = 'running'
+            status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
+        
+        elif runstep == 'apply':
+            status='DONE'
+            status_style = {'color':'#0E0'}
+            
     elif storage['run_state'] == 'pending':
         status = ['Waiting for cluster resources to be allocated.',cancelbutton]
     elif storage['run_state'] == 'wait':
@@ -494,7 +540,7 @@ def mipmaps_get_status(storage):
         status=storage['run_state']
     
     
-    return status,status_style,log_refresh
+    return status,status_style,log_refresh,runstep
 
 
 
