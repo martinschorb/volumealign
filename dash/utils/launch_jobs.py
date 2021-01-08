@@ -126,7 +126,7 @@ def cluster_status(job_ids):
         if cl_type == 'slurm':
             command =  'sacct --jobs='
             command += j_id
-            command += '--format=jobid,state --parsable'
+            command += ' --format=jobid,state --parsable'
             
         # commands for other cluster types go HERE
             
@@ -134,7 +134,7 @@ def cluster_status(job_ids):
         result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
         
         if cl_type == 'slurm':
-            slurm_stat0 = result.splitlines().decode()
+            slurm_stat0 = result.decode()
             
             while slurm_stat0[slurm_stat0.find(j_id)+len(j_id)]=='.':
                 slurm_stat0=slurm_stat0[slurm_stat0.find(j_id)+len(j_id):]  
@@ -217,7 +217,8 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         command = 'sbatch '+slurm_args+' '+command+' '+args2string(run_args)
         
-        
+        print(command)
+
         p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
         
         
