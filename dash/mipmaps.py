@@ -246,6 +246,8 @@ def mipmaps_store_compute_settings(*inputs):
         # print('value:')
         # print(in_values[input_idx])
         
+        label = label[label.find('_input_')+7:]
+        
         storage['comp_settings'][label] = in_values[input_idx]
     return storage
 
