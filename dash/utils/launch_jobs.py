@@ -202,7 +202,10 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     # for i in range(10): command+='&& sleep 1 && echo '+str(i)
     
     if target=='standalone':
-                
+        print('launching - ')
+        print(command)
+
+        
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
            

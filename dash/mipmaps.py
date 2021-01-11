@@ -36,7 +36,7 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                                        n_intervals=0),
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
-                      html.Div(id='runstep',style={'display':'none'}),
+                      html.Div('generate',id='runstep',style={'display':'none'}),
                       dcc.Store(id=module+'tmpstore')
                       ])
 
@@ -98,12 +98,13 @@ def mipmaps_update_stack_state(prevstore,page,thisstore):
     url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
     stacks = requests.get(url).json()
     thisstore['allstacks'] = stacks
-
+    
     # assemble dropdown
     dd_options = list(dict())
     for item in owners: 
         dd_options.append({'label':item, 'value':item})
-        
+    
+    thisstore['run_state'] = 'wait'
                  
     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
@@ -261,7 +262,6 @@ def mipmaps_store_compute_settings(*inputs):
                 )
 def mipmaps_store_runstate(runstate,storage):  
     storage['run_state']=runstate
-    
     return storage['owner'],storage
 
 
@@ -401,9 +401,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):
         
         if comp_sel == 'slurm':
             cset = storage['comp_settings']
-            
-            print(cset)
-            
+
             slurm_args=['-N1']
             slurm_args.append('-n1')
             slurm_args.append('-c '+str(cset['Num_CPUs']))
@@ -421,6 +419,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):
         
     storage['log_file'] = log_file
     storage['run_state'] = 'running'
+    
     
     return True,storage,params.refresh_interval,runstep
 
@@ -444,8 +443,8 @@ def convert_update_status(n,storage):
         if not 'Error' in status:
             if procs==[]:
                 if storage['run_state'] not in ['input','wait']:
-                    storage['run_state'] = 'input'               
-            
+                   storage['run_state'] = 'input'               
+            print(procs)
             if (type(procs) is subprocess.Popen or len(procs)>0): 
                 status = launch_jobs.status(procs)   
                 storage['run_state'] = status    
@@ -465,7 +464,7 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
               Output(module+'interval1', 'interval'),
               Output('runstep','children')],
               Input(module+'store','data'),
-               [State('runstep','children'),
+              [State('runstep','children'),
                State(module+'compute_sel','value'),
                State(module+'input1','value')])
 def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
@@ -487,10 +486,13 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
-        print(runstep)
+       
         status = storage['run_state']
         # run the apply_mipmaps routine
+
         if runstep == 'generate':
+            log_refresh = params.refresh_interval
+            print('running apply script')
             runstep = 'apply'
             importlib.reload(params)
             
@@ -507,7 +509,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
                 
             # run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '.json' )
             run_params_generate["input_stack"] = storage['stack']
-            run_params_generate["output_stack"] = storage['project'] + "_mipmaps"
+            run_params_generate["output_stack"] = storage['stack'] + "_mipmaps"
             run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
             
             param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '.json' 
@@ -524,6 +526,8 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             
             mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
                          json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+            
+            params.processes[module.strip('_')] = [mipmap_apply_p]
             
             storage['run_state'] = 'running'
             storage['log_file'] = log_file
