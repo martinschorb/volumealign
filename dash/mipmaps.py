@@ -464,9 +464,9 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
               Output(module+'get-status','style'),
               Output(module+'interval1', 'interval'),
               Output('runstep','children')],
-              [Input(module+'store','data'),
-               Input('runstep','children')],
-               [State(module+'compute_sel','value'),
+              Input(module+'store','data'),
+               [State('runstep','children'),
+               State(module+'compute_sel','value'),
                State(module+'input1','value')])
 def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     status_style = {"font-family":"Courier New",'color':'#000'} 
@@ -522,12 +522,11 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             err_file = log_file + '.err'
             log_file += '.log'
             
-            
-            
             mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
                          json=param_file,run_args=None,logfile=log_file,errfile=err_file)
             
             storage['run_state'] = 'running'
+            storage['log_file'] = log_file
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
         
         elif runstep == 'apply':
@@ -551,7 +550,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
                Output(module+'store','data')],
               Input(module+'cancel', 'n_clicks'),
               State(module+'store','data'))
-def convert_cancel_jobs(click,storage):
+def mipmaps_cancel_jobs(click,storage):
 
     procs = params.processes[module.strip('_')]
     
