@@ -435,7 +435,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):
                Output(module+'store','data')],
               Input(module+'interval2','n_intervals'),
               State(module+'store','data'))
-def convert_update_status(n,storage):  
+def mipmaps_update_status(n,storage):  
     if n>0:        
         
         status = storage['run_state']
