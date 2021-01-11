@@ -58,33 +58,117 @@ page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              ])
 
 
-page2 = html.Div(id=module+'page2',children=[html.H3('Directory to store tilepair file:'),
-                                             dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
-                                             html.Button('Browse',id=module+"browse1"),
-                                             'graphical browsing works on cluster login node ONLY!',
-                                             html.Br()])
+page2 = html.Div(id=module+'page2',children=[html.H4('Pair assignment mode'),
+                                             html.Div(
+                                                 [dcc.RadioItems(
+                                                     options=[
+                                                         {'label': '2D (tiles in montage/mosaic)', 'value': '2D'},
+                                                         {'label': '3D (across sections)', 'value': '3D'}
+                                                         ],
+                                                     value='2D',                                                
+                                                     id=module+'pairmode'
+                                                     ),
+                                                 html.Div(id=module+'3Dslices',children=[
+                                                 'range of sections to consider:  ',
+                                                 dcc.Input(id=module+'input_1',type='number',min=1,max=10,value=1)],
+                                                     style={'display':'none'})]
+                                                 ,style={'display':'inline,block'}),
+                                             html.Br(),
+                                             html.Details([html.Summary('Substack selection'),
+                                                           html.Table([html.Tr([html.Td('Start slice: '),
+                                                                               html.Td(dcc.Input(id=module+'startsection',type='number',min=0,value=0))]),
+                                                                       html.Tr([html.Td('End slice: '),
+                                                                               html.Td(dcc.Input(id=module+'endsection',type='number',min=0,value=1))])])
+                                                           ])
+                                             ])
+                                                                           
+
+
+gobutton = html.Div(children=[html.Br(),
+                              html.Button('Start TilePair generation',id=module+"go"),
+                              html.Div(id=module+'buttondiv'),
+                              html.Div(id=module+'directory-popup'),
+                              html.Br(),
+                              html.Details([html.Summary('Compute location:'),
+                                            dcc.RadioItems(
+                                                options=[
+                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
+                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
+                                                ],
+                                                value='slurm',
+                                                labelStyle={'display': 'inline-block'},
+                                                id=module+'compute_sel'
+                                                )],
+                                  id=module+'compute'),
+                              html.Br(),
+                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
+
+
+
+# ===============================================
+
+
+@app.callback([Output(module+'startsection','value'),
+               Output(module+'startsection','min'),
+               Output(module+'endsection','value'),
+               Output(module+'endsection','max'),],
+              Input(module+'stack_dd', 'value'),
+              State(module+'store','data')
+              )
+def mipmaps_stacktosections(stack_sel,thisstore):
+
+    if stack_sel=='-':   
+        
+        sec_start = 0
+        sec_end = 1
+        
+    
+    else:        
+        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]        
+        thisstore['stack'] = stackparams['stackId']['stack']
+        thisstore['stackparams'] = stackparams
+        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
+        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
+        thisstore['numtiles']=stackparams['stats']['tileCount']
+        thisstore['numsections']=stackparams['stats']['sectionCount']
+        
+        
+        sec_start = int(thisstore['zmin'])
+        sec_end = int(thisstore['zmax'])
+
+    return sec_start, sec_start, sec_end, sec_end
+
+
+
+@app.callback([Output(module+'startsection','max'),
+               Output(module+'endsection','min')],
+              [Input(module+'startsection', 'value'),
+               Input(module+'endsection','value')]
+              )
+def mipmaps_sectionlimits(start_sec,end_sec):
+    return end_sec, start_sec
 
 
 
 
 
 @app.callback([Output(module+'owner_dd','options'),
-               Output(module+'store','data'),               
-               Output(module+'owner_dd','value'),
+                Output(module+'store','data'),               
+                Output(module+'owner_dd','value'),
                 Output(module+'project_dd','value'),
                 Output(module+'stack_dd','value')
-               ],
-              [Input('mipmaps_'+'store','data'),
-               Input('url', 'pathname')],
-              State(module+'store','data'))
-def tilepairs_update_stack_state(prevstore,page,thisstore):  
+                ],
+              [#Input('mipmaps_'+'stack','data'),
+                Input('url', 'pathname')],
+              [State('mipmaps_'+'store','data'),
+                State(module+'store','data')])
+def tilepairs_update_stack_state(page,prevstore,thisstore):  
     for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
     # print('mipmaps-store')
     # print(thisstore)
     # print(thisstore['stack'])
     # get list of projects on render server
-    
-    
+
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json() 
     
@@ -157,7 +241,16 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
 
 # ===============================================
 
+@app.callback(Output(module+'3Dslices','style'),
+              Input(module+'pairmode','value'))
+def tilepairs_update_status(pairmode):
 
+    if pairmode == '2D':
+        style = {'display':'none'}
+    elif pairmode == '3D':
+        style = {'display':'block'}
+        
+    return style
 
 
 # =============================================
@@ -170,7 +263,7 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
                Output(module+'store','data')],
               Input(module+'interval2','n_intervals'),
               State(module+'store','data'))
-def convert_update_status(n,storage):  
+def tilepairs_update_status(n,storage):  
     if n>0:        
         
         status = storage['run_state']
@@ -306,5 +399,5 @@ def tilepairs_update_outfile(update,data):
 
 # Full page layout:
     
-page = [intervals,page1, page2]#, gobutton]
+page = [intervals,page1, page2, gobutton]
 page.append(collapse_stdout)

@@ -35,7 +35,8 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                                        n_intervals=0),
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
-                      dcc.Store(id=module+'tmpstore')
+                      dcc.Store(id=module+'tmpstore'),
+                      dcc.Store(id=module+'stack')
                       ])
 
 junk = html.Div(id=module+'junk')
@@ -66,7 +67,8 @@ def convert_output(value,thisstore):
 
 
 @app.callback([Output(module+'interval2','interval'),
-               Output(module+'store','data')],
+               Output(module+'store','data'),
+               Output(module+'stack','data')],
               Input(module+'interval2','n_intervals'),
               State(module+'store','data'))
 def convert_update_status(n,storage):  
@@ -85,7 +87,7 @@ def convert_update_status(n,storage):
             if storage['log_file'].endswith('.log'):
                 storage['log_file'] = storage['log_file'][:storage['log_file'].rfind('.log')]+'.err'
             
-    return params.idle_interval,storage 
+    return params.idle_interval,storage,storage['stack']
     
 
 cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")

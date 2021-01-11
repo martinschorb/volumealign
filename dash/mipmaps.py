@@ -37,7 +37,8 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
                       html.Div('generate',id='runstep',style={'display':'none'}),
-                      dcc.Store(id=module+'tmpstore')
+                      dcc.Store(id=module+'tmpstore'),
+                      dcc.Store(id=module+'stack')
                       ])
 
 page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
@@ -64,8 +65,8 @@ page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (s
                                              dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
                                              html.Button('Browse',id=module+"browse1"),
                                              'graphical browsing works on cluster login node ONLY!',
-                                             html.Br(),
-                                             html.H3('Compute settings:'),
+                                             html.Br()])
+compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Compute settings:'),
                                              html.Table([html.Tr([html.Th(col) for col in table_cols]),
                                                   html.Tr([html.Td('',id=module+'t_'+col) for col in table_cols])
                                              ],className='table'),
@@ -162,6 +163,7 @@ def mipmaps_proj_dd_sel(proj_sel,thisstore):
 # ===============================================
 
 stackoutput = [Output(module+'input1','value'),
+               Output(module+'stack','data'),
                Output(module+'store','data')]
 
 tablefields = [Output(module+'t_'+col,'children') for col in table_cols]
@@ -212,7 +214,7 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         
         
    
-    outlist=[dir_out, thisstore]        
+    outlist=[dir_out, thisstore['stack'], thisstore]        
     outlist.extend(t_fields)
     outlist.extend(ct_fields)     
     
@@ -284,6 +286,7 @@ gobutton = html.Div(children=[html.Br(),
                                                 id=module+'compute_sel'
                                                 )],
                                   id=module+'compute'),
+                              html.Br(),
                               html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
 
 
@@ -620,5 +623,5 @@ def mipmaps_update_outfile(update,data):
 
 # Full page layout:
     
-page = [intervals,page1, page2, gobutton]
+page = [intervals,page1, page2, gobutton, compute_stettings]
 page.append(collapse_stdout)
