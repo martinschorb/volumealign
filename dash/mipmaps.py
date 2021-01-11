@@ -462,7 +462,8 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
 @app.callback([Output(module+'get-status','children'),
               Output(module+'get-status','style'),
               Output(module+'interval1', 'interval'),
-              Output('runstep','children')],
+              Output('runstep','children'),
+              Output(module+'outfile','children')],
               Input(module+'store','data'),
               [State('runstep','children'),
                State(module+'compute_sel','value'),
@@ -470,6 +471,7 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
 def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
+    log_file = storage['log_file']
     procs=params.processes[module.strip('_')]
          
     if storage['run_state'] == 'running':
@@ -490,9 +492,8 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
         status = storage['run_state']
         # run the apply_mipmaps routine
 
-        if runstep == 'generate':
+        if runstep == 'generate' and mipmapdir is not None:
             log_refresh = params.refresh_interval
-            print('running apply script')
             runstep = 'apply'
             importlib.reload(params)
             
@@ -532,10 +533,10 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             storage['run_state'] = 'running'
             storage['log_file'] = log_file
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
-        
         elif runstep == 'apply':
             status='DONE'
             status_style = {'color':'#0E0'}
+            params.processes[module.strip('_')]=[]
             
     elif storage['run_state'] == 'pending':
         status = ['Waiting for cluster resources to be allocated.',cancelbutton]
@@ -545,7 +546,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
         status=storage['run_state']
     
     
-    return status,status_style,log_refresh,runstep
+    return status,status_style,log_refresh,runstep,log_file
 
 
 
@@ -612,7 +613,7 @@ def mipmaps_update_output(n,outfile):
               [Input(module+'page1', 'children'),
                Input(module+'store', 'data')]
               )
-def mipmaps_update_outfile(update,data):           
+def mipmaps_update_outfile(update,data):    
     return data['log_file']
 
 
