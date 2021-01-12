@@ -1,0 +1,5 @@
+{
+    "xyNeighborFactor": 0.9,
+    "excludeCornerNeighbors":"True",
+    "excludeCompletelyObscuredTiles":"True",
+}

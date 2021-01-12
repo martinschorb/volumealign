@@ -85,6 +85,29 @@ page2 = html.Div(id=module+'page2',children=[html.H4('Pair assignment mode'),
                                                                            
 
 
+
+gobutton = html.Div(children=[html.Br(),
+                              html.Button('Start TilePair generation',id=module+"go"),
+                              html.Div(id=module+'buttondiv'),
+                              html.Div(id=module+'directory-popup'),
+                              html.Br(),
+                              html.Details([html.Summary('Compute location:'),
+                                            dcc.RadioItems(
+                                                options=[
+                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
+                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
+                                                ],
+                                                value='slurm',
+                                                labelStyle={'display': 'inline-block'},
+                                                id=module+'compute_sel'
+                                                )],
+                                  id=module+'compute'),
+                              html.Br(),
+                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
+
+
+
+
 # ===============================================
 
 
@@ -243,42 +266,12 @@ def tilepairs_3D_status(pairmode):
 
 
 
-
-gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start TilePair generation',id=module+"go"),
-                              html.Div(id=module+'buttondiv'),
-                              html.Div(id=module+'directory-popup'),
-                              html.Br(),
-                              html.Details([html.Summary('Compute location:'),
-                                            dcc.RadioItems(
-                                                options=[
-                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
-                                                ],
-                                                value='slurm',
-                                                labelStyle={'display': 'inline-block'},
-                                                id=module+'compute_sel'
-                                                )],
-                                  id=module+'compute'),
-                              html.Br(),
-                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
-
-
-
-
-@app.callback(Output(module+'go', 'disabled'),
-              Input(module+'go', 'n_clicks'))
-def tilepairs_exec(click):
-    print('go!')
-    print(click)   
-    return True
-
 @app.callback([Output(module+'go', 'disabled'),
                Output(module+'store','data'),
                Output(module+'interval1','interval')
                ],
               Input(module+'go', 'n_clicks'),
-              [State(module+'input1','value'),
+              [State(module+'input_1','value'),
                State(module+'compute_sel','value'),
                State(module+'pairmode','value'),
                State(module+'startsection','value'),
