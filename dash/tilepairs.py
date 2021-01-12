@@ -152,8 +152,6 @@ def mipmaps_stacktosections(stack_sel,thisstore):
 def mipmaps_sectionlimits(start_sec,end_sec,sec_range):
     
     if not sec_range is None and not start_sec is None and not end_sec is None:
-        print('sr')
-        print(sec_range)
         return end_sec - sec_range, start_sec + sec_range
     else:
         return end_sec, start_sec
@@ -281,9 +279,7 @@ def tilepairs_3D_status(pairmode):
 def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,endsection,storage):    
     # prepare parameters:
     importlib.reload(params)
-    
-    print('go!')
-    print(click)
+
     run_params = params.render_json.copy()
     run_params['render']['owner'] = storage['owner']
     run_params['render']['project'] = storage['project']
@@ -351,8 +347,9 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
               State(module+'store','data'))
 def tilepairs_update_status(n,storage):  
     if n>0:        
-        
+        print(n)
         status = storage['run_state']
+        print(status)
         procs=params.processes[module.strip('_')]
         if not 'Error' in status:
             if procs==[]:
@@ -385,6 +382,7 @@ def tilepairs_get_status(storage,comp_sel,mipmapdir):
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')]
     go_disabled = False     
+    
     if storage['run_state'] == 'running':
         if procs == []:
             status = 'not running'
