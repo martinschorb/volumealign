@@ -9,6 +9,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
 import os
+import glob
 import params
 import subprocess
 import requests
@@ -16,6 +17,8 @@ import requests
 from app import app
 
 from utils import launch_jobs
+
+from sift import sift_pointmatch
 
 
 module='pointmatch_'
@@ -42,7 +45,14 @@ main = html.Div(children=[html.Div(id=module+'main',children=[html.H4('Current a
                           html.H4("Choose type of PointMatch determination:",id='conv_head'),dcc.Dropdown(
                               id=module+'dropdown1',persistence=True,
                               options=[{'label': 'SIFT', 'value': 'SIFT'}],
-                              value='SIFT')
+                              value='SIFT'),                          
+                          html.Div([html.H4("Select Tilepair source directory:"),
+                           dcc.Dropdown(id=module+'tp_dd',persistence=True,
+                                        clearable=False),
+                           html.Br(),
+                           html.Div(id=module+'tp_prefix',style={'display':'none'})                              
+                           ])
+
                             ])
 
 
@@ -60,21 +70,21 @@ page1 = html.Div(id=module+'page1')
 
 @app.callback([Output(module+'owner_dd','options'),
                Output(module+'owner_dd','value'),
-                Output(module+'store','data')],
-                Input('url', 'pathname'),
-                State(module+'store','data'))
+               Output(module+'store','data')],
+              Input('url', 'pathname'),
+              State(module+'store','data'))
 def pointmatch_init_page(page,storage):
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()
     
         # assemble dropdown
-    dd_options = list(dict())
+    owner_dd_options = list(dict())
     for item in owners: 
-        dd_options.append({'label':item, 'value':item})
+        owner_dd_options.append({'label':item, 'value':item})
     
     storage['all_owners']=owners
-    
-    return dd_options,owners[0], storage
+     
+    return owner_dd_options,owners[0], storage
     
 
 
@@ -92,7 +102,7 @@ def pointmatch_update_stack_state(prevstore,page,thisstore):
     if 'all_owners' in thisstore.keys():
         
         for key in ['owner','project','stack','tilepairdir']: 
-            if key in prevstore.keys():
+            if key in prevstore.keys() and not prevstore[key]=='-':
                 thisstore[key] = prevstore[key]
                 
         # print('mipmaps-store')
@@ -105,7 +115,6 @@ def pointmatch_update_stack_state(prevstore,page,thisstore):
             dd_options.append({'label':item, 'value':item})
         
         thisstore['run_state'] = 'input'
-        
          
     else:
         dd_options = [] 
@@ -170,6 +179,47 @@ def pointmatch_proj_dd_sel(proj_sel,thisstore):
     thisstore['allstacks'] = stacks
 
     return href_out, dd_options, thisstore['stack'],thisstore
+
+
+
+
+@app.callback([Output(module+'tp_dd','options'),
+               Output(module+'tp_dd','value')],
+              Input(module+'stack_dd','value'))
+def pointmatch_tp_dd_fill(stack):
+   
+    tp_dirlist = [d_item for d_item in glob.glob(params.json_run_dir+'/tilepairs_'+params.user+'*'+stack+'*') if os.path.isdir(d_item)]
+    tpdir_dd_options=list(dict())
+    
+    
+    if tp_dirlist == []:
+        tpdir_dd_options.append({'label':'no tilepairs found for selected stack', 'value': ''})
+    else:
+        for tp_dir in tp_dirlist:
+            tpdir_dd_options.append({'label':os.path.basename(tp_dir), 'value':tp_dir})
+    
+    
+
+    return tpdir_dd_options,tpdir_dd_options[-1]['value']
+
+
+
+
+# =============================================
+# # Page content
+
+@app.callback([Output(module+'page1', 'children'),
+                Output(module+'store','data')],
+                Input(module+'dropdown1', 'value'),
+                State(module+'store','data'))
+def convert_output(value,thisstore):
+    if value=='SIFT':
+        return sift_pointmatch.page, thisstore
+    
+    else:
+        return [html.Br(),'No method type selected.'],thisstore
+
+
 
 
 
