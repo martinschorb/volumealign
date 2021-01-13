@@ -319,7 +319,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
         
         #generate script call...
         
-        tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix
+        tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix + '_' + pairmode
         
         if not os.path.exists(tilepairdir): os.makedirs(tilepairdir)
         
