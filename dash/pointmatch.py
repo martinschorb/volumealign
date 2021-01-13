@@ -38,10 +38,26 @@ main = html.Div(children=[html.Div(id=module+'main',children=[html.H4('Current a
                                                        html.A('(Browse)',id=module+'browse_stack',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
                                                        dcc.Dropdown(id=module+'stack_dd',className='dropdown_inline',
                                                           persistence=True,
-                                                          clearable=False)
-                                             
-                                             ],style=dict(display='flex'))
+                                                          clearable=False)                                             
+                                             ],style=dict(display='flex')),
+                                             html.H4("Select Match Collection:"),
+                                             html.Div([html.Div('Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
+                                                       dcc.Dropdown(id=module+'mc_owner_dd',persistence=True,clearable=False,className='dropdown_inline'),
+                                                       html.Div(id=module+'new_mc_owner',style={'display':'none'}),
+                                                       html.Br(),
+                                                       html.Div([html.Div('Match Collection:',style={'margin-right': '1em','margin-left': '2em'}),
+                                                                 dcc.Dropdown(id=module+'matchcoll_dd',persistence=True,
+                                                                              clearable=False,className='dropdown_inline'),
+                                                                 html.Br()],
+                                                                id=module+'matchcoll',style={'display':'none'}),
+                                                       html.Div(id=module+'new_matchcoll',style={'display':'none'}),
+                                                       html.Br()
+                                                       ],style=dict(display='flex'))
                                              ]),
+                          
+                          
+                          
+                          
                           html.H4("Choose type of PointMatch determination:",id='conv_head'),dcc.Dropdown(
                               id=module+'dropdown1',persistence=True,
                               options=[{'label': 'SIFT', 'value': 'SIFT'}],
@@ -70,6 +86,8 @@ page1 = html.Div(id=module+'page1')
 
 @app.callback([Output(module+'owner_dd','options'),
                Output(module+'owner_dd','value'),
+               Output(module+'mc_owner_dd','options'),
+               Output(module+'mc_owner_dd','value'),
                Output(module+'store','data')],
               Input('url', 'pathname'),
               State(module+'store','data'))
@@ -82,9 +100,22 @@ def pointmatch_init_page(page,storage):
     for item in owners: 
         owner_dd_options.append({'label':item, 'value':item})
     
-    storage['all_owners']=owners
-     
-    return owner_dd_options,owners[0], storage
+    storage['all_owners']=owners     
+    
+    
+    url = params.render_base_url + params.render_version + 'matchCollectionOwners'
+    mc_owners = requests.get(url).json()
+    
+        # assemble dropdown
+    mc_owner_dd_options = list(dict())
+    mc_owner_dd_options.append({'label':'new Match Collection Owner', 'value':'new_mc_owner'})
+    
+    for item in mc_owners: 
+        mc_owner_dd_options.append({'label':item, 'value':item})
+    
+    storage['all_mc_owners']=mc_owners
+    
+    return owner_dd_options,owners[0],mc_owner_dd_options,mc_owners[0], storage
     
 
 
@@ -203,6 +234,157 @@ def pointmatch_tp_dd_fill(stack):
     return tpdir_dd_options,tpdir_dd_options[-1]['value']
 
 
+# =========================================
+
+
+                       
+# #dropdown callback
+@app.callback([Output(module+'new_mc_owner','children'),
+                Output(module+'new_mc_owner','style'),
+                Output(module+'matchcoll_dd', 'options'),
+                Output(module+'matchcoll_dd', 'value'),
+                Output(module+'matchcoll','style'),
+                Output(module+'store','data')],
+              Input(module+'mc_owner_dd', 'value'),
+              State(module+'store','data'))
+def pointmatch_mcown_dd_sel(mc_own_sel,storage):     
+    if mc_own_sel=='new_mc_owner':       
+        div1style = {}                       
+        div1_out = [html.Div('Enter new Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
+                    dcc.Input(id=module+"mcown_input", type="text",
+                              style={'margin-right': '1em','margin-left': '3em'},
+                              debounce=True,placeholder="new_mc_owner",persistence=False)
+                    ]
+        
+        mc_dd_opt = [{'label':'new Match Collection', 'value':'new_mc'}]
+        mc_dd_val = 'new_mc'
+        
+        mc_style = {'display':'none'}
+        
+    else:
+        div1_out = '' 
+        div1style = {'display':'none'} 
+        
+        url = params.render_base_url + params.render_version + 'owner/' + mc_own_sel + '/matchCollections'
+        mcolls = requests.get(url).json()
+    
+        # assemble dropdown
+        mc_dd_opt = [{'label':'new Match Collection', 'value':'new_mcoll'}]
+    
+        for item in mcolls: 
+            mc_dd_opt.append({'label':item['collectionId']['name'], 'value':item['collectionId']['name']})
+        
+        storage['all_mcolls']=mcolls            
+        mc_dd_val = 'new_mcoll'
+        
+        mc_style = {'display':'flex'}
+        
+        
+    return div1_out, div1style, mc_dd_opt, mc_dd_val, mc_style, storage
+
+
+
+# Create a new MC owner
+
+@app.callback([Output(module+'project_dd', 'options'),Output(module+'project_dd', 'value')],
+              [Input(module+'mcown_input', 'value')],
+              State(module+'project_dd', 'options'))
+def pointmatch_new_mcown(project_name,dd_options): 
+    dd_options.append({'label':project_name, 'value':project_name})
+    return dd_options,project_name
+
+#------------------
+# SET STACK
+
+
+
+
+# @app.callback([Output(module+'stack_dd','options'),   
+#                Output(module+'stack_dd','style'), 
+#                Output(module+'stack_state','children')],
+#     [Input(module+'project_dd', 'value'),
+#      Input(module+'orig_proj','children')],
+#     )
+# def pointmatch_proj_stack_activate(project_sel,orig_proj):    
+    
+#     dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
+    
+#     if project_sel in orig_proj:
+#         # get list of STACKS on render server
+#         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project_sel + '/stacks'
+#         stacks = requests.get(url).json()  
+        
+#         # assemble dropdown
+        
+#         for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+                
+#         return dd_options, {'display':'block'}, stacks[0]['stackId']['stack']
+        
+#     else:    
+#         return dd_options,{'display':'none'}, 'newstack'
+    
+    
+            
+# @app.callback(Output(module+'stack_state','children'),
+#     Input(module+'stack_dd','value'))
+# def pointmatch_update_stack_state(stack_dd):        
+#     return stack_dd
+
+
+# @app.callback(Output(parent+'store','data'),
+#     [Input(module+'stack_state','children'),
+#     Input(module+'project_dd', 'value')],
+#     [State(parent+'store','data')]
+#     )
+# def pointmatch_update_active_project(stack,project,storage):
+#     storage['owner']=owner
+#     storage['project']=project
+#     storage['stack']=stack    
+#     # print('sbem -> store')
+#     # print(storage)
+#     return storage
+
+
+    
+# @app.callback([Output(module+'browse_stack','href'),Output(module+'browse_stack','style')],
+#     Input(module+'stack_state','children'),
+#     State(module+'project_dd', 'value'))
+# def pointmatch_update_stack_browse(stack_state,project_sel):      
+#     if stack_state == 'newstack':
+#         return params.render_base_url, {'display':'none'}
+#     else:
+#         return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
+                                
+    
+# @app.callback(Output(module+'newstack','children'),
+#     Input(module+'stack_state','children'))
+# def pointmatch_new_stack_input(stack_value):
+#     if stack_value=='newstack':
+#         st_div_out = ['Enter new stack name: ',
+#                    dcc.Input(id=module+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
+#                    ]
+#     else:
+#         st_div_out = ''
+    
+#     return st_div_out
+
+
+
+# @app.callback([Output(module+'stack_dd', 'options'),
+#                Output(module+'stack_dd', 'value'),
+#                Output(module+'stack_dd','style')],
+#               [Input(module+'stack_input', 'value')],
+#               State(module+'stack_dd', 'options'))
+# def pointmatch_new_stack(stack_name,dd_options): 
+#     dd_options.append({'label':stack_name, 'value':stack_name})
+#     return dd_options,stack_name,{'display':'block'}
+
+ 
+
+
+
+
+
 
 
 # =============================================
@@ -212,7 +394,7 @@ def pointmatch_tp_dd_fill(stack):
                 Output(module+'store','data')],
                 Input(module+'dropdown1', 'value'),
                 State(module+'store','data'))
-def convert_output(value,thisstore):
+def pointmatch_output(value,thisstore):
     if value=='SIFT':
         return sift_pointmatch.page, thisstore
     
