@@ -112,7 +112,7 @@ gobutton = html.Div(children=[html.Br(),
                 Output(module+'store','data')],
                 Input('url', 'pathname'),
                 State(module+'store','data'))
-def mipmaps_init_page(page,storage):
+def tilepairs_init_page(page,storage):
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()
     
@@ -159,53 +159,6 @@ def tilepairs_update_stack_state(prevstore,page,thisstore):
     return dd_options,thisstore,thisstore['owner'],thisstore['project'],thisstore['stack']
 
 
-
-
-
-@app.callback([Output(module+'startsection','value'),
-                Output(module+'startsection','min'),
-                Output(module+'endsection','value'),
-                Output(module+'endsection','max'),],
-              Input(module+'stack_dd', 'value'),
-              State(module+'store','data')
-              )
-def mipmaps_stacktosections(stack_sel,thisstore):
-
-    if stack_sel=='-':   
-        
-        sec_start = 0
-        sec_end = 1
-        
-    
-    else:        
-        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]        
-        thisstore['stack'] = stackparams['stackId']['stack']
-        thisstore['stackparams'] = stackparams
-        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
-        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
-        thisstore['numtiles']=stackparams['stats']['tileCount']
-        thisstore['numsections']=stackparams['stats']['sectionCount']
-        
-        
-        sec_start = int(thisstore['zmin'])
-        sec_end = int(thisstore['zmax'])
-
-    return sec_start, sec_start, sec_end, sec_end
-
-
-
-@app.callback([Output(module+'startsection','max'),
-                Output(module+'endsection','min')],
-              [Input(module+'startsection', 'value'),
-                Input(module+'endsection','value'),
-                Input(module+'input_1','value')]
-              )
-def mipmaps_sectionlimits(start_sec,end_sec,sec_range):
-    
-    if not sec_range is None and not start_sec is None and not end_sec is None:
-        return end_sec - sec_range, start_sec + sec_range
-    else:
-        return end_sec, start_sec
 
 
 
@@ -263,6 +216,58 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
     thisstore['allstacks'] = stacks
 
     return href_out, dd_options, thisstore['stack'],thisstore
+
+
+# # ===============================================
+
+
+
+@app.callback([Output(module+'startsection','value'),
+                Output(module+'startsection','min'),
+                Output(module+'endsection','value'),
+                Output(module+'endsection','max'),],
+              Input(module+'stack_dd', 'value'),
+              State(module+'store','data')
+              )
+def tilepairs_stacktosections(stack_sel,thisstore):
+
+    if stack_sel=='-':   
+        
+        sec_start = 0
+        sec_end = 1
+        
+    
+    else:        
+        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]        
+        thisstore['stack'] = stackparams['stackId']['stack']
+        thisstore['stackparams'] = stackparams
+        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
+        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
+        thisstore['numtiles']=stackparams['stats']['tileCount']
+        thisstore['numsections']=stackparams['stats']['sectionCount']
+        
+        
+        sec_start = int(thisstore['zmin'])
+        sec_end = int(thisstore['zmax'])
+
+    return sec_start, sec_start, sec_end, sec_end
+
+
+
+@app.callback([Output(module+'startsection','max'),
+                Output(module+'endsection','min')],
+              [Input(module+'startsection', 'value'),
+                Input(module+'endsection','value'),
+                Input(module+'input_1','value')]
+              )
+def tilepairs_sectionlimits(start_sec,end_sec,sec_range):
+    
+    if not sec_range is None and not start_sec is None and not end_sec is None:
+        return end_sec - sec_range, start_sec + sec_range
+    else:
+        return end_sec, start_sec
+
+
 
 
 # # ===============================================
