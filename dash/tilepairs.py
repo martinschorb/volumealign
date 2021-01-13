@@ -138,15 +138,12 @@ def tilepairs_init_page(page,storage):
               [State(module+'store','data')])
 def tilepairs_update_stack_state(prevstore,page,thisstore):  
     
-    if 'all_owners' in thisstore.keys():
-        
+    if 'all_owners' in thisstore.keys():        
+                
         for key in ['owner','project','stack']: 
             if key in prevstore.keys() and not prevstore[key]=='-':
                 thisstore[key] = prevstore[key]
                 
-                
-        # print('mipmaps-store')
-        # print(thisstore)
         owners = thisstore['all_owners']
         
                 # assemble dropdown
@@ -234,25 +231,23 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
               State(module+'store','data')
               )
 def tilepairs_stacktosections(stack_sel,thisstore):
-
-    if stack_sel=='-' or not 'allstacks' in thisstore.keys():   
-        
-        sec_start = 0
-        sec_end = 1
-        
+    sec_start = 0
+    sec_end = 1
     
-    else:        
-        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]        
-        thisstore['stack'] = stackparams['stackId']['stack']
-        thisstore['stackparams'] = stackparams
-        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
-        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
-        thisstore['numtiles']=stackparams['stats']['tileCount']
-        thisstore['numsections']=stackparams['stats']['sectionCount']
-        
-        
-        sec_start = int(thisstore['zmin'])
-        sec_end = int(thisstore['zmax'])
+    if not(stack_sel=='-' ) and ('allstacks' in thisstore.keys()):   
+        stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
+        if not stacklist == []:
+            stackparams = stacklist[0]        
+            thisstore['stack'] = stackparams['stackId']['stack']
+            thisstore['stackparams'] = stackparams
+            thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
+            thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
+            thisstore['numtiles']=stackparams['stats']['tileCount']
+            thisstore['numsections']=stackparams['stats']['sectionCount']
+            
+            
+            sec_start = int(thisstore['zmin'])
+            sec_end = int(thisstore['zmax'])
 
     return sec_start, sec_start, sec_end, sec_end
 

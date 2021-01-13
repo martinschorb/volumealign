@@ -286,12 +286,13 @@ def pointmatch_mcown_dd_sel(mc_own_sel,storage):
 
 # Create a new MC owner
 
-@app.callback([Output(module+'project_dd', 'options'),Output(module+'project_dd', 'value')],
+@app.callback([Output(module+'mc_owner_dd', 'options'),
+               Output(module+'mc_owner_dd', 'value')],
               [Input(module+'mcown_input', 'value')],
-              State(module+'project_dd', 'options'))
-def pointmatch_new_mcown(project_name,dd_options): 
-    dd_options.append({'label':project_name, 'value':project_name})
-    return dd_options,project_name
+              State(module+'mc_owner_dd', 'options'))
+def pointmatch_new_mcown(new_owner,dd_options): 
+    dd_options.append({'label':new_owner, 'value':new_owner})
+    return dd_options,new_owner
 
 #------------------
 # SET STACK
