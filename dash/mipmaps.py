@@ -110,7 +110,11 @@ def mipmaps_update_stack_state(prevstore,page,thisstore):
     
     if 'all_owners' in thisstore.keys():
         
-        for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
+        for key in ['owner','project','stack']: 
+            if key in prevstore.keys():
+                thisstore[key] = prevstore[key]
+                
+                
         # print('mipmaps-store')
         # print(thisstore)
         # print(thisstore['stack'])
@@ -627,15 +631,16 @@ def mipmaps_update_output(n,outfile):
     data=''
     
     if outfile is not None:
-        file = open(outfile, 'r')    
-        lines = file.readlines()
-        if lines.__len__()<=params.disp_lines:
-            last_lines=lines
-        else:
-            last_lines = lines[-params.disp_lines:]
-        for line in last_lines:
-            data=data+line
-        file.close()    
+        if os.path.exists(outfile):
+            file = open(outfile, 'r')    
+            lines = file.readlines()
+            if lines.__len__()<=params.disp_lines:
+                last_lines=lines
+            else:
+                last_lines = lines[-params.disp_lines:]
+            for line in last_lines:
+                data=data+line
+            file.close() 
         
     return data
 

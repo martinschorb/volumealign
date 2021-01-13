@@ -8,7 +8,7 @@ Created on Tue Nov  3 13:30:16 2020
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
-# import os
+import os
 import params
 import subprocess
 
@@ -175,15 +175,16 @@ def convert_update_output(n,outfile):
     data=''
     
     if outfile is not None:
-        file = open(outfile, 'r')    
-        lines = file.readlines()
-        if lines.__len__()<=params.disp_lines:
-            last_lines=lines
-        else:
-            last_lines = lines[-params.disp_lines:]
-        for line in last_lines:
-            data=data+line
-        file.close()    
+        if os.path.exists(outfile):
+            file = open(outfile, 'r')    
+            lines = file.readlines()
+            if lines.__len__()<=params.disp_lines:
+                last_lines=lines
+            else:
+                last_lines = lines[-params.disp_lines:]
+            for line in last_lines:
+                data=data+line
+            file.close()
         
     return data
 
@@ -199,25 +200,6 @@ def convert_update_outfile(update,data):
     return data['log_file']
 
 
-
-
-# @app.callback(Output('test','children'),
-#               Input(module+'interval2','n_intervals')
-#               )
-# def check_interval1(n):
-#     print('this is interval 1:')
-#     print(n)
-#     return str(n)
-
-
-
-# @app.callback(Output('test2','children'),
-#               Input(module+'interval2','n_intervals')
-#               )
-# def check_interval2(n):
-#     print('this is interval 2 bottom:')
-#     print(n)
-#     return str(n)
 
 
 # Full page layout:
