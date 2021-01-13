@@ -37,7 +37,7 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
                       html.Div('generate',id='runstep',style={'display':'none'}),
-                      dcc.Store(id=module+'tmpstore'),
+                      dcc.Store(id=module+'tmpstore'),                      
                       dcc.Store(id=module+'stack')
                       ])
 
@@ -77,8 +77,28 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
                                              ])
 
 
+@app.callback([Output(module+'owner_dd','options'),
+               Output(module+'owner_dd','value'),
+               Output(module+'store','data')],
+               Input('url', 'pathname'),
+               State(module+'store','data'))
+def mipmaps_init_page(page,storage):
+    url = params.render_base_url + params.render_version + 'owners'
+    owners = requests.get(url).json()
+    
+        # assemble dropdown
+    dd_options = list(dict())
+    for item in owners: 
+        dd_options.append({'label':item, 'value':item})
+    
+    storage['all_owners']=owners
+    
+    return dd_options, owners[0], storage
+    
+    
+    
 
-@app.callback([Output(module+'store','data'),
+@app.callback([Output(module+'store','data'), 
                Output(module+'owner_dd','options'),
                Output(module+'owner_dd','value'),
                Output(module+'project_dd','value'),
@@ -86,27 +106,36 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
               [Input('convert_'+'store','data'),
                Input('url', 'pathname')],
               State(module+'store','data'))
-def mipmaps_update_stack_state(prevstore,page,thisstore):  
-    for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
-    # print('mipmaps-store')
-    # print(thisstore)
-    # print(thisstore['stack'])
-    # get list of projects on render server
-    url = params.render_base_url + params.render_version + 'owners'
-    owners = requests.get(url).json()
-    # print(owners)    
+def mipmaps_update_stack_state(prevstore,page,thisstore): 
     
-    url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
-    stacks = requests.get(url).json()
-    thisstore['allstacks'] = stacks
+    if 'all_owners' in thisstore.keys():
+        
+        for key in ['owner','project','stack']: thisstore[key] = prevstore[key]
+        # print('mipmaps-store')
+        # print(thisstore)
+        # print(thisstore['stack'])
+        # get list of projects on render server
+        # url = params.render_base_url + params.render_version + 'owners'
+        # owners = requests.get(url).json()
+        # print(owners)    
+        
+        owners = thisstore['all_owners']
+        
+            # assemble dropdown
+        dd_options = list(dict())
+        for item in owners: 
+            dd_options.append({'label':item, 'value':item})
+        
+        
+        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
+        stacks = requests.get(url).json()
+        thisstore['allstacks'] = stacks
     
-    # assemble dropdown
-    dd_options = list(dict())
-    for item in owners: 
-        dd_options.append({'label':item, 'value':item})
-    
-    thisstore['run_state'] = 'wait'
-                 
+        thisstore['run_state'] = 'wait'
+    else:
+        dd_options = []         
+
+        
     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
 
