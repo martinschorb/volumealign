@@ -36,26 +36,27 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                                        n_intervals=0),
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
-                      html.Div('generate',id='runstep',style={'display':'none'}),
-                      dcc.Store(id=module+'tmpstore'),                      
-                      dcc.Store(id=module+'stack')
+                      html.Div(id=module+'tmpstore')
                       ])
 
 page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
                                              html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
-                                                       dcc.Dropdown(id=module+'owner_dd',className='dropdown_inline',style={'width':'120px'},
+                                                       dcc.Dropdown(id=module+'owner_dd',className='dropdown_inline',options=[{'label':'1','value':'1'}],style={'width':'120px'},
                                                           persistence=True,
                                                           clearable=False),
+                                                       html.Div(id=module+'owner',style={'display':'none'}),
                                                        html.Div('Project',style={'margin-left': '2em'}),
                                                        html.A('(Browse)',id=module+'browse_proj',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
                                                        dcc.Dropdown(id=module+'project_dd',className='dropdown_inline',
                                                           persistence=True,
                                                           clearable=False),
+                                                       html.Div(id=module+'proj',style={'display':'none'}),
                                                        html.Div('Stack',style={'margin-left': '2em'}),
                                                        html.A('(Browse)',id=module+'browse_stack',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
                                                        dcc.Dropdown(id=module+'stack_dd',className='dropdown_inline',
                                                           persistence=True,
-                                                          clearable=False)
+                                                          clearable=False),
+                                                       dcc.Store(id=module+'stacks'),
                                              
                                              ],style=dict(display='flex'))
                                              ])
@@ -78,17 +79,15 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
 
 
 @app.callback([Output(module+'owner_dd','options'),
-               Output(module+'owner_dd','value'),
+               Output(module+'owner','children'),
                Output(module+'store','data')],
                Input(module+'page1','children'),
                State(module+'store','data'))
 def mipmaps_init_page(page,storage): 
-      
+    print('init! -----------     -----------         --------------')
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()        
         # assemble dropdown
-    
-   
         
     dd_options = list(dict())
     for item in owners: 
@@ -98,113 +97,155 @@ def mipmaps_init_page(page,storage):
     
     if storage['owner'] == '-':
         storage['owner'] = owners[0]
-    
-    return dd_options, storage['owner'], storage
 
+    return dd_options, storage['owner'], storage
     
+    
+ 
+@app.callback(Output(module+'owner_dd','value'),               
+               Input(module+'owner','children'),
+               )
+def mipmaps_init_owner(owner): 
+    return owner
     
     
 
 @app.callback([Output(module+'store','data'), 
-               Output(module+'owner_dd','options'),
-               Output(module+'owner_dd','value'),
-               Output(module+'project_dd','value'),
-               Output(module+'stack_dd','value')],
-              [Input('convert_'+'store','data'),
-               Input('url', 'pathname')],
+                Output(module+'owner_dd','options'),
+                Output(module+'owner_dd','value'),
+                Output(module+'project_dd','value'),
+                Output(module+'stack_dd','value')],
+              Input('convert_'+'store','data'),              
               State(module+'store','data'))
-def mipmaps_update_stack_state(prevstore,page,thisstore): 
-    
-    if 'all_owners' in thisstore.keys():
-        
-        for key in ['owner','project','stack']: 
-            if key in prevstore.keys() and not prevstore[key]=='-':
-                thisstore[key] = prevstore[key]
-                
-                
-        # print('mipmaps-store')
-        # print(thisstore)
-        # print(thisstore['stack'])
-        # get list of projects on render server
-        # url = params.render_base_url + params.render_version + 'owners'
-        # owners = requests.get(url).json()
-        # print(owners)    
-        
-        owners = thisstore['all_owners']
-        
-            # assemble dropdown
-        dd_options = list(dict())
-        for item in owners: 
-            dd_options.append({'label':item, 'value':item})
-        
-        
-        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
-        stacks = requests.get(url).json()
-        thisstore['allstacks'] = stacks
-    
-        thisstore['run_state'] = 'wait'
-    else:
-        dd_options = []         
+def mipmaps_update_stack_state(prevstore,thisstore): 
+    print(module)
+    print(thisstore)
+    print(prevstore)
 
-        
+    for key in ['owner','project','stack']: 
+        print(key)
+        if key in prevstore.keys() and not prevstore[key]=='-':
+            print(key)
+            print(thisstore[key])
+            print(prevstore[key])
+            thisstore[key] = prevstore[key]
+            
+            
+    # print('mipmaps-store')
+    # print(thisstore)
+    # print(thisstore['stack'])
+    # get list of projects on render server
+    # url = params.render_base_url + params.render_version + 'owners'
+    # owners = requests.get(url).json()
+    # print(owners)    
+    
+    owners = thisstore['all_owners']
+    
+        # assemble dropdown
+    dd_options = list(dict())
+    for item in owners: 
+        dd_options.append({'label':item, 'value':item})
+    
+    
+    url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
+    stacks = requests.get(url).json()
+    thisstore['allstacks'] = stacks
+
+    thisstore['run_state'] = 'wait'
+     
+    print('=======')
+    print(thisstore)
     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
 
 
 
-###  SELECT STACK TO WORK....
-##============================================================
+
+##  SELECT STACK TO WORK....
+#============================================================
 #dropdown callback
 @app.callback([Output(module+'browse_proj','href'),
                Output(module+'project_dd','options'),
+               Output(module+'project','children'),
                Output(module+'store','data')],
-    Input(module+'owner_dd', 'value'),
-    State(module+'store','data'))
+              Input(module+'owner_dd', 'value'),
+              State(module+'store','data'))
 def mipmaps_own_dd_sel(owner_sel,thisstore):
-    href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
 
+    print(owner_sel)    
+
+    href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
+    
    # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
     projects = requests.get(url).json()
     
+    out_project=projects[0]
+    
     # assemble dropdown
     dd_options = list(dict())
-    for item in projects: 
+    for item in projects:
+        if item == thisstore['project']:out_project=item
         dd_options.append({'label':item, 'value':item})
+    
+    
     
     thisstore['owner'] = owner_sel
     
-    return href_out, dd_options, thisstore
+    return href_out, dd_options,out_project, thisstore
+
+@app.callback(Output(module+'proj_dd','value'),               
+              Input(module+'project','children'),
+               )
+def mipmaps_init_proj(proj): 
+    return proj
+
 
 
 #dropdown callback
 @app.callback([Output(module+'browse_stack','href'),
-               Output(module+'stack_dd','options'),
-               Output(module+'store','data')],
+                Output(module+'stack_dd','options'),
+                Output(module+'stacks','data'),
+                Output(module+'store','data')],
               Input(module+'project_dd', 'value'),
               State(module+'store','data'))
 def mipmaps_proj_dd_sel(proj_sel,thisstore): 
         
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
-   # get list of projects on render server
+    # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + proj_sel + '/stacks'
     stacks = requests.get(url).json()
-     
+    
+    out_stack=stacks[0]['stackId']['stack']
+    
     # assemble dropdown
     dd_options = list(dict())
-    for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+    for item in stacks:
+        if item['stackId']['stack'] == thisstore['stack']:out_stack=item
+        dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
 
     
     thisstore['project'] = proj_sel
     thisstore['allstacks'] = stacks
+    
+    print('proj-sel')
+    print(thisstore.keys())
+    
+    return href_out, dd_options, out_stack, thisstore
 
-    return href_out, dd_options, thisstore
+
+
+@app.callback(Output(module+'stack_dd','value'),               
+              Input(module+'stack','children'),
+               )
+def mipmaps_init_stack(stack): 
+    return stack
 
 
 # ===============================================
 
 stackoutput = [Output(module+'input1','value'),
-               Output(module+'stack','data'),
-               Output(module+'store','data')]
+                Output(module+'stack','data'),
+                Output(module+'store','data')]
 
 tablefields = [Output(module+'t_'+col,'children') for col in table_cols]
 compute_tablefields = [Output(module+'input_'+col,'value') for col in compute_table_cols]
@@ -214,16 +255,28 @@ stackoutput.extend(compute_tablefields)
 
 @app.callback(stackoutput,
               Input(module+'stack_dd', 'value'),
-              State(module+'store','data')
+              [State(module+'stacks', 'data'),
+              State(module+'store','data')]
               )
-def mipmaps_stacktodir(stack_sel,thisstore):
-
+def mipmaps_stacktodir(stack_sel,allstacks,thisstore):
+    
     dir_out=''
     
     t_fields = ['']*len(table_cols)
     ct_fields = [1]*len(compute_table_cols)
-
-    if not(stack_sel=='-' ) and ('allstacks' in thisstore.keys()):   
+        
+    thisstore['allstacks']=allstacks
+    
+    print('stacktodir')
+    
+    print(thisstore.keys())
+    
+    print(stack_sel)
+    
+    print('allstacks' in thisstore.keys())
+    
+    if (not stack_sel=='-' ) and (not allstacks is None):   
+        print(allstacks)
         stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
         
         if not stacklist == []:
@@ -274,7 +327,7 @@ stackstate.append(State(module+'store','data'))
 @app.callback(Output(module+'store','data'),                            
               stackinput,
               stackstate
-               )
+                )
 def mipmaps_store_compute_settings(*inputs): 
     comp_numset=len(compute_table_cols)
     storage=inputs[-1]
@@ -299,14 +352,14 @@ def mipmaps_store_compute_settings(*inputs):
 
 
 
-@app.callback([Output(module+'owner_dd', 'value'),
-               Output(module+'store','data')],                            
+@app.callback([Output(module+'tmpstore', 'children'),
+                Output(module+'store','data')],                            
               Input(module+'run_state','children'),
               State(module+'store','data')
                 )
 def mipmaps_store_runstate(runstate,storage):  
     storage['run_state']=runstate
-    return storage['owner'],storage
+    return [],storage
 
 
 # =============================================
@@ -333,11 +386,11 @@ gobutton = html.Div(children=[html.Br(),
 
 
 @app.callback([Output(module+'go', 'disabled'),
-               Output(module+'directory-popup','children'),
-               Output(module+'run_state','children')],              
+                Output(module+'directory-popup','children'),
+                Output(module+'run_state','children')],              
               Input(module+'input1','value'),
               State(module+'store','data'),
-               )
+                )
 def mipmaps_activate_gobutton(in_dir,storage):      
     rstate = 'wait'          
     out_pop=dcc.ConfirmDialog(        
@@ -367,15 +420,15 @@ def mipmaps_activate_gobutton(in_dir,storage):
 
 
 @app.callback([Output(module+'go', 'disabled'),
-               Output(module+'store','data'),
-               Output(module+'interval1','interval'),
-               Output('runstep','children')
-               ],
+                Output(module+'store','data'),
+                Output(module+'interval1','interval'),
+                Output('runstep','children')
+                ],
               Input(module+'go', 'n_clicks'),
               [State(module+'input1','value'),
-               State(module+'compute_sel','value'),
-               State('runstep','children'),
-               State(module+'store','data')]
+                State(module+'compute_sel','value'),
+                State('runstep','children'),
+                State(module+'store','data')]
               )                 
 
 def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):    
@@ -477,7 +530,7 @@ def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):
 
 
 @app.callback([Output(module+'interval2','interval'),
-               Output(module+'store','data')],
+                Output(module+'store','data')],
               Input(module+'interval2','n_intervals'),
               State(module+'store','data'))
 def mipmaps_update_status(n,storage):  
@@ -488,7 +541,7 @@ def mipmaps_update_status(n,storage):
         if not 'Error' in status:
             if procs==[]:
                 if storage['run_state'] not in ['input','wait']:
-                   storage['run_state'] = 'input'               
+                    storage['run_state'] = 'input'               
             # print(procs)
             if (type(procs) is subprocess.Popen or len(procs)>0): 
                 status = launch_jobs.status(procs)   
@@ -511,8 +564,8 @@ cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
               Output(module+'outfile','children')],
               Input(module+'store','data'),
               [State('runstep','children'),
-               State(module+'compute_sel','value'),
-               State(module+'input1','value')])
+                State(module+'compute_sel','value'),
+                State(module+'input1','value')])
 def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
@@ -526,10 +579,10 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
             log_refresh = params.refresh_interval
             if not type(procs) is subprocess.Popen:
-               if  type(procs) is str:
-                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
-               elif not type(procs[0]) is subprocess.Popen:
-                   status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])        
+                if  type(procs) is str:
+                    status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
+                elif not type(procs[0]) is subprocess.Popen:
+                    status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])        
     elif storage['run_state'] == 'input':
         status='process will start on click.'
     elif storage['run_state'] == 'done':
@@ -571,7 +624,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
             log_file += '.log'
             
             mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
-                         json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+                          json=param_file,run_args=None,logfile=log_file,errfile=err_file)
             
             params.processes[module.strip('_')] = [mipmap_apply_p]
             
@@ -597,7 +650,7 @@ def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
 
 
 @app.callback([Output(module+'get-status','children'),
-               Output(module+'store','data')],
+                Output(module+'store','data')],
               Input(module+'cancel', 'n_clicks'),
               State(module+'store','data'))
 def mipmaps_cancel_jobs(click,storage):
@@ -624,43 +677,43 @@ collapse_stdout = html.Div(children=[
                 html.Details([
                     html.Summary('Console output:'),
                     html.Div(id=module+"collapse",                 
-                     children=[
-                         html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
-                         dcc.Textarea(id=module+'console-out',className="console_out",
+                      children=[
+                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
+                          dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
-                         ])
+                          ])
                 ])
             ],id=module+'consolebox')
 
 
 
-@app.callback(Output(module+'console-out','value'),
-    [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
-def mipmaps_update_output(n,outfile):
-    data=''
+# @app.callback(Output(module+'console-out','value'),
+#     [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
+# def mipmaps_update_output(n,outfile):
+#     data=''
     
-    if outfile is not None:
-        if os.path.exists(outfile):
-            file = open(outfile, 'r')    
-            lines = file.readlines()
-            if lines.__len__()<=params.disp_lines:
-                last_lines=lines
-            else:
-                last_lines = lines[-params.disp_lines:]
-            for line in last_lines:
-                data=data+line
-            file.close() 
+#     if outfile is not None:
+#         if os.path.exists(outfile):
+#             file = open(outfile, 'r')    
+#             lines = file.readlines()
+#             if lines.__len__()<=params.disp_lines:
+#                 last_lines=lines
+#             else:
+#                 last_lines = lines[-params.disp_lines:]
+#             for line in last_lines:
+#                 data=data+line
+#             file.close() 
         
-    return data
+#     return data
 
 
 
-@app.callback(Output(module+'outfile', 'children'),
-              [Input(module+'page1', 'children'),
-               Input(module+'store', 'data')]
-              )
-def mipmaps_update_outfile(update,data):    
-    return data['log_file']
+# @app.callback(Output(module+'outfile', 'children'),
+#               [Input(module+'page1', 'children'),
+#                Input(module+'store', 'data')]
+#               )
+# def mipmaps_update_outfile(update,data):    
+#     return data['log_file']
 
 
 
