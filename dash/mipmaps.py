@@ -111,7 +111,7 @@ def mipmaps_update_stack_state(prevstore,page,thisstore):
     if 'all_owners' in thisstore.keys():
         
         for key in ['owner','project','stack']: 
-            if key in prevstore.keys():
+            if key in prevstore.keys() and not prevstore[key]=='-':
                 thisstore[key] = prevstore[key]
                 
                 

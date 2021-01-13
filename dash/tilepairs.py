@@ -141,7 +141,7 @@ def tilepairs_update_stack_state(prevstore,page,thisstore):
     if 'all_owners' in thisstore.keys():
         
         for key in ['owner','project','stack']: 
-            if key in prevstore.keys():
+            if key in prevstore.keys() and not prevstore[key]=='-':
                 thisstore[key] = prevstore[key]
                 
                 
@@ -319,7 +319,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
         
         #generate script call...
         
-        tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix + '_' + pairmode
+        tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix + '_'+ storage['stack'] + '_' + pairmode
         
         if not os.path.exists(tilepairdir): os.makedirs(tilepairdir)
         
