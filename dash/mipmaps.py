@@ -210,13 +210,26 @@ stackoutput.extend(compute_tablefields)
               State(module+'store','data')
               )
 def mipmaps_stacktodir(stack_sel,thisstore):
-    if stack_sel=='-':
-        dir_out=''
+
+    dir_out=''
+    
+    t_fields = ['']*len(table_cols)
+    ct_fields = [1]*len(compute_table_cols)
+
+    if not(stack_sel=='-' ) and ('allstacks' in thisstore.keys()):   
+        stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
         
-        t_fields = ['']*len(table_cols)
-        ct_fields = [1]*len(compute_table_cols)
-    else:
+        print(stacklist)
         
+        if not stacklist == []:
+            stackparams = stacklist[0]        
+            thisstore['stack'] = stackparams['stackId']['stack']
+            thisstore['stackparams'] = stackparams
+            thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
+            thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
+            thisstore['numtiles']=stackparams['stats']['tileCount']
+            thisstore['numsections']=stackparams['stats']['sectionCount']
+            
         stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
         thisstore['stack'] = stackparams['stackId']['stack']
         thisstore['stackparams'] = stackparams
@@ -244,8 +257,7 @@ def mipmaps_stacktodir(stack_sel,thisstore):
         timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
         
         ct_fields = [n_cpu,timelim,params.section_split]  
-        
-        
+          
    
     outlist=[dir_out, thisstore['stack'], thisstore]        
     outlist.extend(t_fields)
@@ -480,7 +492,7 @@ def mipmaps_update_status(n,storage):
             if procs==[]:
                 if storage['run_state'] not in ['input','wait']:
                    storage['run_state'] = 'input'               
-            print(procs)
+            # print(procs)
             if (type(procs) is subprocess.Popen or len(procs)>0): 
                 status = launch_jobs.status(procs)   
                 storage['run_state'] = status    
