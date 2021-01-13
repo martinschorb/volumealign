@@ -235,7 +235,7 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
               )
 def tilepairs_stacktosections(stack_sel,thisstore):
 
-    if stack_sel=='-':   
+    if stack_sel=='-' or not 'allstacks' in thisstore.keys():   
         
         sec_start = 0
         sec_end = 1
