@@ -89,9 +89,10 @@ page1 = html.Div(id=module+'page1')
                Output(module+'mc_owner_dd','options'),
                Output(module+'mc_owner_dd','value'),
                Output(module+'store','data')],
-              Input('url', 'pathname'),
+              Input(module+'page1','children'),
               State(module+'store','data'))
 def pointmatch_init_page(page,storage):
+
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()
     
@@ -134,6 +135,9 @@ def pointmatch_update_stack_state(prevstore,page,thisstore):
         
         for key in ['owner','project','stack','tilepairdir']: 
             if key in prevstore.keys() and not prevstore[key]=='-':
+                # print(key)
+                # print(prevstore[key])
+                
                 thisstore[key] = prevstore[key]
                 
         # print('mipmaps-store')

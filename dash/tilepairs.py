@@ -110,9 +110,10 @@ gobutton = html.Div(children=[html.Br(),
 @app.callback([Output(module+'owner_dd','options'),
                Output(module+'owner_dd','value'),
                 Output(module+'store','data')],
-                Input('url', 'pathname'),
+                Input(module+'page1','children'),
                 State(module+'store','data'))
 def tilepairs_init_page(page,storage):
+    
     url = params.render_base_url + params.render_version + 'owners'
     owners = requests.get(url).json()
     
@@ -226,7 +227,8 @@ def tilepairs_proj_dd_sel(proj_sel,thisstore):
 @app.callback([Output(module+'startsection','value'),
                 Output(module+'startsection','min'),
                 Output(module+'endsection','value'),
-                Output(module+'endsection','max'),],
+                Output(module+'endsection','max'),
+                Output(module+'store','data')],
               Input(module+'stack_dd', 'value'),
               State(module+'store','data')
               )
@@ -249,7 +251,7 @@ def tilepairs_stacktosections(stack_sel,thisstore):
             sec_start = int(thisstore['zmin'])
             sec_end = int(thisstore['zmax'])
 
-    return sec_start, sec_start, sec_end, sec_end
+    return sec_start, sec_start, sec_end, sec_end, thisstore
 
 
 

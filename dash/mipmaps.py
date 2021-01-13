@@ -80,20 +80,27 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
 @app.callback([Output(module+'owner_dd','options'),
                Output(module+'owner_dd','value'),
                Output(module+'store','data')],
-               Input('url', 'pathname'),
+               Input(module+'page1','children'),
                State(module+'store','data'))
-def mipmaps_init_page(page,storage):
+def mipmaps_init_page(page,storage): 
+      
     url = params.render_base_url + params.render_version + 'owners'
-    owners = requests.get(url).json()
-    
+    owners = requests.get(url).json()        
         # assemble dropdown
+    
+   
+        
     dd_options = list(dict())
     for item in owners: 
         dd_options.append({'label':item, 'value':item})
     
-    storage['all_owners']=owners
+    storage['all_owners']=owners       
     
-    return dd_options, owners[0], storage
+    if storage['owner'] == '-':
+        storage['owner'] = owners[0]
+    
+    return dd_options, storage['owner'], storage
+
     
     
     
@@ -219,8 +226,6 @@ def mipmaps_stacktodir(stack_sel,thisstore):
     if not(stack_sel=='-' ) and ('allstacks' in thisstore.keys()):   
         stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
         
-        print(stacklist)
-        
         if not stacklist == []:
             stackparams = stacklist[0]        
             thisstore['stack'] = stackparams['stackId']['stack']
@@ -229,34 +234,26 @@ def mipmaps_stacktodir(stack_sel,thisstore):
             thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
             thisstore['numtiles']=stackparams['stats']['tileCount']
             thisstore['numsections']=stackparams['stats']['sectionCount']
+         
+            num_blocks = int(np.max((np.floor(thisstore['numsections']/params.section_split),1)))
             
-        stackparams = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel][0]
-        thisstore['stack'] = stackparams['stackId']['stack']
-        thisstore['stackparams'] = stackparams
-        thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
-        thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
-        thisstore['numtiles']=stackparams['stats']['tileCount']
-        thisstore['numsections']=stackparams['stats']['sectionCount']
-        
-        num_blocks = int(np.max((np.floor(thisstore['numsections']/params.section_split),1)))
-        
-        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
-        tiles0 = requests.get(url).json()
-        
-        tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
-        
-        basedirsep = params.datasubdirs[thisstore['owner']]
-        dir_out = tilefile0[:tilefile0.find(basedirsep)]
-        
-        thisstore['gigapixels']=thisstore['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
-        
-        t_fields=[thisstore['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %thisstore['gigapixels']]
-        
-        n_cpu = params.n_cpu_script
-        
-        timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
-        
-        ct_fields = [n_cpu,timelim,params.section_split]  
+            url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
+            tiles0 = requests.get(url).json()
+            
+            tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+            
+            basedirsep = params.datasubdirs[thisstore['owner']]
+            dir_out = tilefile0[:tilefile0.find(basedirsep)]
+            
+            thisstore['gigapixels']=thisstore['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
+            
+            t_fields=[thisstore['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %thisstore['gigapixels']]
+            
+            n_cpu = params.n_cpu_script
+            
+            timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
+            
+            ct_fields = [n_cpu,timelim,params.section_split]  
           
    
     outlist=[dir_out, thisstore['stack'], thisstore]        
