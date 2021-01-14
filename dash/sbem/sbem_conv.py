@@ -48,8 +48,9 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
 
 
 
-@app.callback([Output(label+'input1', 'value'),Output(label+'warning-popup','children')],
-    [Input(label+'browse1', 'n_clicks')])
+@app.callback([Output(label+'input1', 'value'),
+               Output(label+'warning-popup','children')],
+              Input(label+'browse1', 'n_clicks'))
 def sbem_conv_convert_filebrowse1(click):
     
     hostname = socket.gethostname()
@@ -107,7 +108,7 @@ project_dd = html.Div([html.H4("Select Render Project:"),
 @app.callback([Output(label+'browse_proj','href'),
                Output(label+'render_project','children'),
                Output(label+'render_project','style')],
-    Input(label+'project_dd', 'value'))
+              Input(label+'project_dd', 'value'))
 def sbem_conv_proj_dd_sel(project_sel):     
     if project_sel=='newproj':       
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
@@ -121,6 +122,11 @@ def sbem_conv_proj_dd_sel(project_sel):
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
     return [href_out,div_out,divstyle]
 
+
+
+
+
+
 # Create a new Project
 
 @app.callback([Output(label+'project_dd', 'options'),Output(label+'project_dd', 'value')],
@@ -129,6 +135,10 @@ def sbem_conv_proj_dd_sel(project_sel):
 def sbem_conv_new_proj(project_name,dd_options): 
     dd_options.append({'label':project_name, 'value':project_name})
     return dd_options,project_name
+
+
+
+
 
 #------------------
 # SET STACK
@@ -144,6 +154,8 @@ stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Re
                                                                      id=label+'browse_stack',target="_blank"),
                                                               html.Br(),]
                        )
+
+
 
 
 @app.callback([Output(label+'stack_dd','options'),   

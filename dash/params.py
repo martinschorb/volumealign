@@ -47,6 +47,17 @@ mipmapdir = 'mipmaps'
 
 
 
+
+#=============================================================
+
+
+default_store = {'run_state':'input',
+                 'logfile':render_log_dir + '/out.txt',
+                 'owner':None,
+                 'allowners':None}
+
+
+
 #=============================================================
 ## UI parameters
 
