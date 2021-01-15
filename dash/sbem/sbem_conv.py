@@ -286,8 +286,7 @@ gobutton = html.Div(children=[html.Br(),
 @app.callback([Output(label+'go', 'disabled'),
                 Output(label+'directory-popup','children'),
                 Output(label+'danger-novaliddir','displayed'),
-                Output(parent+'store_rs_launch','data'),
-                Output(parent+'store_logf_launch','data')
+                Output(parent+'store_r_launch','data')
                 ],             
               [Input(label+'stack_dd','value'),
                 Input(label+'input1','value'),
@@ -295,15 +294,16 @@ gobutton = html.Div(children=[html.Br(),
                 ],
               [State(label+'project_dd', 'value'),
                 State(label+'compute_sel','value'),
-                State(parent+'store_run_state','data')],
+                State(parent+'store_run_state','data'),
+                State(parent+'store_r_launch','data')],
                 )
-def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state):   
+def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state,out):   
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
     popup = ''
     pop_display = False
-    log_file = params.default_store['logf_status']
+    log_file = out['logfile']
 
     if trigger == 'go':
     # launch procedure                
@@ -345,8 +345,6 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         
     else:
     # check launch conditions and enable/disable button    
-        print('update')
-        print(run_state)
         if any([in_dir=='',in_dir==None]):
             if not (run_state == 'running'): 
                     run_state = 'wait'
@@ -371,9 +369,11 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                 params.processes[parent.strip('_')] = []
                 popup = 'Directory not accessible.'
                 pop_display = True
-    print(trigger)
-    print(run_state)
-    return but_disabled, popup, pop_display, run_state, log_file
+    
+    out['logfile'] = log_file
+    out['state'] = run_state
+    
+    return but_disabled, popup, pop_display, out
 
         
 

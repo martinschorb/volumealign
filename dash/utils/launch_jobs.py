@@ -61,6 +61,8 @@ def status(processes):
 
 def checkstatus(runvar):    
     if type(runvar) is subprocess.Popen:
+        print('poll')
+        print(runvar.poll())
         if runvar.poll() is None:
             return 'running',runvar
         

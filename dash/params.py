@@ -53,10 +53,8 @@ mipmapdir = 'mipmaps'
 
 
 default_store = {'run_state':'input',
-                 'rs_status':'input',
-                 'rs_launch':'input',
-                 'logf_status':render_log_dir + '/out.txt',
-                 'logf_launch':render_log_dir + '/out.txt',
+                 'r_status':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
+                 'r_launch':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
                  'owner':None,
                  'allowners':None}
 
