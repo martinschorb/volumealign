@@ -61,9 +61,16 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
 
 @app.callback([Output(label+'input1', 'value'),
                Output(label+'warning-popup','children')],
-              Input(label+'browse1', 'n_clicks'))
-def sbem_conv_convert_filebrowse1(click):
-    if not click is None:
+              [Input(label+'browse1', 'n_clicks'),
+               Input(label+'danger-novaliddir','submit_n_clicks'),
+               Input(label+'danger-novaliddir','cancel_n_clicks')])
+def sbem_conv_convert_filebrowse1(browse_click,popupclick1,popupclick2):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
+    outpage=''
+    conv_inputdir = ''
+    
+    if 'browse1'in trigger:        
         hostname = socket.gethostname()
     
         if hostname=='login-gui01.cluster.embl.de':    
@@ -77,12 +84,10 @@ def sbem_conv_convert_filebrowse1(click):
             id=label+'danger-wrong_host',displayed=True,
             message='This functionality only works when accessing this page from the graphical login node.'
             )
-            conv_inputdir = ''
-        return conv_inputdir,outpage
-    
-    else:
-        return [dash.no_update] * 2
+               
+    return conv_inputdir, outpage 
 
+   
 
 
 #------------------
@@ -250,6 +255,12 @@ def sbem_conv_new_stack_input(stack_value):
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion',id=label+"go",disabled=True),
+                              html.Div([],id=label+'directory-popup',style = {'color':'#E00'}),
+                              dcc.ConfirmDialog(
+                                  id=label+'danger-novaliddir',displayed=False,
+                                  message='The selected directory does not exist or is not readable!'
+                                  ),
+                              html.Br(),
                               html.Details([html.Summary('Compute location:'),
                                             dcc.RadioItems(
                                                 options=[
@@ -260,121 +271,109 @@ gobutton = html.Div(children=[html.Br(),
                                                 labelStyle={'display': 'inline-block'},
                                                 id=label+'compute_sel'
                                                 )],
-                                  id=label+'compute'),
-                              html.Div(id=label+'directory-popup')]
+                                  id=label+'compute')]
                     ,style={'display': 'inline-block'})
 
 
-
-
-@app.callback([Output(label+'go', 'disabled'),
-                Output(label+'directory-popup','children'),
-                Output(parent+'store','data')],              
-              [Input(label+'stack_state', 'children'),
-                Input(label+'input1','value')],
-              [State(label+'project_dd', 'value'),
-                State(parent+'store','data')],
-                )
-def sbem_conv_activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
-
-    out_pop=dcc.ConfirmDialog(        
-        id=label+'danger-novaliddir',displayed=True,
-        message='The selected directory does not exist or is not readable!'
-        )
-    if any([in_dir=='',in_dir==None]):
-        if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'wait'
-                params.processes[parent.strip('_')] = []
-        return True,'No input directory chosen.',storage
-    elif os.path.isdir(in_dir):        
-        if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-            if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'wait'
-                params.processes[parent.strip('_')] = []
-            return True,'',storage
-        else:
-            if not (storage['run_state'] == 'running'): 
-                storage['run_state'] = 'input'
-                params.processes[parent.strip('_')] = []
-            return False,'',storage
-        
-    else:
-        if not (storage['run_state'] == 'running'): 
-            storage['run_state'] = 'wait'
-            params.processes[parent.strip('_')] = []
-        return True, out_pop,storage
-    
-    
-
-# @app.callback(Output(label+'input1','value'),
-#               [Input(label+'danger-novaliddir','submit_n_clicks'),
-#                 Input(label+'danger-novaliddir','cancel_n_clicks')])
-# def sbem_conv_dir_warning(sub_c,canc_c):
-#     return ''
-        
-    
-    
+ 
 # =============================================
    
 #  LAUNCH CALLBACK FUNCTION
 
 # =============================================
-  
-    
 
-# @app.callback([Output(label+'go', 'disabled'),
-#                 Output(parent+'store','data'),
-#                 Output(parent+'interval1','interval')
-#                 ],
-#               Input(label+'go', 'n_clicks'),
-#               [State(label+'input1','value'),               
-#                 State(label+'project_dd', 'value'),
-#                 State(label+'stack_state', 'children'),
-#                 State(label+'compute_sel','value'),
-#                 State(parent+'store','data')]
-#               )                 
 
-# def sbem_conv_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
-#     # prepare parameters:∂
+@app.callback([Output(label+'go', 'disabled'),
+                Output(label+'directory-popup','children'),
+                Output(label+'danger-novaliddir','displayed'),
+                Output(parent+'store_rs_launch','data'),
+                Output(parent+'store_logf_launch','data')
+                ],             
+              [Input(label+'stack_dd','value'),
+                Input(label+'input1','value'),
+                Input(label+'go', 'n_clicks')
+                ],
+              [State(label+'project_dd', 'value'),
+                State(label+'compute_sel','value'),
+                State(parent+'store_run_state','data')],
+                )
+def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state):   
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
+    but_disabled = True
+    popup = ''
+    pop_display = False
+    log_file = params.default_store['logf_status']
+
+    if trigger == 'go':
+    # launch procedure                
     
-#     importlib.reload(params)
+        # prepare parameters:
         
-#     param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+        importlib.reload(params)
+            
+        param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+        
+        run_params = params.render_json.copy()
+        run_params['render']['owner'] = owner
+        run_params['render']['project'] = proj_dd_sel
+        
+        with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
+            run_params.update(json.load(f))
+        
+        run_params['image_directory'] = in_dir
+        run_params['stack'] = stack_sel
+        
+        with open(param_file,'w') as f:
+            json.dump(run_params,f,indent=4)
     
-#     run_params = params.render_json.copy()
-#     run_params['render']['owner'] = owner
-#     run_params['render']['project'] = proj_dd_sel
-    
-#     with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
-#         run_params.update(json.load(f))
-    
-#     run_params['image_directory'] = sbemdir
-#     run_params['stack'] = stack_sel
-    
-#     with open(param_file,'w') as f:
-#         json.dump(run_params,f,indent=4)
-
-#     log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
-#     err_file = log_file + '.err'
-#     log_file += '.log'
-    
+        log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
+        err_file = log_file + '.err'
+        log_file += '.log'
+            
+            
+        #launch
+        # -----------------------
+        
+        sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+                        json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+        
+        run_state = 'running'
+        params.processes[parent.strip('_')] = sbem_conv_p
+        
 
         
-#     #launch
-#     # -----------------------
-    
-#     sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-#                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
-    
-    
-    
-#     storage['log_file'] = log_file
-#     storage['run_state'] = 'running'
-#     params.processes[parent.strip('_')] = sbem_conv_p
-    
+    else:
+    # check launch conditions and enable/disable button    
+        print('update')
+        print(run_state)
+        if any([in_dir=='',in_dir==None]):
+            if not (run_state == 'running'): 
+                    run_state = 'wait'
+                    params.processes[parent.strip('_')] = []
+                    popup = 'No input directory chosen.'
+                    
+        elif os.path.isdir(in_dir):        
+            if any([stack_sel=='newstack', proj_dd_sel=='newproj']):
+                if not (run_state == 'running'): 
+                    run_state = 'wait'
+                    params.processes[parent.strip('_')] = []
 
-#     return True,storage,params.refresh_interval
-
+            else:
+                if not (run_state == 'running'): 
+                    run_state = 'input'
+                    params.processes[parent.strip('_')] = []
+                    but_disabled = False
+            
+        else:
+            if not (run_state == 'running'): 
+                run_state = 'wait'
+                params.processes[parent.strip('_')] = []
+                popup = 'Directory not accessible.'
+                pop_display = True
+    print(trigger)
+    print(run_state)
+    return but_disabled, popup, pop_display, run_state, log_file
 
         
 

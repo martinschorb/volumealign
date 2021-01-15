@@ -82,6 +82,19 @@ def convert_get_status(*args):
     return runstate.get_status(*args)
 
 
+lf_out, lf_in = runstate.init_logfile(module)
+
+@app.callback(lf_out, lf_in)
+def covert_logfile(*args):
+    return runstate.logfile(*args)               
+
+
+rs_out, rs_in = runstate.init_run_state(module)
+
+@app.callback(rs_out, rs_in)
+def covert_run_state(*args):
+    return runstate.run_state(*args)  
+
 # # =============================================
 # # PROGRESS OUTPUT
 

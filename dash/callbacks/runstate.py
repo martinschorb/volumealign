@@ -22,8 +22,8 @@ from utils import launch_jobs
 def init_update_status(module):
     
     dash_out = [Output(module+'interval2','interval'),
-                Output(module+'store_run_state','data'),
-                Output(module+'outfile','children')
+                Output(module+'store_rs_status','data'),
+                Output(module+'store_logf_status','data')
                 ]
     
     dash_in =  [Input(module+'interval2','n_intervals'),
@@ -40,8 +40,10 @@ def update_status(n,click,run_state,logfile,module):
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
     
     procs=params.processes[module.strip('_')]
+    print(module)
+    print(trigger)
     
-    if trigger == 'interval2':
+    if 'interval2' in trigger:
         status = run_state
         
         if procs==[]:
@@ -55,11 +57,13 @@ def update_status(n,click,run_state,logfile,module):
         if 'Error' in status:
             if logfile.endswith('.log'):
                 logfile = logfile[logfile.rfind('.log')]+'.err'
-
+                
+        print(procs)
+        print(run_state)
         return params.idle_interval,run_state,logfile
     
-    elif trigger == 'cancel':
-
+    elif 'cancel' in trigger:
+        print(procs)
         p_status = launch_jobs.canceljobs(procs)
         
         params.processes[module.strip('_')] = []    
@@ -94,16 +98,16 @@ def get_status(run_state,module):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')] 
-    c_button_style = {'display': 'none'}
-    
-    if run_state == 'running':        
+    c_button_style = {'display': 'none'}    
+    if run_state == 'running':  
+        
         if procs == []:
             status = 'not running'
         else:
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
             log_refresh = params.refresh_interval
             if not type(procs) is subprocess.Popen:
-                c_button_style = ' '
+                c_button_style = {}
                 if  type(procs) is str:
                     status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  '])
                 elif not type(procs[0]) is subprocess.Popen:
@@ -114,7 +118,7 @@ def get_status(run_state,module):
         status='DONE'
         status_style = {'color':'#0E0'}
     elif run_state == 'pending':
-        c_button_style = ' '
+        c_button_style = {} 
         status = ['Waiting for cluster resources to be allocated.']
     elif run_state == 'wait':
         status='not running'
@@ -158,3 +162,36 @@ def update_output(n,outfile):
         
     return data
 
+
+#  =================================================
+
+def init_logfile(module):
+    dash_out = Output(module+'outfile','children'),
+    dash_in =  [Input(module+'store_logf_status','data'),
+                Input(module+'store_logf_launch','data')]
+    return dash_out,dash_in
+
+def logfile(status_in,launch_in):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    if 'launch' in trigger:
+        return [launch_in]
+    else:
+        return [status_in]
+
+def init_run_state(module):
+    dash_out = Output(module+'store_run_state','data'),
+    dash_in =  [Input(module+'store_rs_status','data'),
+                Input(module+'store_rs_launch','data')]
+    return dash_out,dash_in
+
+def run_state(status_in,launch_in):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    print(trigger)
+    print(status_in)
+    if 'launch' in trigger:
+        return [launch_in]
+    else:
+        return [status_in]
