@@ -6,6 +6,7 @@
 import json   
 import os 
 import time
+import subprocess
 
 #=============================================================
 ## Directory presets
@@ -65,7 +66,7 @@ default_store = {'run_state':'input',
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 1000   # ms
+idle_interval = 10000   # ms
 
 
 # -------------  
@@ -74,6 +75,11 @@ idle_interval = 1000   # ms
 user = os.getlogin()
 
 timestamp = time.localtime()
+
+
+p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
+group = p.communicate()[0].decode(encoding='utf8').strip("\n")
+
 
 run_prefix = user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 

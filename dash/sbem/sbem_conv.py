@@ -5,18 +5,16 @@ Created on Wed Nov  4 08:42:12 2020
 
 @author: schorb
 """
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import subprocess
-# import sys
+from dash.dependencies import Input,Output,State
+
 import os
 import socket
 #for file browsing dialogs
 import tkinter
 from tkinter import filedialog
-
-from dash.dependencies import Input,Output,State
-
 import json
 import requests
 import importlib
@@ -36,15 +34,28 @@ parent = "convert_"
 
 # get user name and main group to pre-polulate input directory
 
-p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
-group = p.communicate()[0].decode(encoding='utf8').strip("\n")
+group = params.group
+
+# ============================
+# set up render parameters
+
+owner = "SBEM"
+
+
+# =============================================
+# # Page content
+
+
+
+# Pick source directory
+
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                                    html.Script(type="text/javascript",children="alert('test')"),                                   
-                          dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True,className='dir_textinput'),
-                          html.Button('Browse',id=label+"browse1"),' graphical browsing works on cluster login node ONLY!',
-                          html.Div(id=label+'warning-popup')])
-
+                                   dcc.Input(id=label+"input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True,className='dir_textinput'),
+                                   html.Button('Browse',id=label+"browse1"),' graphical browsing works on cluster login node ONLY!',
+                                   html.Div(id=label+'warning-popup')
+                                   ])
 
 
 
@@ -52,52 +63,54 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                Output(label+'warning-popup','children')],
               Input(label+'browse1', 'n_clicks'))
 def sbem_conv_convert_filebrowse1(click):
+    if not click is None:
+        hostname = socket.gethostname()
     
-    hostname = socket.gethostname()
-
-    if hostname=='login-gui01.cluster.embl.de':    
-        root = tkinter.Tk()
-        root.withdraw()
-        conv_inputdir = filedialog.askdirectory()
-        root.destroy()
-        outpage=''
+        if hostname=='login-gui01.cluster.embl.de':    
+            root = tkinter.Tk()
+            root.withdraw()
+            conv_inputdir = filedialog.askdirectory()
+            root.destroy()
+            outpage=''
+        else:
+            outpage=dcc.ConfirmDialog(        
+            id=label+'danger-wrong_host',displayed=True,
+            message='This functionality only works when accessing this page from the graphical login node.'
+            )
+            conv_inputdir = ''
+        return conv_inputdir,outpage
+    
     else:
-        outpage=dcc.ConfirmDialog(        
-        id=label+'danger-wrong_host',displayed=True,
-        message='This functionality only works when accessing this page from the graphical login node.'
-        )
-        conv_inputdir = ''
-    return conv_inputdir,outpage
+        return [dash.no_update] * 2
 
 
 
-
-
-# ============================
-# set up render parameters
-
-owner = "SBEM"
 #------------------
+
 # SET PROJECT
 
-# get list of projects on render server
+
+
+# assemble dropdown
 url = params.render_base_url + params.render_version + 'owner/' + owner + '/projects'
 projects = requests.get(url).json()
 
 orig_projdiv=html.Div(id=label+'orig_proj',style={'display':'none'},children=projects)
+   
+        
 
-
-# assemble dropdown
-dd_options = [{'label':'Create new Project', 'value':'newproj'}]
+proj_dd_options = [{'label':'Create new Project', 'value':'newproj'}]
 for item in projects: 
-    dd_options.append({'label':item, 'value':item})
-
-
+   proj_dd_options.append({'label':item, 'value':item})
+       
 project_dd = html.Div([html.H4("Select Render Project:"),
                        dcc.Dropdown(id=label+'project_dd',persistence=True,
-                                    options=dd_options,clearable=False,value=projects[0]),
+                                    options=proj_dd_options,clearable=False),
                        html.Br(),
-                       html.Div(id=label+'render_project',style={'display':'none'}),                               
+                       html.Div(['Enter new project name: ',
+                                 dcc.Input(id=label+"proj_input", type="text", debounce=True,placeholder="new_project",persistence=False)
+                                 ],
+                                id=label+'render_project',style={'display':'none'}),                               
                        html.Div([html.Br(),html.A('Browse Project',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
                                 id=label+'browse_proj',target="_blank")]),
                        orig_projdiv
@@ -105,38 +118,39 @@ project_dd = html.Div([html.H4("Select Render Project:"),
 
                        
 #dropdown callback
+
+# Fills the project DropDown
+
 @app.callback([Output(label+'browse_proj','href'),
-               Output(label+'render_project','children'),
                Output(label+'render_project','style')],
               Input(label+'project_dd', 'value'))
-def sbem_conv_proj_dd_sel(project_sel):     
-    if project_sel=='newproj':       
-        href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
-        divstyle = {'display':'block'}                       
-        div_out = ['Enter new project name: ',
-                   dcc.Input(id=label+"proj_input", type="text", debounce=True,placeholder="new_project",persistence=False)
-                   ]
-    else:
-        div_out = project_sel
-        divstyle = {'display':'none'}
-        href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
-    return [href_out,div_out,divstyle]
-
-
-
-
+def sbem_conv_proj_dd_sel(project_sel):
+    divstyle = {'display':'none'}
+    href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner
+    
+    if not (project_sel is None):
+        if project_sel=='newproj':       
+            divstyle = {'display':'block'}                       
+        else:            
+            href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner+'&renderStackProject='+project_sel
+    
+    return href_out, divstyle
 
 
 # Create a new Project
 
-@app.callback([Output(label+'project_dd', 'options'),Output(label+'project_dd', 'value')],
-              [Input(label+'proj_input', 'value')],
+@app.callback([Output(label+'project_dd', 'options'),
+                Output(label+'project_dd', 'value')],
+              Input(label+'proj_input', 'value'),
               State(label+'project_dd', 'options'))
 def sbem_conv_new_proj(project_name,dd_options): 
-    dd_options.append({'label':project_name, 'value':project_name})
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id']
+    if trigger != '.':        
+        # get list of projects on render server            
+        dd_options.append({'label':project_name, 'value':project_name})
+
     return dd_options,project_name
-
-
 
 
 
@@ -144,101 +158,91 @@ def sbem_conv_new_proj(project_name,dd_options):
 # SET STACK
 
 
+# assemble dropdown
+
 stack_div = html.Div(id=label+'sbem_conv_stack_div',children=[html.H4("Select Render Stack:"),
                                                               dcc.Dropdown(id=label+'stack_dd',persistence=True,
-                                                                           options=dd_options,clearable=False,style={'display':'none'}),
-                                                              html.Div(children='-',id=label+'stack_state',style={'display':'none'}),
-                                                              html.Br(),
-                                                              html.Div(id=label+'newstack'),                                                          
+                                                                           clearable=False,style={'display':'none'}),
+                                                              html.Div(children=['Enter new stack name: ',
+                                                                                 dcc.Input(id=label+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
+                                                                                 ],id=label+'newstack',style={'display':'none'}),
+                                                              html.Br(),                                                          
                                                               html.A('Browse Stack',href=params.render_base_url+'view/stacks.html?renderStackOwner='+owner,
                                                                      id=label+'browse_stack',target="_blank"),
                                                               html.Br(),]
                        )
 
 
+#dropdown callback
 
+# Fills the Stack DropDown
 
 @app.callback([Output(label+'stack_dd','options'),   
-               Output(label+'stack_dd','style'), 
-               Output(label+'stack_state','children')],
-    [Input(label+'project_dd', 'value'),
-     Input(label+'orig_proj','children')],
-    )
-def sbem_conv_proj_stack_activate(project_sel,orig_proj):    
-    
-    dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
-    
-    if project_sel in orig_proj:
-        # get list of STACKS on render server
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project_sel + '/stacks'
-        stacks = requests.get(url).json()  
+                Output(label+'stack_dd','style'), 
+                Output(label+'stack_dd','value'),
+                ],
+              [Input(label+'project_dd', 'value'),               
+                Input(label+'stack_input', 'value')],
+              [State(label+'orig_proj','children'),
+                State(label+'stack_dd', 'options')])    
+def sbem_conv_stacks(project_sel,newstack_name,orig_proj,dd_options):    
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
+    dd_style = {'display':'block'}    
+    stack = 'newstack'
+
+    if trigger == 'project_dd':
+        dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
         
-        # assemble dropdown
-        
-        for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
-                
-        return dd_options, {'display':'block'}, stacks[0]['stackId']['stack']
-        
-    else:    
-        return dd_options,{'display':'none'}, 'newstack'
-    
-    
+        if project_sel in orig_proj:
+            # get list of STACKS on render server
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project_sel + '/stacks'
+            stacks = requests.get(url).json()  
             
-@app.callback(Output(label+'stack_state','children'),
-    Input(label+'stack_dd','value'))
-def sbem_conv_update_stack_state(stack_dd):        
-    return stack_dd
+            # assemble dropdown
+            
+            for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+            
+            
+            stack = stacks[0]['stackId']['stack']
+            
+        else:    
+            dd_style = {'display':'none'}
+            
+            
+            
+    elif trigger == 'stack_input':
+        dd_options.append({'label':newstack_name, 'value':newstack_name})
+        stack = newstack_name
 
-
-@app.callback(Output(parent+'store','data'),
-    [Input(label+'stack_state','children'),
-    Input(label+'project_dd', 'value')],
-    [State(parent+'store','data')]
-    )
-def sbem_conv_update_active_project(stack,project,storage):
-    storage['owner']=owner
-    storage['project']=project
-    storage['stack']=stack    
-    # print('sbem -> store')
-    # print(storage)
-    return storage
-
+    return dd_options, dd_style, stack
 
     
-@app.callback([Output(label+'browse_stack','href'),Output(label+'browse_stack','style')],
-    Input(label+'stack_state','children'),
-    State(label+'project_dd', 'value'))
+    
+@app.callback([Output(label+'browse_stack','href'),
+                Output(label+'browse_stack','style')],
+              Input(label+'stack_dd','value'),
+              State(label+'project_dd', 'value'))
 def sbem_conv_update_stack_browse(stack_state,project_sel):      
     if stack_state == 'newstack':
         return params.render_base_url, {'display':'none'}
     else:
         return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
                                 
+
+
+# Create a new Stack
     
-@app.callback(Output(label+'newstack','children'),
-    Input(label+'stack_state','children'))
+@app.callback(Output(label+'newstack','style'),
+              Input(label+'stack_dd','value'))
 def sbem_conv_new_stack_input(stack_value):
     if stack_value=='newstack':
-        st_div_out = ['Enter new stack name: ',
-                   dcc.Input(id=label+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
-                   ]
+        style={'display':'block'}
     else:
-        st_div_out = ''
+        style={'display':'none'}
     
-    return st_div_out
+    return style
 
-
-
-@app.callback([Output(label+'stack_dd', 'options'),
-               Output(label+'stack_dd', 'value'),
-               Output(label+'stack_dd','style')],
-              [Input(label+'stack_input', 'value')],
-              State(label+'stack_dd', 'options'))
-def sbem_conv_new_stack(stack_name,dd_options): 
-    dd_options.append({'label':stack_name, 'value':stack_name})
-    return dd_options,stack_name,{'display':'block'}
-
- 
 
 
 # =============================================
@@ -259,6 +263,8 @@ gobutton = html.Div(children=[html.Br(),
                                   id=label+'compute'),
                               html.Div(id=label+'directory-popup')]
                     ,style={'display': 'inline-block'})
+
+
 
 
 @app.callback([Output(label+'go', 'disabled'),
@@ -300,11 +306,11 @@ def sbem_conv_activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):
     
     
 
-@app.callback(Output(label+'input1','value'),
-              [Input(label+'danger-novaliddir','submit_n_clicks'),
-                Input(label+'danger-novaliddir','cancel_n_clicks')])
-def sbem_conv_dir_warning(sub_c,canc_c):
-    return ''
+# @app.callback(Output(label+'input1','value'),
+#               [Input(label+'danger-novaliddir','submit_n_clicks'),
+#                 Input(label+'danger-novaliddir','cancel_n_clicks')])
+# def sbem_conv_dir_warning(sub_c,canc_c):
+#     return ''
         
     
     
@@ -316,58 +322,58 @@ def sbem_conv_dir_warning(sub_c,canc_c):
   
     
 
-@app.callback([Output(label+'go', 'disabled'),
-                Output(parent+'store','data'),
-                Output(parent+'interval1','interval')
-                ],
-              Input(label+'go', 'n_clicks'),
-              [State(label+'input1','value'),               
-                State(label+'project_dd', 'value'),
-                State(label+'stack_state', 'children'),
-                State(label+'compute_sel','value'),
-                State(parent+'store','data')]
-              )                 
+# @app.callback([Output(label+'go', 'disabled'),
+#                 Output(parent+'store','data'),
+#                 Output(parent+'interval1','interval')
+#                 ],
+#               Input(label+'go', 'n_clicks'),
+#               [State(label+'input1','value'),               
+#                 State(label+'project_dd', 'value'),
+#                 State(label+'stack_state', 'children'),
+#                 State(label+'compute_sel','value'),
+#                 State(parent+'store','data')]
+#               )                 
 
-def sbem_conv_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
-    # prepare parameters:∂
+# def sbem_conv_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
+#     # prepare parameters:∂
     
-    importlib.reload(params)
+#     importlib.reload(params)
         
-    param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+#     param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
     
-    run_params = params.render_json.copy()
-    run_params['render']['owner'] = owner
-    run_params['render']['project'] = proj_dd_sel
+#     run_params = params.render_json.copy()
+#     run_params['render']['owner'] = owner
+#     run_params['render']['project'] = proj_dd_sel
     
-    with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
-        run_params.update(json.load(f))
+#     with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
+#         run_params.update(json.load(f))
     
-    run_params['image_directory'] = sbemdir
-    run_params['stack'] = stack_sel
+#     run_params['image_directory'] = sbemdir
+#     run_params['stack'] = stack_sel
     
-    with open(param_file,'w') as f:
-        json.dump(run_params,f,indent=4)
+#     with open(param_file,'w') as f:
+#         json.dump(run_params,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
-    err_file = log_file + '.err'
-    log_file += '.log'
+#     log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
+#     err_file = log_file + '.err'
+#     log_file += '.log'
     
 
         
-    #launch
-    # -----------------------
+#     #launch
+#     # -----------------------
     
-    sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-                    json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+#     sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
+#                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
     
     
     
-    storage['log_file'] = log_file
-    storage['run_state'] = 'running'
-    params.processes[parent.strip('_')] = sbem_conv_p
+#     storage['log_file'] = log_file
+#     storage['run_state'] = 'running'
+#     params.processes[parent.strip('_')] = sbem_conv_p
     
 
-    return True,storage,params.refresh_interval
+#     return True,storage,params.refresh_interval
 
 
         
@@ -375,4 +381,4 @@ def sbem_conv_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,s
 
 # ---- page layout
 
-page = html.Div([directory_sel, project_dd, stack_div, gobutton])
+page = html.Div([directory_sel, project_dd, stack_div, gobutton],id=label+'page')

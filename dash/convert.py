@@ -14,6 +14,7 @@ from app import app
 from utils import pages
 from callbacks import runstate
 
+from sbem import sbem_conv
 
 
 module='convert_'
@@ -54,11 +55,11 @@ page1 = html.Div(id=module+'page1')
                Output(module+'store_owner','data')],
                 Input(module+'dropdown1', 'value'))
 def convert_output(dd_value):
-    # if dd_value=='SBEMImage':
-    #     thisstore='SBEM'
-    #     return sbem_conv.page, thisstore
+    if dd_value=='SBEMImage':
+        thisstore='SBEM'
+        return sbem_conv.page, thisstore
     
-    # else:
+    else:
         return [html.Br(),'No data type selected.'],None
 
 

@@ -37,11 +37,9 @@ def init_update_status(module):
 
 def update_status(n,click,run_state,logfile,module):     
     ctx = dash.callback_context
-    trigger = ctx.triggered[0]['prop_id'].split('.')[0].lstrip(module)[1:]
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
     
     procs=params.processes[module.strip('_')]
-    
-    print(trigger)
     
     if trigger == 'interval2':
         status = run_state
@@ -61,7 +59,7 @@ def update_status(n,click,run_state,logfile,module):
         return params.idle_interval,run_state,logfile
     
     elif trigger == 'cancel':
-        print('cancel')
+
         p_status = launch_jobs.canceljobs(procs)
         
         params.processes[module.strip('_')] = []    
