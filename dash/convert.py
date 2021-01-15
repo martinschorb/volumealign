@@ -8,16 +8,13 @@ Created on Tue Nov  3 13:30:16 2020
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
-import os
+
 import params
-import subprocess
-
 from app import app
-
-# from sbem import sbem_conv
-from utils import launch_jobs, pages
-
+from utils import pages
 from callbacks import runstate
+
+
 
 module='convert_'
 
@@ -73,7 +70,6 @@ cus_out,cus_in,cus_state = runstate.init_update_status(module)
 
 @app.callback(cus_out,cus_in,cus_state)
 def convert_update_status(*args): 
-    print(*args)
     return runstate.update_status(*args)
 
 
@@ -88,57 +84,13 @@ def convert_get_status(*args):
 # # =============================================
 # # PROGRESS OUTPUT
 
-collapse_stdout = html.Div(children=[
-                html.Br(),
-                html.Div(id=module+'job-status',children=['Status of current processing run: ',
-                                                          html.Div(id=module+'get-status',style={"font-family":"Courier New"},children=[
-                                                              'not running',
-                                                              html.Button('cancel cluster job(s)',id=module+"cancel",style={'display': 'none'})
-                                                              ])
-                                                          ]),
-                html.Br(),
-                html.Details([
-                    html.Summary('Console output:'),
-                    html.Div(id=module+"collapse",                 
-                      children=[                         
-                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
-                          dcc.Textarea(id=module+'console-out',className="console_out",
-                                      style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
-                          ])
-                ])
-            ],id=module+'consolebox')
+collapse_stdout = pages.log_output(module)
 
+uo_out,uo_in,uo_state = runstate.init_update_output(module)
 
-# @app.callback(Output(module+'console-out','value'),
-#     [Input(module+'interval1', 'n_intervals'),Input(module+'outfile','children')])
-# def convert_update_output(n,outfile):    
-#     data=''
-    
-#     if outfile is not None:
-#         if os.path.exists(outfile):
-#             file = open(outfile, 'r')    
-#             lines = file.readlines()
-#             if lines.__len__()<=params.disp_lines:
-#                 last_lines=lines
-#             else:
-#                 last_lines = lines[-params.disp_lines:]
-#             for line in last_lines:
-#                 data=data+line
-#             file.close()
-        
-#     return data
-
-
-
-
-
-# @app.callback(Output(module+'outfile', 'children'),
-#               [Input(module+'page1', 'children'),
-#                 Input(module+'store', 'data')]
-#               )
-# def convert_update_outfile(update,data):           
-#     return data['log_file']
-
+@app.callback(uo_out,uo_in,uo_state)
+def convert_update_output(*args):
+    return runstate.update_output(*args)
 
 
 

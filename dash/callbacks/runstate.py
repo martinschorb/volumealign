@@ -10,6 +10,7 @@ import dash
 import dash_html_components as html
 
 import subprocess
+import os
 
 import params
 from utils import launch_jobs
@@ -21,22 +22,22 @@ from utils import launch_jobs
 def init_update_status(module):
     
     dash_out = [Output(module+'interval2','interval'),
-                # Output(module+'store_run_state','data'),
-                # Output(module+'store_logfile','data')
+                Output(module+'store_run_state','data'),
+                Output(module+'outfile','children')
                 ]
     
     dash_in =  [Input(module+'interval2','n_intervals'),
                 Input(module+'cancel', 'n_clicks')]
     
     dash_state = [State(module+'store_run_state','data'),
-                   State(module+'store_logfile','data'),
+                   State(module+'outfile','children'),
                    State(module+'name','data')]
     
     return dash_out,dash_in,dash_state
 
 def update_status(n,click,run_state,logfile,module):     
     ctx = dash.callback_context
-    trigger = ctx.inputs
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0].lstrip(module)[1:]
     
     procs=params.processes[module.strip('_')]
     
@@ -56,12 +57,7 @@ def update_status(n,click,run_state,logfile,module):
         if 'Error' in status:
             if logfile.endswith('.log'):
                 logfile = logfile[logfile.rfind('.log')]+'.err'
-        
-        print('2')
-        print(run_state)
-        print('3')
-        print(logfile)
-        
+
         return params.idle_interval,run_state,logfile
     
     elif trigger == 'cancel':
@@ -73,7 +69,7 @@ def update_status(n,click,run_state,logfile,module):
         return params.idle_interval, p_status, dash.no_update
     
     else:
-        return [dash.no_update] * 4
+        return [dash.no_update] * 3
 
 
 
@@ -131,4 +127,36 @@ def get_status(run_state,module):
     return status, status_style, log_refresh, c_button_style
 
 
+#  =================================================
+
+
+
+def init_update_output(module):
+    dash_out = Output(module+'console-out','value')
+    
+    dash_in =  [Input(module+'interval1', 'n_intervals'),
+                Input(module+'outfile','children')]
+    
+    dash_state = []
+    
+    return dash_out,dash_in,dash_state
+
+
+def update_output(n,outfile):    
+    
+    data=''
+    
+    if outfile is not None:
+        if os.path.exists(outfile):
+            file = open(outfile, 'r')    
+            lines = file.readlines()
+            if lines.__len__()<=params.disp_lines:
+                last_lines=lines
+            else:
+                last_lines = lines[-params.disp_lines:]
+            for line in last_lines:
+                data=data+line
+            file.close()
+        
+    return data
 

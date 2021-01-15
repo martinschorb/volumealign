@@ -52,7 +52,7 @@ mipmapdir = 'mipmaps'
 
 
 default_store = {'run_state':'input',
-                 'logfile':render_log_dir + '/out.txt',
+                 # 'logfile':render_log_dir + '/out.txt',
                  'owner':None,
                  'allowners':None}
 
@@ -65,7 +65,7 @@ default_store = {'run_state':'input',
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 10000   # ms
+idle_interval = 1000   # ms
 
 
 # -------------  
