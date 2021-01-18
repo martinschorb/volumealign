@@ -7,6 +7,7 @@ import json
 import os 
 import time
 import subprocess
+import requests
 
 #=============================================================
 ## Directory presets
@@ -55,8 +56,9 @@ mipmapdir = 'mipmaps'
 default_store = {'run_state':'input',
                  'r_status':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
                  'r_launch':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
-                 'owner':None,
-                 'allowners':None}
+                 'init_render':{'owner':'','project':'','stack':'','allowners':''},
+                 'render':{'owner':'','project':'','stack':'','allowners':'','allprojects':'','allstacks':''}
+                 }
 
 
 
@@ -95,4 +97,12 @@ with open(os.path.join(json_template_dir,'render.json'),'r') as f:
 render_base_url = 'http://' + render_json['render']['host']
 render_base_url += ':' + str(render_json['render']['port'])
 render_base_url += v_base_url
+
+
+
+# get initial list of owners in Render:
+    
+url = render_base_url + render_version + 'owners'
+render_owners = requests.get(url).json()
+default_store['init_render']['allowners'] = render_owners
 

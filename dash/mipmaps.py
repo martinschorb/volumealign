@@ -20,18 +20,17 @@ import subprocess
 
 from app import app
 from utils import launch_jobs, pages
-from callbacks import runstate
+from callbacks import runstate,render_selector
 
 
 
-module='mipmaps_'
+module='mipmaps'
 
 storeinit = {}            
-
 store = pages.init_store(storeinit, module)
 
 
-table_cols = ['stack',
+status_table_cols = ['stack',
               'slices',
               'tiles',
               'Gigapixels']
@@ -52,7 +51,28 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                       html.Div(id=module+'tmpstore')
                       ])
 
+
+page = [intervals]
+
+
+
+# # ===============================================
+#  RENDER STACK SELECTOR
+
+# Pre-fill render stack selection from previous module
+
+us_out,us_in,us_state = render_selector.init_update_store(module,'convert')
+
+@app.callback(us_out,us_in,us_state)
+def mipmaps_update_store(*args): 
+    return render_selector.update_store(*args)
+
 page1 = pages.render_selector(module)
+
+page.append(page1)
+
+# # ===============================================
+#  SPECIFIC PAGE CONTENT
 
 
 page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
@@ -60,305 +80,21 @@ page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (s
                                              html.Button('Browse',id=module+"browse1"),
                                              'graphical browsing works on cluster login node ONLY!',
                                              html.Br()])
+
+page.append(page2)
+
+
+
 compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Compute settings:'),
-                                             html.Table([html.Tr([html.Th(col) for col in table_cols]),
-                                                  html.Tr([html.Td('',id=module+'t_'+col) for col in table_cols])
+                                             html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                  html.Tr([html.Td('',id=module+'t_'+col) for col in status_table_cols])
                                              ],className='table'),
                                              html.Br(),
                                              html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
                                                   html.Tr([html.Td(dcc.Input(id=module+'input_'+col,type='number',min=1)) for col in compute_table_cols])
                                              ],className='table'),
                                              ])
-
-
-
-# OUTPUT TO OWNER DROPDOWN (options and value)
-
-@app.callback([Output(module+'owner_dd','options'),
-               Output(module+'owner_dd','value'),
-               Output(module+'store_owner','data'),
-               Output(module+'store_allowners','data')],
-              [Input(module+'page1','children'),
-               Input('convert_'+'store','data')],
-              State(module+'store_owner','data'))
-def mipmaps_fill_owner_dd(page,owner): 
-    url = params.render_base_url + params.render_version + 'owners'
-    owners = requests.get(url).json()        
-        # assemble dropdown
-        
-    dd_options = list(dict())
-    for item in owners: 
-        dd_options.append({'label':item, 'value':item})
-    
-    if owner is None:
-        owner = owners[0]
-    
-    
-    print(' -----------     -----------         -------------- ')
-    return dd_options, owner, owner, owners
-    
-    
-
-    
-
-# @app.callback([Output(module+'store','data'), 
-#                 Output(module+'owner_dd','options'),
-#                 Output(module+'owner_dd','value'),
-#                 Output(module+'project_dd','value'),
-#                 Output(module+'stack_dd','value')],
-#               Input('convert_'+'store','data'),              
-#               State(module+'store','data'))
-# def mipmaps_update_stack_state(prevstore,thisstore): 
-#     print('update from previous')
-#     print(thisstore)
-#     print(prevstore)
-
-#     for key in ['owner','project','stack']: 
-#         print(key)
-#         if key in prevstore.keys() and not prevstore[key]=='-':
-#             print(key)
-#             print(thisstore[key])
-#             print(prevstore[key])
-#             thisstore[key] = prevstore[key]
-            
-    
-#     owners = thisstore['all_owners']
-    
-#         # assemble dropdown
-#     dd_options = list(dict())
-#     for item in owners: 
-#         dd_options.append({'label':item, 'value':item})
-    
-    
-#     url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stacks'
-#     stacks = requests.get(url).json()
-#     thisstore['allstacks'] = stacks
-
-#     thisstore['run_state'] = 'wait'
-     
-#     print('=======')
-#     print(thisstore)
-#     return thisstore,dd_options,thisstore['owner'],thisstore['project'],thisstore['stack']
-
-
-
-
-##  SELECT STACK TO WORK....
-#============================================================
-#dropdown callback
-# @app.callback([Output(module+'browse_proj','href'),
-#                 Output(module+'project_dd','options'),
-#                 Output(module+'proj_dd','value'),
-#                 Output(module+'store','data')],
-#               Input(module+'owner_dd', 'value'),
-#               State(module+'store','data'), prevent_initial_call=True)
-# def mipmaps_own_dd_sel(owner_sel,thisstore):
-#     print('owner->proj')  
-    
-#     print(thisstore)
-    
-
-#     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
-    
-#     # get list of projects on render server
-#     url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
-#     projects = requests.get(url).json()
-    
-#     out_project=projects[0]
-
-#     # assemble dropdown
-#     dd_options = list(dict())
-#     for item in projects:
-#         if 'project' in thisstore.keys():
-#             if item == thisstore['project']:out_project=item
-#         dd_options.append({'label':item, 'value':item})
-   
-#     thisstore['owner'] = owner_sel
-#     thisstore['project'] = out_project
-    
-#     print(thisstore)
-#     print(' -----------     -----------         -------------- ')
-#     return href_out, dd_options, out_project, thisstore
-
-
-
-
-
-# @app.callback(Output(module+'proj_dd','value'),               
-#               Input(module+'project','children'),
-#                )
-# def mipmaps_init_proj(proj): 
-#     return proj
-
-
-
-# #dropdown callback
-# @app.callback([Output(module+'browse_stack','href'),
-#                 Output(module+'stack_dd','options'),
-#                 Output(module+'stack_dd','value'),
-#                 Output(module+'store','data')],
-#               Input(module+'project_dd', 'value'),
-#               State(module+'store','data'))
-# def mipmaps_proj_dd_sel(proj_sel,thisstore): 
-    
-    
-#     print('proj->stack')
-#     print(proj_sel)  
-    
-#     print(thisstore)
-   
-    
-#     # href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
-#     # # get list of projects on render server
-#     # url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + proj_sel + '/stacks'
-#     # stacks = requests.get(url).json()
-    
-#     # out_stack=stacks[0]['stackId']['stack']
-    
-#     # # assemble dropdown
-#     # dd_options = list(dict())
-#     # for item in stacks:
-#     #     if item['stackId']['stack'] == thisstore['stack']:out_stack=item
-#     #     dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
-
-    
-#     # thisstore['project'] = proj_sel
-#     # thisstore['allstacks'] = stacks
-    
-    
-#     # print(thisstore.keys())
-#     print(' -----------     -----------         -------------- ')
-#     return [dash.no_update] * 4#href_out, dd_options, out_stack, thisstore
-
-
-
-# @app.callback(Output(module+'stack_dd','value'),               
-#               Input(module+'stack','children'),
-#                )
-# def mipmaps_init_stack(stack): 
-#     return stack
-
-
-# # ===============================================
-
-# stackoutput = [Output(module+'input1','value'),
-#                 Output(module+'stack','data'),
-#                 Output(module+'store','data')]
-
-# tablefields = [Output(module+'t_'+col,'children') for col in table_cols]
-# compute_tablefields = [Output(module+'input_'+col,'value') for col in compute_table_cols]
-
-# stackoutput.extend(tablefields)  
-# stackoutput.extend(compute_tablefields)        
-
-# @app.callback(stackoutput,
-#               Input(module+'stack_dd', 'value'),
-#               [State(module+'stacks', 'data'),
-#               State(module+'store','data')]
-#               )
-# def mipmaps_stacktodir(stack_sel,allstacks,thisstore):
-    
-#     dir_out=''
-    
-#     t_fields = ['']*len(table_cols)
-#     ct_fields = [1]*len(compute_table_cols)
-        
-#     thisstore['allstacks']=allstacks
-    
-#     print('stacktodir')
-    
-#     print(thisstore.keys())
-    
-#     print(stack_sel)
-    
-#     print('allstacks' in thisstore.keys())
-    
-#     if (not stack_sel=='-' ) and (not allstacks is None):   
-#         print(allstacks)
-#         stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
-        
-#         if not stacklist == []:
-#             stackparams = stacklist[0]        
-#             thisstore['stack'] = stackparams['stackId']['stack']
-#             thisstore['stackparams'] = stackparams
-#             thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
-#             thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
-#             thisstore['numtiles']=stackparams['stats']['tileCount']
-#             thisstore['numsections']=stackparams['stats']['sectionCount']
-         
-#             num_blocks = int(np.max((np.floor(thisstore['numsections']/params.section_split),1)))
-            
-#             url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + thisstore['project'] + '/stack/' +thisstore['stack'] + '/z/'+ str(stackparams['stats']['stackBounds']['minZ']) +'/render-parameters'
-#             tiles0 = requests.get(url).json()
-            
-#             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
-            
-#             basedirsep = params.datasubdirs[thisstore['owner']]
-#             dir_out = tilefile0[:tilefile0.find(basedirsep)]
-            
-#             thisstore['gigapixels']=thisstore['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
-            
-#             t_fields=[thisstore['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %thisstore['gigapixels']]
-            
-#             n_cpu = params.n_cpu_script
-            
-#             timelim = np.ceil(thisstore['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
-            
-#             ct_fields = [n_cpu,timelim,params.section_split]  
-          
-   
-#     outlist=[dir_out, thisstore['stack'], thisstore]        
-#     outlist.extend(t_fields)
-#     outlist.extend(ct_fields)     
-    
-#     return outlist
-
-
-
-# comp_values = [Input(module+'input_'+col,'value') for col in compute_table_cols]
-# comp_labels = [State(module+'input_'+col,'id') for col in compute_table_cols]
-
-# stackinput = comp_values
-# stackstate = comp_labels
-# stackstate.append(State(module+'store','data'))
-
-# @app.callback(Output(module+'store','data'),                            
-#               stackinput,
-#               stackstate
-#                 )
-# def mipmaps_store_compute_settings(*inputs): 
-#     comp_numset=len(compute_table_cols)
-#     storage=inputs[-1]
-    
-#     storage['comp_settings']=dict()
-    
-#     in_values = np.array(inputs)[range(comp_numset)]
-#     in_labels = np.array(inputs)[np.array(range(comp_numset))+ comp_numset]
-    
-#     for input_idx,label in enumerate(in_labels):
-        
-#         # print('label:')
-#         # print(label)    
-#         # print('value:')
-#         # print(in_values[input_idx])
-        
-#         label = label[label.find('_input_')+7:]
-        
-#         storage['comp_settings'][label] = in_values[input_idx]
-#     return storage
-
-
-
-
-# @app.callback([Output(module+'tmpstore', 'children'),
-#                 Output(module+'store','data')],                            
-#               Input(module+'run_state','children'),
-#               State(module+'store','data')
-#                 )
-# def mipmaps_store_runstate(runstate,storage):  
-#     storage['run_state']=runstate
-#     return [],storage
-
+page.append(compute_stettings)
 
 # =============================================
 # Start Button
@@ -368,19 +104,12 @@ gobutton = html.Div(children=[html.Br(),
                               html.Div(id=module+'buttondiv'),
                               html.Div(id=module+'directory-popup'),
                               html.Br(),
-                              html.Details([html.Summary('Compute location:'),
-                                            dcc.RadioItems(
-                                                options=[
-                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
-                                                ],
-                                                value='slurm',
-                                                labelStyle={'display': 'inline-block'},
-                                                id=module+'compute_sel'
-                                                )],
-                                  id=module+'compute'),
+                              pages.compute_loc(module),
                               html.Br(),
                               html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
+
+
+page.append(gobutton)
 
 
 # @app.callback([Output(module+'go', 'disabled'),
@@ -526,44 +255,44 @@ gobutton = html.Div(children=[html.Br(),
 # Processing status
 
 
-us_out,us_in,us_state = runstate.init_update_status(module)
+# us_out,us_in,us_state = runstate.init_update_status(module)
 
-@app.callback(us_out,us_in,us_state)
-def mipmaps_update_status(*args): 
-    return runstate.update_status(*args)
-
-
-
-gs_out,gs_in,gs_state = runstate.init_get_status(module)
-
-@app.callback(gs_out,gs_in,gs_state)
-def mipmaps_get_status(*args):
-    return runstate.get_status(*args)
+# @app.callback(us_out,us_in,us_state)
+# def mipmaps_update_status(*args): 
+#     return runstate.update_status(*args)
 
 
-rs_out, rs_in = runstate.init_run_state(module)
 
-@app.callback(rs_out, rs_in)
-def mipmaps_run_state(*args):
-    return runstate.run_state(*args)  
+# gs_out,gs_in,gs_state = runstate.init_get_status(module)
 
-# # =============================================
-# # PROGRESS OUTPUT
+# @app.callback(gs_out,gs_in,gs_state)
+# def mipmaps_get_status(*args):
+#     return runstate.get_status(*args)
 
 
-collapse_stdout = pages.log_output(module)
+# rs_out, rs_in = runstate.init_run_state(module)
 
-# ----------------
+# @app.callback(rs_out, rs_in)
+# def mipmaps_run_state(*args):
+#     return runstate.run_state(*args)  
 
-uo_out,uo_in,uo_state = runstate.init_update_output(module)
+# # # =============================================
+# # # PROGRESS OUTPUT
 
-@app.callback(uo_out,uo_in,uo_state)
-def mipmaps_update_output(*args):
-    return runstate.update_output(*args)
+
+# collapse_stdout = pages.log_output(module)
+
+# # ----------------
+
+# uo_out,uo_in,uo_state = runstate.init_update_output(module)
+
+# @app.callback(uo_out,uo_in,uo_state)
+# def mipmaps_update_output(*args):
+#     return runstate.update_output(*args)
 
 
 
 # Full page layout:
     
-page = [intervals,page1, page2, gobutton, compute_stettings]
-page.append(collapse_stdout)
+
+# page.append(collapse_stdout)
