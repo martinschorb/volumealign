@@ -52,27 +52,7 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                       html.Div(id=module+'tmpstore')
                       ])
 
-page1 = html.Div(id=module+'page1',children=[html.H4('Current active stack:'),
-                                             html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
-                                                       dcc.Dropdown(id=module+'owner_dd',className='dropdown_inline',options=[{'label':'1','value':'1'}],style={'width':'120px'},
-                                                          persistence=True,
-                                                          clearable=False),
-                                                       html.Div(id=module+'owner',style={'display':'none'}),
-                                                       html.Div('Project',style={'margin-left': '2em'}),
-                                                       html.A('(Browse)',id=module+'browse_proj',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
-                                                       dcc.Dropdown(id=module+'project_dd',className='dropdown_inline',
-                                                          persistence=True,
-                                                          clearable=False),
-                                                       html.Div(id=module+'proj',style={'display':'none'}),
-                                                       html.Div('Stack',style={'margin-left': '2em'}),
-                                                       html.A('(Browse)',id=module+'browse_stack',target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
-                                                       dcc.Dropdown(id=module+'stack_dd',className='dropdown_inline',
-                                                          persistence=True,
-                                                          clearable=False),
-                                                       dcc.Store(id=module+'stacks'),
-                                             
-                                             ],style=dict(display='flex'))
-                                             ])
+page1 = pages.render_selector(module)
 
 
 page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
@@ -90,7 +70,6 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
                                              ],className='table'),
                                              ])
 
-collapse_stdout = pages.log_output(module)
 
 
 # OUTPUT TO OWNER DROPDOWN (options and value)
@@ -546,34 +525,40 @@ gobutton = html.Div(children=[html.Br(),
 # =============================================
 # Processing status
 
-cus_out,cus_in,cus_state = runstate.init_update_status(module)
 
-@app.callback(cus_out,cus_in,cus_state)
-def convert_update_status(*args): 
+us_out,us_in,us_state = runstate.init_update_status(module)
+
+@app.callback(us_out,us_in,us_state)
+def mipmaps_update_status(*args): 
     return runstate.update_status(*args)
 
 
 
-cgs_out,cgs_in,cgs_state = runstate.init_get_status(module)
+gs_out,gs_in,gs_state = runstate.init_get_status(module)
 
-@app.callback(cgs_out,cgs_in,cgs_state)
-def convert_get_status(*args):
+@app.callback(gs_out,gs_in,gs_state)
+def mipmaps_get_status(*args):
     return runstate.get_status(*args)
 
 
 rs_out, rs_in = runstate.init_run_state(module)
 
 @app.callback(rs_out, rs_in)
-def covert_run_state(*args):
+def mipmaps_run_state(*args):
     return runstate.run_state(*args)  
 
 # # =============================================
 # # PROGRESS OUTPUT
 
+
+collapse_stdout = pages.log_output(module)
+
+# ----------------
+
 uo_out,uo_in,uo_state = runstate.init_update_output(module)
 
 @app.callback(uo_out,uo_in,uo_state)
-def convert_update_output(*args):
+def mipmaps_update_output(*args):
     return runstate.update_output(*args)
 
 

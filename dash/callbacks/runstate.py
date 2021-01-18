@@ -140,10 +140,9 @@ def init_update_output(module):
     return dash_out,dash_in,dash_state
 
 
-def update_output(n,outfile):    
-    
+def update_output(n,outfile):       
     data=''
-    
+
     if outfile is not None:
         if os.path.exists(outfile):
             file = open(outfile, 'r')    

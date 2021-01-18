@@ -31,7 +31,7 @@ main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id=
             {'label': 'SBEMImage', 'value': 'SBEMImage'}            
         ],
         value='SBEMImage'
-        )    
+        )
     ])
 
 
@@ -39,17 +39,13 @@ intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_i
                                        n_intervals=0),
                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
                                        n_intervals=0),
-                      dcc.Store(id=module+'tmpstore'),
+                      dcc.Store(id=module+'tmpstore'),                      
                       dcc.Store(id=module+'stack')
                       ])
 
 junk = html.Div(id=module+'junk')
 
 page1 = html.Div(id=module+'page1')
-
-collapse_stdout = pages.log_output(module)
-
-print(collapse_stdout)
 
 # =============================================
 # # Page content
@@ -70,17 +66,18 @@ def convert_output(dd_value):
 # =============================================
 # Processing status
 
-cus_out,cus_in,cus_state = runstate.init_update_status(module)
 
-@app.callback(cus_out,cus_in,cus_state)
+us_out,us_in,us_state = runstate.init_update_status(module)
+
+@app.callback(us_out,us_in,us_state)
 def convert_update_status(*args): 
     return runstate.update_status(*args)
 
 
 
-cgs_out,cgs_in,cgs_state = runstate.init_get_status(module)
+gs_out,gs_in,gs_state = runstate.init_get_status(module)
 
-@app.callback(cgs_out,cgs_in,cgs_state)
+@app.callback(gs_out,gs_in,gs_state)
 def convert_get_status(*args):
     return runstate.get_status(*args)
 
@@ -88,11 +85,16 @@ def convert_get_status(*args):
 rs_out, rs_in = runstate.init_run_state(module)
 
 @app.callback(rs_out, rs_in)
-def covert_run_state(*args):
+def convert_run_state(*args):
     return runstate.run_state(*args)  
 
 # # =============================================
 # # PROGRESS OUTPUT
+
+
+collapse_stdout = pages.log_output(module)
+
+# ----------------
 
 uo_out,uo_in,uo_state = runstate.init_update_output(module)
 

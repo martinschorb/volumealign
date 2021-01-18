@@ -25,13 +25,13 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
 menu_items=['convert',
-            # 'mipmaps',
+            'mipmaps',
             # 'tilepairs',
             # 'pointmatch'
             ]
 
 menu_text=['Convert & upload',
-           # 'Generate MipMaps',
+            'Generate MipMaps',
            # 'Find Tile Pairs',
            # 'Find PointMatches'
             ]
@@ -41,6 +41,7 @@ store=list()
 params.processes=dict()
 
 
+
 #import UI page elements from dynamic menu
 
 for lib in menu_items:
@@ -48,6 +49,7 @@ for lib in menu_items:
     globals()[lib] = thismodule
     store.extend(thismodule.store)
 
+    
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
     menu.append(html.Br())    
