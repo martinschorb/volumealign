@@ -40,7 +40,8 @@ def log_output(module):
                     html.Div(id=module+"collapse",                 
                       children=[                         
                           html.Div(id=module+'div-out',children=['Log file: ',
-                                                                 html.Div(params.render_log_dir + '/out.txt',id=module+'outfile',style={"font-family":"Courier New"})
+                                                                 html.Div(params.render_log_dir + '/out.txt',
+                                                                          id=module+'outfile',style={"font-family":"Courier New"})
                                                                  ]),
                           dcc.Textarea(id=module+'console-out',className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         

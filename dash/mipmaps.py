@@ -20,6 +20,7 @@ import subprocess
 
 from app import app
 from utils import launch_jobs, pages
+from callbacks import runstate
 
 
 
@@ -89,6 +90,7 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
                                              ],className='table'),
                                              ])
 
+collapse_stdout = pages.log_output(module)
 
 
 # OUTPUT TO OWNER DROPDOWN (options and value)
@@ -540,198 +542,39 @@ gobutton = html.Div(children=[html.Br(),
 
 
 
-# # =============================================
-# # Processing status
+
+# =============================================
+# Processing status
+
+cus_out,cus_in,cus_state = runstate.init_update_status(module)
+
+@app.callback(cus_out,cus_in,cus_state)
+def convert_update_status(*args): 
+    return runstate.update_status(*args)
 
 
 
+cgs_out,cgs_in,cgs_state = runstate.init_get_status(module)
 
-# @app.callback([Output(module+'interval2','interval'),
-#                 Output(module+'store','data')],
-#               Input(module+'interval2','n_intervals'),
-#               State(module+'store','data'))
-# def mipmaps_update_status(n,storage):  
-#     if n>0:        
-        
-#         status = storage['run_state']
-#         procs=params.processes[module.strip('_')]
-#         if not 'Error' in status:
-#             if procs==[]:
-#                 if storage['run_state'] not in ['input','wait']:
-#                     storage['run_state'] = 'input'               
-#             # print(procs)
-#             if (type(procs) is subprocess.Popen or len(procs)>0): 
-#                 status = launch_jobs.status(procs)   
-#                 storage['run_state'] = status    
-        
-#         if 'Error' in status: 
-#             if storage['log_file'].endswith('.log'):
-#                 storage['log_file'] = storage['log_file'][:storage['log_file'].rfind('.log')]+'.err'
-            
-#     return params.idle_interval,storage 
-    
-
-# cancelbutton = html.Button('cancel cluster job(s)',id=module+"cancel")
+@app.callback(cgs_out,cgs_in,cgs_state)
+def convert_get_status(*args):
+    return runstate.get_status(*args)
 
 
-# @app.callback([Output(module+'get-status','children'),
-#               Output(module+'get-status','style'),
-#               Output(module+'interval1', 'interval'),
-#               Output('runstep','children'),
-#               Output(module+'outfile','children')],
-#               Input(module+'store','data'),
-#               [State('runstep','children'),
-#                 State(module+'compute_sel','value'),
-#                 State(module+'input1','value')])
-# def mipmaps_get_status(storage,runstep,comp_sel,mipmapdir):
-#     status_style = {"font-family":"Courier New",'color':'#000'} 
-#     log_refresh = params.idle_interval
-#     log_file = storage['log_file']
-#     procs=params.processes[module.strip('_')]
-         
-#     if storage['run_state'] == 'running':
-#         if procs == []:
-#             status = 'not running'
-#         else:
-#             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
-#             log_refresh = params.refresh_interval
-#             if not type(procs) is subprocess.Popen:
-#                 if  type(procs) is str:
-#                     status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])
-#                 elif not type(procs[0]) is subprocess.Popen:
-#                     status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running  -  ',cancelbutton])        
-#     elif storage['run_state'] == 'input':
-#         status='process will start on click.'
-#     elif storage['run_state'] == 'done':
-       
-#         status = storage['run_state']
-#         # run the apply_mipmaps routine
+rs_out, rs_in = runstate.init_run_state(module)
 
-#         if runstep == 'generate' and mipmapdir is not None:
-#             log_refresh = params.refresh_interval
-#             runstep = 'apply'
-#             importlib.reload(params)
-            
-#             run_params = params.render_json.copy()
-#             run_params['render']['owner'] = storage['owner']
-#             run_params['render']['project'] = storage['project']
-            
-#             mipmapdir += '/mipmaps/'
-            
-#             run_params_generate = run_params.copy()
-            
-#             with open(os.path.join(params.json_template_dir,'apply_mipmaps.json'),'r') as f:
-#                     run_params_generate.update(json.load(f))
-                
-#             # run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '.json' )
-#             run_params_generate["input_stack"] = storage['stack']
-#             run_params_generate["output_stack"] = storage['stack'] + "_mipmaps"
-#             run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
-            
-#             param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '.json' 
-#             run_params_generate["zstart"] = storage['zmin']
-#             run_params_generate["zend"] = storage['zmax']
-#             run_params_generate["pool_size"] = params.n_cpu_script
-                   
-#             with open(param_file,'w') as f:
-#                 json.dump(run_params_generate,f,indent=4)
-        
-#             log_file = params.render_log_dir + '/' + runstep+ '_' + module + params.run_prefix
-#             err_file = log_file + '.err'
-#             log_file += '.log'
-            
-#             mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
-#                           json=param_file,run_args=None,logfile=log_file,errfile=err_file)
-            
-#             params.processes[module.strip('_')] = [mipmap_apply_p]
-            
-#             storage['run_state'] = 'running'
-#             storage['log_file'] = log_file
-#             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
-#         elif runstep == 'apply':
-#             status='DONE'
-#             status_style = {'color':'#0E0'}
-#             params.processes[module.strip('_')]=[]
-            
-#     elif storage['run_state'] == 'pending':
-#         status = ['Waiting for cluster resources to be allocated.',cancelbutton]
-#     elif storage['run_state'] == 'wait':
-#         status='not running'
-#     else:
-#         status=storage['run_state']
-    
-    
-#     return status,status_style,log_refresh,runstep,log_file
-
-
-
-
-# @app.callback([Output(module+'get-status','children'),
-#                 Output(module+'store','data')],
-#               Input(module+'cancel', 'n_clicks'),
-#               State(module+'store','data'))
-# def mipmaps_cancel_jobs(click,storage):
-
-#     procs = params.processes[module.strip('_')]
-    
-#     p_status = launch_jobs.canceljobs(procs)
-    
-#     params.processes[module.strip('_')] = []    
-    
-#     storage['run_state'] = p_status
-    
-#     return p_status,storage
-    
+@app.callback(rs_out, rs_in)
+def covert_run_state(*args):
+    return runstate.run_state(*args)  
 
 # # =============================================
 # # PROGRESS OUTPUT
 
+uo_out,uo_in,uo_state = runstate.init_update_output(module)
 
-collapse_stdout = html.Div(children=[
-                html.Br(),
-                html.Div(id=module+'job-status',children=['Status of current processing run: ',html.Div(id=module+'get-status',style={"font-family":"Courier New"},children='not running')]),
-                html.Br(),
-                html.Details([
-                    html.Summary('Console output:'),
-                    html.Div(id=module+"collapse",                 
-                      children=[
-                          html.Div(id=module+'div-out',children=['Log file: ',html.Div(id=module+'outfile',style={"font-family":"Courier New"})]),
-                          dcc.Textarea(id=module+'console-out',className="console_out",
-                                      style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
-                          ])
-                ])
-            ],id=module+'consolebox')
-
-
-
-@app.callback(Output(module+'console-out','value'),
-              [Input(module+'interval1', 'n_intervals'),
-               Input(module+'outfile','children')])
-def mipmaps_update_output(n,outfile):
-    data=''
-    
-    if outfile is not None:
-        if os.path.exists(outfile):
-            file = open(outfile, 'r')    
-            lines = file.readlines()
-            if lines.__len__()<=params.disp_lines:
-                last_lines=lines
-            else:
-                last_lines = lines[-params.disp_lines:]
-            for line in last_lines:
-                data=data+line
-            file.close() 
-        
-    return data
-
-
-
-@app.callback(Output(module+'outfile', 'children'),
-              [Input(module+'page1', 'children'),
-               Input(module+'store'+'_logfile', 'data')]
-              )
-def mipmaps_update_outfile(update,logfile):    
-    return logfile
+@app.callback(uo_out,uo_in,uo_state)
+def convert_update_output(*args):
+    return runstate.update_output(*args)
 
 
 

@@ -49,6 +49,8 @@ page1 = html.Div(id=module+'page1')
 
 collapse_stdout = pages.log_output(module)
 
+print(collapse_stdout)
+
 # =============================================
 # # Page content
 

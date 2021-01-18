@@ -51,12 +51,10 @@ def update_status(n,click,run_state,logfile,r_status,module):
                 r_status['state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
-            print('process check')
             r_status['state'] = launch_jobs.status(procs)   
 
 
         if 'Error' in r_status['state']:
-            print(logfile)
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[logfile.rfind('.log')]+'.err'
 
@@ -94,7 +92,6 @@ def init_get_status(module):
     return dash_out,dash_in,dash_state
 
 def get_status(run_state,module):
-    print('get_status is invoked')
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')] 
@@ -124,13 +121,7 @@ def get_status(run_state,module):
         status='not running'
     else:
         status=run_state
-    
-    print('in-status:')
-    print(run_state)
-    
-    print('out')
-    print(status)
-    
+
     return status, status_style, log_refresh, c_button_style
 
 
@@ -184,13 +175,13 @@ def run_state(status_in,launch_in):
     trigger = ctx.triggered[0]['prop_id'].split('.')[0]
     
     if 'launch' in trigger:
-        print('launch triggered state:')
-        print(launch_in)
+        # print('launch triggered state:')
+        # print(launch_in)
         out = launch_in
 
     else:
-        print('status triggered state:')
-        print(status_in)
+        # print('status triggered state:')
+        # print(status_in)
         out = status_in
         
     return out['state'], out['logfile']

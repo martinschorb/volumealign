@@ -61,8 +61,6 @@ def status(processes):
 
 def checkstatus(runvar):    
     if type(runvar) is subprocess.Popen:
-        print('poll')
-        print(runvar.poll())
         if runvar.poll() is None:
             return 'running',runvar
         
@@ -202,9 +200,10 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     # command = 'hostname '
     
     # for i in range(10): command+='&& sleep 1 && echo '+str(i)
+    print('launching - ')
     
     if target=='standalone':
-        print('launching - ')
+        
         print(command)
 
         
