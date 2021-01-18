@@ -13,7 +13,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH, ALL
 
 import requests
-
+import json
 
 from app import app
 
@@ -25,7 +25,7 @@ import params
 # Update init parameters from previous module
 
 
-def init_update_store(thismodule,prevmodule,comp_in='store_render',comp_out='store_init_render'):
+def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_out='store_init_render'):
     
     dash_out = Output({'component': comp_out, 'module': thismodule},'data')
     dash_in =  Input({'component': comp_in, 'module': prevmodule},'data')
@@ -53,7 +53,7 @@ def update_store(prevstore,thisstore):
 def update_owner_dd(init_in):
     dd_options = list(dict())
     
-    allowners = init_in['allowners']
+    allowners = params.render_owners
     
     for item in allowners: 
         dd_options.append({'label':item, 'value':item})
@@ -76,10 +76,14 @@ def update_owner_dd(init_in):
                 Output({'component': 'project_dd', 'module': MATCH}, 'options'),
                 Output({'component': 'project_dd', 'module': MATCH}, 'value'),
                 ],
-              Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-              State({'component': 'store_render', 'module': MATCH},'data'),
+              [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               Input({'component': 'store_init_render', 'module': MATCH},'data')],
+              State({'component': 'store_project', 'module': MATCH},'data'),
               prevent_initial_call=True)
-def update_proj_dd(owner_sel,thisstore):    
+def update_proj_dd(owner_sel,init_store,store_proj):
+    ctx = dash.callback_context
+    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
+    
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
     
     # get list of projects on render server
@@ -87,31 +91,44 @@ def update_proj_dd(owner_sel,thisstore):
     projects = requests.get(url).json()
     
     out_project=projects[0]
+    
 
     # assemble dropdown
     dd_options = list(dict())
     for item in projects:
-        if item == thisstore['project']:out_project=item
+        if item == store_proj:out_project=item
         dd_options.append({'label':item, 'value':item})  
-
+        
+    if 'store_init_render' in trigger['component']:
+       out_project=init_store['project']
+       
+       
     return href_out, dd_options, out_project
 
 
 
-# Update stack dropdown and browse link
+# Update stack dropdown, render store and browse link
 
 
 @app.callback([Output({'component': 'browse_stack', 'module': MATCH},'href'),
                 Output({'component': 'stack_dd', 'module': MATCH},'options'),
-                Output({'component': 'stack_dd', 'module': MATCH},'value')],
-              Input({'component': 'project_dd', 'module': MATCH}, 'value'),
-              State({'component': 'store_render', 'module': MATCH},'data'))
-def update_stack_dd(proj_sel,thisstore):
-
-    if not (proj_sel is None or '' in [thisstore['owner'],thisstore['project']]):
-        href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+thisstore['owner']+'&renderStackProject='+proj_sel
+                Output({'component': 'stack_dd', 'module': MATCH},'value'),
+                Output({'component': 'store_allstacks', 'module': MATCH},'data')],
+              [Input({'component': 'store_init_render', 'module': MATCH},'data'),
+                Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
+                Input({'component': 'project_dd', 'module': MATCH}, 'value')],
+              State({'component': 'store_stack', 'module': MATCH},'data')
+              )
+def update_stack_store(init_store,own_sel,proj_sel,store_stack):
+    ctx = dash.callback_context
+    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
+    
+    
+          
+    if not (proj_sel in [None,'']):
+        href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+own_sel+'&renderStackProject='+proj_sel
         # get list of projects on render server
-        url = params.render_base_url + params.render_version + 'owner/' + thisstore['owner'] + '/project/' + proj_sel + '/stacks'
+        url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
         
         stacks = requests.get(url).json()
         
@@ -121,38 +138,16 @@ def update_stack_dd(proj_sel,thisstore):
         dd_options = list(dict())
         for item in stacks:
 
-            if item['stackId']['stack'] == thisstore['stack']:out_stack=item['stackId']['stack']
+            if item['stackId']['stack'] == store_stack:out_stack=item['stackId']['stack']
             
             dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
+            
+            
+        if 'store_init_render' in trigger['component']:
+            out_stack=init_store['stack']
         
-        return href_out, dd_options, out_stack
+        return href_out, dd_options, out_stack, stacks
         
     else: 
-        return [dash.no_update] * 3
+        return [dash.no_update] * 4
 
-
-
-
-
-# Update render store
-
-
-@app.callback(Output({'component': 'store_render', 'module': MATCH},'data'),                
-              [Input({'component': 'store_init_render', 'module': MATCH},'data'),
-               Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'project_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
-              State({'component': 'store_render', 'module': MATCH},'data'))
-def update_render_store(init_store,own_sel,proj_sel,stacksel,thisstore):
-    outstore = thisstore.copy()
-    
-    for key in init_store.keys():
-        if not init_store[key] == '' or init_store[key] == None:
-            outstore[key] = init_store[key]
-        
-    dd=['owner','project','stack']
-    sel=[own_sel,proj_sel,stacksel]
-    for idx in range(len(sel)):
-        outstore[dd[idx]] = sel[idx]
-        
-    return outstore

@@ -56,8 +56,14 @@ mipmapdir = 'mipmaps'
 default_store = {'run_state':'input',
                  'r_status':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
                  'r_launch':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
-                 'init_render':{'owner':'','project':'','stack':'','allowners':''},
-                 'render':{'owner':'','project':'','stack':'','allowners':'','allprojects':'','allstacks':''}
+                 'init_render':{'owner':'','project':'','stack':''},
+                 'render_launch':{'owner':'','project':'','stack':''},
+                 'allowners':None,
+                 'allstacks':None,
+                 'owner':'',
+                 'project':'',
+                 'stack':'',
+                 'stackparams':None
                  }
 
 

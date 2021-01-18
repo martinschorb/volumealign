@@ -8,7 +8,7 @@ Created on Thu Nov 12 16:15:27 2020
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input,Output,State
+from dash.dependencies import Input,Output,State, MATCH, ALL
 import params
 import json
 import requests
@@ -21,7 +21,6 @@ import subprocess
 from app import app
 from utils import launch_jobs, pages
 from callbacks import runstate,render_selector
-
 
 
 module='mipmaps'
@@ -96,6 +95,87 @@ compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Com
                                              ])
 page.append(compute_stettings)
 
+
+
+# callbacks
+
+
+# Update directory and compute settings from stack selection
+
+stackoutput = [Output(module+'input1','value'),
+               Output({'component': 'store_stack', 'module': MATCH}, 'data')]
+tablefields = [Output(module+'t_'+col,'children') for col in status_table_cols]
+compute_tablefields = [Output(module+'input_'+col,'value') for col in compute_table_cols]
+
+stackoutput.extend(tablefields)  
+stackoutput.extend(compute_tablefields)        
+
+@app.callback(stackoutput,
+              Input({'component': 'stack_dd', 'module': MATCH},'value'),
+              [State({'component': 'store_owner', 'module': MATCH}, 'data'),
+               State({'component': 'store_project', 'module': MATCH}, 'data'),
+               State({'component': 'store_stack', 'module': MATCH}, 'data'),
+               State({'component': 'store_allstacks', 'module': MATCH}, 'data')]
+              )
+def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
+    
+    dir_out=''
+    out=dict()
+    
+    t_fields = ['']*len(status_table_cols)
+    ct_fields = [1]*len(compute_table_cols)
+
+    
+    if (not stack_sel=='-' ) and (not allstacks is None):   
+        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
+        stack = stack_sel
+        
+        if not stacklist == []:
+            stackparams = stacklist[0]        
+            out['zmin']=stackparams['stats']['stackBounds']['minZ']
+            out['zmax']=stackparams['stats']['stackBounds']['maxZ']
+            out['numtiles']=stackparams['stats']['tileCount']
+            out['numsections']=stackparams['stats']['sectionCount']
+         
+            num_blocks = int(np.max((np.floor(out['numsections']/params.section_split),1)))
+            
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/'+ str(out['zmin']) +'/render-parameters'
+            tiles0 = requests.get(url).json()
+            
+            tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+            
+            basedirsep = params.datasubdirs[owner]
+            dir_out = tilefile0[:tilefile0.find(basedirsep)]
+            
+            out['gigapixels']=out['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
+            
+            t_fields=[out['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %out['gigapixels']]
+            
+            n_cpu = params.n_cpu_script
+            
+            timelim = np.ceil(out['gigapixels'] / n_cpu * params.mipmaps['min/Gpix/CPU']*(1+params.time_add_buffer)/num_blocks)
+            
+            ct_fields = [n_cpu,timelim,params.section_split]  
+          
+   
+    outlist=[dir_out,stack]   
+    outlist.extend(t_fields)
+    outlist.extend(ct_fields)     
+    
+    return outlist
+
+
+
+
+
+
+
+
+
+
+
+
+
 # =============================================
 # Start Button
 
@@ -112,37 +192,37 @@ gobutton = html.Div(children=[html.Br(),
 page.append(gobutton)
 
 
-# @app.callback([Output(module+'go', 'disabled'),
-#                 Output(module+'directory-popup','children'),
-#                 Output(module+'run_state','children')],              
-#               Input(module+'input1','value'),
-#               State(module+'store','data'),
-#                 )
-# def mipmaps_activate_gobutton(in_dir,storage):      
-#     rstate = 'wait'          
-#     out_pop=dcc.ConfirmDialog(        
-#         id=module+'danger-novaliddir',displayed=True,
-#         message='The selected directory does not exist or is not writable!'
-#         )
-#     if any([in_dir=='',in_dir==None]):
-#         if not (storage['run_state'] == 'running'): 
-#                 rstate = 'wait'
-#         return True,'No input directory chosen.',rstate
+@app.callback([Output(module+'go', 'disabled'),
+                Output(module+'directory-popup','children'),
+                Output(module+'run_state','children')],              
+              Input(module+'input1','value'),
+              State({'component':'store_run_state','module':module},'data'),
+                )
+def mipmaps_activate_gobutton(in_dir,run_state):      
+    rstate = 'wait'          
+    out_pop=dcc.ConfirmDialog(        
+        id=module+'danger-novaliddir',displayed=True,
+        message='The selected directory does not exist or is not writable!'
+        )
+    if any([in_dir=='',in_dir==None]):
+        if not (run_state == 'running'): 
+                rstate = 'wait'
+        return True,'No input directory chosen.',rstate
     
-#     elif os.path.isdir(in_dir):
-#             if os.path.exists(os.path.join(in_dir,params.mipmapdir)):
-#                 rstate = 'input'
-#                 out_pop.message = 'Warning: there already exists a MipMap directory. Will overwrite it.'
-#                 return False,out_pop,rstate
+    elif os.path.isdir(in_dir):
+            if os.path.exists(os.path.join(in_dir,params.mipmapdir)):
+                rstate = 'input'
+                out_pop.message = 'Warning: there already exists a MipMap directory. Will overwrite it.'
+                return False,out_pop,rstate
 
-#             if not (storage['run_state'] == 'running'): 
-#                 rstate = 'input'
+            if not (runstate == 'running'): 
+                rstate = 'input'
             
-#             return False,'',rstate       
-#     else:
-#         if not (storage['run_state'] == 'running'): 
-#             rstate = 'wait'
-#         return True, [out_pop, 'The selected directory does not exist or is not writable!'], rstate
+            return False,'',rstate       
+    else:
+        if not (run_state == 'running'): 
+            rstate = 'wait'
+        return True, [out_pop, 'The selected directory does not exist or is not writable!'], rstate
     
 
 
@@ -276,23 +356,23 @@ page.append(gobutton)
 # def mipmaps_run_state(*args):
 #     return runstate.run_state(*args)  
 
-# # # =============================================
-# # # PROGRESS OUTPUT
+# # =============================================
+# # PROGRESS OUTPUT
 
 
-# collapse_stdout = pages.log_output(module)
+collapse_stdout = pages.log_output(module)
 
-# # ----------------
+# ----------------
 
-# uo_out,uo_in,uo_state = runstate.init_update_output(module)
+uo_out,uo_in,uo_state = runstate.init_update_output(module)
 
-# @app.callback(uo_out,uo_in,uo_state)
-# def mipmaps_update_output(*args):
-#     return runstate.update_output(*args)
+@app.callback(uo_out,uo_in,uo_state)
+def mipmaps_update_output(*args):
+    return runstate.update_output(*args)
 
 
 
 # Full page layout:
     
 
-# page.append(collapse_stdout)
+page.append(collapse_stdout)

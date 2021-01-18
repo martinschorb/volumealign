@@ -19,7 +19,7 @@ def init_store(storeinit,module):
     
     newstore = params.default_store.copy()
     newstore.update(storeinit)
-    print(newstore)
+
     
     for storeitem in newstore.keys():       
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=newstore[storeitem]))
