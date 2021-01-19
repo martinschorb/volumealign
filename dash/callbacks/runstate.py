@@ -11,13 +11,13 @@ import dash_html_components as html
 
 import subprocess
 import os
-import json
 
 from app import app
 
 
 import params
 from utils import launch_jobs
+from utils import helper_functions as hf
 
 
 #  =================================================
@@ -32,10 +32,9 @@ from utils import launch_jobs
                    State({'component': 'outfile', 'module': MATCH},'children'),
                    State({'component': 'store_r_status', 'module': MATCH},'data'),
                    State({'component': 'name', 'module': MATCH},'data')])
-def update_status(n,click,run_state,logfile,r_status,module):     
-    ctx = dash.callback_context
-    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])['component']
-   
+def update_status(n,click,run_state,logfile,r_status,module):         
+    trigger = hf.trigger_component()
+
     procs=params.processes[module.strip('_')]
     
     logfile = r_status['logfile']    
@@ -114,7 +113,7 @@ def get_status(run_state,module):
     return status, status_style, log_refresh, c_button_style
 
 
-#  =================================================
+# #  =================================================
 
 
 
@@ -140,7 +139,7 @@ def update_output(n,outfile):
     return data
 
 
-#  =================================================
+# #  =================================================
 
 
 
@@ -148,10 +147,10 @@ def update_output(n,outfile):
                 Output({'component': 'outfile', 'module': MATCH},'children')],
               [Input({'component': 'store_r_status', 'module': MATCH},'data'),
                 Input({'component': 'store_r_launch', 'module': MATCH},'data')]
-              )
+              , prevent_initial_call=True)
 def run_state(status_in,launch_in):
-    ctx = dash.callback_context
-    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])['component']
+    trigger = hf.trigger_component()
+
     
     if 'launch' in trigger:
         # print('launch triggered state:')

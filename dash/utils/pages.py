@@ -14,7 +14,7 @@ import dash_html_components as html
 def init_store(storeinit,module):
     store=list()
     
-    store.append(html.Div(id={'component':'outfile','module':module},style={'display':'none'}))
+    # store.append(html.Div(id={'component':'outfile','module':module},style={'display':'none'}))
     store.append(dcc.Store(id={'component':'name','module':module},data=module))
     
     newstore = params.default_store.copy()

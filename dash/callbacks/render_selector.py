@@ -18,7 +18,7 @@ import json
 from app import app
 
 import params
-
+from utils import helper_functions as hf
 
 
 
@@ -81,9 +81,8 @@ def update_owner_dd(init_in):
               State({'component': 'store_project', 'module': MATCH},'data'),
               prevent_initial_call=True)
 def update_proj_dd(owner_sel,init_store,store_proj):
-    ctx = dash.callback_context
-    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
-    
+    trigger = hf.trigger_component()    
+
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
     
     # get list of projects on render server
@@ -99,7 +98,7 @@ def update_proj_dd(owner_sel,init_store,store_proj):
         if item == store_proj:out_project=item
         dd_options.append({'label':item, 'value':item})  
         
-    if 'store_init_render' in trigger['component']:
+    if 'store_init_render' in trigger:
        out_project=init_store['project']
        
        

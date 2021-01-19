@@ -209,8 +209,6 @@ def mipmaps_activate_gobutton(in_dir,run_state):
     if any([in_dir=='',in_dir==None]):
         if not (run_state == 'running'): 
                 rstate = 'wait'
-        print(in_dir)
-        print(rstate)
         return True,'No input directory chosen.',rstate
     
     elif os.path.isdir(in_dir):
