@@ -41,13 +41,13 @@ compute_table_cols = ['Num_CPUs',
 
 # =========================================
 
-main=html.Div(id=module+'main',children=html.H3("Generate MipMaps for Render stack"))
+main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Generate MipMaps for Render stack"))
 
-intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_interval,
+intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
                                        n_intervals=0),
-                      dcc.Interval(id=module+'interval2', interval=params.idle_interval,
+                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
                                        n_intervals=0),
-                      html.Div(id=module+'tmpstore')
+                      html.Div(id={'component':'tmpstore' , 'module': module})
                       ])
 
 
@@ -74,9 +74,9 @@ page.append(page1)
 #  SPECIFIC PAGE CONTENT
 
 
-page2 = html.Div(id=module+'page2',children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
-                                             dcc.Input(id=module+"input1", type="text",debounce=True,persistence=True,className='dir_textinput'),
-                                             html.Button('Browse',id=module+"browse1"),
+page2 = html.Div(id={'component': 'page2', 'module': module},children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
+                                             dcc.Input(id={'component': "input1", 'module': module}, type="text",debounce=True,persistence=True,className='dir_textinput'),
+                                             html.Button('Browse',id={'component': "browse1", 'module': module}),
                                              'graphical browsing works on cluster login node ONLY!',
                                              html.Br()])
 
@@ -84,13 +84,13 @@ page.append(page2)
 
 
 
-compute_stettings = html.Details(id=module+'compute',children=[html.Summary('Compute settings:'),
+compute_stettings = html.Details(id={'component': 'compute', 'module': module},children=[html.Summary('Compute settings:'),
                                              html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
-                                                  html.Tr([html.Td('',id=module+'t_'+col) for col in status_table_cols])
+                                                  html.Tr([html.Td('',id={'component': 't_'+col, 'module': module}) for col in status_table_cols])
                                              ],className='table'),
                                              html.Br(),
                                              html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
-                                                  html.Tr([html.Td(dcc.Input(id=module+'input_'+col,type='number',min=1)) for col in compute_table_cols])
+                                                  html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': module},type='number',min=1)) for col in compute_table_cols])
                                              ],className='table'),
                                              ])
 page.append(compute_stettings)
@@ -102,20 +102,20 @@ page.append(compute_stettings)
 
 # Update directory and compute settings from stack selection
 
-stackoutput = [Output(module+'input1','value'),
-               Output({'component': 'store_stack', 'module': MATCH}, 'data')]
-tablefields = [Output(module+'t_'+col,'children') for col in status_table_cols]
-compute_tablefields = [Output(module+'input_'+col,'value') for col in compute_table_cols]
+stackoutput = [Output({'component': 'input1', 'module': module},'value'),
+               Output({'component': 'store_stack', 'module': module}, 'data')]
+tablefields = [Output({'component': 't_'+col, 'module': module},'children') for col in status_table_cols]
+compute_tablefields = [Output({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
 
 stackoutput.extend(tablefields)  
 stackoutput.extend(compute_tablefields)        
 
 @app.callback(stackoutput,
-              Input({'component': 'stack_dd', 'module': MATCH},'value'),
-              [State({'component': 'store_owner', 'module': MATCH}, 'data'),
-               State({'component': 'store_project', 'module': MATCH}, 'data'),
-               State({'component': 'store_stack', 'module': MATCH}, 'data'),
-               State({'component': 'store_allstacks', 'module': MATCH}, 'data')]
+              Input({'component': 'stack_dd', 'module': module},'value'),
+              [State({'component': 'store_owner', 'module': module}, 'data'),
+               State({'component': 'store_project', 'module': module}, 'data'),
+               State({'component': 'store_stack', 'module': module}, 'data'),
+               State({'component': 'store_allstacks', 'module': module}, 'data')]
               )
 def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
     
@@ -149,7 +149,7 @@ def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
             
             out['gigapixels']=out['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
             
-            t_fields=[out['stack'],str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %out['gigapixels']]
+            t_fields=[stack,str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %out['gigapixels']]
             
             n_cpu = params.n_cpu_script
             
@@ -180,33 +180,37 @@ def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
 # Start Button
 
 gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start MipMap generation & apply to current stack',id=module+"go",disabled=True),
-                              html.Div(id=module+'buttondiv'),
-                              html.Div(id=module+'directory-popup'),
+                              html.Button('Start MipMap generation & apply to current stack',id={'component': 'go', 'module': module},disabled=True),
+                              html.Div(id={'component': 'buttondiv', 'module': module}),
+                              html.Div(id={'component': 'directory-popup', 'module': module}),
                               html.Br(),
                               pages.compute_loc(module),
                               html.Br(),
-                              html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
+                              html.Div(id={'component': 'run_state', 'module': module}, style={'display': 'none'},children='wait')])
 
 
 page.append(gobutton)
 
 
-@app.callback([Output(module+'go', 'disabled'),
-                Output(module+'directory-popup','children'),
-                Output(module+'run_state','children')],              
-              Input(module+'input1','value'),
+@app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
+                Output({'component':'directory-popup' , 'module': module},'children'),
+                Output({'component': 'run_state', 'module': module},'children')],              
+              Input({'component': 'input1', 'module': module},'value'),
               State({'component':'store_run_state','module':module},'data'),
                 )
-def mipmaps_activate_gobutton(in_dir,run_state):      
+def mipmaps_activate_gobutton(in_dir,run_state):    
+    
     rstate = 'wait'          
     out_pop=dcc.ConfirmDialog(        
-        id=module+'danger-novaliddir',displayed=True,
+        id={'component': 'danger-novaliddir', 'module': module},displayed=True,
         message='The selected directory does not exist or is not writable!'
         )
+    
     if any([in_dir=='',in_dir==None]):
         if not (run_state == 'running'): 
                 rstate = 'wait'
+        print(in_dir)
+        print(rstate)
         return True,'No input directory chosen.',rstate
     
     elif os.path.isdir(in_dir):
@@ -226,16 +230,16 @@ def mipmaps_activate_gobutton(in_dir,run_state):
     
 
 
-# @app.callback([Output(module+'go', 'disabled'),
-#                 Output(module+'store','data'),
-#                 Output(module+'interval1','interval'),
+# @app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
+#                 Output({'component': , 'module': module}'store','data'),
+#                 Output({'component': , 'module': module}'interval1','interval'),
 #                 Output('runstep','children')
 #                 ],
-#               Input(module+'go', 'n_clicks'),
-#               [State(module+'input1','value'),
-#                 State(module+'compute_sel','value'),
+#               Input({'component': 'go', 'module': module}, 'n_clicks'),
+#               [State({'component': 'input1', 'module': module},'value'),
+#                 State({'component': 'compute_sel', 'module': module},'value'),
 #                 State('runstep','children'),
-#                 State(module+'store','data')]
+#                 State({'component': , 'module': module}'store','data')]
 #               )                 
 
 # def mipmaps_execute_gobutton(click,mipmapdir,comp_sel,runstep,storage):    
@@ -363,14 +367,6 @@ def mipmaps_activate_gobutton(in_dir,run_state):
 collapse_stdout = pages.log_output(module)
 
 # ----------------
-
-uo_out,uo_in,uo_state = runstate.init_update_output(module)
-
-@app.callback(uo_out,uo_in,uo_state)
-def mipmaps_update_output(*args):
-    return runstate.update_output(*args)
-
-
 
 # Full page layout:
     

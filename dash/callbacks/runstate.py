@@ -5,12 +5,16 @@ Created on Thu Jan 14 14:50:48 2021
 
 @author: schorb
 """
-from dash.dependencies import Input,Output,State
+from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash
 import dash_html_components as html
 
 import subprocess
 import os
+import json
+
+from app import app
+
 
 import params
 from utils import launch_jobs
@@ -19,26 +23,19 @@ from utils import launch_jobs
 #  =================================================
 
 
-def init_update_status(module):
-    
-    dash_out = [Output(module+'interval2','interval'),
-                Output(module+'store_r_status','data')
-                ]
-    
-    dash_in =  [Input(module+'interval2','n_intervals'),
-                Input(module+'cancel', 'n_clicks')]
-    
-    dash_state = [State(module+'store_run_state','data'),
-                   State(module+'outfile','children'),
-                   State(module+'store_r_status','data'),
-                   State(module+'name','data')]
-    
-    return dash_out,dash_in,dash_state
-
+@app.callback([Output({'component': 'interval2', 'module': MATCH},'interval'),
+                Output({'component': 'store_r_status', 'module': MATCH},'data')
+                ],
+              [Input({'component': 'interval2', 'module': MATCH},'n_intervals'),
+                Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')],
+              [State({'component': 'store_run_state', 'module': MATCH},'data'),
+                   State({'component': 'outfile', 'module': MATCH},'children'),
+                   State({'component': 'store_r_status', 'module': MATCH},'data'),
+                   State({'component': 'name', 'module': MATCH},'data')])
 def update_status(n,click,run_state,logfile,r_status,module):     
     ctx = dash.callback_context
-    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
-    
+    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])['component']
+   
     procs=params.processes[module.strip('_')]
     
     logfile = r_status['logfile']    
@@ -76,21 +73,13 @@ def update_status(n,click,run_state,logfile,r_status,module):
 #  =================================================
 
 
-
-def init_get_status(module):
-    
-    dash_out = [Output(module+'get-status','children'),
-                Output(module+'get-status','style'),
-                Output(module+'interval1', 'interval'),
-                Output(module+'cancel','style')
-                ]
-    
-    dash_in =  Input(module+'store_run_state','data')
-    
-    dash_state = State(module+'name','data')
-    
-    return dash_out,dash_in,dash_state
-
+@app.callback([Output({'component': 'get-status', 'module': MATCH},'children'),
+                Output({'component': 'get-status', 'module': MATCH},'style'),
+                Output({'component': 'interval1', 'module': MATCH}, 'interval'),
+                Output({'component': 'cancel', 'module': MATCH},'style')
+                ],
+              Input({'component': 'store_run_state', 'module': MATCH},'data'),
+              State({'component': 'name', 'module': MATCH},'data'))
 def get_status(run_state,module):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
@@ -129,17 +118,10 @@ def get_status(run_state,module):
 
 
 
-def init_update_output(module):
-    dash_out = Output(module+'console-out','value')
-    
-    dash_in =  [Input(module+'interval1', 'n_intervals'),
-                Input(module+'outfile','children')]
-    
-    dash_state = []
-    
-    return dash_out,dash_in,dash_state
-
-
+@app.callback(Output({'component': 'console-out', 'module': MATCH},'value'),
+              [Input({'component': 'interval1', 'module': MATCH}, 'n_intervals'),
+                Input({'component': 'outfile', 'module': MATCH},'children')]
+              )
 def update_output(n,outfile):       
     data=''
 
@@ -162,16 +144,14 @@ def update_output(n,outfile):
 
 
 
-def init_run_state(module):
-    dash_out = [Output(module+'store_run_state','data'),
-                Output(module+'outfile','children')]
-    dash_in =  [Input(module+'store_r_status','data'),
-                Input(module+'store_r_launch','data')]
-    return dash_out,dash_in
-
+@app.callback([Output({'component': 'store_run_state', 'module': MATCH},'data'),
+                Output({'component': 'outfile', 'module': MATCH},'children')],
+              [Input({'component': 'store_r_status', 'module': MATCH},'data'),
+                Input({'component': 'store_r_launch', 'module': MATCH},'data')]
+              )
 def run_state(status_in,launch_in):
     ctx = dash.callback_context
-    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])['component']
     
     if 'launch' in trigger:
         # print('launch triggered state:')

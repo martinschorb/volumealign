@@ -107,7 +107,7 @@ def update_proj_dd(owner_sel,init_store,store_proj):
 
 
 
-# Update stack dropdown, render store and browse link
+# Update stack dropdown and browse link
 
 
 @app.callback([Output({'component': 'browse_stack', 'module': MATCH},'href'),
@@ -119,7 +119,7 @@ def update_proj_dd(owner_sel,init_store,store_proj):
                 Input({'component': 'project_dd', 'module': MATCH}, 'value')],
               State({'component': 'store_stack', 'module': MATCH},'data')
               )
-def update_stack_store(init_store,own_sel,proj_sel,store_stack):
+def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
     ctx = dash.callback_context
     trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
     
@@ -151,3 +151,15 @@ def update_stack_store(init_store,own_sel,proj_sel,store_stack):
     else: 
         return [dash.no_update] * 4
 
+
+# Update render store fields:
+ 
+
+@app.callback([Output({'component': 'store_owner', 'module': MATCH},'data'),
+               Output({'component': 'store_project', 'module': MATCH},'data'),
+                ],
+              Input({'component': 'project_dd', 'module': MATCH}, 'value'),
+              State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               )
+def update_render_store(proj_sel,own_sel):
+    return own_sel,proj_sel#,stack_sel
