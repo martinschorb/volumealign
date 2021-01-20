@@ -244,12 +244,6 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     rstate = 'wait'  
     runstep = runstep_in
     
-    print('------ launch ------')
-    print(runstep)
-    print(run_state)
-    print(trigger)
-    print(logfile)  
-    
     launch_store = dash.no_update
     
     if logfile is None:
@@ -438,7 +432,6 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 launch_store['logfile'] = logfile
                 params.processes[module.strip('_')]=[]
     
-    print(launch_store)
         
     return disable_out, dircheckdiv, rstate, runstep, launch_store, interval
 

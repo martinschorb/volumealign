@@ -155,8 +155,8 @@ def update_output(n,outfile):
 def run_state(status_in,launch_in):
     trigger = hf.trigger_component()
     
-    print('-- merge status --')
-    print(trigger)
+    # print('-- merge status --')
+    # print(trigger)
     
     if 'launch' in trigger:
         # print('launch triggered state:')
@@ -167,6 +167,6 @@ def run_state(status_in,launch_in):
         # print('status triggered state:')
         # print(status_in)
         out = status_in.copy()        
-    print(out)
+    # print(out)
     
     return out['state'], out['logfile']
