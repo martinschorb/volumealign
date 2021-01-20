@@ -12,107 +12,74 @@ from dash.dependencies import Input,Output,State
 import params
 from app import app
 from utils import pages
-from callbacks import runstate
+# from callbacks import runstate
 
-from sbem import sbem_conv
+# from sbem import sbem_conv
 
 
-module='convert_'
+module='convert'
 
 storeinit={}            
 
 store = pages.init_store(storeinit, module)
 
+main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
+        id=module+'dropdown1',persistence=True,
+        options=[
+            {'label': 'SBEMImage', 'value': 'SBEMImage'}            
+        ],
+        value='SBEMImage'
+        )
+    ])
+
+intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
+                                       n_intervals=0)
+                      ])
 
 
-main = pages.main(module)
+page = [intervals]
 
+r_sel = pages.render_selector(module)
+r_sel.style = {'display':'none'}
 
-page = ''
+page.append(r_sel)
 
-# main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
-#         id=module+'dropdown1',persistence=True,
-#         options=[
-#             {'label': 'SBEMImage', 'value': 'SBEMImage'}            
-#         ],
-#         value='SBEMImage'
-#         )
-#     ])
-
-
-# intervals = html.Div([dcc.Interval(id=module+'interval1', interval=params.idle_interval,
-#                                        n_intervals=0),
-#                       dcc.Interval(id=module+'interval2', interval=params.idle_interval,
-#                                        n_intervals=0),
-#                       dcc.Store(id=module+'tmpstore'),                      
-#                       dcc.Store(id=module+'stack')
-#                       ])
-
-# junk = html.Div(id=module+'junk')
-
-# page1 = html.Div(id=module+'page1')
+page1 = html.Div(id=module+'_page1')
 
 # # =============================================
 # # # Page content
 
 # @app.callback([Output(module+'page1', 'children'),
-#                Output(module+'store_owner','data')],
+#                 Output(module+'store_owner','data')],
 #                 Input(module+'dropdown1', 'value'))
 # def convert_output(dd_value):
-#     if dd_value=='SBEMImage':
-#         thisstore='SBEM'
-#         return sbem_conv.page, thisstore
+#     # if dd_value=='SBEMImage':
+#     #     thisstore='SBEM'
+#     #     return sbem_conv.page, thisstore
     
-#     else:
+#     # else:
 #         return [html.Br(),'No data type selected.'],None
 
 
 
+# =============================================
+# Processing status
+
+# initialized with store
+# embedded from callbacks import runstate
+
 # # =============================================
-# # Processing status
+# # PROGRESS OUTPUT
 
 
-# us_out,us_in,us_state = runstate.init_update_status(module)
+collapse_stdout = pages.log_output(module)
 
-# @app.callback(us_out,us_in,us_state)
-# def convert_update_status(*args): 
-#     return runstate.update_status(*args)
+# ----------------
 
-
-
-# gs_out,gs_in,gs_state = runstate.init_get_status(module)
-
-# @app.callback(gs_out,gs_in,gs_state)
-# def convert_get_status(*args):
-#     return runstate.get_status(*args)
-
-
-# rs_out, rs_in = runstate.init_run_state(module)
-
-# @app.callback(rs_out, rs_in)
-# def convert_run_state(*args):
-#     return runstate.run_state(*args)  
-
-# # # =============================================
-# # # PROGRESS OUTPUT
-
-
-# collapse_stdout = pages.log_output(module)
-
-# # ----------------
-
-# uo_out,uo_in,uo_state = runstate.init_update_output(module)
-
-# @app.callback(uo_out,uo_in,uo_state)
-# def convert_update_output(*args):
-#     return runstate.update_output(*args)
-
-
-
-# # Full page layout:
+# Full page layout:
     
-# page = []
-# page.append(intervals)
-# page.append(page1)
-# page.append(collapse_stdout)
+
+page.append(collapse_stdout)
 

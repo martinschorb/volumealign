@@ -94,7 +94,7 @@ page.append(page2)
 # # ===============================================
 # Compute Settings
 
-compute_settings = html.Details(id={'component': 'compute', 'module': module},children=[html.Summary('Compute settings:'),
+compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                              html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
                                                   html.Tr([html.Td('',id={'component': 't_'+col, 'module': module}) for col in status_table_cols])
                                              ],className='table'),

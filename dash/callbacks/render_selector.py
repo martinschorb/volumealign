@@ -11,6 +11,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH, ALL
+from dash.exceptions import PreventUpdate
 
 import requests
 import json
@@ -33,7 +34,10 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
                    
     return dash_out,dash_in,dash_state
 
-def update_store(prevstore,thisstore): 
+def update_store(prevstore,thisstore):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     for key in thisstore.keys():        
         if not prevstore[key] == '' or prevstore[key] == None:
             thisstore[key] = prevstore[key]
@@ -81,6 +85,9 @@ def update_owner_dd(init_in):
               State({'component': 'store_project', 'module': MATCH},'data'),
               prevent_initial_call=True)
 def update_proj_dd(owner_sel,init_store,store_proj):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     trigger = hf.trigger_component()    
 
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
@@ -119,6 +126,9 @@ def update_proj_dd(owner_sel,init_store,store_proj):
               State({'component': 'store_stack', 'module': MATCH},'data')
               )
 def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     ctx = dash.callback_context
     trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
     
@@ -161,4 +171,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
               State({'component': 'owner_dd', 'module': MATCH}, 'value'),
                )
 def update_render_store(proj_sel,own_sel):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     return own_sel,proj_sel#,stack_sel

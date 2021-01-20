@@ -14,6 +14,7 @@ from pydoc import locate
 import importlib
 from app import app
 
+
 import params
 
 import startpage
@@ -24,18 +25,16 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=[#'dyntest',
-            # 'convert',
+menu_items=[#'convert',
             'mipmaps',
             # 'tilepairs',
             # 'pointmatch'
             ]
 
-menu_text=[#'Test dynamic callbacks',
-            # 'Convert & upload'#,
+menu_text=[#'Convert & upload',
             'Generate MipMaps',
            # 'Find Tile Pairs',
-           # 'Find PointMatches'
+            # 'Find PointMatches'
             ]
 
 
@@ -44,32 +43,28 @@ menu=list()
 store=list()
 params.processes=dict()
 
-
+allpages = list()
 
 #import UI page elements from dynamic menu
 
 for lib in menu_items:
     thismodule = importlib.import_module(lib)
-    globals()[lib] = thismodule
-    store.extend(thismodule.store)
-
+    thisstore = getattr(thismodule,'store')
+    store.extend(thisstore)
+    thispage = getattr(thismodule,'page')
+    allpages.append(html.Div(thispage,id={'component': 'page', 'module': lib}, style={'display': 'none'}))
     
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
     menu.append(html.Br())    
-    
-    
+        
     params.processes[m_item]=[]
     
-    
-
 
 sidebar = html.Nav(className='sidebar',children=menu)
 
 
-mainbody = html.Div(className='main',id='page-content')
-                    
-                    
+mainbody = html.Div(className='main',id='page-content',children=allpages)
                     
                     
 
@@ -114,25 +109,27 @@ for m_i in menu_items: menu_cb_out.append(Output('menu_'+m_i,'style'))
               [Input('url', 'pathname')])
 def display_page(pathname):
     s1 = STYLE_active
-    styles = [{}]*len(menu_items)    
+    menu_styles = [{}]*len(menu_items)    
     
-    outlist=[html.Div([html.H3('Welcome to the Render-based alignment suite.'),
-                        startpage.content])]
-           
+    outlist=[[html.Div([html.H3('Welcome to the Render-based alignment suite.'),
+                         startpage.content])]]
+    start = True
+    
     for m_ind,m_item in enumerate(menu_items):
         thispage = locate(m_item+".main")
-
+        allpages[m_ind].style = {'display': 'none'}
         if pathname=="/"+m_item:  
-            subpage = locate(m_item+".page")
-            styles[m_ind]=s1
-            mod_page = [thispage]
-            mod_page.extend(subpage)
-            outlist=[mod_page]
-        
+            menu_styles[m_ind]=s1            
+            allpages[m_ind].style = {}
+            start = False
             
-            
-    outlist.extend(styles)
-
+    if start:
+        outlist[0].extend(allpages)
+    else:
+        outlist = [allpages]
+    
+    outlist.extend(menu_styles)
+    
     return outlist
     
     

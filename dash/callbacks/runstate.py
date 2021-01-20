@@ -8,6 +8,7 @@ Created on Thu Jan 14 14:50:48 2021
 from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash
 import dash_html_components as html
+from dash.exceptions import PreventUpdate
 
 import subprocess
 import os
@@ -33,9 +34,12 @@ from utils import helper_functions as hf
                    State({'component': 'store_r_status', 'module': MATCH},'data'),
                    State({'component': 'name', 'module': MATCH},'data')]
               )
-def update_status(n,click,run_state,logfile,r_status,module):         
+def update_status(n,click,run_state,logfile,r_status,module):     
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     trigger = hf.trigger_component()
-
+    print(trigger)
     procs=params.processes[module.strip('_')]
     
     r_status['logfile']  = logfile
@@ -82,6 +86,9 @@ def update_status(n,click,run_state,logfile,r_status,module):
               Input({'component': 'store_run_state', 'module': MATCH},'data'),
               State({'component': 'name', 'module': MATCH},'data'))
 def get_status(run_state,module):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')] 
@@ -112,7 +119,7 @@ def get_status(run_state,module):
     else:
         status=run_state
     
-    print('display status:  '+str(status))
+    # print('display status:  '+str(status))
     
     return status, status_style, log_refresh, c_button_style
 
@@ -125,7 +132,10 @@ def get_status(run_state,module):
               [Input({'component': 'interval1', 'module': MATCH}, 'n_intervals'),
                 Input({'component': 'outfile', 'module': MATCH},'children')]
               )
-def update_output(n,outfile):       
+def update_output(n,outfile):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+     
     data=''
 
     if outfile is not None:
@@ -153,6 +163,8 @@ def update_output(n,outfile):
                 Input({'component': 'store_r_launch', 'module': MATCH},'data')]
               )
 def run_state(status_in,launch_in):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
     trigger = hf.trigger_component()
     
     # print('-- merge status --')
