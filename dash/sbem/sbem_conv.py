@@ -291,7 +291,8 @@ page.append(gobutton)
 @app.callback([Output(label+'go', 'disabled'),
                 Output(label+'directory-popup','children'),
                 Output(label+'danger-novaliddir','displayed'),
-                Output({'component': 'store_r_launch', 'module': parent},'data')
+                Output({'component': 'store_r_launch', 'module': parent},'data'),
+                Output({'component': 'store_render_launch', 'module': parent},'data')
                 ],             
               [Input(label+'stack_dd','value'),
                 Input(label+'input1','value'),
@@ -300,15 +301,18 @@ page.append(gobutton)
               [State(label+'project_dd', 'value'),
                 State(label+'compute_sel','value'),
                 State({'component': 'store_run_state', 'module': parent},'data'),
-                State({'component': 'store_r_launch', 'module': parent},'data')],
-                )
-def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state,out):   
+                State({'component': 'store_r_launch', 'module': parent},'data'),
+                State({'component': 'store_render_launch', 'module': parent},'data')]
+                ,prevent_initial_call=True)
+def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state,out,outstore):   
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
     popup = ''
     pop_display = False
     log_file = out['logfile']
+    
+    # outstore = dash.no_update
 
     if trigger == 'go':
     # launch procedure                
@@ -346,6 +350,10 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         run_state = 'running'
         params.processes[parent.strip('_')] = sbem_conv_p
         
+        outstore = dict()
+        outstore['owner'] = 'SBEM'
+        outstore['project'] = proj_dd_sel
+        outstore['stack'] = stack_sel
 
         
     else:
@@ -378,6 +386,9 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
     out['logfile'] = log_file
     out['state'] = run_state
     
-    return but_disabled, popup, pop_display, out
+    print('conv-go')
+    print(outstore)
+    
+    return but_disabled, popup, pop_display, out, outstore
 
         

@@ -115,7 +115,6 @@ def display_page(pathname):
     start = True
     
     for m_ind,m_item in enumerate(menu_items):
-        thispage = locate(m_item+".main")
         allpages[m_ind].style = {'display': 'none'}
         if pathname=="/"+m_item:  
             menu_styles[m_ind]=s1            

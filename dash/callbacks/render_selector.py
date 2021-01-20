@@ -37,11 +37,14 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-        
-    for key in thisstore.keys():        
-        if not prevstore[key] == '' or prevstore[key] == None:
-            thisstore[key] = prevstore[key]
+    trigger = hf.trigger_component()    
+    print(trigger)
+    print(prevstore)
     
+    for key in thisstore.keys():        
+        if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):
+            thisstore[key] = prevstore[key]
+    print(thisstore)
     return thisstore
 
 
@@ -147,7 +150,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
         dd_options = list(dict())
         for item in stacks:
 
-            if item['stackId']['stack'] == store_stack:out_stack=item['stackId']['stack']
+            if item['stackId']['stack'] == init_store['stack']:out_stack=item['stackId']['stack']
             
             dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
             
