@@ -132,9 +132,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
         
-    ctx = dash.callback_context
-    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('.value')[0])
-    
+    trigger = hf.trigger_component()        
     
           
     if not (proj_sel in [None,'']):
