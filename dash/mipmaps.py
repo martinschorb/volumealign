@@ -219,7 +219,8 @@ page.append(gobutton)
                 Output({'component': 'run_state', 'module': module},'children'),
                 Output({'component':'runstep','module':module},'data'),
                 Output({'component': 'store_r_launch', 'module': module},'data'),
-                Output({'component': 'interval3', 'module': module},'interval')],              
+                Output({'component': 'interval3', 'module': module},'interval'),
+                Output({'component': 'store_render_launch', 'module': module},'data')],              
               [Input({'component': 'input1', 'module': module},'value'),
                Input({'component': 'go', 'module': module}, 'n_clicks'),
                Input({'component': 'interval3', 'module': module},'n_intervals')],
@@ -234,9 +235,10 @@ page.append(gobutton)
                State({'component': 'go', 'module': module}, 'disabled'),
                State({'component':'directory-popup' , 'module': module},'children'),
                State({'component':'outfile' , 'module': module},'children'),
-               State({'component': 'interval3', 'module': module},'interval')]
+               State({'component': 'interval3', 'module': module},'interval'),
+               State({'component': 'store_render_launch', 'module': module},'data')]
               , prevent_initial_call=True)
-def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval):
+def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval,outstore):
     trigger = hf.trigger_component()    
     
     # init output    
@@ -375,6 +377,10 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
         launch_store['logfile'] = log_file
         launch_store['state'] = 'running'
         
+        outstore = dict()
+        outstore['owner'] = owner
+        outstore['project'] = project
+        outstore['stack'] = stack
  
     # ------------------------------------
     # launch apply mipmaps task when generate mipmaps task has completed successfully
