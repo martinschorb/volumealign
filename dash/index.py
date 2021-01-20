@@ -14,7 +14,6 @@ from pydoc import locate
 import importlib
 from app import app
 
-
 import params
 
 import startpage
@@ -25,13 +24,13 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=[#'convert',
+menu_items=['convert',
             'mipmaps',
             # 'tilepairs',
             # 'pointmatch'
             ]
 
-menu_text=[#'Convert & upload',
+menu_text=['Convert & upload',
             'Generate MipMaps',
            # 'Find Tile Pairs',
             # 'Find PointMatches'

@@ -12,9 +12,9 @@ from dash.dependencies import Input,Output,State
 import params
 from app import app
 from utils import pages
-# from callbacks import runstate
+from callbacks import runstate
 
-# from sbem import sbem_conv
+from sbem import sbem_conv
 
 
 module='convert'
@@ -24,7 +24,7 @@ storeinit={}
 store = pages.init_store(storeinit, module)
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
-        id=module+'dropdown1',persistence=True,
+        id={'component': 'import_type_dd', 'module': module},persistence=True,
         options=[
             {'label': 'SBEMImage', 'value': 'SBEMImage'}            
         ],
@@ -39,29 +39,31 @@ intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': modul
                       ])
 
 
-page = [intervals]
+page = [intervals,main]
 
 r_sel = pages.render_selector(module)
 r_sel.style = {'display':'none'}
 
 page.append(r_sel)
 
-page1 = html.Div(id=module+'_page1')
+page1 = html.Div(id={'component': 'page1', 'module': module})
 
 # # =============================================
 # # # Page content
 
-# @app.callback([Output(module+'page1', 'children'),
-#                 Output(module+'store_owner','data')],
-#                 Input(module+'dropdown1', 'value'))
-# def convert_output(dd_value):
-#     # if dd_value=='SBEMImage':
-#     #     thisstore='SBEM'
-#     #     return sbem_conv.page, thisstore
+@app.callback([Output({'component': 'page1', 'module': module}, 'children'),
+               ],
+                Input({'component': 'import_type_dd', 'module': module}, 'value'))
+def convert_output(dd_value):
+    if dd_value=='SBEMImage':
+        return [html.Div(sbem_conv.page)]
     
-#     # else:
-#         return [html.Br(),'No data type selected.'],None
+    else:
+        return [html.Div([html.Br(),'No data type selected.'])]
 
+
+
+page.append(page1)
 
 
 # =============================================

@@ -58,7 +58,7 @@ intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': modul
                       ])
 
 
-page = [intervals]
+page = [intervals,main]
 
 
 
