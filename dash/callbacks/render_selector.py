@@ -153,7 +153,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
             dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
             
             
-        if 'store_init_render' in trigger['component']:
+        if 'store_init_render' in trigger:
             out_stack=init_store['stack']
         
         return href_out, dd_options, out_stack, stacks
