@@ -39,7 +39,6 @@ def update_status(n,click,run_state,logfile,r_status,module):
         raise PreventUpdate
         
     trigger = hf.trigger_component()
-    print(trigger)
     procs=params.processes[module.strip('_')]
     
     r_status['logfile']  = logfile
