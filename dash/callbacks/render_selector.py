@@ -38,13 +38,11 @@ def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     trigger = hf.trigger_component()    
-    print(trigger)
-    print(prevstore)
-    
+
     for key in thisstore.keys():        
         if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):
             thisstore[key] = prevstore[key]
-    print(thisstore)
+
     return thisstore
 
 
