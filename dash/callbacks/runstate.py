@@ -31,14 +31,16 @@ from utils import helper_functions as hf
               [State({'component': 'store_run_state', 'module': MATCH},'data'),
                    State({'component': 'outfile', 'module': MATCH},'children'),
                    State({'component': 'store_r_status', 'module': MATCH},'data'),
-                   State({'component': 'name', 'module': MATCH},'data')])
+                   State({'component': 'name', 'module': MATCH},'data')]
+              )
 def update_status(n,click,run_state,logfile,r_status,module):         
     trigger = hf.trigger_component()
 
     procs=params.processes[module.strip('_')]
     
-    logfile = r_status['logfile']    
+    r_status['logfile']  = logfile
     r_status['state'] = run_state
+    
     
     if 'interval2' in trigger:        
         
@@ -109,7 +111,9 @@ def get_status(run_state,module):
         status='not running'
     else:
         status=run_state
-
+    
+    print('display status:  '+str(status))
+    
     return status, status_style, log_refresh, c_button_style
 
 
@@ -147,10 +151,12 @@ def update_output(n,outfile):
                 Output({'component': 'outfile', 'module': MATCH},'children')],
               [Input({'component': 'store_r_status', 'module': MATCH},'data'),
                 Input({'component': 'store_r_launch', 'module': MATCH},'data')]
-              , prevent_initial_call=True)
+              )
 def run_state(status_in,launch_in):
     trigger = hf.trigger_component()
-
+    
+    print('-- merge status --')
+    print(trigger)
     
     if 'launch' in trigger:
         # print('launch triggered state:')
@@ -160,6 +166,7 @@ def run_state(status_in,launch_in):
     else:
         # print('status triggered state:')
         # print(status_in)
-        out = status_in
-        
+        out = status_in.copy()        
+    print(out)
+    
     return out['state'], out['logfile']

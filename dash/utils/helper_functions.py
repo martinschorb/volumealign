@@ -17,6 +17,7 @@ def trigger_component():
 
 def input_components():
     ctx = dash.callback_context 
+    
     incomp = [indict['id']['component'] for indict in ctx.inputs_list]
     inval = [indict[indict['property']] for indict in ctx.inputs_list]
     

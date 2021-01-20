@@ -52,6 +52,8 @@ intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': modul
                                        n_intervals=0),
                       dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
                                        n_intervals=0),
+                      dcc.Interval(id={'component': 'interval3', 'module': module}, interval=params.idle_interval,
+                                       n_intervals=0),
                       html.Div(id={'component':'tmpstore' , 'module': module})
                       ])
 
@@ -216,10 +218,11 @@ page.append(gobutton)
                 Output({'component':'directory-popup' , 'module': module},'children'),
                 Output({'component': 'run_state', 'module': module},'children'),
                 Output({'component':'runstep','module':module},'data'),
-                Output({'component': 'store_r_launch', 'module': module},'data')],              
+                Output({'component': 'store_r_launch', 'module': module},'data'),
+                Output({'component': 'interval3', 'module': module},'interval')],              
               [Input({'component': 'input1', 'module': module},'value'),
                Input({'component': 'go', 'module': module}, 'n_clicks'),
-               Input({'component': 'interval2', 'module': module},'n_intervals')],
+               Input({'component': 'interval3', 'module': module},'n_intervals')],
               [State({'component':'store_run_state','module':module},'data'),
                State({'component': 'compute_sel', 'module': module},'value'),
                State({'component':'runstep','module':module},'data'),
@@ -229,18 +232,34 @@ page.append(gobutton)
                State({'component': 'store_stackparams', 'module': module}, 'data'),
                State({'component': 'store_compset', 'module': module}, 'data'),
                State({'component': 'go', 'module': module}, 'disabled'),
-               State({'component':'directory-popup' , 'module': module},'children')]
+               State({'component':'directory-popup' , 'module': module},'children'),
+               State({'component':'outfile' , 'module': module},'children'),
+               State({'component': 'interval3', 'module': module},'interval')]
               , prevent_initial_call=True)
-def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv):
+def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval):
     trigger = hf.trigger_component()    
     
     # init output    
     
     rstate = 'wait'  
-    
     runstep = runstep_in
+    
+    print('------ launch ------')
+    print(runstep)
+    print(run_state)
+    print(trigger)
+    print(logfile)  
+    
     launch_store = dash.no_update
     
+    if logfile is None:
+        logfile = params.render_log_dir + '/out.txt'
+        launch_store=dict()
+        launch_store['logfile'] = logfile
+        launch_store['state'] = 'wait'
+        run_state = 'wait'
+        
+        
     out_pop=dcc.ConfirmDialog(        
         id={'component': 'danger-novaliddir', 'module': module},displayed=True,
         message='The selected directory does not exist or is not writable!'
@@ -250,6 +269,8 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     # activate button, prepare launch
     
     if 'input1' in trigger:
+        interval = params.idle_interval
+
         disable_out = True
         if any([mipmapdir=='',mipmapdir==None]):
             if not (run_state == 'running'): 
@@ -279,7 +300,8 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                   
                 
     elif 'go' in trigger:
-    
+        disable_out = True
+        interval = params.idle_interval * 0.4
         importlib.reload(params)
         runstep = 'generate'
         
@@ -308,11 +330,11 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
         sec_end = sec_start
         
         while sec_end <= stackparams['zmax']:
-            sec_end = int(np.min([sec_start+comp_set['section_split'],stackparams['zmax']]))
+            sec_end = int(np.min([sec_start+comp_set['input_section_split'],stackparams['zmax']]))
             run_params_generate['zstart'] = sec_start
             run_params_generate['zend'] = sec_end
             
-            run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' )
+            run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + '_'  + params.run_prefix + '_' + str(sliceblock_idx)+'.json' )
             
             param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '_' + str(sliceblock_idx)+'.json' 
         
@@ -320,7 +342,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
             with open(param_file,'w') as f:
                 json.dump(run_params_generate,f,indent=4)
         
-            log_file = params.render_log_dir + '/' + runstep+ '_' + module + params.run_prefix+ '_' + str(sliceblock_idx)
+            log_file = params.render_log_dir + '/' + runstep + '_' + module + '_'  + params.run_prefix+ '_' + str(sliceblock_idx)
             err_file = log_file + '.err'
             log_file += '.log'
             
@@ -342,9 +364,9 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     
                 slurm_args=['-N1']
                 slurm_args.append('-n1')
-                slurm_args.append('-c '+str(comp_set['Num_CPUs']))
+                slurm_args.append('-c '+str(comp_set['input_Num_CPUs']))
                 slurm_args.append('--mem  '+str(params.mem_per_cpu)+'G')
-                slurm_args.append('-t 00:%02i:00' %comp_set['runtime_minutes'])
+                slurm_args.append('-t 00:%02i:00' %comp_set['input_runtime_minutes'])
                 
                 target_args=slurm_args
             
@@ -354,7 +376,8 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                             json=param_file,run_args=None,target_args=target_args,logfile=log_file,errfile=err_file)
             
             params.processes[module.strip('_')].extend(mipmap_generate_p)
-                        
+        
+        launch_store=dict()
         launch_store['logfile'] = log_file
         launch_store['state'] = 'running'
         
@@ -363,12 +386,11 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     # launch apply mipmaps task when generate mipmaps task has completed successfully
     
         
-    elif 'interval2' in trigger:   
-        
-        print(runstep)
-        print(run_state)
+    elif 'interval3' in trigger:        
         
         if runstep == 'generate' and run_state == 'done' and mipmapdir is not None:
+                interval = params.idle_interval * 0.4
+
                 runstep = 'apply'
                 importlib.reload(params)
                 
@@ -388,7 +410,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 run_params_generate["output_stack"] = stack + "_mipmaps"
                 run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
                 
-                param_file = params.json_run_dir + '/' + runstep+ '_' + module + params.run_prefix + '.json' 
+                param_file = params.json_run_dir + '/' + runstep + '_' + module + '_' + params.run_prefix + '.json' 
                 run_params_generate["zstart"] = stackparams['zmin']
                 run_params_generate["zend"] = stackparams['zmax']
                 run_params_generate["pool_size"] = params.n_cpu_script
@@ -396,7 +418,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 with open(param_file,'w') as f:
                     json.dump(run_params_generate,f,indent=4)
             
-                log_file = params.render_log_dir + '/' + runstep+ '_' + module + params.run_prefix
+                log_file = params.render_log_dir + '/' + runstep + '_' + module + '_' + params.run_prefix
                 err_file = log_file + '.err'
                 log_file += '.log'
                 
@@ -404,17 +426,21 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                               json=param_file,run_args=None,logfile=log_file,errfile=err_file)
                 
                 params.processes[module.strip('_')] = [mipmap_apply_p]
-                
+                launch_store=dict()
                 launch_store['logfile'] = log_file
-                launch_store['state'] = 'running'
+                launch_store['state'] = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
                 
-                # status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
-        elif runstep == 'apply':
+        elif runstep == 'apply' and run_state == 'done' and mipmapdir is not None:
+                interval = params.idle_interval
+
+                launch_store=dict()
                 launch_store['state'] = 'done'
+                launch_store['logfile'] = logfile
                 params.processes[module.strip('_')]=[]
     
+    print(launch_store)
         
-    return disable_out, dircheckdiv, rstate, runstep, launch_store
+    return disable_out, dircheckdiv, rstate, runstep, launch_store, interval
 
 
 
