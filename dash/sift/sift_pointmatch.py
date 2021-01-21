@@ -6,8 +6,11 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.exceptions import PreventUpdate
+
 import subprocess
 # import sys
 import os
@@ -38,12 +41,22 @@ page=[]
 
 
 matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT search"),
+                       html.Div(['Organism: ',
                        dcc.Dropdown(id=label+'organism_dd',persistence=True,
                                     clearable=False),
-                       html.Div([
+                       html.Div(["Select existing Match Trial parameters."
                                  ],
                                 id=label+'mt_sel'),
+                       dcc.Store(id=label+'picks'),
+                       dcc.Dropdown(id=label+'matchID_dd',persistence=True,
+                                    clearable=False),
+                       html.Div(id=label+'mtbrowse',
+                             children=[html.A('Explore MatchTrial',
+                                              id=label+'mt_link',
+                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
+                                       ])
                        ])
+                                 ])
 
 page.append(matchtrial)
 
@@ -61,42 +74,71 @@ page.append(gobutton)
 # Start Button
                
 
-@app.callback([Output(label+'go', 'disabled'),
-               Output(label+'mt_sel', 'children'),
-               Output(label+'organism_dd','options')],              
+@app.callback([Output(label+'organism_dd','options'),
+               Output(label+'picks','data')],              
               [Input(parent+'tp_dd','value')],              
               )
-def sift_pointmatch_activate_gobutton(tilepairdir):
+def sift_pointmatch_organisms(tilepairdir):
     mT_jsonfiles = os.listdir(params.json_match_dir)
     
     organisms=list()
     
-    params.picks = dict()
+    picks = dict()
     
     for mT_file in mT_jsonfiles:
         with open(os.path.join(params.json_match_dir,mT_file),'r') as f:
             indict = json.load(f)
             if not indict['organism'] in organisms:
                 organisms.append(indict['organism'])
-                params.picks[indict['organism']] = [indict['render']]
-                params.picks[indict['organism']][0]['type']=indict['type']
-                params.picks[indict['organism']][0]['ID']=indict['MatchTrial']
+                picks[indict['organism']] = [indict['render']]
+                picks[indict['organism']][0]['type']=indict['type']
+                picks[indict['organism']][0]['ID']=indict['MatchTrial']
             else:
-                params.picks[indict['organism']].append(indict['render'])
-                params.picks[indict['organism']][-1]['type']=indict['type']
-                params.picks[indict['organism']][-1]['ID']=indict['MatchTrial']
+                picks[indict['organism']].append(indict['render'])
+                picks[indict['organism']][-1]['type']=indict['type']
+                picks[indict['organism']][-1]['ID']=indict['MatchTrial']
     
     dd_options = list(dict())
         
     for item in organisms: 
         dd_options.append({'label':item, 'value':item})
-    
-    
-    
-    return False, tilepairdir, dd_options
 
+    return dd_options, picks
+
+
+
+@app.callback([Output(label+'matchID_dd','options')],              
+              [Input(label+'organism_dd','value'),
+               Input(label+'picks','data')],              
+              prevent_initial_call=True)
+def sift_pointmatch_IDs(organism,picks):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
+    matchtrials = picks[organism]
+        
+    dd_options = list(dict())
+        
+    for item in matchtrials: 
+        ilabel = item['project']+'-'+item['stack']+'-'+item['type']
+        dd_options.append({'label':ilabel, 'value':item['ID']})
     
+    return [dd_options]
     
+
+@app.callback([Output(label+'mt_link','href')],              
+              Input(label+'matchID_dd','value'),
+               # State(label+'picks','data'),              
+              prevent_initial_call=True)
+def sift_browse_matchTrial(matchID):
+    
+    mc_url = params.render_base_url + 'view/match-trial.html?'
+    mc_url += 'matchTrialId=' + matchID
+
+            
+    return [mc_url]
+
+
 # =============================================
    
 #  LAUNCH CALLBACK FUNCTION
