@@ -1,0 +1,10 @@
+{
+    "render": {
+        "owner": "SBEM",
+        "project": "platy_rach_kimberly_test",
+        "stack": "platy_test0"
+        },
+    "organism":"platynereis",
+    "MatchTrial":"5fb691b6e3ed5c455c4b263f",
+    "type":"2D"
+}

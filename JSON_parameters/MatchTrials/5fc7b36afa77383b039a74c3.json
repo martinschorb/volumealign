@@ -1,0 +1,10 @@
+{
+    "render": {
+        "owner": "SBEM",
+        "project": "platy_rach_eyespot",
+        "stack": "127_import"
+        },
+    "organism":"platynereis",
+    "MatchTrial":"5fc7b36afa77383b039a74c3",
+    "type":"2D"
+}
