@@ -10,6 +10,7 @@ import params
 import dash_core_components as dcc
 import dash_html_components as html
 
+from utils import helper_functions as hf
 
 def init_store(storeinit,module):
     store=list()
@@ -110,14 +111,11 @@ def match_selector(module,newcoll=False):
 
 
 
-def compute_loc(module):
+def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.comp_default):
     out = html.Details([html.Summary('Compute location:'),
                         dcc.RadioItems(
-                            options=[
-                                {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                                {'label': 'locally (this submission node)', 'value': 'standalone'}
-                                ],
-                            value='slurm',
+                            options = hf.compset_radiobutton(c_options),
+                            value = c_default,
                             labelStyle={'display': 'inline-block'},
                             id={'component':'compute_sel','module':module}
                             )

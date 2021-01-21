@@ -24,6 +24,16 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 #==============================================================
 ## Compute resources presets
 
+
+comp_options = [{'label': 'Cluster (slurm)', 'value': 'slurm'},
+                {'label': 'locally (this submission node)', 'value': 'standalone'},
+                {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}]
+
+comp_default = 'slurm'
+
+comp_defaultoptions = ['slurm','standalone']
+
+
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
 n_cpu_script = 24

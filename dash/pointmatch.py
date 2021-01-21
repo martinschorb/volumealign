@@ -11,8 +11,6 @@ from dash.dependencies import Input,Output,State
 import os
 import glob
 import params
-import subprocess
-import requests
 
 from app import app
 
@@ -20,7 +18,7 @@ from utils import launch_jobs,pages
 from callbacks import runstate,render_selector,substack_sel,match_selector
 
 
-# from sift import sift_pointmatch
+from sift import sift_pointmatch
 
 
 module='pointmatch'
@@ -111,113 +109,24 @@ def pointmatch_tp_dd_fill(stack):
     return tpdir_dd_options,tpdir_dd_options[-1]['value']
 
 
-# # =========================================
 
-# #------------------
-# # SET STACK
-
+# =============================================
+# # Page content for specific pointmatch client
 
 
+page4 = html.Div(id=module+'page1')
 
-# # @app.callback([Output(module+'stack_dd','options'),   
-# #                Output(module+'stack_dd','style'), 
-# #                Output(module+'stack_state','children')],
-# #     [Input(module+'project_dd', 'value'),
-# #      Input(module+'orig_proj','children')],
-# #     )
-# # def pointmatch_proj_stack_activate(project_sel,orig_proj):    
+page.append(page4)
+
+
+@app.callback([Output(module+'page1', 'children')],
+                Input(module+'dropdown1', 'value'))
+def pointmatch_output(value):
+    if value=='SIFT':
+        return sift_pointmatch.page
     
-# #     dd_options = [{'label':'Create new Stack', 'value':'newstack'}]
-    
-# #     if project_sel in orig_proj:
-# #         # get list of STACKS on render server
-# #         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project_sel + '/stacks'
-# #         stacks = requests.get(url).json()  
-        
-# #         # assemble dropdown
-        
-# #         for item in stacks: dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
-                
-# #         return dd_options, {'display':'block'}, stacks[0]['stackId']['stack']
-        
-# #     else:    
-# #         return dd_options,{'display':'none'}, 'newstack'
-    
-    
-            
-# # @app.callback(Output(module+'stack_state','children'),
-# #     Input(module+'stack_dd','value'))
-# # def pointmatch_update_stack_state(stack_dd):        
-# #     return stack_dd
-
-
-# # @app.callback(Output(parent+'store','data'),
-# #     [Input(module+'stack_state','children'),
-# #     Input(module+'project_dd', 'value')],
-# #     [State(parent+'store','data')]
-# #     )
-# # def pointmatch_update_active_project(stack,project,storage):
-# #     storage['owner']=owner
-# #     storage['project']=project
-# #     storage['stack']=stack    
-# #     # print('sbem -> store')
-# #     # print(storage)
-# #     return storage
-
-
-    
-# # @app.callback([Output(module+'browse_stack','href'),Output(module+'browse_stack','style')],
-# #     Input(module+'stack_state','children'),
-# #     State(module+'project_dd', 'value'))
-# # def pointmatch_update_stack_browse(stack_state,project_sel):      
-# #     if stack_state == 'newstack':
-# #         return params.render_base_url, {'display':'none'}
-# #     else:
-# #         return params.render_base_url+'view/stack-details.html?renderStackOwner='+owner+'&renderStackProject='+project_sel+'&renderStack='+stack_state, {'display':'block'}
-                                
-    
-# # @app.callback(Output(module+'newstack','children'),
-# #     Input(module+'stack_state','children'))
-# # def pointmatch_new_stack_input(stack_value):
-# #     if stack_value=='newstack':
-# #         st_div_out = ['Enter new stack name: ',
-# #                    dcc.Input(id=module+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
-# #                    ]
-# #     else:
-# #         st_div_out = ''
-    
-# #     return st_div_out
-
-
-
-# # @app.callback([Output(module+'stack_dd', 'options'),
-# #                Output(module+'stack_dd', 'value'),
-# #                Output(module+'stack_dd','style')],
-# #               [Input(module+'stack_input', 'value')],
-# #               State(module+'stack_dd', 'options'))
-# # def pointmatch_new_stack(stack_name,dd_options): 
-# #     dd_options.append({'label':stack_name, 'value':stack_name})
-# #     return dd_options,stack_name,{'display':'block'}
-
- 
-
-
-
-
-# # =============================================
-# # # Page content
-
-# @app.callback([Output(module+'page1', 'children'),
-#                 Output(module+'store','data')],
-#                 Input(module+'dropdown1', 'value'),
-#                 State(module+'store','data'))
-# def pointmatch_output(value,thisstore):
-#     if value=='SIFT':
-#         return sift_pointmatch.page, thisstore
-    
-#     else:
-#         return [html.Br(),'No method type selected.'],thisstore
-
+    else:
+        return [[html.Br(),'No method type selected.']]
 
 
 

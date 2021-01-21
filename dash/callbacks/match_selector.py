@@ -153,8 +153,8 @@ def new_matchcoll(mc_sel,mc_owner,owner,project,stack,all_mcs):
             mc_url += '&renderStack=' + stack
             mc_url += '&renderStackOwner=' + owner 
             mc_url += '&renderStackProject=' + project
-            mc_url += '&startZ=100'
-            mc_url += '&endZ=200'
+            mc_url += '&startZ=50'
+            mc_url += '&endZ=100'
             
             return {'display':'none'}, {}, mc_url
         else:
