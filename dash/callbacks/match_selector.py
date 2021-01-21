@@ -23,7 +23,6 @@ from utils import helper_functions as hf
 
 
 
-
 # Update mc_owner dropdown:
  
 @app.callback([Output({'component': 'mc_owner_dd', 'module': MATCH},'options'),
@@ -141,9 +140,11 @@ def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match):
                State({'component':'stack_dd','module' : MATCH},'value'),
                State({'component':'store_all_matchcolls','module': MATCH},'data')])
 def new_matchcoll(mc_sel,mc_owner,owner,project,stack,all_mcs):
-        
+
     if mc_sel == 'new_mcoll':
         return {'display':'flex'}, {'display':'none'}, ''
+    elif mc_sel in [None,'new_mc']:
+        return {'display':'none'}, {'display':'none'}, ''
     else:
         if mc_sel in all_mcs:
             

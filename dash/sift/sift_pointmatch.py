@@ -37,6 +37,17 @@ parent = "pointmatch"
 page=[]
 
 
+matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT search"),
+                       dcc.Dropdown(id=label+'organism_dd',persistence=True,
+                                    clearable=False),
+                       html.Div([
+                                 ],
+                                id=label+'mt_sel'),
+                       ])
+
+page.append(matchtrial)
+
+
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client',id=label+"go",disabled=True),
                               pages.compute_loc(parent,c_options = ['sparkslurm','standalone'],
@@ -50,51 +61,40 @@ page.append(gobutton)
 # Start Button
                
 
-# @app.callback([Output(label+'go', 'disabled'),
-#                 Output(label+'directory-popup','children'),
-#                 Output(parent+'store','data')],              
-#               [Input(label+'stack_state', 'children'),
-#                 Input(label+'input1','value')],
-#               [State(label+'project_dd', 'value'),
-#                 State(parent+'store','data')],
-#               )
-# def sift_pointmatch_activate_gobutton(stack_state1,in_dir,proj_dd_sel1,storage):   
-
-#     out_pop=dcc.ConfirmDialog(        
-#         id=label+'danger-novaliddir',displayed=True,
-#         message='The selected directory does not exist or is not readable!'
-#         )
-#     if any([in_dir=='',in_dir==None]):
-#         if not (storage['run_state'] == 'running'): 
-#                 storage['run_state'] = 'wait'
-#                 params.processes[parent.strip('_')] = []
-#         return True,'No input directory chosen.',storage
-#     elif os.path.isdir(in_dir):        
-#         if any([stack_state1=='newstack', proj_dd_sel1=='newproj']):
-#             if not (storage['run_state'] == 'running'): 
-#                 storage['run_state'] = 'wait'
-#                 params.processes[parent.strip('_')] = []
-#             return True,'',storage
-#         else:
-#             if not (storage['run_state'] == 'running'): 
-#                 storage['run_state'] = 'input'
-#                 params.processes[parent.strip('_')] = []
-#             return False,'',storage
+@app.callback([Output(label+'go', 'disabled'),
+               Output(label+'mt_sel', 'children'),
+               Output(label+'organism_dd','options')],              
+              [Input(parent+'tp_dd','value')],              
+              )
+def sift_pointmatch_activate_gobutton(tilepairdir):
+    mT_jsonfiles = os.listdir(params.json_match_dir)
+    
+    organisms=list()
+    
+    params.picks = dict()
+    
+    for mT_file in mT_jsonfiles:
+        with open(os.path.join(params.json_match_dir,mT_file),'r') as f:
+            indict = json.load(f)
+            if not indict['organism'] in organisms:
+                organisms.append(indict['organism'])
+                params.picks[indict['organism']] = [indict['render']]
+                params.picks[indict['organism']][0]['type']=indict['type']
+                params.picks[indict['organism']][0]['ID']=indict['MatchTrial']
+            else:
+                params.picks[indict['organism']].append(indict['render'])
+                params.picks[indict['organism']][-1]['type']=indict['type']
+                params.picks[indict['organism']][-1]['ID']=indict['MatchTrial']
+    
+    dd_options = list(dict())
         
-#     else:
-#         if not (storage['run_state'] == 'running'): 
-#             storage['run_state'] = 'wait'
-#             params.processes[parent.strip('_')] = []
-#         return True, out_pop,storage
+    for item in organisms: 
+        dd_options.append({'label':item, 'value':item})
     
     
+    
+    return False, tilepairdir, dd_options
 
-# @app.callback(Output(label+'input1','value'),
-#               [Input(label+'danger-novaliddir','submit_n_clicks'),
-#                 Input(label+'danger-novaliddir','cancel_n_clicks')])
-# def sift_pointmatch_dir_warning(sub_c,canc_c):
-#     return ''
-        
     
     
 # =============================================

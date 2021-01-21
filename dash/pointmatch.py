@@ -122,8 +122,9 @@ page.append(page4)
 @app.callback([Output(module+'page1', 'children')],
                 Input(module+'dropdown1', 'value'))
 def pointmatch_output(value):
+    
     if value=='SIFT':
-        return sift_pointmatch.page
+        return [sift_pointmatch.page]
     
     else:
         return [[html.Br(),'No method type selected.']]

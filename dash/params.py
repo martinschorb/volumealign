@@ -16,6 +16,8 @@ json_template_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/templates'
 
 json_run_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/runs'
 
+json_match_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/MatchTrials'
+
 render_log_dir = '/g/emcf/software/render-logs'
 
 # base directory for launchers etc...
