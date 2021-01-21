@@ -20,7 +20,7 @@ import importlib
 from app import app
 from utils import launch_jobs, pages
 
-from callbacks import runstate,render_selector
+from callbacks import runstate,render_selector,substack_sel
 
 
 
@@ -70,9 +70,9 @@ page.append(page1)
 
 
 # gobutton = html.Div(children=[html.Br(),
-#                               html.Button('Start TilePair generation',id=module+"go"),
-#                               html.Div(id=module+'buttondiv'),
-#                               html.Div(id=module+'directory-popup'),
+#                               html.Button('Start TilePair generation',id={'component':"go", 'module': module}),
+#                               html.Div(id={'component':'buttondiv', 'module': module}),
+#                               html.Div(id={'component':'directory-popup', 'module': module}),
 #                               html.Br(),
 #                               html.Details([html.Summary('Compute location:'),
 #                                             dcc.RadioItems(
@@ -82,70 +82,34 @@ page.append(page1)
 #                                                 ],
 #                                                 value='slurm',
 #                                                 labelStyle={'display': 'inline-block'},
-#                                                 id=module+'compute_sel'
+#                                                 id={'component':'compute_sel', 'module': module}
 #                                                 )],
-#                                   id=module+'compute'),
+#                                   id={'component':'compute', 'module': module}),
 #                               html.Br(),
-#                               html.Div(id=module+'run_state', style={'display': 'none'},children='wait')])
+#                               html.Div(id={'component':'run_state', 'module': module}, style={'display': 'none'},children='wait')])
 
 
 # # # ===============================================
 
 
-page2 = html.Div(id=module+'page2',children=[html.H4('Pair assignment mode'),
-                                              html.Div(
-                                                  [dcc.RadioItems(
-                                                      options=[
+page2 = html.Div(id={'component':'page2', 'module': module},
+                 children=[html.H4('Pair assignment mode'),
+                           html.Div([dcc.RadioItems(options=[
                                                           {'label': '2D (tiles in montage/mosaic)', 'value': '2D'},
-                                                          {'label': '3D (across sections)', 'value': '3D'}
-                                                          ],
+                                                          {'label': '3D (across sections)', 'value': '3D'}],
                                                       value='2D',                                                
-                                                      id=module+'pairmode'
-                                                      ),
-                                                  html.Div(id=module+'3Dslices',children=[
-                                                  'range of sections to consider:  ',
-                                                  dcc.Input(id=module+'input_1',type='number',min=1,max=10,value=0)],
+                                                      id={'component':'pairmode', 'module': module}),
+                               html.Div(id={'component':'3Dslices', 'module': module},
+                                        children=['range of sections to consider:  ',
+                                                  dcc.Input(id={'component':'input_1', 'module': module},type='number',min=1,max=10,value=0)],
                                                       style={'display':'none'})]
-                                                  ,style={'display':'inline,block'}),
-                                              html.Br(),
-                                              html.Details([html.Summary('Substack selection'),
-                                                            html.Table([html.Tr([html.Td('Start slice: '),
-                                                                                html.Td(dcc.Input(id=module+'startsection',type='number',min=0,value=0))]),
-                                                                        html.Tr([html.Td('End slice: '),
-                                                                                html.Td(dcc.Input(id=module+'endsection',type='number',min=0,value=1))])])
-                                                            ])
-                                              ])
+                               ,style={'display':'inline,block'}),
+                           html.Br()  
+                           ])
                                                                            
 page.append(page2)
 
-# @app.callback([Output(module+'startsection','value'),
-#                 Output(module+'startsection','min'),
-#                 Output(module+'endsection','value'),
-#                 Output(module+'endsection','max'),
-#                 Output(module+'store','data')],
-#               Input(module+'stack_dd', 'value'),
-#               State(module+'store','data')
-#               )
-# def tilepairs_stacktosections(stack_sel,thisstore):
-#     sec_start = 0
-#     sec_end = 1
-    
-#     if not(stack_sel=='-' ) and ('allstacks' in thisstore.keys()):   
-#         stacklist = [stack for stack in thisstore['allstacks'] if stack['stackId']['stack'] == stack_sel]        
-#         if not stacklist == []:
-#             stackparams = stacklist[0]        
-#             thisstore['stack'] = stackparams['stackId']['stack']
-#             thisstore['stackparams'] = stackparams
-#             thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']
-#             thisstore['zmax']=stackparams['stats']['stackBounds']['maxZ']
-#             thisstore['numtiles']=stackparams['stats']['tileCount']
-#             thisstore['numsections']=stackparams['stats']['sectionCount']
-            
-            
-#             sec_start = int(thisstore['zmin'])
-#             sec_end = int(thisstore['zmax'])
-
-#     return sec_start, sec_start, sec_end, sec_end, thisstore
+page.append(pages.substack_sel(module))
 
 
 

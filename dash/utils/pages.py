@@ -101,5 +101,22 @@ def log_output(module):
     
     return out
      
+
+def substack_sel(module,hidden=False):   
+    dispstyle = {}
+    if hidden:
+        dispstyle = {'display':'none'}
+    out = html.Div([html.Details([html.Summary('Substack selection'),
+                        html.Table([html.Tr([html.Td('Start slice: '),
+                                             html.Td(dcc.Input(id={'component': 'startsection', 'module': module},type='number',min=0,value=0))]),
+                                    html.Tr([html.Td('End slice: '),
+                                             html.Td(dcc.Input(id={'component': 'endsection', 'module': module},type='number',min=0,value=1))])])
+                                                            ])],
+                   style=dispstyle)
+                   
+    
+    return out
+
+
 # if __name__ == '__main__':
     

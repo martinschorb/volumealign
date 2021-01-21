@@ -24,7 +24,7 @@ from app import app
 from utils import launch_jobs, pages
 from utils import helper_functions as hf
 
-from callbacks import runstate,render_selector
+from callbacks import runstate,render_selector,substack_sel
 
 
 module='mipmaps'
@@ -105,7 +105,7 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                              dcc.Store(id={'component':'store_compset','module':module})
                                              ])
 page.append(compute_settings)
-
+page.append(pages.substack_sel(module,hidden=True))
 
 
 # callbacks
@@ -132,11 +132,13 @@ def mipmaps_store_compute_settings(*inputs):
 
 stackoutput = [Output({'component': 'input1', 'module': module},'value'),
                Output({'component': 'store_stack', 'module': module}, 'data'),
-               Output({'component': 'store_stackparams', 'module': module}, 'data')]
+               # Output({'component': 'store_stackparams', 'module': module}, 'data')
+               ]
 tablefields = [Output({'component': 't_'+col, 'module': module},'children') for col in status_table_cols]
 compute_tablefields = [Output({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
 
-stackoutput.extend(tablefields)  
+stackoutput.extend(tablefields) 
+ 
 stackoutput.extend(compute_tablefields)        
 
 @app.callback(stackoutput,
@@ -187,7 +189,7 @@ def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
             ct_fields = [n_cpu,timelim,params.section_split]  
           
    
-    outlist=[dir_out,stack,out]   
+    outlist=[dir_out,stack]#,out]   
     outlist.extend(t_fields)
     outlist.extend(ct_fields)     
     
@@ -202,7 +204,8 @@ def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
 # Start Button
 
 gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start MipMap generation & apply to current stack',id={'component': 'go', 'module': module},disabled=True),
+                              html.Button('Start MipMap generation & apply to current stack',
+                                          id={'component': 'go', 'module': module},disabled=True),
                               html.Div(id={'component': 'buttondiv', 'module': module}),
                               html.Div(id={'component': 'directory-popup', 'module': module}),
                               html.Br(),
@@ -240,7 +243,7 @@ page.append(gobutton)
               , prevent_initial_call=True)
 def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval,outstore):
     trigger = hf.trigger_component()    
-    
+
     # init output    
     
     rstate = 'wait'  
