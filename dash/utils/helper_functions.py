@@ -11,11 +11,13 @@ import json
 
 def trigger_component():
     ctx = dash.callback_context
+        
     trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
 
     return trigger
 
 def input_components():
+    
     ctx = dash.callback_context 
     
     incomp = [indict['id']['component'] for indict in ctx.inputs_list]
