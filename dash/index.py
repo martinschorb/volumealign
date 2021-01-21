@@ -27,13 +27,13 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 menu_items=['convert',
             'mipmaps',
             'tilepairs',
-            # 'pointmatch'
+            'pointmatch'
             ]
 
 menu_text=['Convert & upload',
             'Generate MipMaps',
             'Find Tile Pairs',
-            # 'Find PointMatches'
+            'Find PointMatches'
             ]
 
 

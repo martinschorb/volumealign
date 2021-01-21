@@ -8,8 +8,7 @@ Created on Mon Jan 18 14:52:17 2021
 
 
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 

@@ -66,6 +66,9 @@ default_store = {'run_state':{'state':'input', 'logfile':render_log_dir + '/out.
                  'stackparams':None
                  }
 
+match_store = {'init_match':{},
+               'all_matchcolls':None
+               }
 
 
 #=============================================================

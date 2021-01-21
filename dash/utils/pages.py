@@ -60,6 +60,56 @@ def render_selector(module):
 
 
 
+def match_selector(module,newcoll=False):
+    mc_owner_dd_options = list(dict())
+    mc_dd_options = list(dict())
+    
+    if newcoll:
+        mc_owner_dd_options.append({'label':'new Match Collection Owner', 'value':'new_mc_owner'})
+        mc_dd_options = [{'label':'new Match Collection', 'value':'new_mc'}]
+        
+        
+    out = html.Div([html.H4("Select Match Collection:"),
+                    html.Div([html.Div('Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
+                          dcc.Dropdown(id={'component':'mc_owner_dd','module':module},
+                                       persistence=True,clearable=False,className='dropdown_inline',
+                                       options=mc_owner_dd_options),
+                          html.Div([html.Div('Enter new Match Collection Owner:',
+                                             style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Input(id={'component':"mcown_input",'module':module}, type="text",
+                                                  style={'margin-right': '1em','margin-left': '3em'},
+                                                  debounce=True,placeholder="new_mc_owner",persistence=False)],
+                                id={'component':'new_mc_owner','module':module},
+                                style={'display':'none'}),
+                          html.Br(),
+                          html.Div([html.Div('Match Collection:',style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Dropdown(id={'component':'matchcoll_dd','module':module},persistence=True,
+                                                 clearable=False,className='dropdown_inline',
+                                                 options=mc_dd_options),
+                                    html.Br()],
+                                   id={'component':'matchcoll','module':module},style={'display':'none'}),
+                          html.Div([html.Div('Enter new Match Collection:',
+                                             style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Input(id={'component':"mc_input",'module':module}, type="text",
+                                                  style={'margin-right': '1em','margin-left': '3em'},
+                                                  debounce=True,placeholder="new_mc",persistence=False)],
+                                   id={'component':'new_matchcoll','module':module},
+                                   style={'display':'none'}),
+                          html.Br()
+                          ],style=dict(display='flex')),
+                    html.Div(id={'component':'browse_mc_div','module':module},
+                             children=[html.A('Explore Match Collection',
+                                              id={'component':'browse_mc','module':module},
+                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
+                                       ],style={'display':'none'})
+                ])
+
+    return out
+
+
+
+
+
 def compute_loc(module):
     out = html.Details([html.Summary('Compute location:'),
                         dcc.RadioItems(
