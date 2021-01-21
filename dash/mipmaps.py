@@ -15,7 +15,7 @@ import requests
 import os
 import importlib
 import numpy as np
-import subprocess
+# import subprocess
 
 
 import params
@@ -387,7 +387,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     
         
     elif 'interval3' in trigger:        
-        
+        outstore = dash.no_update
         if runstep == 'generate' and run_state == 'done' and mipmapdir is not None:
                 interval = params.idle_interval * 0.4
 
@@ -439,7 +439,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 params.processes[module.strip('_')]=[]
     
         
-    return disable_out, dircheckdiv, rstate, runstep, launch_store, interval
+    return disable_out, dircheckdiv, rstate, runstep, launch_store, interval, outstore
 
 
 

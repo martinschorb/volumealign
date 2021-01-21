@@ -55,7 +55,8 @@ page = [intervals,main]
 
 us_out,us_in,us_state = render_selector.init_update_store(module,'mipmaps')
 
-@app.callback(us_out,us_in,us_state)
+@app.callback(us_out,us_in,us_state,
+              prevent_initial_call=True)
 def mipmaps_update_store(*args): 
     return render_selector.update_store(*args)
 
