@@ -8,8 +8,7 @@ Created on Mon Jan 18 14:52:17 2021
 
 
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
@@ -27,7 +26,7 @@ from utils import helper_functions as hf
 
 
 def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_out='store_init_render'):
-    
+
     dash_out = Output({'component': comp_out, 'module': thismodule},'data')
     dash_in =  Input({'component': comp_in, 'module': prevmodule},'data')
     dash_state = State({'component': 'store_init_render', 'module': thismodule},'data'),
@@ -36,15 +35,12 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 
 def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
-        raise PreventUpdate
-    trigger = hf.trigger_component()    
-    print(trigger)
-    print(prevstore)
-    
-    for key in thisstore.keys():        
-        if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):
+        raise PreventUpdate  
+
+    for key in thisstore.keys():
+        if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):                  
             thisstore[key] = prevstore[key]
-    print(thisstore)
+
     return thisstore
 
 

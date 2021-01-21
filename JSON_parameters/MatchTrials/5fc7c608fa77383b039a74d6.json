@@ -1,0 +1,10 @@
+{
+    "render": {
+        "owner": "SBEM",
+        "project": "tests",
+        "stack": "platy_test0"
+        },
+    "organism":"platynereis",
+    "MatchTrial":"5fc7c608fa77383b039a74d6",
+    "type":"3D"
+}

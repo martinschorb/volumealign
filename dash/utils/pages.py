@@ -10,6 +10,7 @@ import params
 import dash_core_components as dcc
 import dash_html_components as html
 
+from utils import helper_functions as hf
 
 def init_store(storeinit,module):
     store=list()
@@ -60,14 +61,61 @@ def render_selector(module):
 
 
 
-def compute_loc(module):
+def match_selector(module,newcoll=False):
+    mc_owner_dd_options = list(dict())
+    mc_dd_options = list(dict())
+    
+    if newcoll:
+        mc_owner_dd_options.append({'label':'new Match Collection Owner', 'value':'new_mc_owner'})
+        mc_dd_options = [{'label':'new Match Collection', 'value':'new_mc'}]
+        
+        
+    out = html.Div([html.H4("Select Match Collection:"),
+                    html.Div([html.Div('Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
+                          dcc.Dropdown(id={'component':'mc_owner_dd','module':module},
+                                       persistence=True,clearable=False,className='dropdown_inline',
+                                       options=mc_owner_dd_options),
+                          html.Div([html.Div('Enter new Match Collection Owner:',
+                                             style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Input(id={'component':"mcown_input",'module':module}, type="text",
+                                                  style={'margin-right': '1em','margin-left': '3em'},
+                                                  debounce=True,placeholder="new_mc_owner",persistence=False)],
+                                id={'component':'new_mc_owner','module':module},
+                                style={'display':'none'}),
+                          html.Br(),
+                          html.Div([html.Div('Match Collection:',style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Dropdown(id={'component':'matchcoll_dd','module':module},persistence=True,
+                                                 clearable=False,className='dropdown_inline',
+                                                 options=mc_dd_options),
+                                    html.Br()],
+                                   id={'component':'matchcoll','module':module},style={'display':'none'}),
+                          html.Div([html.Div('Enter new Match Collection:',
+                                             style={'margin-right': '1em','margin-left': '2em'}),
+                                    dcc.Input(id={'component':"mc_input",'module':module}, type="text",
+                                                  style={'margin-right': '1em','margin-left': '3em'},
+                                                  debounce=True,placeholder="new_mc",persistence=False)],
+                                   id={'component':'new_matchcoll','module':module},
+                                   style={'display':'none'}),
+                          html.Br()
+                          ],style=dict(display='flex')),
+                    html.Div(id={'component':'browse_mc_div','module':module},
+                             children=[html.A('Explore Match Collection',
+                                              id={'component':'browse_mc','module':module},
+                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
+                                       ],style={'display':'none'})
+                ])
+
+    return out
+
+
+
+
+
+def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.comp_default):
     out = html.Details([html.Summary('Compute location:'),
                         dcc.RadioItems(
-                            options=[
-                                {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                                {'label': 'locally (this submission node)', 'value': 'standalone'}
-                                ],
-                            value='slurm',
+                            options = hf.compset_radiobutton(c_options),
+                            value = c_default,
                             labelStyle={'display': 'inline-block'},
                             id={'component':'compute_sel','module':module}
                             )
@@ -101,5 +149,22 @@ def log_output(module):
     
     return out
      
+
+def substack_sel(module,hidden=False):   
+    dispstyle = {}
+    if hidden:
+        dispstyle = {'display':'none'}
+    out = html.Div([html.Details([html.Summary('Substack selection'),
+                        html.Table([html.Tr([html.Td('Start slice: '),
+                                             html.Td(dcc.Input(id={'component': 'startsection', 'module': module},type='number',min=0,value=0))]),
+                                    html.Tr([html.Td('End slice: '),
+                                             html.Td(dcc.Input(id={'component': 'endsection', 'module': module},type='number',min=0,value=1))])])
+                                                            ])],
+                   style=dispstyle)
+                   
+    
+    return out
+
+
 # if __name__ == '__main__':
     

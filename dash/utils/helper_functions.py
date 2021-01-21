@@ -9,6 +9,8 @@ Created on Wed Nov 11 14:24:32 2020
 import dash
 import json
 
+import params
+
 def trigger_component():
     ctx = dash.callback_context
         
@@ -24,3 +26,12 @@ def input_components():
     inval = [indict[indict['property']] for indict in ctx.inputs_list]
     
     return incomp, inval
+
+
+def compset_radiobutton(c_options):
+    outopt = list()   
+    
+    for opt in params.comp_options:
+        if opt['value'] in c_options: outopt.append(opt)
+    
+    return outopt

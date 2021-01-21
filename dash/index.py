@@ -9,7 +9,7 @@ Created on Tue Nov  3 15:26:45 2020
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from pydoc import locate
+# from pydoc import locate
 
 import importlib
 from app import app
@@ -26,14 +26,14 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 menu_items=['convert',
             'mipmaps',
-            # 'tilepairs',
-            # 'pointmatch'
+            'tilepairs',
+            'pointmatch'
             ]
 
 menu_text=['Convert & upload',
             'Generate MipMaps',
-           # 'Find Tile Pairs',
-            # 'Find PointMatches'
+            'Find Tile Pairs',
+            'Find PointMatches'
             ]
 
 

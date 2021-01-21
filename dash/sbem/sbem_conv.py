@@ -357,6 +357,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
 
         
     else:
+        outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
             if not (run_state == 'running'): 
@@ -385,9 +386,6 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
     
     out['logfile'] = log_file
     out['state'] = run_state
-    
-    print('conv-go')
-    print(outstore)
     
     return but_disabled, popup, pop_display, out, outstore
 
