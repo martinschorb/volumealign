@@ -10,26 +10,21 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
-
-import subprocess
-# import sys
-import os
-import socket
-#for file browsing dialogs
-import tkinter
-from tkinter import filedialog
-
 from dash.dependencies import Input,Output,State
 
+# import sys
+import os
 import json
-import requests
 import importlib
 
 
 from app import app
 import params
 
-from utils import launch_jobs,pages
+from utils import pages,matchTrial
+
+from utils import helper_functions as hf
+
 
 # element prefix
 label = "sift_pointmatch"
@@ -44,17 +39,25 @@ matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT searc
                        html.Div(['Organism: ',
                        dcc.Dropdown(id=label+'organism_dd',persistence=True,
                                     clearable=False),
+                       html.Br(),
                        html.Div(["Select existing Match Trial parameters."
                                  ],
                                 id=label+'mt_sel'),
                        dcc.Store(id=label+'picks'),
                        dcc.Dropdown(id=label+'matchID_dd',persistence=True,
                                     clearable=False),
+                       html.Br(),
                        html.Div(id=label+'mtbrowse',
                              children=[html.A('Explore MatchTrial',
                                               id=label+'mt_link',
-                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
-                                       ])
+                                              target="_blank"),                                      
+                                       ]),
+                       html.Br(),
+                       html.Div(["Use this Match Trial as compute parameters:",
+                                 dcc.Input(id=label+'mtselect', type="text",
+                                 style={'margin-right': '1em','margin-left': '3em'},
+                                 debounce=True,placeholder="MatchTrial ID",persistence=False)],style={'display':'flex'}),
+                       html.Br()
                        ])
                                  ])
 
@@ -62,9 +65,10 @@ page.append(matchtrial)
 
 
 gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start PointMatch Client',id=label+"go",disabled=True),
+                              html.Button('Start PointMatch Client',id=label+"go"),
                               pages.compute_loc(parent,c_options = ['sparkslurm','standalone'],
                                                 c_default = 'sparkslurm'),
+                              html.Div(id=label+'mtnotfound')
                               ]
                     ,style={'display': 'inline-block'})
 
@@ -126,17 +130,18 @@ def sift_pointmatch_IDs(organism,picks):
     return [dd_options]
     
 
-@app.callback([Output(label+'mt_link','href')],              
+@app.callback([Output(label+'mt_link','href'),
+               Output(label+'mtselect','value')],              
               Input(label+'matchID_dd','value'),
                # State(label+'picks','data'),              
-              prevent_initial_call=True)
+              )
 def sift_browse_matchTrial(matchID):
     
     mc_url = params.render_base_url + 'view/match-trial.html?'
     mc_url += 'matchTrialId=' + matchID
 
             
-    return [mc_url]
+    return mc_url, matchID
 
 
 # =============================================
@@ -145,58 +150,96 @@ def sift_browse_matchTrial(matchID):
 
 # =============================================
   
-    
 
-# @app.callback([Output(label+'go', 'disabled'),
-#                 Output(parent+'store','data'),
-#                 Output(parent+'interval1','interval')
-#                 ],
-#               Input(label+'go', 'n_clicks'),
-#               [State(label+'input1','value'),               
-#                 State(label+'project_dd', 'value'),
-#                 State(label+'stack_state', 'children'),
-#                 State(label+'compute_sel','value'),
-#                 State(parent+'store','data')]
-#               )                 
-
-# def sift_pointmatch_execute_gobutton(click,sbemdir,proj_dd_sel,stack_sel,compute_sel,storage):    
-#     # prepare parameters:∂
-    
-#     importlib.reload(params)
+@app.callback([Output(label+'go', 'disabled'),
+               Output(label+'mtnotfound','children'),
+               Output({'component': 'store_r_launch', 'module': parent},'data'),
+               Output({'component': 'store_render_launch', 'module': parent},'data')],
+              [Input(label+'go', 'n_clicks'),
+               Input(label+'mtselect','value')],
+              [State({'component':'store_owner','module' : parent},'data'),
+                State({'component':'store_project','module' : parent},'data'),
+                State({'component':'stack_dd','module' : parent},'value')]
+              ,prevent_initial_call=True)                 
+def tilepairs_execute_gobutton(click,matchID,owner,project,stack): 
+    ctx = dash.callback_context
         
-#     param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+    trigger = ctx.triggered[0]['prop_id']
     
-#     run_params = params.render_json.copy()
-
-#     run_params['render']['project'] = proj_dd_sel
-    
-#     with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
-#         run_params.update(json.load(f))
-    
-#     run_params['image_directory'] = sbemdir
-#     run_params['stack'] = stack_sel
-    
-#     with open(param_file,'w') as f:
-#         json.dump(run_params,f,indent=4)
-
-#     log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
-#     err_file = log_file + '.err'
-#     log_file += '.log'
-    
-
+    if 'mtselect' in trigger:
+        return False,'',dash.no_update,dash.no_update
         
-#     #launch
-#     # -----------------------
     
-#     sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-#                     json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+    elif 'go' in trigger:
+        if click is None: return dash.no_update
+        
+        # prepare parameters:
+        importlib.reload(params)
     
-    
-    
-#     storage['log_file'] = log_file
-#     storage['run_state'] = 'running'
-#     params.processes[parent.strip('_')] = sbem_conv_p
-    
+        run_params = params.render_json.copy()
+        run_params['render']['owner'] = owner
+        run_params['render']['project'] = project
+        
+        run_params_generate = run_params.copy()
+        
 
-#     return True,storage,params.refresh_interval
+        try:
+            mt_params = matchTrial.mt_parameters(matchID)
+        except json.JSONDecodeError:
+            return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update
+            
+        
+        
+        
+        #generate script call...
+        
+        
+        with open(os.path.join(params.json_template_dir,'tilepairs.json'),'r') as f:
+                run_params_generate.update(json.load(f))
+        
+        # run_params_generate['output_json'] = tilepairdir + '/tiles_'+ stack
+        
+        # run_params_generate['minZ'] = startsection
+        # run_params_generate['maxZ'] = endsection
+        
+        run_params_generate['stack'] = stack
+        
+        # if pairmode == '2D':
+        #     run_params_generate['zNeighborDistance'] = 0
+        #     run_params_generate['excludeSameLayerNeighbors'] = 'False'
+            
+        # elif pairmode == '3D':
+        #     run_params_generate['zNeighborDistance'] = slicedepth
+        #     run_params_generate['excludeSameLayerNeighbors'] = 'True'
+    
+    
+        param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+    
+               
+        with open(param_file,'w') as f:
+            json.dump(run_params_generate,f,indent=4)
+    
+        log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+        err_file = log_file + '.err'
+        log_file += '.log'
+        
+        # tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
+                            # json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
+            
+        # params.processes[parent].extend(tilepairs_generate_p)
+        
+        
+        print(run_params)
+        
+        launch_store=dict()
+        launch_store['logfile'] = log_file
+        launch_store['state'] = 'running'
+        
+        outstore = dict()
+        outstore['owner'] = owner
+        outstore['project'] = project
+        outstore['stack'] = stack
+    
+        return True,'', launch_store, outstore
 
+    
