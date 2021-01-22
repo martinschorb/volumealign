@@ -34,7 +34,7 @@ for storeitem in params.match_store.keys():
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=params.match_store[storeitem]))
     
 
-main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Generate TilePairs for Render stack"))
+main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Generate/Update PointMatchCollection for Render stack"))
 
 intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
                                        n_intervals=0),

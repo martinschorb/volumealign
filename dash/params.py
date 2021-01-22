@@ -41,6 +41,10 @@ time_add_buffer = 0.2 # time buffer for job submission (relative)
 n_cpu_script = 24
 mem_per_cpu = 8     # GB 
 
+# standalone 
+
+n_cpu_standalone = 8
+
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 

@@ -117,15 +117,17 @@ def sift_pointmatch_organisms(tilepairdir):
               prevent_initial_call=True)
 def sift_pointmatch_IDs(organism,picks):
     if not dash.callback_context.triggered: 
-        raise PreventUpdate
-        
-    matchtrials = picks[organism]
+        raise PreventUpdate   
         
     dd_options = list(dict())
-        
-    for item in matchtrials: 
-        ilabel = item['project']+'-'+item['stack']+'-'+item['type']
-        dd_options.append({'label':ilabel, 'value':item['ID']})
+
+    
+    if not organism is None:
+        matchtrials = picks[organism]
+       
+        for item in matchtrials: 
+            ilabel = item['project']+'-'+item['stack']+'-'+item['type']
+            dd_options.append({'label':ilabel, 'value':item['ID']})
     
     return [dd_options]
     
@@ -134,7 +136,7 @@ def sift_pointmatch_IDs(organism,picks):
                Output(label+'mtselect','value')],              
               Input(label+'matchID_dd','value'),
                # State(label+'picks','data'),              
-              )
+              prevent_initial_call=True)
 def sift_browse_matchTrial(matchID):
     
     mc_url = params.render_base_url + 'view/match-trial.html?'
@@ -157,11 +159,14 @@ def sift_browse_matchTrial(matchID):
                Output({'component': 'store_render_launch', 'module': parent},'data')],
               [Input(label+'go', 'n_clicks'),
                Input(label+'mtselect','value')],
-              [State({'component':'store_owner','module' : parent},'data'),
+              [State({'component':'compute_sel','module' : parent},'value'),
+                State({'component':'matchcoll_dd','module': parent},'value'),
+                State(parent+'tp_dd','value'),
+                State({'component':'store_owner','module' : parent},'data'),
                 State({'component':'store_project','module' : parent},'data'),
                 State({'component':'stack_dd','module' : parent},'value')]
               ,prevent_initial_call=True)                 
-def tilepairs_execute_gobutton(click,matchID,owner,project,stack): 
+def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdir,owner,project,stack): 
     ctx = dash.callback_context
         
     trigger = ctx.triggered[0]['prop_id']
@@ -187,9 +192,31 @@ def tilepairs_execute_gobutton(click,matchID,owner,project,stack):
             mt_params = matchTrial.mt_parameters(matchID)
         except json.JSONDecodeError:
             return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update
+        
+        
+        # tilepair files:
             
+        tp_json = os.listdir(params.json_run_dir + '/' + tilepairdir)
         
         
+        
+        
+        if comp_sel == 'standalone':         
+            
+            
+            # TODO!  render-modules only supports single tilepair JSON!!!
+            
+            cv_params = {
+            "ndiv": mt_params['siftFeatureParameters']['steps'],
+            "downsample_scale": mt_params['scale'],
+            
+            "pairJson": '',
+            "input_stack": stack,
+            "match_collection": matchcoll,
+        
+            "ncpus": params.ncpu_standalone,
+            "output_json":params.render_log_dir + '/' + '_' + params.run_prefix + "_SIFT_openCV.json",
+            }
         
         #generate script call...
         
@@ -222,6 +249,14 @@ def tilepairs_execute_gobutton(click,matchID,owner,project,stack):
         log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
+        
+        
+        
+        
+        
+        
+        
+        
         
         # tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
                             # json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
