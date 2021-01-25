@@ -64,15 +64,22 @@ matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT searc
 page.append(matchtrial)
 
 
+
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client',id=label+"go"),
-                              pages.compute_loc(parent,c_options = ['sparkslurm','standalone'],
+                              pages.compute_loc(parent,c_options = ['sparkslurm'],#'standalone'],
                                                 c_default = 'sparkslurm'),
                               html.Div(id=label+'mtnotfound')
                               ]
                     ,style={'display': 'inline-block'})
 
 page.append(gobutton)
+
+
+
+
+
+
               
 #  =============================================
 # Start Button
@@ -120,7 +127,6 @@ def sift_pointmatch_IDs(organism,picks):
         raise PreventUpdate   
         
     dd_options = list(dict())
-
     
     if not organism is None:
         matchtrials = picks[organism]
@@ -156,23 +162,34 @@ def sift_browse_matchTrial(matchID):
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'mtnotfound','children'),
                Output({'component': 'store_r_launch', 'module': parent},'data'),
-               Output({'component': 'store_render_launch', 'module': parent},'data')],
+               Output({'component': 'store_render_launch', 'module': parent},'data'),
+               Output({'component': 'store_tpmatchtime', 'module': parent}, 'data')],
               [Input(label+'go', 'n_clicks'),
                Input(label+'mtselect','value')],
               [State({'component':'compute_sel','module' : parent},'value'),
                 State({'component':'matchcoll_dd','module': parent},'value'),
+                State({'component': 'mc_owner_dd', 'module': parent},'value'),
                 State(parent+'tp_dd','value'),
                 State({'component':'store_owner','module' : parent},'data'),
                 State({'component':'store_project','module' : parent},'data'),
                 State({'component':'stack_dd','module' : parent},'value')]
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdir,owner,project,stack): 
+def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,tilepairdir,owner,project,stack): 
     ctx = dash.callback_context
         
     trigger = ctx.triggered[0]['prop_id']
     
+    try:
+            mt_params = matchTrial.mt_parameters(matchID)
+    except json.JSONDecodeError:
+        return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update,dash.no_update
+    
+    if mt_params == {}:
+        return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
+        
     if 'mtselect' in trigger:
-        return False,'',dash.no_update,dash.no_update
+        
+        return False,'',dash.no_update,dash.no_update,mt_params['ptime']
         
     
     elif 'go' in trigger:
@@ -186,23 +203,26 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdi
         run_params['render']['project'] = project
         
         run_params_generate = run_params.copy()
-        
-
-        try:
-            mt_params = matchTrial.mt_parameters(matchID)
-        except json.JSONDecodeError:
-            return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update
-        
-        
+          
         # tilepair files:
+        
+        tp_dir = os.path.join(params.json_run_dir, tilepairdir)
             
-        tp_json = os.listdir(params.json_run_dir + '/' + tilepairdir)
+        tp_json = os.listdir(tp_dir)
+        
+        tp_jsonfiles = [os.path.join(params.json_run_dir,tpj) for tpj in tp_json]
+        
+        param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+    
         
         
-        
-        
-        if comp_sel == 'standalone':         
+        if comp_sel == 'standalone':    
+            # =============================
             
+            # TODO - STANDALONE PROCEDURE NOT TESTED !!!!
+            
+            # =============================
+
             
             # TODO!  render-modules only supports single tilepair JSON!!!
             
@@ -210,26 +230,57 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdi
             "ndiv": mt_params['siftFeatureParameters']['steps'],
             "downsample_scale": mt_params['scale'],
             
-            "pairJson": '',
+            "pairJson": os.path.join(params.json_run_dir,tp_json[0]),
             "input_stack": stack,
             "match_collection": matchcoll,
         
             "ncpus": params.ncpu_standalone,
             "output_json":params.render_log_dir + '/' + '_' + params.run_prefix + "_SIFT_openCV.json",
             }
-        
+            
+            run_params_generate.update(cv_params)
+            
+        elif comp_sel == 'sparkslurm':
+            spsl_p = dict()
+            
+            spsl_p['--baseDataUrl'] = params.render_base_url
+            spsl_p['--owner'] = mc_owner
+            spsl_p['--collection'] = matchcoll
+            spsl_p['--pairJson'] = tp_jsonfiles
+            
+            mtrun_p = dict()
+            
+            # some default values...
+            
+            mtrun_p['--matchMaxNumInliers'] = 200
+            mtrun_p['--maxFeatureCacheGb'] = 6
+            mtrun_p['--maxFeatureSourceCacheGb'] = 6
+            
+            
+            # fill parameters
+            
+            mtrun_p['--renderScale'] = mt_params['scale']
+            
+            for item in mt_params['siftFeatureParameters'].items():
+                mtrun_p['--SIFT'+item[0]] = item[1]
+                
+            for item in mt_params['matchDerivationParameters'].items():
+                mtrun_p['--'+item[0]] = item[1]
+            
+            if 'clipPixels' in mt_params.keys():
+                mtrun_p['--clipHeight'] = mt_params['clipPixels']
+                mtrun_p['--clipWidht'] = mt_params['clipPixels']
+            
+            
+            
         #generate script call...
         
-        
-        with open(os.path.join(params.json_template_dir,'tilepairs.json'),'r') as f:
-                run_params_generate.update(json.load(f))
-        
+
         # run_params_generate['output_json'] = tilepairdir + '/tiles_'+ stack
         
         # run_params_generate['minZ'] = startsection
         # run_params_generate['maxZ'] = endsection
         
-        run_params_generate['stack'] = stack
         
         # if pairmode == '2D':
         #     run_params_generate['zNeighborDistance'] = 0
@@ -240,8 +291,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdi
         #     run_params_generate['excludeSameLayerNeighbors'] = 'True'
     
     
-        param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
-    
+        
                
         with open(param_file,'w') as f:
             json.dump(run_params_generate,f,indent=4)
@@ -275,6 +325,6 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,tilepairdi
         outstore['project'] = project
         outstore['stack'] = stack
     
-        return True,'', launch_store, outstore
+        return True,'', launch_store, outstore, mt_params['ptime']
 
     

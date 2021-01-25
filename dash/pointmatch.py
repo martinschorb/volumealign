@@ -10,11 +10,16 @@ import dash_html_components as html
 from dash.dependencies import Input,Output,State
 import os
 import glob
+import numpy as np
+import requests
+
 import params
 
 from app import app
 
 from utils import pages
+from utils import helper_functions as hf
+
 from callbacks import runstate,render_selector,substack_sel,match_selector
 
 
@@ -24,8 +29,18 @@ from sift import sift_pointmatch
 module='pointmatch'
 
 
+status_table_cols = ['stack',
+              'slices',
+              'tiles',
+              'tilepairs']
 
-storeinit = {}            
+
+compute_table_cols = ['Num_CPUs',
+                      # 'MemGB_perCPU',
+                      'runtime_minutes']
+
+
+storeinit = {'tpmatchtime':1000}            
 store = pages.init_store(storeinit, module)
 
 store.append(dcc.Store(id={'component':'runstep','module':module},data='generate'))
@@ -107,6 +122,113 @@ def pointmatch_tp_dd_fill(stack):
     
 
     return tpdir_dd_options,tpdir_dd_options[-1]['value']
+
+
+
+# # ===============================================
+# Compute Settings
+
+compute_settings = html.Details(children=[html.Summary('Compute settings:'),
+                                             html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                  html.Tr([html.Td('',id={'component': 't_'+col, 'module': module}) for col in status_table_cols])
+                                             ],className='table'),
+                                             html.Br(),
+                                             html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                  html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': module},type='number',min=1)) for col in compute_table_cols])
+                                             ],className='table'),
+                                             dcc.Store(id={'component':'store_compset','module':module})
+                                             ])
+page.append(compute_settings)
+
+
+# callbacks
+
+@app.callback(Output({'component':'store_compset','module':module},'data'),                            
+              [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
+              , prevent_initial_call=True)
+def mipmaps_store_compute_settings(*inputs): 
+    
+    storage=dict()
+        
+    in_labels,in_values  = hf.input_components()
+    
+    for input_idx,label in enumerate(in_labels):
+        
+        storage[label] = in_values[input_idx]
+    
+    return storage
+
+
+
+
+# Update directory and compute settings from stack selection
+
+stackoutput = []
+
+tablefields = [Output({'component': 't_'+col, 'module': module},'children') for col in status_table_cols]
+compute_tablefields = [Output({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
+
+stackoutput.extend(tablefields)  
+stackoutput.extend(compute_tablefields)        
+
+@app.callback(stackoutput,              
+              [Input(module+'tp_dd','value'),
+               Input({'component': 'store_tpmatchtime', 'module': module}, 'data')],
+              [State({'component': 'input_Num_CPUs', 'module': module},'value'),
+               State({'component': 'stack_dd', 'module': module},'value'),
+               State({'component': 'store_owner', 'module': module}, 'data'),
+               State({'component': 'store_project', 'module': module}, 'data'),
+               State({'component': 'store_stack', 'module': module}, 'data'),
+               State({'component': 'store_allstacks', 'module': module}, 'data')]
+              )
+def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,owner,project,stack,allstacks):
+
+    if n_cpu is None:
+        n_cpu = params.n_cpu_spark
+    
+    n_cpu = int(n_cpu)
+
+    out=dict()
+    
+    t_fields = ['']*len(status_table_cols)
+    ct_fields = [1]*len(compute_table_cols)
+    numtp = 1
+    
+    if (not stack_sel=='-' ) and (not allstacks is None):   
+        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
+        stack = stack_sel
+        
+        if not stacklist == []:
+            stackparams = stacklist[0]        
+            out['zmin']=stackparams['stats']['stackBounds']['minZ']
+            out['zmax']=stackparams['stats']['stackBounds']['maxZ']
+            out['numtiles']=stackparams['stats']['tileCount']
+            out['numsections']=stackparams['stats']['sectionCount']   
+
+            if tilepairdir is None or tilepairdir=='':
+                numtp_out = 'no tilepairs'
+            else:
+                numtp = hf.tilepair_numfromlog(tilepairdir,stack_sel)
+                numtp_out =str(numtp)
+            
+            if type(numtp) is str:
+                timelim = 1
+            else:                
+                totaltime = numtp * matchtime * params.n_cpu_standalone
+                        
+                t_fields=[stack,str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),numtp_out]
+                
+                timelim = np.ceil( totaltime / 60000 / n_cpu *(1+params.time_add_buffer))+1
+            
+            ct_fields = [n_cpu,timelim]  
+          
+   
+    outlist=[]#,out]   
+    outlist.extend(t_fields)
+    outlist.extend(ct_fields)     
+    
+    return outlist
+
 
 
 

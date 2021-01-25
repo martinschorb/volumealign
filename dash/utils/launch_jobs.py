@@ -21,7 +21,11 @@ def args2string(args):
         argstring=" ".join(map(str,args))
     elif type(args)==dict:
         argstring=str()
-        for item in args.items():argstring+=' '+' '.join(map(str,item))
+        for item in args.items():
+            if type(item[1]) is list:
+                argstring+=' '+' '.join([str(item[0])+'='+currit for currit in item[1]])
+            else:
+                argstring+=' '+'='.join(map(str,item))
     elif type(args)==str:
         argstring=args
     else:
@@ -189,10 +193,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     my_env = os.environ.copy()
     os.chdir(workdir)
     command = '../'+target
-    command += '/launcher.sh '
-    command += pyscript
-    command += ' '+json
-    
+    command += '/launcher.sh '    
     
     
     # DEBUG function.......
@@ -203,6 +204,8 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     print('launching - ')
     
     if target=='standalone':
+        command += pyscript
+        command += ' '+json
         
         print(command)
 
@@ -214,19 +217,22 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     
     elif target == 'slurm':
         
+        command += pyscript
+        command += ' '+json
+        
         if target_args==None:
             slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
         else:
             slurm_args = args2string(target_args)
             
         
-        slurm_args += '-e '+errfile+' -o '+logfile
+        slurm_args += '-e ' + errfile + ' -o ' + logfile
         
-        command = 'sbatch '+slurm_args+' '+command+' '+args2string(run_args)
+        sl_command = 'sbatch '+ slurm_args + ' ' + command + ' ' + args2string(run_args)
         
-        print(command)
+        print(sl_command)
 
-        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+        p = subprocess.Popen(sl_command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
         
         
         with open(logfile,'w+') as f:
@@ -240,11 +246,23 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
             
             jobid=['slurm__'+jobid]
             
-    
-	
-        
         
         return jobid
+    
+    elif target == 'sparkslurm':
+        
+        spsl_args = args2string(target_args)  
+        
+        spsl_args += args2string({'--logfile':logfile})
+        spsl_args += args2string({'--errfile':errfile})
+        
+        
+        
+        spsl_args += '--scriptparams=' + args2string(run_args)
+        
+        
+        
+        
        
         
      

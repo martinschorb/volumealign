@@ -1,6 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=spark-master      # create a short name for your job
 #SBATCH --time=<SoS_TIME>         # total run time limit (HH:MM:SS)
+#SBATCH -e=<SoS_ERRFILE>
+#SBATCH -o=<SoS_LOGFILE>
 # #  --- Master resources ---
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=<SoS_MASTER_MEM>

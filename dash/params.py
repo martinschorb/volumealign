@@ -45,6 +45,12 @@ mem_per_cpu = 8     # GB
 
 n_cpu_standalone = 8
 
+
+# spark
+
+n_cpu_spark = 200
+
+
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 

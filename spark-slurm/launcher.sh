@@ -9,12 +9,13 @@ runscript="/g/emcf/software/render-logs/runscripts/slurm-spark_test.sh"
 
 MASTER_MEM="1"
 MASTER_CPU="1"
-TIME="00:15:00"
-WORKER_NODES="4"
-WORKER_CPU="4"
-WORKER_MEMPERCPU="4G"
+TIME="00:10:00"
+WORKER_NODES="1"
+WORKER_CPU="1"
+WORKER_MEMPERCPU="4"
 EMAIL=`whoami`"@embl.de"
-
+LOGFILE=slurm-%j.out
+ERRFILE=slurm-%j.err
 # PARSE COMMAND LINE ARGUMENTS
 
 while [ "$1" != "" ]; do
@@ -49,6 +50,14 @@ while [ "$1" != "" ]; do
             runscript=$VALUE
             shift
             ;;
+        --logfile)
+            LOGFILE=$VALUE
+            shift
+            ;;
+        --errfile)
+            ERRFILE=$VALUE
+            shift
+            ;;
         --scriptparams)
             shift
             PARAMS=$@
@@ -70,9 +79,11 @@ cat "${template}" \
      | sed "s/<SoS_MASTER_CPU>/${MASTER_CPU}/g" \
      | sed "s/<SoS_TIME>/${TIME}/g" \
      | sed "s/<SoS_WORKER_NODES>/${WORKER_NODES}/g" \
-     | sed "s/<SoS_WORKER_MEMPERCPU>/${WORKER_MEMPERCPU}/g" \
+     | sed "s/<SoS_WORKER_MEMPERCPU>/${WORKER_MEMPERCPU}G/g" \
      | sed "s/<SoS_EMAIL>/$EMAIL/g" \
      | sed "s/<SoS_WORKER_CPU>/$WORKER_CPU/g" \
+     | sed "s/<SoS_LOGFILE>/$LOGFILE/g" \
+     | sed "s/<SoS_ERRFILE>/$ERRFILE/g" \
     > $runscript
 
 chmod +x $runscript
