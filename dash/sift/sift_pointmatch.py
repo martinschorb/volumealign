@@ -188,7 +188,11 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
     
     if mt_params == {}:
         return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
+    
+    if tilepairdir == '':
+        return True,'No tile pair directory selected!',dash.no_update,dash.no_update,dash.no_update
         
+    
     if 'mtselect' in trigger:
         
         return False,'',dash.no_update,dash.no_update,mt_params['ptime']
