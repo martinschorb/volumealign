@@ -21,7 +21,7 @@ import importlib
 from app import app
 import params
 
-from utils import pages,matchTrial
+from utils import pages,matchTrial,launch_jobs
 
 from utils import helper_functions as hf
 
@@ -172,9 +172,11 @@ def sift_browse_matchTrial(matchID):
                 State(parent+'tp_dd','value'),
                 State({'component':'store_owner','module' : parent},'data'),
                 State({'component':'store_project','module' : parent},'data'),
-                State({'component':'stack_dd','module' : parent},'value')]
+                State({'component':'stack_dd','module' : parent},'value'),
+                State({'component': 'input_Num_CPUs', 'module': parent},'value'),
+                State({'component': 'input_runtime_minutes', 'module': parent},'value')]
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,tilepairdir,owner,project,stack): 
+def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim): 
     ctx = dash.callback_context
         
     trigger = ctx.triggered[0]['prop_id']
@@ -238,7 +240,11 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
             "output_json":params.render_log_dir + '/' + '_' + params.run_prefix + "_SIFT_openCV.json",
             }
             
-            run_params_generate.update(cv_params)
+            run_params_generate.update(cv_params)            
+            
+            target_args = None
+            run_args = None
+            script = '$rendermodules/rendermodules/pointmatch/generate_point_matches_opencv.py'
             
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
@@ -269,32 +275,34 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
             
             if 'clipPixels' in mt_params.keys():
                 mtrun_p['--clipHeight'] = mt_params['clipPixels']
-                mtrun_p['--clipWidht'] = mt_params['clipPixels']
+                mtrun_p['--clipWidth'] = mt_params['clipPixels']
+            
+            
+            
+            spark_p = dict()
+            
+            spark_p['--time'] = '00:' + str(timelim)+':00'
+                        
+            spark_p['--worker_cpu'] = params.cpu_pernode_spark
+            spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
+            
+            run_params_generate = spsl_p.copy()
+            run_params_generate.update(mtrun_p)
+            
+            target_args = spark_p.copy()
+            run_args = run_params_generate.copy()
+            
+            script = 'org.janelia.render.client.spark.SIFTPointMatchClient'
+            
             
             
             
         #generate script call...
         
-
-        # run_params_generate['output_json'] = tilepairdir + '/tiles_'+ stack
-        
-        # run_params_generate['minZ'] = startsection
-        # run_params_generate['maxZ'] = endsection
-        
-        
-        # if pairmode == '2D':
-        #     run_params_generate['zNeighborDistance'] = 0
-        #     run_params_generate['excludeSameLayerNeighbors'] = 'False'
-            
-        # elif pairmode == '3D':
-        #     run_params_generate['zNeighborDistance'] = slicedepth
-        #     run_params_generate['excludeSameLayerNeighbors'] = 'True'
-    
-    
-        
-               
         with open(param_file,'w') as f:
             json.dump(run_params_generate,f,indent=4)
+            
+        
     
         log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
         err_file = log_file + '.err'
@@ -303,19 +311,12 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         
         
         
-        
-        
-        
-        
-        
-        # tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
-                            # json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
+        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
+                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
             
-        # params.processes[parent].extend(tilepairs_generate_p)
+        params.processes[parent].extend(sift_pointmatch_p)
         
-        
-        print(run_params)
-        
+                
         launch_store=dict()
         launch_store['logfile'] = log_file
         launch_store['state'] = 'running'

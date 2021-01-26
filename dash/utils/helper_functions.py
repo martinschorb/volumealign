@@ -9,6 +9,7 @@ Created on Wed Nov 11 14:24:32 2020
 import dash
 import json
 import os
+import numpy as np
 
 import params
 
@@ -58,8 +59,14 @@ def tilepair_numfromlog(tilepairdir,stack):
     tpairs = l_out[0].partition('NeighborPairs: exit, saved ')[2]
     
     if tpairs == '': return 'no tilepairs'
-    
-    print(tpairs)
+
     
     return int(tpairs)
     
+
+def spark_nodes(n_cpu):
+    nodes,cores1 = np.divmod(n_cpu,params.cpu_pernode_spark)
+    
+    nodes_out = nodes + (cores1>0)
+
+    return nodes_out

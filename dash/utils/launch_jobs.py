@@ -256,12 +256,20 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         spsl_args += args2string({'--logfile':logfile})
         spsl_args += args2string({'--errfile':errfile})
         
+        spark_args = dict()
+        spark_args['--class'] = pyscript
+        spark_args['--logdir'] = logfile.partition('.log')[0]
+                
+        
+        spsl_args += '--scriptparams=' + args2string(spark_args) 
+        spsl_args += '--params=' + args2string(run_args)
         
         
-        spsl_args += '--scriptparams=' + args2string(run_args)
+        command += spsl_args
         
-        
-        
+        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+
+        print(command)
         
        
         
