@@ -53,6 +53,8 @@ matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT searc
                                               target="_blank"),                                      
                                        ]),
                        html.Br(),
+                       pages.tile_view(parent,numpanel=2),
+                       html.Br(),
                        html.Div(["Use this Match Trial as compute parameters:",
                                  dcc.Input(id=label+'mtselect', type="text",
                                  style={'margin-right': '1em','margin-left': '3em'},

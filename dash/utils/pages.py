@@ -166,5 +166,34 @@ def substack_sel(module,hidden=False):
     return out
 
 
+
+
+def tile_view(module,numpanel=1):       
+    
+    out = list()
+    for idx in range(numpanel):
+        idx_str = '_'+str(idx)
+        if numpanel>1:            
+            idx_title=' '+str(idx+1)
+        else:
+            idx_title=''
+
+        out.append(html.Div([html.Details([html.Summary('Explore tile'+idx_title),
+                                  html.Table([html.Tr([html.Td('Slice:'),
+                                                       html.Td(dcc.Input(id={'component': 'tileim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
+                                                       html.Td('Tile'),
+                                                       html.Td(dcc.Dropdown(id={'component': 'tile_dd'+idx_str, 'module': module},className='dropdown_inline'))])
+                                              ]),
+                                  html.Br(),
+                                  html.Img(id={'component': 'image'+idx_str, 'module': module},width=params.im_width),
+                                  html.Br()])
+                    ]
+                   )
+                   )
+
+    
+    return html.Div(out)
+
+
 # if __name__ == '__main__':
     

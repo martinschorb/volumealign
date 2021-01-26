@@ -20,7 +20,7 @@ from app import app
 from utils import pages
 from utils import helper_functions as hf
 
-from callbacks import runstate,render_selector,substack_sel,match_selector
+from callbacks import runstate,render_selector,substack_sel,match_selector,tile_view
 
 
 from sift import sift_pointmatch

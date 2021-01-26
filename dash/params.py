@@ -96,6 +96,11 @@ match_store = {'init_match':{},
 #=============================================================
 ## UI parameters
 
+# maximum number of tile view images per UI module
+max_tileviews = 3
+# view image width 
+im_width = 900
+
 # controls refresh rate and length of console output
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
