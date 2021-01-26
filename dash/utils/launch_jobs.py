@@ -135,12 +135,38 @@ def cluster_status(job_ids):
             command += j_id
             command += ' --format=jobid,state --parsable'
             
+        elif cl_type == 'sparkslurm':
+            command =  'sacct --jobs='
+            command += j_id
+            command += ' --format=jobid,state --parsable'
         # commands for other cluster types go HERE
             
             
         result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
         
         if cl_type == 'slurm':
+            slurm_stat0 = result.decode()
+            
+            while slurm_stat0[slurm_stat0.find(j_id)+len(j_id)]=='.':
+                slurm_stat0=slurm_stat0[slurm_stat0.find(j_id)+len(j_id):]  
+                
+            slurm_stat0=slurm_stat0[slurm_stat0.find(j_id):]
+            slurm_stat = slurm_stat0[slurm_stat0.find('|')+1:slurm_stat0.find('\n')-1]
+            
+            if 'RUNNING' in slurm_stat:
+                out_stat.append('running')
+            elif slurm_stat=='COMPLETED':
+                out_stat.append('done')
+            elif 'FAILED' in slurm_stat:
+                out_stat.append('error')
+            elif 'TIMEOUT' in slurm_stat:
+                out_stat.append('error')    
+            elif 'PENDING' in slurm_stat:
+                out_stat.append('pending')
+            elif 'CANCELLED' in slurm_stat:
+                out_stat.append('cancelled')
+                
+        elif cl_type == 'sparkslurm':
             slurm_stat0 = result.decode()
             
             while slurm_stat0[slurm_stat0.find(j_id)+len(j_id)]=='.':
@@ -175,7 +201,7 @@ def canceljobs(job_ids):
     
         cl_type = j_types[j_idx]
         
-        if cl_type=='slurm':
+        if 'slurm' in cl_type:
             command = 'scancel '+j_id
             os.system(command)
         
@@ -268,9 +294,21 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         command += spsl_args
         
         p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
-
+        
         print(command)
         
+        with open(logfile,'w+') as f:
+            f.write('waiting for cluster job to start\n\n')
+            time.sleep(3)
+            jobid = p.stdout.readline().decode()
+            
+            f.write(jobid)
+            
+            jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
+            
+            jobid=['sparkslurm__'+jobid]
+        
+        return jobid
        
         
      
