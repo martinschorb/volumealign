@@ -102,8 +102,7 @@ for idx in range(params.max_tileviews):
         out_scale = '%0.2f' %scale
         
         imurl = url +'/jpeg-image?scale=' + out_scale
-        
-        print(runstore)
+
         
         if runstore is None or not 'mt_params' in runstore.keys():
             scale1 = params.default_tile_scale

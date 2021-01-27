@@ -71,6 +71,7 @@ def match_selector(module,newcoll=False):
         
         
     out = html.Div([html.H4("Select Match Collection:"),
+                    dcc.Store(id={'component':'mc_new_enabled','module':module},data=str(newcoll)),
                     html.Div([html.Div('Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
                           dcc.Dropdown(id={'component':'mc_owner_dd','module':module},
                                        persistence=True,clearable=False,className='dropdown_inline',
