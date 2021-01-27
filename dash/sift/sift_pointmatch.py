@@ -53,7 +53,7 @@ matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT searc
                                               target="_blank"),                                      
                                        ]),
                        html.Br(),
-                       pages.tile_view(parent,numpanel=2),
+                       pages.tile_view(parent,numpanel=2,showlink=True),
                        html.Br(),
                        html.Div(["Use this Match Trial as compute parameters:",
                                  dcc.Input(id=label+'mtselect', type="text",
@@ -144,8 +144,10 @@ def sift_pointmatch_IDs(organism,picks):
                Output(label+'mtselect','value')],              
               Input(label+'matchID_dd','value'),
                # State(label+'picks','data'),              
-              prevent_initial_call=True)
+              )
 def sift_browse_matchTrial(matchID):
+    if matchID is None:
+        return dash.no_update
     
     mc_url = params.render_base_url + 'view/match-trial.html?'
     mc_url += 'matchTrialId=' + matchID
@@ -190,6 +192,14 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
     
     if mt_params == {}:
         return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
+    print(owner)
+    print(stack)
+    print(mt_params)
+    outstore = dict()
+    outstore['owner'] = owner
+    outstore['project'] = project
+    outstore['stack'] = stack
+    outstore['mt_params'] = mt_params
     
     if tilepairdir == '':
         return True,'No tile pair directory selected!',dash.no_update,dash.no_update,dash.no_update
@@ -197,7 +207,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
     
     if 'mtselect' in trigger:
         
-        return False,'',dash.no_update,dash.no_update,mt_params['ptime']
+        return False,'',dash.no_update,outstore,mt_params['ptime']
         
     
     elif 'go' in trigger:
@@ -326,11 +336,6 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         launch_store=dict()
         launch_store['logfile'] = log_file
         launch_store['state'] = 'running'
-        
-        outstore = dict()
-        outstore['owner'] = owner
-        outstore['project'] = project
-        outstore['stack'] = stack
     
         return True,'', launch_store, outstore, mt_params['ptime']
 

@@ -80,13 +80,16 @@ for idx in range(params.max_tileviews):
     
     
     
-    # init image display
-    @app.callback(Output({'component': 'image'+idx_str, 'module': MATCH},'src'),
-                  Input({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
+    # init image display    # update tilespec link
+    @app.callback([Output({'component': 'image'+idx_str, 'module': MATCH},'src'),
+                   Output({'component': 'ts_link'+idx_str, 'module': MATCH},'children')],
+                  [Input({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
+                   Input({'component': 'store_render_launch', 'module': MATCH},'data')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
-                   State({'component': 'stack_dd','module': MATCH},'value')])           
-    def im_view(tile,owner,project,stack):
+                   State({'component': 'stack_dd','module': MATCH},'value'),
+                   ])           
+    def im_view(tile,runstore,owner,project,stack):
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tile/' + tile 
         
@@ -98,9 +101,19 @@ for idx in range(params.max_tileviews):
         
         out_scale = '%0.2f' %scale
         
-        imurl = url +'/jpeg-image?scale='+out_scale
+        imurl = url +'/jpeg-image?scale=' + out_scale
         
-        return imurl
+        print(runstore)
+        
+        if runstore is None or not 'mt_params' in runstore.keys():
+            scale1 = params.default_tile_scale
+        else:
+            scale1 = runstore['mt_params']['scale']
+
+        
+        url1 += '?filter=true&scale=' + str(scale1)
+        
+        return imurl, url1
     
 
 

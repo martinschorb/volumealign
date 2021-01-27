@@ -168,9 +168,14 @@ def substack_sel(module,hidden=False):
 
 
 
-def tile_view(module,numpanel=1):       
+def tile_view(module,numpanel=1,showlink=False):       
     
     out = list()
+    linkstyle = {'display':'none'}
+    
+    if showlink:
+        linkstyle = {}
+    
     for idx in range(numpanel):
         idx_str = '_'+str(idx)
         if numpanel>1:            
@@ -184,6 +189,10 @@ def tile_view(module,numpanel=1):
                                                        html.Td('Tile'),
                                                        html.Td(dcc.Dropdown(id={'component': 'tile_dd'+idx_str, 'module': module},className='dropdown_inline'))])
                                               ]),
+                                  html.Div(style=linkstyle,id={'component': 'ts_linkdiv'+idx_str, 'module': module},children=[
+                                      'Link to Image specs:  ',
+                                      html.Div(id={'component': 'ts_link'+idx_str, 'module': module},style={'margin-left': '0.5em'})
+                                      ]),
                                   html.Br(),
                                   html.Img(id={'component': 'image'+idx_str, 'module': module},width=params.im_width),
                                   html.Br()])
