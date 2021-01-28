@@ -111,8 +111,8 @@ page.append(pages.substack_sel(module,hidden=True))
 # callbacks
 
 @app.callback(Output({'component':'store_compset','module':module},'data'),                            
-              [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
-              )
+              [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols],
+              prevent_initial_call=True)
 def mipmaps_store_compute_settings(*inputs): 
     
     storage=dict()

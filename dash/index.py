@@ -24,16 +24,16 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=[#'convert',
-            # 'mipmaps',
-            # 'tilepairs',
+menu_items=['convert',
+            'mipmaps',
+            'tilepairs',
             'pointmatch',
             'solve'
             ]
 
-menu_text=[#'Convert & upload',
-            # 'Generate MipMaps',
-            # 'Find Tile Pairs',
+menu_text=['Convert & upload',
+            'Generate MipMaps',
+            'Find Tile Pairs',
             'Find Point Matches',
             'Solve Positions'
             ]
@@ -44,7 +44,8 @@ menu=list()
 store=list()
 params.processes=dict()
 
-allpages = list()
+allpages = [html.Div([html.H3('Welcome to the Render-based alignment suite.'),
+                         startpage.content],id={'component': 'page', 'module': 'start'})]
 
 #import UI page elements from dynamic menu
 
@@ -102,33 +103,37 @@ app.layout = html.Div(
 
 # CALLBACKS
 
-menu_cb_out = [Output('page-content', 'children')]
-for m_i in menu_items: menu_cb_out.append(Output('menu_'+m_i,'style'))
+menu_cb_out = [Output({'component': 'page', 'module': 'start'},'style')]
+for m_i in menu_items:
+    menu_cb_out.append(Output('menu_'+m_i,'style'))
 
+for m_i in menu_items:
+    menu_cb_out.append(Output({'component': 'page', 'module': m_i},'style'))
 
 @app.callback(menu_cb_out,
-              [Input('url', 'pathname')])
+              [Input('url', 'pathname')]
+              ,prevent_initial_call=True)
 def display_page(pathname):
     s1 = STYLE_active
     menu_styles = [{}]*len(menu_items)    
     
-    outlist=[[html.Div([html.H3('Welcome to the Render-based alignment suite.'),
-                         startpage.content])]]
+    outlist = [{'display': 'none'}]
+    
+    page_styles=[{'display': 'none'}] * len(menu_items)
     start = True
     
-    for m_ind,m_item in enumerate(menu_items):
-        allpages[m_ind].style = {'display': 'none'}
+    for m_ind,m_item in enumerate(menu_items):    
         if pathname=="/"+m_item:  
             menu_styles[m_ind]=s1            
-            allpages[m_ind].style = {}
+            page_styles[m_ind] = {}
             start = False
             
     if start:
-        outlist[0].extend(allpages)
-    else:
-        outlist = [allpages]
+        outlist[0] = {}
+
     
     outlist.extend(menu_styles)
+    outlist.extend(page_styles)
     
     return outlist
     

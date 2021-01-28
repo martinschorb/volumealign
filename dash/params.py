@@ -78,7 +78,8 @@ mipmapdir = 'mipmaps'
 default_store = {'run_state':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
                  'r_status':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
                  'r_launch':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
-                 'init_render':{'owner':'','project':'','stack':''},
+                 'init_render':{'owner':'','project':'','stack':'',
+                                'matchcoll': '', 'mc_owner':''},
                  'render_launch':{'owner':'','project':'','stack':''},
                  # 'allowners':None,
                  'allstacks':None,
@@ -88,7 +89,7 @@ default_store = {'run_state':{'state':'input', 'logfile':render_log_dir + '/out.
                  'stackparams':None
                  }
 
-match_store = {'init_match':{},
+match_store = {#'init_match':{},
                'all_matchcolls':None
                }
 

@@ -5,6 +5,7 @@ Created on Tue Nov  3 13:30:16 2020
 
 @author: schorb
 """
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
@@ -20,7 +21,7 @@ from app import app
 from utils import pages
 from utils import helper_functions as hf
 
-from callbacks import runstate,render_selector,substack_sel,match_selector,tile_view
+from callbacks import runstate,render_selector,substack_sel#,match_selector,tile_view
 
 
 from sift import sift_pointmatch
@@ -33,10 +34,9 @@ module='solve'
 storeinit = {}            
 store = pages.init_store(storeinit, module)
 
-store.append(dcc.Store(id={'component':'runstep','module':module},data='generate'))
-
 for storeitem in params.match_store.keys():       
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=params.match_store[storeitem]))
+    
     
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Solve tile Positions from PointMatchCollection"))
@@ -58,7 +58,7 @@ page = [intervals,main]
 # Pre-fill render stack selection from previous module
 
 us_out,us_in,us_state = render_selector.init_update_store(module,'pointmatch')
-
+ 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
 def solve_update_store(*args): 

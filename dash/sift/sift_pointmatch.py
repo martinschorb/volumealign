@@ -162,6 +162,7 @@ def sift_browse_matchTrial(matchID):
 
 # =============================================
   
+# TODO! (#1) Fix store  outputs to enable additional modules
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'mtnotfound','children'),
@@ -182,9 +183,9 @@ def sift_browse_matchTrial(matchID):
               ,prevent_initial_call=True)                 
 def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim): 
     ctx = dash.callback_context
-        
-    trigger = ctx.triggered[0]['prop_id']
     
+    trigger = ctx.triggered[0]['prop_id']
+
     try:
             mt_params = matchTrial.mt_parameters(matchID)
     except json.JSONDecodeError:
@@ -192,17 +193,17 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
     
     if mt_params == {}:
         return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
-    print(owner)
-    print(stack)
-    print(mt_params)
+
     outstore = dict()
     outstore['owner'] = owner
     outstore['project'] = project
     outstore['stack'] = stack
-    outstore['mt_params'] = mt_params
-    
+    # outstore['mt_params'] = mt_params
+    outstore['matchcoll'] = matchcoll
+    outstore['mc_owner'] = mc_owner
+             
     if tilepairdir == '':
-        return True,'No tile pair directory selected!',dash.no_update,dash.no_update,dash.no_update
+        return True,'No tile pair directory selected!',dash.no_update,outstore,dash.no_update
         
     
     if 'mtselect' in trigger:

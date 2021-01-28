@@ -42,7 +42,7 @@ for idx in range(params.max_tileviews):
             o_min = stackparams['stats']['stackBounds']['minZ']
             o_max = stackparams['stats']['stackBounds']['maxZ']
             
-            o_val = int((o_max-o_min)/2)  
+            o_val = int((o_max-o_min)/2) + o_min 
         
         return o_val,o_min,o_max
     
@@ -64,7 +64,13 @@ for idx in range(params.max_tileviews):
             url += '.%05i' %slicenum
         
         tiles = requests.get(url).json()
+        
+        if tiles == []:
+            return dash.no_update
+        
+        
         t_labels = tiles.copy()
+                
         if owner == 'SBEM':
             for t_idx,t_label in enumerate(tiles): t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
         
@@ -73,7 +79,7 @@ for idx in range(params.max_tileviews):
         for t_idx,item in enumerate(tiles):        
             dd_options.append({'label':t_labels[t_idx], 'value':item})  
         
-        tile = tiles[int(len(tiles)/2)]
+        tile = tiles[int(t_idx/2)]
         
         return dd_options, tile
     
@@ -90,11 +96,14 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    ])           
     def im_view(tile,runstore,owner,project,stack):
+        if tile is None:
+            return dash.no_update
+        
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tile/' + tile 
         
         url1 = url + '/render-parameters'
-
+        
         tilespec = requests.get(url1).json()
         
         scale = float(params.im_width) / float(tilespec['width'])
@@ -102,7 +111,7 @@ for idx in range(params.max_tileviews):
         out_scale = '%0.2f' %scale
         
         imurl = url +'/jpeg-image?scale=' + out_scale
-
+        
         
         if runstore is None or not 'mt_params' in runstore.keys():
             scale1 = params.default_tile_scale

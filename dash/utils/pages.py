@@ -35,7 +35,7 @@ def render_selector(module):
                              html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
                                        dcc.Dropdown(id={'component':'owner_dd','module':module},
                                                     className='dropdown_inline',
-                                                    options=[{'label':'1','value':'1'}],
+                                                    options=[],value='',
                                                     style={'width':'120px'},
                                                     persistence=True,clearable=False),
                                        html.Div(id={'component':'owner','module':module},
@@ -65,8 +65,13 @@ def match_selector(module,newcoll=False):
     mc_owner_dd_options = list(dict())
     mc_dd_options = list(dict())
     
+    mc_own = ''
+    mcoll = ''
+    
     if newcoll:
+        mc_own = 'new_mc_owner'
         mc_owner_dd_options.append({'label':'new Match Collection Owner', 'value':'new_mc_owner'})
+        mcoll = 'new_mc'
         mc_dd_options = [{'label':'new Match Collection', 'value':'new_mc'}]
         
         
@@ -75,7 +80,7 @@ def match_selector(module,newcoll=False):
                     html.Div([html.Div('Match Collection Owner:',style={'margin-right': '1em','margin-left': '2em'}),
                           dcc.Dropdown(id={'component':'mc_owner_dd','module':module},
                                        persistence=True,clearable=False,className='dropdown_inline',
-                                       options=mc_owner_dd_options),
+                                       options=mc_owner_dd_options, value=mc_own),
                           html.Div([html.Div('Enter new Match Collection Owner:',
                                              style={'margin-right': '1em','margin-left': '2em'}),
                                     dcc.Input(id={'component':"mcown_input",'module':module}, type="text",
@@ -87,7 +92,7 @@ def match_selector(module,newcoll=False):
                           html.Div([html.Div('Match Collection:',style={'margin-right': '1em','margin-left': '2em'}),
                                     dcc.Dropdown(id={'component':'matchcoll_dd','module':module},persistence=True,
                                                  clearable=False,className='dropdown_inline',
-                                                 options=mc_dd_options),
+                                                 options=mc_dd_options, value=mcoll),
                                     html.Br()],
                                    id={'component':'matchcoll','module':module},style={'display':'none'}),
                           html.Div([html.Div('Enter new Match Collection:',

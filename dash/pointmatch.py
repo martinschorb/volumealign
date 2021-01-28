@@ -43,7 +43,6 @@ compute_table_cols = ['Num_CPUs',
 storeinit = {'tpmatchtime':1000}            
 store = pages.init_store(storeinit, module)
 
-store.append(dcc.Store(id={'component':'runstep','module':module},data='generate'))
 
 for storeitem in params.match_store.keys():       
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=params.match_store[storeitem]))
@@ -71,7 +70,7 @@ us_out,us_in,us_state = render_selector.init_update_store(module,'tilepairs')
 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
-def mipmaps_update_store(*args): 
+def pointmatch_update_store(*args): 
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)
@@ -146,7 +145,7 @@ page.append(compute_settings)
 @app.callback(Output({'component':'store_compset','module':module},'data'),                            
               [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
               , prevent_initial_call=True)
-def mipmaps_store_compute_settings(*inputs): 
+def pointmatch_store_compute_settings(*inputs): 
     
     storage=dict()
         

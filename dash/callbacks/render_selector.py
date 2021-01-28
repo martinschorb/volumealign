@@ -29,7 +29,7 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 
     dash_out = Output({'component': comp_out, 'module': thismodule},'data')
     dash_in =  Input({'component': comp_in, 'module': prevmodule},'data')
-    dash_state = State({'component': 'store_init_render', 'module': thismodule},'data'),
+    dash_state = State({'component': 'store_init_render', 'module': thismodule},'data')
                    
     return dash_out,dash_in,dash_state
 
@@ -37,9 +37,10 @@ def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
 
-    for key in thisstore.keys():
-        if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):                  
-            thisstore[key] = prevstore[key]
+    # for key in thisstore.keys():
+        # if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):                  
+        #     thisstore[key] = prevstore[key]
+    thisstore.update(prevstore)
 
     return thisstore
 
@@ -86,17 +87,16 @@ def update_owner_dd(init_in):
 def update_proj_dd(owner_sel,init_store,store_proj):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-        
+      
     trigger = hf.trigger_component()    
-
+    
+    out_project = ''
+    
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
     
     # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
     projects = requests.get(url).json()
-    
-    out_project=projects[0]
-    
 
     # assemble dropdown
     dd_options = list(dict())
@@ -106,8 +106,10 @@ def update_proj_dd(owner_sel,init_store,store_proj):
         
     if 'store_init_render' in trigger:
        out_project=init_store['project']
-       
-       
+      
+    if out_project == '':
+        out_project=projects[0]
+        
     return href_out, dd_options, out_project
 
 
@@ -136,10 +138,9 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
         # get list of projects on render server
         url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
         
-        stacks = requests.get(url).json()
+        stacks = requests.get(url).json()        
+        out_stack = ''
         
-        out_stack=stacks[0]['stackId']['stack']        
-
         # assemble dropdown
         dd_options = list(dict())
         for item in stacks:
@@ -151,8 +152,14 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
             
         if 'store_init_render' in trigger:
             out_stack=init_store['stack']
+            
+        if out_stack == '':
+            out_stack=stacks[0]['stackId']['stack']        
+
         
         return href_out, dd_options, out_stack, stacks
+    
+        
         
     else: 
         return [dash.no_update] * 4
