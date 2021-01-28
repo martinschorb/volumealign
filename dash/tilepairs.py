@@ -71,10 +71,7 @@ page2 = html.Div(id={'component':'page2', 'module': module},
                                                           {'label': '3D (across sections)', 'value': '3D'}],
                                                       value='2D',                                                
                                                       id={'component':'pairmode', 'module': module}),
-                               html.Div(id={'component':'3Dslices', 'module': module},
-                                        children=['range of sections to consider:  ',
-                                                  dcc.Input(id={'component':'sec_input1', 'module': module},type='number',min=1,max=10,value=0)],
-                                                      style={'display':'none'})]
+                               ]
                                ,style={'display':'inline,block'}),
                            html.Br()  
                            ])
@@ -82,23 +79,6 @@ page2 = html.Div(id={'component':'page2', 'module': module},
 page.append(page2)
 
 page.append(pages.substack_sel(module))
-
-
-
-@app.callback([Output({'component':'startsection','module' : module},'max'),
-                Output({'component':'endsection','module' : module},'min')],
-              [Input({'component':'startsection','module' : module}, 'value'),
-                Input({'component':'endsection','module' : module},'value'),
-                Input({'component':'sec_input1','module' : module},'value')]
-              )
-def tilepairs_sectionlimits(start_sec,end_sec,sec_range):
-    
-    if not sec_range is None and not start_sec is None and not end_sec is None:
-        return end_sec - sec_range, start_sec + sec_range
-    else:
-        return end_sec, start_sec
-
-
 
 
 # # ===============================================

@@ -24,17 +24,17 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=['convert',
-            'mipmaps',
+menu_items=[#'convert',
+            # 'mipmaps',
             'tilepairs',
-            'pointmatch',
+            # 'pointmatch',
             'solve'
             ]
 
-menu_text=['Convert & upload',
-            'Generate MipMaps',
+menu_text=[#'Convert & upload',
+            # 'Generate MipMaps',
             'Find Tile Pairs',
-            'Find Point Matches',
+            # 'Find Point Matches',
             'Solve Positions'
             ]
 

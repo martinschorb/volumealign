@@ -36,6 +36,9 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
         trigger =  'init'
     else:    
         trigger = hf.trigger_component()
+        
+    print(trigger)
+    print(dd_own_in)
     
     dd_options = list()    
     if 'init' in trigger:
@@ -85,8 +88,10 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
 def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,new_enabled='False'):
     trigger = hf.trigger_component()
     all_mcs = dash.no_update  
-   
+
     if 'mc_owner_dd'in trigger:
+        if mc_own_sel == '':
+            return dash.no_update
         
         if mc_own_sel=='new_mc_owner' and new_enabled == 'True':
     

@@ -26,25 +26,28 @@ for idx in range(params.max_tileviews):
             
     
     # init slice selector
-    @app.callback([Output({'component':'tileim_section_in'+idx_str,'module': MATCH},'value'),
-                   Output({'component':'tileim_section_in'+idx_str,'module': MATCH},'min'),
-                   Output({'component':'tileim_section_in'+idx_str,'module': MATCH},'max')],
-                  Input({'component': 'stack_dd','module': MATCH},'value'),
-                  State({'component': 'store_allstacks', 'module': MATCH}, 'data'))
-    def stacktoslice(stack_sel,allstacks):
-        stacklist=[]
-        if (not stack_sel=='-' ) and (not allstacks is None):   
-             stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
-             # stack = stack_sel
+    for imtype in ['sliceim','tileim']:
         
-        if not stacklist == []:
-            stackparams = stacklist[0]        
-            o_min = stackparams['stats']['stackBounds']['minZ']
-            o_max = stackparams['stats']['stackBounds']['maxZ']
+        @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
+                       Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
+                       Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max')],
+                      Input({'component': 'stack_dd','module': MATCH},'value'),
+                      State({'component': 'store_allstacks', 'module': MATCH}, 'data'))
+        def stacktoslice(stack_sel,allstacks):
+            stacklist=[]
+            if (not stack_sel=='-' ) and (not allstacks is None):   
+                 stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
+                 # stack = stack_sel
             
-            o_val = int((o_max-o_min)/2) + o_min 
-        
-        return o_val,o_min,o_max
+            if not stacklist == []:
+                stackparams = stacklist[0]        
+                o_min = stackparams['stats']['stackBounds']['minZ']
+                o_max = stackparams['stats']['stackBounds']['maxZ']
+                
+                o_val = int((o_max-o_min)/2) + o_min 
+            
+            return o_val,o_min,o_max
+            
     
     
     
@@ -55,8 +58,9 @@ for idx in range(params.max_tileviews):
                   Input({'component':'tileim_section_in'+idx_str,'module': MATCH},'value'),
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
-                   State({'component': 'stack_dd','module': MATCH},'value')])
-    def slicetotiles(slicenum,owner,project,stack):
+                   State({'component': 'stack_dd','module': MATCH},'value'),
+                   State({'component':'tile_dd'+idx_str,'module': MATCH},'value')])
+    def slicetotiles(slicenum,owner,project,stack,prev_tile):
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
         
@@ -66,21 +70,23 @@ for idx in range(params.max_tileviews):
         tiles = requests.get(url).json()
         
         if tiles == []:
-            return dash.no_update
-        
+            return dash.no_update        
         
         t_labels = tiles.copy()
-                
-        if owner == 'SBEM':
-            for t_idx,t_label in enumerate(tiles): t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
+        tile = tiles[int(len(tiles)/2)]
         
+        if owner == 'SBEM':
+            for t_idx,t_label in enumerate(tiles): 
+                t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
+                
+                if (not prev_tile is None) and t_labels[t_idx] in prev_tile:
+                    tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + '.%05i' %slicenum
+
         # assemble dropdown
         dd_options = list(dict())
-        for t_idx,item in enumerate(tiles):        
-            dd_options.append({'label':t_labels[t_idx], 'value':item})  
-        
-        tile = tiles[int(t_idx/2)]
-        
+        for t_idx,item in enumerate(tiles):
+            dd_options.append({'label':t_labels[t_idx], 'value':item})        
+   
         return dd_options, tile
     
     
@@ -124,4 +130,34 @@ for idx in range(params.max_tileviews):
         return imurl, url1
     
 
+    # init image display    # update tilespec link
+    @app.callback(Output({'component': 'slice_image'+idx_str, 'module': MATCH},'src'),
+                  [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
+                   Input({'component': 'store_render_launch', 'module': MATCH},'data')],
+                  [State({'component': 'owner_dd','module': MATCH},'value'),
+                   State({'component': 'project_dd','module': MATCH},'value'),
+                   State({'component': 'stack_dd','module': MATCH},'value'),
+                   ])           
+    def slice_view(section,runstore,owner,project,stack):
+        if section is None:
+            return dash.no_update
+        
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+        
+        url += '/z/'+ str(section)
+        
+        url1 = url + '/bounds'
+        
+        bounds = requests.get(url1).json()
+        
+        imwidth = bounds['maxX'] - bounds['minX']
+        
+        scale = float(params.im_width) / float(imwidth)
+        
+        out_scale = '%0.2f' %scale
+        
+        imurl = url +'/jpeg-image?scale=' + out_scale    
+        
+        return imurl
+    
 

@@ -111,6 +111,16 @@ disp_lines = 50          # output lines to display
 idle_interval = 10000   # ms
 
 
+#=============================================================
+## solve parameters
+
+solve_transforms = [
+            'AffineModel', 'SimilarityModel', 'Polynomial2DTransform',
+            'affine', 'rigid', 'affine_fullsize', 'RotationModel',
+            'TranslationModel', 'ThinPlateSplineTransform']
+
+solve_types = ['montage', '3D']
+
 # -------------  
 # derived parameters
 

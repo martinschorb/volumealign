@@ -160,12 +160,18 @@ def substack_sel(module,hidden=False):
     dispstyle = {}
     if hidden:
         dispstyle = {'display':'none'}
-    out = html.Div([html.Details([html.Summary('Substack selection'),
+    out = html.Div([html.Div(id={'component':'3Dslices', 'module': module},
+                                        children=['range of sections to consider:  ',
+                                                  dcc.Input(id={'component':'sec_input1', 'module': module},type='number',min=1,max=10,value=0)],
+                                                      style={'display':'none'}),
+                    html.Br(),
+                    html.Details([html.Summary('Substack selection'),
                         html.Table([html.Tr([html.Td('Start slice: '),
                                              html.Td(dcc.Input(id={'component': 'startsection', 'module': module},type='number',min=0,value=0))]),
                                     html.Tr([html.Td('End slice: '),
                                              html.Td(dcc.Input(id={'component': 'endsection', 'module': module},type='number',min=0,value=1))])])
-                                                            ])],
+                                                            ])
+                   ],
                    style=dispstyle)
                    
     
@@ -201,6 +207,35 @@ def tile_view(module,numpanel=1,showlink=False):
                                       ]),
                                   html.Br(),
                                   html.Img(id={'component': 'image'+idx_str, 'module': module},width=params.im_width),
+                                  html.Br()])
+                    ]
+                   )
+                   )
+
+    
+    return html.Div(out)
+
+
+def section_view(module,numpanel=1):       
+    
+    out = list()
+    linkstyle = {'display':'none'}
+    
+    
+    for idx in range(numpanel):
+        idx_str = '_'+str(idx)
+        if numpanel>1:            
+            idx_title=' '+str(idx+1)
+        else:
+            idx_title=''
+
+        out.append(html.Div([html.Details([html.Summary('Explore slice'+idx_title),
+                                  html.Table([html.Tr([html.Td('Slice:'),
+                                                       html.Td(dcc.Input(id={'component': 'sliceim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
+                                                       ])                                 
+                                      ]),
+                                  html.Br(),
+                                  html.Img(id={'component': 'slice_image'+idx_str, 'module': module},width=params.im_width),
                                   html.Br()])
                     ]
                    )

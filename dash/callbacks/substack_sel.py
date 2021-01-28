@@ -55,3 +55,19 @@ def stacktosections(stack_sel,allstacks):
             sec_end = int(thisstore['zmax'])
 
     return sec_start, sec_start, sec_end, sec_end, thisstore
+
+
+
+@app.callback([Output({'component':'startsection','module' : MATCH},'max'),
+                Output({'component':'endsection','module' : MATCH},'min')],
+              [Input({'component':'startsection','module' : MATCH}, 'value'),
+                Input({'component':'endsection','module' : MATCH},'value'),
+                Input({'component':'sec_input1','module' : MATCH},'value')]
+              )
+def tilepairs_sectionlimits(start_sec,end_sec,sec_range=0):
+    
+    if not sec_range is None and not start_sec is None and not end_sec is None:
+        return end_sec - sec_range, start_sec + sec_range
+    else:
+        return end_sec, start_sec
+
