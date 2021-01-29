@@ -259,10 +259,9 @@ page.append(gobutton)
 def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):       
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
-    print(outstack)
+
     trigger=hf.trigger_component()
     
-    print(trigger)
     if not 'go' in trigger:
         if any(['' in [matchcoll,outstack], None in [matchcoll,outstack], 'newstack' in [stack,outstack]]):
             return True,dash.no_update,dash.no_update
@@ -316,7 +315,7 @@ def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,sta
     err_file = log_file + '.err'
     log_file += '.log'
     
-    solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solve/solve.py',
+    solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solver/solve.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
         
     params.processes[module].extend(solve_generate_p)
