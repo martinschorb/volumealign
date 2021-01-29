@@ -57,7 +57,7 @@ def update_status(n,click,run_state,logfile,r_status,module):
 
         if 'Error' in r_status['state']:
             if logfile.endswith('.log'):
-                r_status['logfile'] = logfile[logfile.rfind('.log')]+'.err'
+                r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
 
         return params.idle_interval,r_status
     

@@ -9,6 +9,10 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
+
+
+
 import os
 import importlib
 import json
@@ -106,7 +110,7 @@ page.append(pages.substack_sel(module))
 # assemble dropdown
 
 stack_div = html.Div(id=module+'out_stack_div',children=[html.H4("Select Output Render Stack:"),                                                              
-                                                              dcc.Dropdown(id=module+'stack_dd',persistence=True,
+                                                              dcc.Dropdown(id={'component':'outstack_dd','module' : module},persistence=True,
                                                                             clearable=False),
                                                               html.Div(children=['Enter new stack name: ',
                                                                                   dcc.Input(id=module+"stack_input", type="text", debounce=True,placeholder="new_stack",persistence=False)
@@ -124,8 +128,8 @@ page.append(stack_div)
 
 # Fills the Stack DropDown
 
-@app.callback([Output(module+'stack_dd','options'),   
-               Output(module+'stack_dd','value'),
+@app.callback([Output({'component':'outstack_dd','module' : module},'options'),   
+               Output({'component':'outstack_dd','module' : module},'value'),
                Output(module+'browse_proj','href'),
                Output(module+'browse_proj','style')
                 ],
@@ -160,7 +164,7 @@ def sbem_conv_stacks(project_sel,newstack_name,owner,dd_options_in):
     
 @app.callback([Output(module+'browse_stack','href'),
                 Output(module+'browse_stack','style')],
-              Input(module+'stack_dd','value'),
+              Input({'component':'outstack_dd','module' : module},'value'),
               [State({'component': 'project_dd', 'module': module}, 'value'),
                State({'component': 'owner_dd', 'module': module}, 'value')])
 def sbem_conv_update_stack_browse(stack_state,project_sel,owner): 
@@ -176,7 +180,7 @@ def sbem_conv_update_stack_browse(stack_state,project_sel,owner):
 # Create a new Stack
     
 @app.callback(Output(module+'newstack','style'),
-              Input(module+'stack_dd','value'))
+              Input({'component':'outstack_dd','module' : module},'value'))
 def sbem_conv_new_stack_input(stack_value):
     if stack_value=='newstack':
         style={'display':'block'}
@@ -203,12 +207,12 @@ for stype in params.solve_types:
    
 
 transform = html.Div(id=module+'tformsel_div',children=[html.H4("Select Transform type:"),                                                              
-                                                        dcc.Dropdown(id=module+'tform_dd',persistence=True,
+                                                        dcc.Dropdown(id={'component':'tform_dd','module' : module},persistence=True,
                                                                       clearable=False,options=tform_options,
                                                                       value='rigid'),
                                                         html.Details([
                                                             html.Summary("Select Solve type:"),                                                              
-                                                            dcc.Dropdown(id=module+'type_dd',persistence=True,
+                                                            dcc.Dropdown(id={'component':'type_dd','module' : module},persistence=True,
                                                                       clearable=False,options=type_options,
                                                                       value='3D')
                                                               ])
@@ -241,9 +245,9 @@ page.append(gobutton)
                Output({'component': 'store_render_launch', 'module': module},'data')],
               [Input({'component': 'go', 'module': module}, 'n_clicks'),
                Input({'component': 'matchcoll_dd', 'module': module}, 'value'),
-               Input(module+'stack_dd','value'),
-               Input(module+'tform_dd','value')],
-               [State(module+'type_dd','value'),
+               Input({'component':'outstack_dd','module' : module},'value'),
+               Input({'component':'tform_dd','module' : module},'value')],
+               [State({'component':'type_dd','module' : module},'value'),
                 State({'component':'compute_sel','module' : module},'value'),
                 State({'component':'startsection','module' : module},'value'),
                 State({'component':'endsection','module' : module},'value'),
@@ -252,17 +256,20 @@ page.append(gobutton)
                 State({'component':'stack_dd','module' : module},'value'),
                 State({'component':'mc_owner_dd','module':module},'value')]
               )                 
-def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):   
-    if click is None: return dash.no_update
-    
+def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):       
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate  
+    print(outstack)
     trigger=hf.trigger_component()
     
+    print(trigger)
     if not 'go' in trigger:
-        if any(['' in [matchcoll,outstack], None in [matchcoll,outstack]]):
+        if any(['' in [matchcoll,outstack], None in [matchcoll,outstack], 'newstack' in [stack,outstack]]):
             return True,dash.no_update,dash.no_update
         
         return False,dash.no_update,dash.no_update
     
+    if click is None: return dash.no_update
     # prepare parameters:
     importlib.reload(params)
 
@@ -275,7 +282,8 @@ def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,sta
     
     #generate script call...
     
-    
+    with open(os.path.join(params.json_template_dir,module+'.json'),'r') as f:
+        run_params_generate.update(json.load(f))
     
     run_params_generate['output_json'] = params.render_log_dir + '/' + module + '_' + params.run_prefix + '_' + stack + '.json' 
     
@@ -285,19 +293,18 @@ def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,sta
     run_params_generate['solve_type'] = stype
     run_params_generate['transformation'] = tform
     
-    run_params_generate['input_stack'] = rp['render'].copy()
+    run_params_generate['input_stack'].update(rp['render'])
     run_params_generate['input_stack']['name'] = stack
     
-    run_params_generate['pointmatch'] = rp['render'].copy()
+    run_params_generate['pointmatch'].update(rp['render'])
     run_params_generate['pointmatch']['owner'] = mc_own
     run_params_generate['pointmatch']['name'] = matchcoll
 
-    run_params_generate['output_stack'] = rp['render'].copy()
+    run_params_generate['output_stack'].update(rp['render'])
     run_params_generate['output_stack']['name'] = outstack
     
 
-    with open(os.path.join(params.json_template_dir,module+'.json'),'r') as f:
-        run_params_generate.update(json.load(f))
+    
 
     param_file = params.json_run_dir + '/' + module + '_' + params.run_prefix + '.json' 
 

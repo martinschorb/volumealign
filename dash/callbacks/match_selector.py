@@ -35,10 +35,7 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
     if not dash.callback_context.triggered: 
         trigger =  'init'
     else:    
-        trigger = hf.trigger_component()
-        
-    print(trigger)
-    print(dd_own_in)
+        trigger = hf.trigger_component()        
     
     dd_options = list()    
     if 'init' in trigger:

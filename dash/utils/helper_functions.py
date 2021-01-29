@@ -15,9 +15,7 @@ import params
 
 def trigger_component():
     ctx = dash.callback_context
-        
     trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
-
     return trigger
 
 def input_components():
