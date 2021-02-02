@@ -21,21 +21,13 @@ from app import app
 import params
 from utils import helper_functions as hf
 
-@app.callback([Output({'component':'startsection','module' : MATCH},'value'),
-                Output({'component':'startsection','module' : MATCH},'min'),
-                Output({'component':'endsection','module' : MATCH},'value'),
-                Output({'component':'endsection','module' : MATCH},'max'),
-                Output({'component': 'store_stackparams', 'module': MATCH}, 'data')],
+@app.callback(Output({'component': 'store_stackparams', 'module': MATCH}, 'data'),
               Input({'component':'stack_dd','module' : MATCH},'value'),
               State({'component': 'store_allstacks', 'module': MATCH},'data')
-              ,prevent_initial_call=True)
-def stacktosections(stack_sel,allstacks):
-    
+              )
+def stacktoparams(stack_sel,allstacks):    
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    sec_start = 0
-    sec_end = 1
-    
 
     
     if not(stack_sel=='-' ):   
@@ -50,11 +42,26 @@ def stacktosections(stack_sel,allstacks):
             thisstore['numtiles']=stackparams['stats']['tileCount']
             thisstore['numsections']=stackparams['stats']['sectionCount']
 
-            
-            sec_start = int(thisstore['zmin'])
-            sec_end = int(thisstore['zmax'])
+    return thisstore
 
-    return sec_start, sec_start, sec_end, sec_end, thisstore
+
+
+@app.callback([Output({'component':'startsection','module' : MATCH},'value'),
+                Output({'component':'startsection','module' : MATCH},'min'),
+                Output({'component':'endsection','module' : MATCH},'value'),
+                Output({'component':'endsection','module' : MATCH},'max')],
+              Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
+             )
+def paramstosections(thisstore):    
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+
+
+    sec_start = int(thisstore['zmin'])
+    sec_end = int(thisstore['zmax'])
+
+    
+    return sec_start, sec_start, sec_end, sec_end
 
 
 
@@ -64,7 +71,7 @@ def stacktosections(stack_sel,allstacks):
                 Input({'component':'endsection','module' : MATCH},'value'),
                 Input({'component':'sec_input1','module' : MATCH},'value')]
               )
-def tilepairs_sectionlimits(start_sec,end_sec,sec_range=0):
+def sectionlimits(start_sec,end_sec,sec_range=0):
     
     if not sec_range is None and not start_sec is None and not end_sec is None:
         return end_sec - sec_range, start_sec + sec_range

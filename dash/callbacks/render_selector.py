@@ -36,7 +36,8 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
-
+    
+    # print(thisstore,prevstore)
     # for key in thisstore.keys():
         # if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):                  
         #     thisstore[key] = prevstore[key]

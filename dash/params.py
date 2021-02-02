@@ -54,6 +54,10 @@ cpu_pernode_spark = 20
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
+export=dict()
+export['min/GPix/CPU_N5'] = 5
+
+
 section_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)
 
 
@@ -68,7 +72,7 @@ datasubdirs = {
 
 mipmapdir = 'mipmaps'
 
-
+outdirbase = 'aligned'
 
 
 

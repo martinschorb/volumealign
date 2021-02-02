@@ -1,0 +1,362 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Nov  3 13:30:16 2020
+
+@author: schorb
+"""
+
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.exceptions import PreventUpdate
+from dash.dependencies import Input,Output,State
+
+# import sys
+import numpy as np
+import os
+import json
+import requests
+import importlib
+
+
+from app import app
+import params
+
+from utils import pages,launch_jobs
+from utils import helper_functions as hf
+
+
+
+# element prefix
+label = "N5_export"
+parent = "export"
+
+
+
+status_table_cols = ['stack',
+              'slices',
+              'tiles',
+              'Gigapixels']         
+
+
+compute_table_cols = ['Num_CPUs',
+                      # 'MemGB_perCPU',
+                      'runtime_minutes']
+
+page=[html.Br()]
+
+# # ===============================================
+# Compute Settings
+
+compute_settings = html.Details(children=[html.Summary('Compute settings:'),
+                                             html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                  html.Tr([html.Td('',id={'component': 't_'+col, 'module': label}) for col in status_table_cols])
+                                             ],className='table'),
+                                             html.Br(),
+                                             html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                  html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': label},type='number',min=1)) for col in compute_table_cols])
+                                             ],className='table'),
+                                             dcc.Store(id={'component':'store_compset','module':label})
+                                             ])
+page.append(compute_settings)
+
+
+# callbacks
+
+@app.callback(Output({'component':'store_compset','module':label},'data'),                            
+              [Input({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols],
+              prevent_initial_call=True)
+def mipmaps_store_compute_settings(*inputs): 
+    
+    storage=dict()
+        
+    in_labels,in_values  = hf.input_components()
+    
+    for input_idx,label in enumerate(in_labels):
+        
+        storage[label] = in_values[input_idx]
+    
+    return storage
+
+
+
+
+# Update directory and compute settings from stack selection
+
+stackoutput = [Output({'component': 'input1', 'module': label},'value'),
+               # Output({'component': 'store_stackparams', 'module': module}, 'data')
+               ]
+tablefields = [Output({'component': 't_'+col, 'module': label},'children') for col in status_table_cols]
+compute_tablefields = [Output({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols]
+
+stackoutput.extend(tablefields) 
+ 
+stackoutput.extend(compute_tablefields)        
+
+@app.callback(stackoutput,
+              Input({'component': 'stack_dd', 'module': parent},'value'),
+              [State({'component': 'store_owner', 'module': parent}, 'data'),
+               State({'component': 'store_project', 'module': parent}, 'data'),
+               State({'component': 'store_stack', 'module': parent}, 'data'),
+               State({'component': 'store_allstacks', 'module': parent}, 'data')]
+              )
+def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
+    
+    dir_out=''
+    out=dict()
+    
+    t_fields = ['']*len(status_table_cols)
+    ct_fields = [1]*len(compute_table_cols)
+
+    
+    if (not stack_sel=='-' ) and (not allstacks is None):   
+        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
+        stack = stack_sel
+        
+        if not stacklist == []:
+            stackparams = stacklist[0]        
+            out['zmin']=stackparams['stats']['stackBounds']['minZ']
+            out['zmax']=stackparams['stats']['stackBounds']['maxZ']
+            out['numtiles']=stackparams['stats']['tileCount']
+            out['numsections']=stackparams['stats']['sectionCount']
+                     
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/'+ str(out['zmin']) +'/render-parameters'
+            tiles0 = requests.get(url).json()
+            
+            tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+            
+            basedirsep = params.datasubdirs[owner]
+            dir_out = tilefile0[:tilefile0.find(basedirsep)]
+            
+            out['gigapixels']=out['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
+            
+            t_fields=[stack,str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),'%0.2f' %out['gigapixels']]
+            
+            n_cpu = params.n_cpu_script
+            
+            timelim = np.ceil(out['gigapixels'] / n_cpu * params.export['min/GPix/CPU_N5']*(1+params.time_add_buffer))
+            
+            ct_fields = [n_cpu,timelim]  
+          
+   
+    outlist=[dir_out] #,out]   
+    outlist.extend(t_fields)
+    outlist.extend(ct_fields)     
+        
+    return outlist
+
+
+# =============================================
+
+
+
+
+page2 = html.Div(id={'component': 'page2', 'module': label},children=[html.H4('Output path'),
+                                             dcc.Input(id={'component': "input1", 'module': label}, type="text",debounce=True,persistence=True,className='dir_textinput'),
+                                             html.Button('Browse',id={'component': "browse1", 'module': label}),
+                                             'graphical browsing works on cluster login node ONLY!',
+                                             html.Br()])
+
+page.append(page2)
+
+
+
+
+# =============================================
+# Start Button
+
+gobutton = html.Div(children=[html.Br(),
+                              html.Button('Start Export',
+                                          id={'component': 'go', 'module': label},disabled=True),
+                              html.Div(id={'component': 'buttondiv', 'module': label}),
+                              html.Br(),
+                              pages.compute_loc(label,c_options=['sparkslurm'],c_default='sparkslurm'),
+                              html.Br(),
+                              html.Div(id={'component': 'run_state', 'module': parent}, style={'display': 'none'},children='wait')])
+
+
+page.append(gobutton)
+
+
+# =============================================
+   
+#  LAUNCH CALLBACK FUNCTION
+
+# =============================================
+
+# TODO! (#1) Fix store  outputs to enable additional modules
+
+# @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
+#                Output({'component': 'buttondiv', 'module': label},'children'),
+#                Output({'component': 'store_r_launch', 'module': parent},'data'),
+#                Output({'component': 'store_render_launch', 'module': parent},'data')],
+#               [Input({'component': 'go', 'module': label}, 'n_clicks'),
+#                Input({'component': "input1", 'module': label},'value')],
+#               [State({'component':'compute_sel','module' : label},'value'),        
+#                 State({'component':'store_owner','module' : parent},'data'),
+#                 State({'component':'store_project','module' : parent},'data'),
+#                 State({'component':'stack_dd','module' : parent},'value'),
+#                 State({'component': 'input_Num_CPUs', 'module': label},'value'),
+#                 State({'component': 'input_runtime_minutes', 'module': label},'value'),
+#                 State({'component':'startsection','module' : parent},'value'),
+#                 State({'component':'endsection','module' : parent},'value'),
+#                 State({'component': 'store_stackparams', 'module': parent}, 'data')]
+#               ,prevent_initial_call=True)                 
+# def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n_cpu,timelim,startsec,endsec,sp_store): 
+    
+#     trigger = hf.trigger_component()
+    
+    
+#     stackparams = sp_store['stackparams']
+    
+#     outstore = dict()
+#     outstore['owner'] = owner
+#     outstore['project'] = project
+#     outstore['stack'] = stack
+
+#     # if outdir == '':
+#     #     return True,'No output directory selected!',dash.no_update,outstore
+    
+#     # if not os.access(outdir,os.W_OK | os.X_OK):
+#     #     return True,'Output directory not writable!',dash.no_update,outstore
+
+    
+#     if 'input' in trigger:        
+#         return False,'',dash.no_update,outstore
+    
+    
+    
+#     elif 'go' in trigger:
+#         if click is None: return dash.no_update
+        
+#         # prepare parameters:
+#         importlib.reload(params)
+    
+#         run_params = params.render_json.copy()
+#         run_params['render']['owner'] = owner
+#         run_params['render']['project'] = project
+        
+#         run_params_generate = run_params.copy()
+          
+        
+#         param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+    
+        
+        
+#         if comp_sel == 'standalone':    
+#             # =============================
+            
+#             # TODO - STANDALONE PROCEDURE NOT TESTED !!!!
+            
+#             # =============================
+
+            
+#             # TODO!  render-modules only supports single tilepair JSON!!!
+            
+#             return dash.no_update
+            
+#         elif comp_sel == 'sparkslurm':
+#             spsl_p = dict()
+            
+#             spsl_p['--baseUrl'] = params.render_base_url
+#             spsl_p['--owner'] = owner
+#             spsl_p['--stack'] = stack
+#             spsl_p['--project'] = project
+            
+            
+#             # create output directory 
+#             aldir = os.path.join(outdir,params.outdirbase)
+            
+#             if not os.path.isdir(aldir):
+#                 os.makedirs(aldir)
+            
+#             timestamp = params.timestamp
+            
+#             n5dir = os.path.join(aldir,'{}{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday))
+            
+#             slices = ''
+            
+#             if startsec == sp_store['zmin'] and endsec == sp_store['zmax']:
+#                 slices = '_full'
+#             else:
+#                 slices = '_' + str(startsec) + '-' + str(endsec)
+            
+#             n5dir += '/' + stack + slices  + '.n5'             
+            
+#             n5run_p = dict()
+        
+#             n5run_p['--n5Path'] = n5dir           
+        
+            
+#             n5run_p['--tileSize'] = str(stackparams['stats']['maxTileWidth']) + ',' + str(stackparams['stats']['maxTileHeight'])
+            
+#             n5run_p['--min'] = ''
+#             n5run_p['--size'] = '' 
+        
+#             for dim in ['X','Y','Z']:
+#                 minval = stackparams['stats']['stackBounds']['min'+dim]
+#                 maxval = stackparams['stats']['stackBounds']['max'+dim]
+#                 n5run_p['--min'] +=  str(minval)
+#                 n5run_p['--size'] += str(maxval-minval)
+                
+#                 if not dim =='Z':
+#                     n5run_p['--min'] += ','
+#                     n5run_p['--size'] += ','
+                 
+            
+#             print(n5run_p)
+            
+#             # fill parameters
+            
+            
+            
+#             return dash.no_update
+            
+#             spark_p = dict()
+            
+#             spark_p['--time'] = '00:' + str(timelim)+':00'
+                        
+#             spark_p['--worker_cpu'] = params.cpu_pernode_spark
+#             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
+            
+#             run_params_generate = spsl_p.copy()
+#             run_params_generate.update(mtrun_p)
+            
+#             target_args = spark_p.copy()
+#             run_args = run_params_generate.copy()
+            
+#             script = 'org.janelia.render.client.spark.SIFTPointMatchClient'
+            
+            
+            
+            
+#         #generate script call...
+        
+#         with open(param_file,'w') as f:
+#             json.dump(run_params_generate,f,indent=4)
+            
+        
+    
+#         log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+#         err_file = log_file + '.err'
+#         log_file += '.log'
+        
+        
+        
+        
+#         sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
+#                             json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+            
+#         params.processes[parent].extend(sift_pointmatch_p)
+        
+                
+#         launch_store=dict()
+#         launch_store['logfile'] = log_file
+#         launch_store['state'] = 'running'
+    
+#         return True,'', launch_store, outstore, mt_params['ptime']
+
+
+
+    

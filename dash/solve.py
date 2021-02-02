@@ -133,11 +133,11 @@ page.append(stack_div)
                Output(module+'browse_proj','href'),
                Output(module+'browse_proj','style')
                 ],
-              [Input({'component': 'project_dd', 'module': module}, 'value'),               
-                Input(module+'stack_input', 'value')],
+              [Input({'component': 'stack_dd', 'module': module}, 'options'),               
+               Input(module+'stack_input', 'value')],
               [State({'component': 'owner_dd', 'module': module}, 'value'),
-                State({'component': 'stack_dd', 'module': module}, 'options')])    
-def sbem_conv_stacks(project_sel,newstack_name,owner,dd_options_in):    
+                State({'component': 'project_dd', 'module': module}, 'value')])    
+def sbem_conv_stacks(dd_options_in,newstack_name,owner,project_sel):    
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
     stack = 'newstack'
@@ -327,7 +327,7 @@ def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,sta
     outstore = dict()
     outstore['owner'] = owner
     outstore['project'] = project
-    outstore['stack'] = stack
+    outstore['stack'] = outstack
 
     return True, launch_store, outstore
 
