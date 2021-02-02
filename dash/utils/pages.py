@@ -189,9 +189,9 @@ def boundingbox(module,hidden=False):
 
     for dim in ['X','Y','Z']:
         inputs.append(html.Tr([html.Td('Start '+dim+': '),
-                               html.Td(dcc.Input(id={'component': 'start'+dim, 'module': module},type='number',min=0,value=0)),
+                               html.Td(dcc.Input(id={'component': 'start'+dim, 'module': module},type='number',debounce=True,min=0,value=0)),
                                html.Td('End '+dim+': '),
-                               html.Td(dcc.Input(id={'component': 'end'+dim, 'module': module},type='number',min=0,value=0))]))
+                               html.Td(dcc.Input(id={'component': 'end'+dim, 'module': module},type='number',debounce=True,min=0,value=0))]))
 
     out = html.Div([html.Details([html.Summary('Volume region to consider:'),
                         html.Br(),
