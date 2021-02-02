@@ -28,6 +28,18 @@ def input_components():
     return incomp, inval
 
 
+
+def output_components():
+    
+    ol = dash.callback_context.outputs_list 
+    
+    outcomp = [indict['id']['component'] for indict in ol]
+    outprop = [indict['property'] for indict in ol]
+    
+    return outcomp, outprop
+
+
+
 def compset_radiobutton(c_options):
     outopt = list()   
     

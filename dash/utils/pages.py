@@ -180,6 +180,33 @@ def substack_sel(module,hidden=False):
 
 
 
+def boundingbox(module,hidden=False):   
+    dispstyle = {}
+    if hidden:
+        dispstyle = {'display':'none'}
+        
+    inputs = []
+
+    for dim in ['X','Y','Z']:
+        inputs.append(html.Tr([html.Td('Start '+dim+': '),
+                               html.Td(dcc.Input(id={'component': 'start'+dim, 'module': module},type='number',min=0,value=0)),
+                               html.Td('End '+dim+': '),
+                               html.Td(dcc.Input(id={'component': 'end'+dim, 'module': module},type='number',min=0,value=0))]))
+
+    out = html.Div([html.Details([html.Summary('Volume region to consider:'),
+                        html.Br(),
+                        html.Table(inputs)
+                        ])
+                    ],
+                    id={'component':'BBox', 'module': module},
+                    style=dispstyle)
+                   
+    
+    return out
+
+
+
+
 def tile_view(module,numpanel=1,showlink=False):       
     
     out = list()
