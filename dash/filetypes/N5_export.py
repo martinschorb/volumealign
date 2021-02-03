@@ -144,7 +144,7 @@ def mipmaps_stacktodir(stack_sel,
             
             out['gigapixels']=out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
             
-            t_fields=[stack,str(out['numsections']),'%0.2f' % int(out['gigapixels']*1.1)]
+            t_fields=[stack,str(out['numsections']),'%0.2f' % int(out['gigapixels'])]
             
             n_cpu = params.n_cpu_script
             
@@ -310,7 +310,10 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             n5dir += '/' + stack + slices  + '.n5'             
             
             n5run_p = dict()
-        
+            
+            with open(os.path.join(params.json_template_dir,'n5export.json'),'r') as f:
+                n5run_p.update(json.load(f))
+                
             n5run_p['--n5Path'] = n5dir           
         
             
@@ -330,14 +333,8 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
                     n5run_p['--size'] += ','
                  
             
-            print(n5run_p)
-            
             # fill parameters
-            
-            
-            
-            return dash.no_update
-            
+                        
             spark_p = dict()
             
             spark_p['--time'] = '00:' + str(timelim)+':00'
@@ -346,12 +343,15 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
             
             run_params_generate = spsl_p.copy()
-            run_params_generate.update(mtrun_p)
+                       
+            
+            run_params_generate.update(n5run_p)
             
             target_args = spark_p.copy()
             run_args = run_params_generate.copy()
             
-            script = 'org.janelia.render.client.spark.SIFTPointMatchClient'
+            script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'            
+            script  += " --jarfile $hotknife/target/hot-knife-0.0.4-SNAPSHOT.jar"
             
             
             

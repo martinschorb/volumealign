@@ -8,4 +8,8 @@ conda init bash > /dev/null
 conda activate render
 # echo render environment activated
 
+
+# path do excecutables and python client scripts
+
 export rendermodules="/g/emcf/schorb/code/render-modules/"
+export hotknife="/g/emcf/schorb/code/hot-knife/"

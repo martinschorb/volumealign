@@ -1,5 +1,5 @@
 {
-    "xyNeighborFactor": 0.9,
-    "excludeCornerNeighbors":"True",
-    "excludeCompletelyObscuredTiles":"True"
+    "--n5Dataset": "setup0/timepoint0",
+    "--blockSize": "64,64,16",
+    "--factors":"2,2,2"
 }

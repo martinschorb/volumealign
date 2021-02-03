@@ -2,7 +2,7 @@
 
 # Launcher for Spark on SLURM
 
-template="/g/emcf/schorb/code/volumealign/spark_slurm_template.sh"
+template="./spark_slurm_template.sh"
 runscript="/g/emcf/software/render-logs/runscripts/slurm-spark_test.sh"
 
 #Default values

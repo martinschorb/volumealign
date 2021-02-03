@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /g/emcf/schorb/code/volumealign/dash/utils/setup_py_environment.sh
+source ./dash/utils/setup_py_environment.sh
 
 echo "Launching Render standalone processing script on " `hostname`
 
