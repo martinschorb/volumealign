@@ -342,6 +342,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             spark_p['--worker_cpu'] = params.cpu_pernode_spark
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
             
+            
             run_params_generate = spsl_p.copy()
                        
             
@@ -351,7 +352,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             run_args = run_params_generate.copy()
             
             script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'            
-            script  += " --jarfile $hotknife/target/hot-knife-0.0.4-SNAPSHOT.jar"
+            script  += " --jarfile=$hotknife/target/hot-knife-0.0.4-SNAPSHOT.jar"
             
             
             
@@ -380,8 +381,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
         launch_store['logfile'] = log_file
         launch_store['state'] = 'running'
     
-        return True,'', launch_store, outstore, mt_params['ptime']
-
+        return True,'', launch_store, outstore
 
 
     

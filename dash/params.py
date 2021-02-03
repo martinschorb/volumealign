@@ -23,6 +23,10 @@ render_log_dir = '/g/emcf/software/render-logs'
 # base directory for launchers etc...
 workdir = '/g/emcf/schorb/code/volumealign/dash'
 
+# emails
+
+email = '@embl.de'
+
 #==============================================================
 ## Compute resources presets
 

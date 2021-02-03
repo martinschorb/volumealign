@@ -277,6 +277,12 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
     
     elif target == 'sparkslurm':
         
+        target_args['--email'] = params.user + params.email
+        
+        logbase = logfile.partition('.log')[0]
+        
+        target_args['--runscript'] = logbase + '.' + target + '.sh'
+                
         spsl_args = args2string(target_args)  
         
         spsl_args += args2string({'--logfile':logfile})
@@ -284,7 +290,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         
         spark_args = dict()
         spark_args['--class'] = pyscript
-        spark_args['--logdir'] = logfile.partition('.log')[0]
+        spark_args['--logdir'] = logbase
                 
         
         spsl_args += '--scriptparams=' + args2string(spark_args) 

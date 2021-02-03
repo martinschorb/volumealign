@@ -2,7 +2,7 @@
 
 # Launcher for Spark on SLURM
 
-template="./spark_slurm_template.sh"
+template="../spark_slurm_template.sh"
 runscript="/g/emcf/software/render-logs/runscripts/slurm-spark_test.sh"
 
 #Default values
@@ -22,6 +22,14 @@ while [ "$1" != "" ]; do
     PARAM=`echo $1 | awk -F= '{print $1}'`
     VALUE=`echo $1 | awk -F= '{print $2}'`
     case $PARAM in
+        --runscript)
+            runscript=$VALUE
+            shift
+            ;;
+        --email)
+            EMAIL=$VALUE
+            shift
+            ;;
         --master_mem)
             MASTER_MEM=$VALUE
             shift
