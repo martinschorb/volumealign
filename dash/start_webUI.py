@@ -9,6 +9,7 @@ Created on Fri Feb  5 08:49:53 2021
 
 import os
 import json
+import subprocess
 
 import params
 
@@ -63,6 +64,8 @@ print('http://' + params.hostname + ':'+ str(port) +'\n\n')
 print('from any device in the network.\n')
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
-os.system('python index.py ' + str(port) + ' > ' + logfile)
+process = subprocess.Popen('python index.py ' + str(port) + '> '+logfile)
+process.wait()
+
     
     
