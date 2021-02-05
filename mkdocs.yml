@@ -5,6 +5,6 @@ nav:
     - About: about.md
     - Status: EMBL_render_status.md
 
-custom_dir: css
+custom_dir: css/
 
 site_dir: public
