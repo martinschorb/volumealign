@@ -11,7 +11,6 @@ import dash_html_components as html
 from dash.dependencies import Input,Output,State
 
 import os
-import socket
 #for file browsing dialogs
 import tkinter
 from tkinter import filedialog
@@ -71,9 +70,8 @@ def sbem_conv_convert_filebrowse1(browse_click,popupclick1,popupclick2):
     conv_inputdir = ''
     
     if 'browse1'in trigger:        
-        hostname = socket.gethostname()
     
-        if hostname=='login-gui02.cluster.embl.de':    
+        if params.hostname=='login-gui02.cluster.embl.de':    
             root = tkinter.Tk()
             root.withdraw()
             conv_inputdir = filedialog.askdirectory()

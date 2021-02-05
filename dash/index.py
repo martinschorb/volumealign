@@ -12,11 +12,25 @@ from dash.dependencies import Input, Output
 # from pydoc import locate
 
 import importlib
+import json
+
 from app import app
 
 import params
 
 import startpage
+
+
+
+
+
+user_file = './web_users.json'
+
+with open(user_file,'r') as f:
+    users = json.load(f)
+
+port = users[params.user]
+
 
 # Webapp Layout
 STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
@@ -143,4 +157,4 @@ def display_page(pathname):
     
 
 if __name__ == '__main__':
-    app.run_server(host= '0.0.0.0',debug=True)
+    app.run_server(host= '0.0.0.0',debug=True,port=port)

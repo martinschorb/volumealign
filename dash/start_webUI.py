@@ -13,7 +13,6 @@ import json
 import params
 
 
-
 target_machines = ['login.cluster.embl.de']
 target_user = params.user
 
@@ -27,6 +26,7 @@ ssh_key_login = True
 
 
 home = os.getenv('HOME')
+
 
 with open(user_file,'r') as f:
     users_exist = json.load(f)
@@ -49,5 +49,17 @@ if params.user not in users_exist.keys():
     
     with open(user_file,'w') as f:
             json.dump(users_exist,f,indent=4)
+    
+else:
+    port = users_exist[params.user]
+    
+
+print('Starting Render WebUI.\n')
+print('As long as this window is open, you can access Render through:\n\n')
+print('http://' + params.hostname + ':'+ str(port) +'\n\n')
+print('from any device in the network.\n')
+print('To avoid excessive resource use, please close the server when done with your processing.')
+
+os.system('python index.py > /dev/null')
     
     

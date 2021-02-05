@@ -8,6 +8,7 @@ import os
 import time
 import subprocess
 import requests
+import socket
 
 #=============================================================
 ## Directory presets
@@ -133,6 +134,9 @@ solve_types = ['montage', '3D']
 # derived parameters
 
 user = os.getlogin()
+
+hostname = socket.gethostname()
+
 
 timestamp = time.localtime()
 
