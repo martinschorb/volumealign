@@ -1,3 +1,7 @@
-site_name: My Docs by GitLab Pages
+site_name: Volume Alignment with Render - Documentation
 site_url: https://schorb.embl-community.io/volumealign
+nav:
+    - Home: index.md
+    - About: about.md
+    - Status: EMBL_render_status.md
 site_dir: public
