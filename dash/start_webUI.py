@@ -55,7 +55,6 @@ if params.user not in users_exist.keys():
 else:
     port = users_exist[params.user]
 
-
 logfile = os.path.join(params.render_log_dir,'webUI_'+ params.run_prefix + '.log')
 
 print('Starting Render WebUI.\n')
@@ -64,8 +63,9 @@ print('http://' + params.hostname + ':'+ str(port) +'\n\n')
 print('from any device in the network.\n')
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
-process = subprocess.Popen('python index.py ' + str(port) + ' > '+logfile)
-process.wait()
+
+os.system('python index.py ' + str(port) + ' > ' + logfile)
+
 
     
     
