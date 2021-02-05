@@ -4,6 +4,9 @@ nav:
     - Home: index.md
     - About: about.md
     - Status: EMBL_render_status.md
-extra_css: [css/style1.css]
+
+nav_style: dark
+
+custom_dir: css
 
 site_dir: public
