@@ -1,9 +1,27 @@
+image: python:3.8-buster
+
+before_script:
+  - pip install -r requirements.txt
+
+test:
+  stage: test
+  script:
+  - mkdocs build --strict --verbose --site-dir test
+  artifacts:
+    paths:
+    - test
+  except:
+  - master
+
 pages:
   stage: deploy
   script:
-    - mkdir .public
-    - cp -r *.html .public
-    - mv .public public
+  - mkdir .public
+  - cp -r *.html .public
+  - mv .public public
+  - mkdocs build --strict --verbose
   artifacts:
     paths:
-      - public
+    - public
+  only:
+  - master
