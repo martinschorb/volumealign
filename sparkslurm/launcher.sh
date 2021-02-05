@@ -3,7 +3,7 @@
 # Launcher for Spark on SLURM
 
 template="../spark_slurm_template.sh"
-runscript="/g/emcf/software/render-logs/runscripts/slurm-spark_test.sh"
+runscript="./slurm-spark_test.sh"
 
 #Default values
 
@@ -101,4 +101,5 @@ chmod +x $runscript
 echo this script is running!!!
 
 echo $runscript $PARAMS
+
 sbatch $runscript $PARAMS
