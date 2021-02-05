@@ -56,7 +56,7 @@ else:
     port = users_exist[params.user]
 
 
-# logfile = os.path.join(params.render_log_dir,'webUI_'+ params.run_prefix + '.log')
+logfile = os.path.join(params.render_log_dir,'webUI_'+ params.run_prefix + '.log')
 
 print('Starting Render WebUI.\n')
 print('As long as this window is open, you can access Render through:\n\n')
