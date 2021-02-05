@@ -1,15 +1,15 @@
 site_name: Volume Alignment with Render - Documentation
 site_url: https://schorb.embl-community.io/volumealign
 
-theme:
-    name: doctheme
-    custom_dir: css_custom/
 
 nav:
     - Home: index.md
     - About: about.md
     - Status: EMBL_render_status.md
 
+
+extra_css:
+    - css_custom/base.css
 
 
 site_dir: public
