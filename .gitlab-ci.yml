@@ -17,7 +17,7 @@ pages:
   stage: deploy
   script:
   - mkdocs build --strict --verbose
-  - cp -r docs/*.html public
+#  - cp -r docs/*.html public
 
   artifacts:
     paths:
