@@ -4,7 +4,8 @@ nav:
     - Home: index.md
     - About: about.md
     - Status: EMBL_render_status.md
-
-custom_dir: css_custom
+theme:
+    name: doctheme
+    custom_dir: css_custom/
 
 site_dir: public
