@@ -9,7 +9,7 @@ nav:
 
 
 extra_css:
-    - css_custom/base.css
+    - extra.css
 
 
 site_dir: public
