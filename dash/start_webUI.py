@@ -33,6 +33,7 @@ with open(user_file,'r') as f:
     
 if params.user not in users_exist.keys():
     
+    print('Setting up new user for Render WebUI. This is necessery once.\n')
     # create new user...
    
     if ssh_key_login:
@@ -52,7 +53,9 @@ if params.user not in users_exist.keys():
     
 else:
     port = users_exist[params.user]
-    
+
+
+logfile = os.path.join(params.render_log_dir,'webUI_'+ params.run_prefix + '.log')
 
 print('Starting Render WebUI.\n')
 print('As long as this window is open, you can access Render through:\n\n')
@@ -60,6 +63,6 @@ print('http://' + params.hostname + ':'+ str(port) +'\n\n')
 print('from any device in the network.\n')
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
-os.system('python index.py > /dev/null')
+os.system('python index.py ' + str(port) + ' > ' + logfile)
     
     

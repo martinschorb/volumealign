@@ -13,6 +13,7 @@ from dash.dependencies import Input, Output
 
 import importlib
 import json
+import sys 
 
 from app import app
 
@@ -20,16 +21,6 @@ import params
 
 import startpage
 
-
-
-
-
-user_file = './web_users.json'
-
-with open(user_file,'r') as f:
-    users = json.load(f)
-
-port = users[params.user]
 
 
 # Webapp Layout
@@ -157,4 +148,12 @@ def display_page(pathname):
     
 
 if __name__ == '__main__':
-    app.run_server(host= '0.0.0.0',debug=True,port=port)
+    debug = True
+    port=8050
+  
+    if len(sys.argv) >1:
+        debug=False
+        port = sys.argv[1]
+                
+    
+    app.run_server(host= '0.0.0.0',debug=debug,port=port)
