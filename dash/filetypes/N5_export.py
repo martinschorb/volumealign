@@ -284,7 +284,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
             
-            spsl_p['--baseUrl'] = params.render_base_url
+            spsl_p['--baseUrl'] = params.render_base_url + params.render_version.rstrip('/')
             spsl_p['--owner'] = owner
             spsl_p['--stack'] = stack
             spsl_p['--project'] = project

@@ -74,6 +74,9 @@ while [ "$1" != "" ]; do
     esac
 done
 
+
+mkdir $LOGDIR/$JOB
+
 # SET UP ENV for the spark run
 
 echo $MASTER_WEB > $LOGDIR/$JOB/master
