@@ -98,8 +98,6 @@ chmod +x $runscript
 
 # call the submission
 
-echo this script is running!!!
-
-echo $runscript $PARAMS
+# echo $runscript $PARAMS
 
 sbatch $runscript $PARAMS
