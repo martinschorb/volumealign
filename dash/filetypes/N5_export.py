@@ -376,6 +376,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             
         params.processes[parent].extend(sift_pointmatch_p)
         
+        print(params.processes[parent])
                 
         launch_store=dict()
         launch_store['logfile'] = log_file
