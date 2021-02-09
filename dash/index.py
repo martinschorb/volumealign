@@ -93,14 +93,18 @@ storediv=html.Div(store)
 
 app.layout = html.Div(
     [
-    html.Div(className='header', children=[html.H1(dcc.Link(href='/',children='Volume EM alignment with Render'))]),
+    html.Div(className='header', children=[html.H1([dcc.Link(href='/',children='Volume EM alignment with Render'),
+                                                    html.A(html.Img(src='assets/help.svg'),href=params.doc_url,
+                                                                      target="_blank")
+                                                    ])]),
     html.Section([
-        dcc.Location(id='url', refresh=False),
-    sidebar_back,
-    sidebar,
-    mainbody,
-    storediv
-    ])])
+                dcc.Location(id='url', refresh=False),
+                sidebar_back,
+                sidebar,
+                mainbody,
+                storediv
+                ])
+    ])
 
 
 

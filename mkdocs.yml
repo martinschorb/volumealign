@@ -1,9 +1,10 @@
-site_name: Volume Alignment with Render - Documentation
+site_name: Volume Alignment with Renders
 site_url: https://schorb.embl-community.io/volumealign
 
 
 nav:
     - Home: index.md
+    - Setup: x2go.md
     - About: about.md
     - Status: EMBL_render_status.md
 

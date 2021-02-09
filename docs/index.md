@@ -1,4 +1,4 @@
-# Welcome to MkDocs
+# Volume Image alignment with Render
 
 This is the documentation for the Render webUI.
 
@@ -13,3 +13,9 @@ In order to enable the users to interact with both the metadata web service and 
 At EMBL, this is the graphical cluster node. This means, you can access it through a graphical login and launch the web interface from there.
 
 [Here](x2go.md) you can find details on how to set up this procedure.
+
+
+
+##
+
+- Do not use spaces or hash signs in the directory name

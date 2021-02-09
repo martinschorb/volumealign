@@ -12,6 +12,15 @@
   color: #666666;
 }
 
+.header h1{
+  float:center;
+}
+
+.header img{
+  float:right;
+  height: 54px;
+}
+
 /* Create two columns/boxes that floats next to each other */
 
 /* Style the sidebar - fixed full height */

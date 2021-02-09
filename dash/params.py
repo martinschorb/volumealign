@@ -27,6 +27,7 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 # emails
 
 email = '@embl.de'
+doc_url = 'https://schorb.embl-community.io/volumealign'
 
 #==============================================================
 ## Compute resources presets
