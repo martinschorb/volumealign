@@ -38,6 +38,10 @@ if params.user not in users_exist.keys():
     # create new user...
    
     if ssh_key_login:
+        if not os.path.exists(home+'/.ssh'):
+            os.mkdirs(home+'/.ssh')
+
+
         if not os.path.exists(home+'/.ssh/id_rsa_render'):
             os.system('ssh-keygen -t rsa -b 4096 -q -p -f '+home+'/.ssh/id_rsa_render')
         
