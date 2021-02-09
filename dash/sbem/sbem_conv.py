@@ -311,7 +311,11 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
     log_file = out['logfile']
     
     # outstore = dash.no_update
-
+    outstore = dict()
+    outstore['owner'] = 'SBEM'
+    outstore['project'] = proj_dd_sel
+    outstore['stack'] = stack_sel
+    
     if trigger == 'go':
     # launch procedure                
     
@@ -346,16 +350,12 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                         json=param_file,run_args=None,logfile=log_file,errfile=err_file)
         
         run_state = 'running'
-        params.processes[parent.strip('_')] = sbem_conv_p
+        params.processes[parent.strip('_')] = sbem_conv_p       
         
-        outstore = dict()
-        outstore['owner'] = 'SBEM'
-        outstore['project'] = proj_dd_sel
-        outstore['stack'] = stack_sel
 
         
     else:
-        outstore = dash.no_update
+        # outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
             if not (run_state == 'running'): 
