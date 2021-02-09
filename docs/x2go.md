@@ -12,15 +12,15 @@ Just download x2goclient (available for Windows, Linux and Mac from [here](https
 
 When you first launch the program, you need to set up the connection. Click the white symbol in the top left corner to add a new connection.
 
-![x2go](doc/img/X2go.png "x2go")
+![x2go](img/X2go.png "x2go")
 
 Here, you should the following connection details with your user name:
 
-![x2go_connect](doc/img/conn_01.png "x2go - connection details")
+![x2go_connect](img/conn_01.png "x2go - connection details")
 
 If you want, you can also switch to the `Input/Output` tab to set up the display settings.
 
-![x2go_disp](doc/img/conn_disp.png "x2go - display settings")
+![x2go_disp](img/conn_disp.png "x2go - display settings")
 
 
 Once you have set up the connection, you can just launch it by double-clicking its box on the right side of the x2go main window. Put your password and you will get a graphical desktop on EMBL's cluster submission node.
@@ -29,7 +29,7 @@ Once you have set up the connection, you can just launch it by double-clicking i
 
 You should find an icon called `Render WebUI` on your desktop.
 
-![desktop](doc/img/render_desktop_icon.png "Render - Desktop icon")
+![desktop](img/render_desktop_icon.png "Render - Desktop icon")
 
 If you don't (some more recent EMBL users might need that), open a terminal by right-clicking in an empty area of the desktop and selecting `Open Terminal here`.
 Then copy and paste this command and execute it by pressing `Return`.
@@ -40,7 +40,7 @@ Now, the desktop icon should be there.
 
 When you click the icon the following window appears:
 
-![render_terminal](doc/img/render_terminal.png "x2go - display settings")
+![render_terminal](img/render_terminal.png "x2go - display settings")
 
 You can now connect to the we address shown with any browser.
 
@@ -52,7 +52,7 @@ When you run a long processing, there is no need to stay connected with x2go all
 
 To follow the formally correct procedure, you can also click the `Pause` button at the bottom of the x2go status frame for your running connection. This will disconnect but not end your session.
 
-![pause](doc/img/x2go_pause.png "x2go - Pause")
+![pause](img/x2go_pause.png "x2go - Pause")
 
 
 
