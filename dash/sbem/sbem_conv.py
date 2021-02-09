@@ -323,7 +323,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         
         importlib.reload(params)
             
-        param_file = params.json_run_dir + '/' + label + params.run_prefix + '.json' 
+        param_file = params.json_run_dir + '/' + label + '_' + params.run_prefix + '.json' 
         
         run_params = params.render_json.copy()
         run_params['render']['owner'] = owner
@@ -338,7 +338,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         with open(param_file,'w') as f:
             json.dump(run_params,f,indent=4)
     
-        log_file = params.render_log_dir + '/' + 'sbem_conv-' + params.run_prefix
+        log_file = params.render_log_dir + '/' + 'sbem_conv_' + params.run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
             

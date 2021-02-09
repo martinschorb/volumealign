@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ../dash/utils/setup_py_environment.sh
+source ./utils/setup_py_environment.sh
 
 echo "Launching Render standalone processing script on " `hostname`
 
