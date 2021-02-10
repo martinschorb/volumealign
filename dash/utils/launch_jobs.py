@@ -14,7 +14,7 @@ import time
 workdir = params.workdir
 
 
-def args2string(args):
+def args2string(args,separator='='):
     if args==None:
         argstring=''
     elif type(args)==list:
@@ -23,9 +23,9 @@ def args2string(args):
         argstring=str()
         for item in args.items():
             if type(item[1]) is list:
-                argstring+=' '+' '.join([str(item[0])+'='+currit for currit in item[1]])
+                argstring+=' '+' '.join([str(item[0]) + separator + currit for currit in item[1]])
             else:
-                argstring+=' '+'='.join(map(str,item))
+                argstring+=' '+separator.join(map(str,item))
     elif type(args)==str:
         argstring=args
     else:

@@ -229,7 +229,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
             
         tp_json = os.listdir(tp_dir)
         
-        tp_jsonfiles = [os.path.join(params.json_run_dir,tpj) for tpj in tp_json]
+        tp_jsonfiles = [os.path.join(params.json_run_dir, tilepairdir, tpj) for tpj in tp_json]
         
         param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
     
@@ -266,7 +266,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
             
-            spsl_p['--baseDataUrl'] = params.render_base_url
+            spsl_p['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
             spsl_p['--owner'] = mc_owner
             spsl_p['--collection'] = matchcoll
             spsl_p['--pairJson'] = tp_jsonfiles
