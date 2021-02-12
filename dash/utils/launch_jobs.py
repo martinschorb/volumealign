@@ -309,7 +309,7 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
                 
         
         spsl_args += '--scriptparams=' + args2string(spark_args) 
-        spsl_args += '--params=' + args2string(run_args)
+        spsl_args += '--params=' + args2string(run_args,' ')
         
         
         command += spsl_args
