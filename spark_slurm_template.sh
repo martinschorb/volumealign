@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=spark-master      # create a short name for your job
 #SBATCH --time=<SoS_TIME>         # total run time limit (HH:MM:SS)
-#SBATCH -e=<SoS_ERRFILE>
-#SBATCH -o=<SoS_LOGFILE>
+#SBATCH --mail-type=FAIL,BEGIN,END
+#SBATCH --mail-user=<SoS_EMAIL>
 # #  --- Master resources ---
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=<SoS_MASTER_MEM>
@@ -15,8 +15,6 @@
 #SBATCH --mem-per-cpu=<SoS_WORKER_MEMPERCPU>
 #SBATCH --cpus-per-task=<SoS_WORKER_CPU>
 #SBATCH --ntasks-per-node=1
-#SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --mail-user=<SoS_EMAIL>
 
 
 export DISPLAY=""
@@ -74,7 +72,7 @@ while [ "$1" != "" ]; do
     esac
 done
 
-
+mkdir $LOGDIR
 mkdir $LOGDIR/$JOB
 
 # SET UP ENV for the spark run
