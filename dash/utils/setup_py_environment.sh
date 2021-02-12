@@ -12,4 +12,4 @@ conda activate render
 # path do excecutables and python client scripts
 
 export rendermodules="/g/emcf/schorb/code/render-modules/"
-export hotknife="/g/emcf/schorb/code/hot-knife/"
+#export hotknife="/g/emcf/schorb/code/hot-knife/"
