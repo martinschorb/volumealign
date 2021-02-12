@@ -28,13 +28,14 @@ from utils import helper_functions as hf
 def stacktoparams(stack_sel,allstacks):    
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-
+    
+    thisstore=dict()
     
     if not(stack_sel=='-' ):   
         stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
         if not stacklist == []:
             stackparams = stacklist[0]    
-            thisstore=dict()
+            
             thisstore['stack'] = stackparams['stackId']['stack']
             thisstore['stackparams'] = stackparams
             thisstore['zmin']=stackparams['stats']['stackBounds']['minZ']

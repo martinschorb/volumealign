@@ -35,6 +35,7 @@ for idx in range(params.max_tileviews):
                       State({'component': 'store_allstacks', 'module': MATCH}, 'data'))
         def stacktoslice(stack_sel,allstacks):
             stacklist=[]
+            
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
                  # stack = stack_sel
@@ -46,7 +47,10 @@ for idx in range(params.max_tileviews):
                 
                 o_val = int((o_max-o_min)/2) + o_min 
             
-            return o_val,o_min,o_max
+                return o_val,o_min,o_max
+            
+            else:
+                return dash.no_update
             
     
     
