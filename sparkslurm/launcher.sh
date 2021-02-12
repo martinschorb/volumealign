@@ -14,6 +14,7 @@ WORKER_NODES="1"
 WORKER_CPU="1"
 WORKER_MEMPERCPU="4"
 EMAIL=`whoami`"@embl.de"
+LOGDIR=`pwd`
 LOGFILE=sparkslurm-%j.out
 ERRFILE=sparkslurm-%j.err
 # PARSE COMMAND LINE ARGUMENTS
@@ -58,6 +59,10 @@ while [ "$1" != "" ]; do
             runscript=$VALUE
             shift
             ;;
+	--logdir)
+	    LOGDIR=$VALUE
+            shift
+            ;;
         --logfile)
             LOGFILE=$VALUE
             shift
@@ -80,6 +85,7 @@ while [ "$1" != "" ]; do
 done
 
 
+
 # Build SLURM submission script
 
 cat "${template}" \
@@ -95,6 +101,9 @@ cat "${template}" \
     > $runscript
 
 chmod +x $runscript
+
+mkdir $LOGDIR
+cd $LOGDIR
 
 # call the submission
 

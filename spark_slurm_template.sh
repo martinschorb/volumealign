@@ -3,6 +3,8 @@
 #SBATCH --time=<SoS_TIME>         # total run time limit (HH:MM:SS)
 #SBATCH --mail-type=FAIL,BEGIN,END
 #SBATCH --mail-user=<SoS_EMAIL>
+#SBATCH -o=<SoS_LOGFILE>
+#SBATCH -e=<SoS_ERRFILE>
 # #  --- Master resources ---
 #SBATCH --nodes=1
 #SBATCH --mem-per-cpu=<SoS_MASTER_MEM>
@@ -19,7 +21,7 @@
 
 export DISPLAY=""
 export JAVA_HOME=`readlink -m /g/emcf/software/render/deploy/jdk*`
-export LOGDIR="/g/emcf/software/render-logs/"
+export LOGDIR=`pwd`
 
 # CLEAN LOGDIR
 
