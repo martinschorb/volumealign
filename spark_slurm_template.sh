@@ -74,7 +74,7 @@ while [ "$1" != "" ]; do
     esac
 done
 
-
+mkdir $LOGDIR
 mkdir $LOGDIR/$JOB
 
 # SET UP ENV for the spark run
