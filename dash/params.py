@@ -21,6 +21,8 @@ json_match_dir = '/g/emcf/schorb/code/volumealign/JSON_parameters/MatchTrials'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
+hotknife_dir = "/g/emcf/schorb/code/hot-knife"
+
 # base directory for launchers etc...
 workdir = '/g/emcf/schorb/code/volumealign/dash'
 

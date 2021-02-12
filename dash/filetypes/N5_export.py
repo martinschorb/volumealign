@@ -352,7 +352,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             run_args = run_params_generate.copy()
             
             script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'            
-            script  += " --jarfile=$hotknife/target/hot-knife-0.0.4-SNAPSHOT.jar"
+            script  += " --jarfile=" + params.hotknife_dir + "/target/hot-knife-0.0.4-SNAPSHOT.jar"
             
             
             
