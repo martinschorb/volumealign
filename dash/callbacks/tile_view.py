@@ -65,6 +65,9 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State({'component':'tile_dd'+idx_str,'module': MATCH},'value')])
     def slicetotiles(slicenum,owner,project,stack,prev_tile):
+        if None in (slicenum,owner,project,stack,prev_tile):
+            return dash.no_update
+        
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
         
