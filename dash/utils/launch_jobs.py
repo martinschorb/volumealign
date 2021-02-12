@@ -300,8 +300,10 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
                 
         spsl_args = args2string(target_args)  
         
-        spsl_args += args2string({'--logfile':logfile})
-        spsl_args += args2string({'--errfile':errfile})
+        # spsl_args += args2string({'--logfile':logfile})
+        # spsl_args += args2string({'--errfile':errfile})
+        spsl_args += args2string({'--logdir':logbase})
+ 
         
         spark_args = dict()
         spark_args['--class'] = pyscript
