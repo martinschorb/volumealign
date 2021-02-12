@@ -90,8 +90,8 @@ cat "${template}" \
      | sed "s/<SoS_WORKER_MEMPERCPU>/${WORKER_MEMPERCPU}G/" \
      | sed "s/<SoS_EMAIL>/$EMAIL/" \
      | sed "s/<SoS_WORKER_CPU>/$WORKER_CPU/" \
-     | sed "s#<SoS_LOGFILE>#$LOGFILE#" \
-     | sed "s#<SoS_ERRFILE>#$ERRFILE#" \
+     # | sed "s#<SoS_LOGFILE>#$LOGFILE#" \
+     # | sed "s#<SoS_ERRFILE>#$ERRFILE#" \
     > $runscript
 
 chmod +x $runscript

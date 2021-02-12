@@ -12,8 +12,8 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input,Output,State
 
-# import sys
 import os
+import glob
 import json
 import importlib
 
@@ -92,7 +92,7 @@ page.append(gobutton)
               [Input(parent+'tp_dd','value')],              
               )
 def sift_pointmatch_organisms(tilepairdir):
-    mT_jsonfiles = os.listdir(params.json_match_dir)
+    mT_jsonfiles = glob.glob(os.path.join(params.json_match_dir,'*.json'))
     
     organisms=list()
     

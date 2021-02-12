@@ -54,8 +54,8 @@ n_cpu_standalone = 8
 
 # spark
 
-n_cpu_spark = 200
-cpu_pernode_spark = 20
+n_cpu_spark = 180
+cpu_pernode_spark = 30
 
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
