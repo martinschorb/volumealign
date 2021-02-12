@@ -14,8 +14,8 @@ WORKER_NODES="1"
 WORKER_CPU="1"
 WORKER_MEMPERCPU="4"
 EMAIL=`whoami`"@embl.de"
-LOGFILE=slurm-%j.out
-ERRFILE=slurm-%j.err
+LOGFILE=sparkslurm-%j.out
+ERRFILE=sparkslurm-%j.err
 # PARSE COMMAND LINE ARGUMENTS
 
 while [ "$1" != "" ]; do
@@ -90,8 +90,8 @@ cat "${template}" \
      | sed "s/<SoS_WORKER_MEMPERCPU>/${WORKER_MEMPERCPU}G/" \
      | sed "s/<SoS_EMAIL>/$EMAIL/" \
      | sed "s/<SoS_WORKER_CPU>/$WORKER_CPU/" \
-     # | sed "s#<SoS_LOGFILE>#$LOGFILE#" \
-     # | sed "s#<SoS_ERRFILE>#$ERRFILE#" \
+     | sed "s#<SoS_LOGFILE>#$LOGFILE#" \
+     | sed "s#<SoS_ERRFILE>#$ERRFILE#" \
     > $runscript
 
 chmod +x $runscript
