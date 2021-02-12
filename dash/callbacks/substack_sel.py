@@ -57,7 +57,9 @@ def paramstosections(thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
 
-
+    if not 'zmin' in thisstore.keys():
+        return dash.no_update
+    
     sec_start = int(thisstore['zmin'])
     sec_end = int(thisstore['zmax'])
 

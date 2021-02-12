@@ -106,7 +106,7 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    ])           
     def im_view(tile,runstore,owner,project,stack):
-        if tile is None:
+        if None in (tile,runstore,owner,project,stack):
             return dash.no_update
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
@@ -143,7 +143,8 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    ])           
     def slice_view(section,runstore,owner,project,stack):
-        if section is None:
+       
+        if None in (section,runstore,owner,project,stack):
             return dash.no_update
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
