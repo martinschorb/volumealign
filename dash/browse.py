@@ -49,7 +49,7 @@ owner = "SBEM"
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                                    html.Script(type="text/javascript",children="alert('test')"),                                   
-                                   dcc.Input(id="input1", type="text", debounce=True,placeholder="/g/"+group,persistence=True,className='dir_textinput')
+                                   dcc.Input(id="input1", type="text", debounce=True,value="/g/"+group,persistence=True,className='dir_textinput')
                                    ])
 
 
@@ -58,36 +58,75 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
         
 filebrowse = html.Details([html.Summary('Browse')])
 
-fbdd = dcc.Dropdown(id='dd')
+fbdd = dcc.Dropdown(id='dd',clearable=True,searchable=False)
+
+fbstore = dcc.Store(id='path')
 
 startpath = os.getcwd()
+show_files = True
+show_hidden = False
+
+@app.callback(Output('path','data'),
+              Input('input1','value')
+              )
+def update_store(inpath):
+    if os.path.isdir(str(inpath)):
+        path = inpath
+    else:
+        path = startpath
+        
+    return path
 
 
 @app.callback([Output('dd','options'),
-               Output('input1','value')],
-              Input('dd','value')
+               Output('path','data')],
+              [Input('dd','value'),
+               Input('input1','value')]
               )
-def update_owner_dd(filesel):
+def update_owner_dd(filesel,inpath):
     dd_options = list(dict())
-    path = startpath
     
-    if filesel is None or filesel[0:2] ==  '> ' :
+    if os.path.isdir(str(inpath)):
+        path = inpath
+    else:
+        path = startpath
+        
+    return path
+    
+    
+    
+    if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
+
         
         if not filesel is None:
-            path = os.path.join(path,filesel[2:])
+            if filesel[0:2] ==  '> ':
+                path = os.path.join(path,filesel[2:])
+            elif filesel == '..':
+                path = os.path.abspath(os.path.join(path,filesel))
         
         files = os.listdir(path)        
     
         dd_options.append({'label':'..', 'value':'..'})
+        
+        f_list=list(dict())      
+        
+        files.sort()
     
         for item in files:        
-      
-            if os.path.isdir(item):
-                dd_options.append({'label':'> '+item, 'value':'> '+item})
+            # print(item)
+            # print(os.path.isdir(os.path.join(path,item)))
+            if os.path.isdir(os.path.join(path,item)):
+                dd_options.append({'label':'\u21AA '+item, 'value':'> '+item})
             else:
-                dd_options.append({'label':item, 'value':item})
+                if item.startswith('.') and show_hidden or not item.startswith('.'):
+                    f_list.append({'label':item, 'value':item})
             
-        return dd_options,dash.no_update
+            
+            
+        if show_files:
+            dd_options.extend(f_list)
+            
+        return dd_options,path
     
     else:
         path = os.path.join(path,filesel)
