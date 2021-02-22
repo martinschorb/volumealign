@@ -1,0 +1,10 @@
+{
+    "render": {
+        "owner": "SBEM",
+        "project": "Paolo_VMH",
+        "stack": "S013_raw"
+        },
+    "organism":"VMH",
+    "MatchTrial":"60265c1c99c18931faa46fbc",
+    "type":"3D"
+}
