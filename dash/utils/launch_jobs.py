@@ -11,6 +11,11 @@ import subprocess
 import params
 import time
 
+
+import requests
+import json
+
+
 workdir = params.workdir
 
 
@@ -190,8 +195,25 @@ def cluster_status(job_ids):
                     slurm_stat = jobstat[1] 
             
             
-            if 'RUNNING' in slurm_stat:
-                out_stat.append('running_'+masterhost)
+            if 'RUNNING' in slurm_stat:   
+                
+                
+                sp_master = 'http://sb01-01.cluster.embl.de:8080'
+
+                url = sp_master + '/json/'
+
+                sp_query = requests.get(url).json() 
+                
+                if sp_query['activeapps'] == []:
+                    if sp_query['workers'] ==[]:
+                        out_stat.append('Startup Spark')
+                    else:
+                        e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
+                    
+                else:
+                    print('fdf')
+                
+                
             elif slurm_stat=='COMPLETED':
                 out_stat.append('done')
             elif 'FAILED' in slurm_stat:
@@ -204,6 +226,10 @@ def cluster_status(job_ids):
                 out_stat.append('cancelled')
 
     return out_stat
+
+
+
+
 
 
 
@@ -310,8 +336,8 @@ def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,ta
         spark_args['--logdir'] = logbase
                 
         
-        spsl_args += '--scriptparams=' + args2string(spark_args) 
-        spsl_args += '--params=' + args2string(run_args,' ')
+        spsl_args += '--scriptparams= ' + args2string(spark_args) 
+        spsl_args += '--params= ' + args2string(run_args,' ')
         
         
         command += spsl_args

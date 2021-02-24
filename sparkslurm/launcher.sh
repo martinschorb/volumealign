@@ -59,8 +59,8 @@ while [ "$1" != "" ]; do
             runscript=$VALUE
             shift
             ;;
-	--logdir)
-	    LOGDIR=$VALUE
+        --logdir)
+	          LOGDIR=$VALUE
             shift
             ;;
         --logfile)

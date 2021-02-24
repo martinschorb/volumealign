@@ -277,7 +277,6 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             # =============================
 
             
-            # TODO!  render-modules only supports single tilepair JSON!!!
             
             return dash.no_update
             
