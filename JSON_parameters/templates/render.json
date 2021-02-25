@@ -1,6 +1,6 @@
 {
   "render": {
-    "host": "pc-emcf-16.embl.de",
+    "host": "render.embl.de",
     "port": 8080,
     "owner": "SBEM",
     "project": "tests",

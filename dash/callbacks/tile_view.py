@@ -146,7 +146,7 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    ])           
     def slice_view(section,runstore,owner,project,stack):
-       
+        
         if None in (section,runstore,owner,project,stack):
             return dash.no_update
         
@@ -155,7 +155,7 @@ for idx in range(params.max_tileviews):
         url += '/z/'+ str(section)
         
         url1 = url + '/bounds'
-        
+                
         bounds = requests.get(url1).json()
         
         imwidth = bounds['maxX'] - bounds['minX']
@@ -164,7 +164,9 @@ for idx in range(params.max_tileviews):
         
         out_scale = '%0.2f' %scale
         
-        imurl = url +'/jpeg-image?scale=' + out_scale    
+        imurl = url +'/jpeg-image?scale=' + out_scale   
+        
+        print(imurl)
         
         return imurl
     
