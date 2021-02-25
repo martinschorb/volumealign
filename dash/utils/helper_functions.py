@@ -27,6 +27,7 @@ def trigger_component():
         
     else:
         trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
+        
     return trigger
 
 def trigger_module():
@@ -43,6 +44,7 @@ def trigger_module():
         
     else:
         module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
+        
     return module
 
 

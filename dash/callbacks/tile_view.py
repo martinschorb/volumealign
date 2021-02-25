@@ -108,9 +108,17 @@ for idx in range(params.max_tileviews):
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
+                   State('url', 'pathname')
                    ])           
-    def im_view(tile,runstore,owner,project,stack):
+    def im_view(tile,runstore,owner,project,stack,thispage):
+        if not dash.callback_context.triggered: 
+            raise PreventUpdate
         
+        thispage = thispage.lstrip('/')        
+        
+        if not hf.trigger_module() == thispage:
+            return dash.no_update
+            
         if None in (tile,runstore,owner,project,stack):
             return dash.no_update
         
@@ -146,9 +154,17 @@ for idx in range(params.max_tileviews):
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
+                   State('url', 'pathname')
                    ])           
-    def slice_view(section,runstore,owner,project,stack):
+    def slice_view(section,runstore,owner,project,stack,thispage):
+        if not dash.callback_context.triggered: 
+            raise PreventUpdate
         
+        thispage = thispage.lstrip('/')        
+        
+        if not hf.trigger_module() == thispage:
+            return dash.no_update
+    
         if None in (section,runstore,owner,project,stack):
             return dash.no_update
         

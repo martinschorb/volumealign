@@ -57,6 +57,7 @@ def update_store(prevstore,thisstore):
               State('url', 'pathname')
               )
 def update_owner_dd(init_in,thispage):
+    
     thispage = thispage.lstrip('/')        
     
     if not hf.trigger_module() == thispage:
@@ -93,6 +94,7 @@ def update_owner_dd(init_in,thispage):
                State('url', 'pathname')],
               prevent_initial_call=True)
 def update_proj_dd(owner_sel,init_store,store_proj,thispage):
+    
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     
@@ -141,6 +143,7 @@ def update_proj_dd(owner_sel,init_store,store_proj,thispage):
                State('url', 'pathname')]
               )
 def update_stack_dd(init_store,own_sel,proj_sel,store_stack,thispage):
+    
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     
