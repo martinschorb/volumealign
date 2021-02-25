@@ -12,7 +12,7 @@ from dash.dependencies import Input, Output
 # from pydoc import locate
 
 import importlib
-import json
+# import json
 import sys 
 
 from app import app
@@ -21,6 +21,7 @@ import params
 
 import startpage
 
+from utils import intervals
 
 
 # Webapp Layout
@@ -44,6 +45,8 @@ menu_text=['Convert & upload',
             'Solve Positions',
             'Export aligned volume'
             ]
+
+
 
 
 consolefile = params.render_log_dir+'/out.txt'                 
@@ -103,7 +106,8 @@ app.layout = html.Div(
                 sidebar,
                 mainbody,
                 storediv
-                ])
+                ]),
+    intervals.intervals
     ])
 
 

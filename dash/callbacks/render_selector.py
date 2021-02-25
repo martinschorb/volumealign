@@ -53,16 +53,17 @@ def update_store(prevstore,thisstore):
 @app.callback([Output({'component': 'owner_dd', 'module': MATCH},'options'),
                 Output({'component': 'owner_dd', 'module': MATCH},'value')
                 ],
-              Input({'component': 'store_init_render', 'module': MATCH},'data'),
-              State('url', 'pathname')
+              [Input({'component': 'store_init_render', 'module': MATCH},'data'),
+               Input('url', 'pathname')]
               )
 def update_owner_dd(init_in,thispage):
     
     thispage = thispage.lstrip('/')        
     
     if not hf.trigger_module() == thispage:
-        print('skip owner - ' + hf.trigger_module())
         return dash.no_update
+    
+    print(thispage)
         
     dd_options = list(dict())
     

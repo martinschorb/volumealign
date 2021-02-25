@@ -32,6 +32,7 @@ def trigger_component():
 
 def trigger_module():
     ctx = dash.callback_context 
+    
     if ctx.triggered[0]['prop_id'] == '.':
         i=0
         while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
@@ -43,7 +44,10 @@ def trigger_module():
             module = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['module']
         
     else:
-        module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
+        if not ctx.triggered[0]['prop_id'].startswith('{'):
+            module=None
+        else:
+            module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
         
     return module
 

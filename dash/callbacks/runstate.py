@@ -86,7 +86,8 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
 @app.callback([Output({'component': 'get-status', 'module': MATCH},'children'),
                Output({'component': 'get-status', 'module': MATCH},'style'),
                Output({'component': 'interval1', 'module': MATCH}, 'interval'),
-               Output({'component': 'cancel', 'module': MATCH},'style')],
+               Output({'component': 'cancel', 'module': MATCH},'style')
+               ],
               Input({'component': 'store_run_state', 'module': MATCH},'data'),
               [State({'component': 'name', 'module': MATCH},'data'),
                State('url', 'pathname')])
