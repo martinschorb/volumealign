@@ -61,6 +61,7 @@ def update_owner_dd(init_in,thispage):
     thispage = thispage.lstrip('/')        
     
     if not hf.trigger_module() == thispage:
+        print('skip owner - ' + hf.trigger_module())
         return dash.no_update
         
     dd_options = list(dict())
