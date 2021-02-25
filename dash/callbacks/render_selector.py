@@ -13,7 +13,7 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
 import requests
-import json
+
 
 from app import app
 
@@ -53,9 +53,15 @@ def update_store(prevstore,thisstore):
 @app.callback([Output({'component': 'owner_dd', 'module': MATCH},'options'),
                 Output({'component': 'owner_dd', 'module': MATCH},'value')
                 ],
-              Input({'component': 'store_init_render', 'module': MATCH},'data')
+              Input({'component': 'store_init_render', 'module': MATCH},'data'),
+              State('url', 'pathname')
               )
-def update_owner_dd(init_in):
+def update_owner_dd(init_in,thispage):
+    thispage = thispage.lstrip('/')        
+    
+    if not hf.trigger_module() == thispage:
+        return dash.no_update
+        
     dd_options = list(dict())
     
     allowners = params.render_owners
@@ -83,12 +89,18 @@ def update_owner_dd(init_in):
                 ],
               [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
                Input({'component': 'store_init_render', 'module': MATCH},'data')],
-              State({'component': 'store_project', 'module': MATCH},'data'),
+              [State({'component': 'store_project', 'module': MATCH},'data'),
+               State('url', 'pathname')],
               prevent_initial_call=True)
-def update_proj_dd(owner_sel,init_store,store_proj):
+def update_proj_dd(owner_sel,init_store,store_proj,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-      
+    
+    thispage = thispage.lstrip('/')        
+    
+    if not hf.trigger_module() == thispage:
+        return dash.no_update
+          
     trigger = hf.trigger_component()    
     
     out_project = ''
@@ -125,11 +137,17 @@ def update_proj_dd(owner_sel,init_store,store_proj):
               [Input({'component': 'store_init_render', 'module': MATCH},'data'),
                 Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
                 Input({'component': 'project_dd', 'module': MATCH}, 'value')],
-              State({'component': 'store_stack', 'module': MATCH},'data')
+              [State({'component': 'store_stack', 'module': MATCH},'data'),
+               State('url', 'pathname')]
               )
-def update_stack_dd(init_store,own_sel,proj_sel,store_stack):
+def update_stack_dd(init_store,own_sel,proj_sel,store_stack,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
+    
+    thispage = thispage.lstrip('/')        
+    
+    if not hf.trigger_module() == thispage:
+        return dash.no_update
         
     trigger = hf.trigger_component()        
     

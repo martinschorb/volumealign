@@ -15,8 +15,37 @@ import params
 
 def trigger_component():
     ctx = dash.callback_context
-    trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
+    if ctx.triggered[0]['prop_id'] == '.':
+        i=0
+        while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
+            i+=1            
+        
+        if not list(ctx.inputs.keys())[i].startswith('{'):
+            trigger=None
+        else:
+            trigger = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['component']
+        
+    else:
+        trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
     return trigger
+
+def trigger_module():
+    ctx = dash.callback_context 
+    if ctx.triggered[0]['prop_id'] == '.':
+        i=0
+        while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
+            i+=1            
+        
+        if not list(ctx.inputs.keys())[i].startswith('{'):
+            module=None
+        else:
+            module = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['module']
+        
+    else:
+        module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
+    return module
+
+
 
 def input_components():
     

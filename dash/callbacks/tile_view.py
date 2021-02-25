@@ -65,7 +65,8 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State({'component':'tile_dd'+idx_str,'module': MATCH},'value')])
     def slicetotiles(slicenum,owner,project,stack,prev_tile):
-        if None in (slicenum,owner,project,stack,prev_tile):
+        
+        if None in (slicenum,owner,project,stack):
             return dash.no_update
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
@@ -109,6 +110,7 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    ])           
     def im_view(tile,runstore,owner,project,stack):
+        
         if None in (tile,runstore,owner,project,stack):
             return dash.no_update
         
@@ -133,7 +135,7 @@ for idx in range(params.max_tileviews):
 
         
         url1 += '?filter=true&scale=' + str(scale1)
-        
+                
         return imurl, url1
     
 
@@ -165,8 +167,6 @@ for idx in range(params.max_tileviews):
         out_scale = '%0.2f' %scale
         
         imurl = url +'/jpeg-image?scale=' + out_scale   
-        
-        print(imurl)
         
         return imurl
     
