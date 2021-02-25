@@ -242,7 +242,7 @@ page.append(gobutton)
                State({'component': 'store_render_launch', 'module': module},'data')]
               , prevent_initial_call=True)
 def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval,outstore):
-    trigger = hf.trigger_component()    
+    trigger = hf.trigger()    
 
     # init output    
     

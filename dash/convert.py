@@ -32,9 +32,14 @@ main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id=
         )
     ])
 
+intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
+                                       n_intervals=0)
+                      ])
 
 
-page = [main]
+page = [intervals,main]
 
 r_sel = pages.render_selector(module)
 r_sel.style = {'display':'none'}

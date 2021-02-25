@@ -35,7 +35,7 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
     if not dash.callback_context.triggered: 
         trigger =  'init'
     else:    
-        trigger = hf.trigger_component()        
+        trigger = hf.trigger()        
     
     dd_options = list()    
     if 'init' in trigger:
@@ -83,7 +83,7 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
                State({'component':'mc_new_enabled','module':MATCH},'data')]
               )
 def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,new_enabled='False'):
-    trigger = hf.trigger_component()
+    trigger = hf.trigger()
     all_mcs = dash.no_update  
 
     if 'mc_owner_dd'in trigger:

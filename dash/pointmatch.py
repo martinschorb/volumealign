@@ -5,6 +5,8 @@ Created on Tue Nov  3 13:30:16 2020
 
 @author: schorb
 """
+import dash
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
@@ -92,7 +94,7 @@ page3 = html.Div([html.H4("Choose type of PointMatch determination:"),
                                options=[{'label': 'SIFT', 'value': 'SIFT'}],
                                value='SIFT'),                          
                   html.Div([html.H4("Select Tilepair source directory:"),
-                            dcc.Dropdown(id=module+'tp_dd',persistence=True,
+                            dcc.Dropdown(id=module+'_tp_dd',persistence=True,
                                          clearable=False),
                             html.Br(),
                             html.Div(id=module+'tp_prefix',style={'display':'none'})                              
@@ -103,10 +105,13 @@ page3 = html.Div([html.H4("Choose type of PointMatch determination:"),
 page.append(page3)  
 
 
-@app.callback([Output(module+'tp_dd','options'),
-                Output(module+'tp_dd','value')],
+@app.callback([Output(module+'_tp_dd','options'),
+               Output(module+'_tp_dd','value')],
               Input({'component': 'stack_dd', 'module': module},'value'))
 def pointmatch_tp_dd_fill(stack):
+    
+    if stack is None:
+        return dash.no_update
    
     tp_dirlist = [d_item for d_item in glob.glob(params.json_run_dir+'/tilepairs_'+params.user+'*'+stack+'*') if os.path.isdir(d_item)]
     tpdir_dd_options=list(dict())
@@ -171,7 +176,7 @@ stackoutput.extend(tablefields)
 stackoutput.extend(compute_tablefields)        
 
 @app.callback(stackoutput,              
-              [Input(module+'tp_dd','value'),
+              [Input(module+'_tp_dd','value'),
                Input({'component': 'store_tpmatchtime', 'module': module}, 'data')],
               [State({'component': 'input_Num_CPUs', 'module': module},'value'),
                State({'component': 'stack_dd', 'module': module},'value'),

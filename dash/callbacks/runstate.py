@@ -41,10 +41,10 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger_module() == thispage:
+    if not hf.trigger(key='module') == thispage:
         return dash.no_update
         
-    trigger = hf.trigger_component()
+    trigger = hf.trigger()
     procs=params.processes[module.strip('_')]
     
     r_status['logfile']  = logfile
@@ -98,7 +98,7 @@ def get_status(run_state,module,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger_module() == thispage:
+    if not hf.trigger(key='module') == thispage:
         return dash.no_update
         
     status_style = {"font-family":"Courier New",'color':'#000'} 
@@ -152,7 +152,7 @@ def update_output(n,outfile,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger_module() == thispage:
+    if not hf.trigger(key='module') == thispage:
         return dash.no_update
      
     data=''
@@ -184,7 +184,7 @@ def update_output(n,outfile,thispage):
 def run_state(status_in,launch_in):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    trigger = hf.trigger_component()
+    trigger = hf.trigger()
     
     # print('-- merge status --')
     # print(trigger)

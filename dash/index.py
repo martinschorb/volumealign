@@ -12,7 +12,7 @@ from dash.dependencies import Input, Output
 # from pydoc import locate
 
 import importlib
-# import json
+import json
 import sys 
 
 from app import app
@@ -21,7 +21,6 @@ import params
 
 import startpage
 
-from utils import intervals
 
 
 # Webapp Layout
@@ -31,18 +30,18 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
 menu_items=['convert',
-            'mipmaps',
-            'tilepairs',
-            'pointmatch',
-            'solve',
+            # 'mipmaps',
+            # 'tilepairs',
+            # 'pointmatch',
+            # 'solve',
             'export'
             ]
 
 menu_text=['Convert & upload',
-            'Generate MipMaps',
-            'Find Tile Pairs',
-            'Find Point Matches',
-            'Solve Positions',
+            # 'Generate MipMaps',
+            # 'Find Tile Pairs',
+            # 'Find Point Matches',
+            # 'Solve Positions',
             'Export aligned volume'
             ]
 
@@ -106,8 +105,7 @@ app.layout = html.Div(
                 sidebar,
                 mainbody,
                 storediv
-                ]),
-    intervals.intervals
+                ])
     ])
 
 

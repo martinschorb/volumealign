@@ -260,7 +260,7 @@ def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,sta
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
 
-    trigger=hf.trigger_component()
+    trigger=hf.trigger()
     
     if not 'go' in trigger:
         if any(['' in [matchcoll,outstack], None in [matchcoll,outstack], 'newstack' in [stack,outstack]]):

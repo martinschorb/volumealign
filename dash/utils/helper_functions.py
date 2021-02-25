@@ -13,43 +13,63 @@ import numpy as np
 
 import params
 
-def trigger_component():
+def trigger(key=None,debug=False):
+
     ctx = dash.callback_context
-    if ctx.triggered[0]['prop_id'] == '.':
-        i=0
-        while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
-            i+=1            
+    if debug:print('propid: ' + ctx.triggered[0]['prop_id'])
         
-        if not list(ctx.inputs.keys())[i].startswith('{'):
-            trigger=None
+    if ctx.triggered[0]['prop_id'] == '.' or not ctx.triggered[0]['prop_id'].startswith('{'):
+        if debug:
+            if ctx.triggered[0]['prop_id'] == '.':
+                print('no trigger present')
+            else:
+                print('site-specific trigger')
+                
+        if key is None:
+            trigger = ctx.triggered[0]['prop_id'].partition('.')[0]
         else:
-            trigger = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['component']
-        
+            i=0
+            while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
+                i+=1            
+            
+            if not list(ctx.inputs.keys())[i].startswith('{'):
+                trigger = None
+            else:
+                trigger = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')[key]
+    
     else:
-        trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['component']
+        if key is None: key = 'component'
         
+        if debug: print('global trigger - ' + ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')
+        
+        trigger = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')[key]
+    
+    if debug: print('Trigger out: ' + str(key) + ' - ' + trigger)
+    
     return trigger
 
-def trigger_module():
-    ctx = dash.callback_context 
+# def trigger_module():
+#     ctx = dash.callback_context 
     
-    if ctx.triggered[0]['prop_id'] == '.':
-        i=0
-        while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
-            i+=1            
+#     if ctx.triggered[0]['prop_id'] == '.':
+#         i=0
+#         while i<len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
+#             i+=1            
         
-        if not list(ctx.inputs.keys())[i].startswith('{'):
-            module=None
-        else:
-            module = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['module']
+#         if not list(ctx.inputs.keys())[i].startswith('{'):
+#             module=None
+#         else:
+#             module = json.loads(list(ctx.inputs.keys())[i].split('}.')[0]+'}')['module']
         
-    else:
-        if not ctx.triggered[0]['prop_id'].startswith('{'):
-            module=None
-        else:
-            module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
-        
-    return module
+#     else:
+#         if not ctx.triggered[0]['prop_id'].startswith('{'):
+#             module = ctx.triggered[0]['prop_id'].partition('.')[0]
+#         else:
+#             module = json.loads(ctx.triggered[0]['prop_id'].partition('}.')[0]+'}')['module']
+    
+#     print('module')
+#     print(module)
+#     return module
 
 
 

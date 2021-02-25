@@ -89,7 +89,7 @@ page.append(gobutton)
 
 @app.callback([Output(label+'organism_dd','options'),
                Output(label+'picks','data')],              
-              [Input(parent+'tp_dd','value')],              
+              [Input(parent+'_tp_dd','value')],              
               )
 def sift_pointmatch_organisms(tilepairdir):
     mT_jsonfiles = glob.glob(os.path.join(params.json_match_dir,'*.json'))
@@ -174,7 +174,7 @@ def sift_browse_matchTrial(matchID):
               [State({'component':'compute_sel','module' : parent},'value'),
                 State({'component':'matchcoll_dd','module': parent},'value'),
                 State({'component': 'mc_owner_dd', 'module': parent},'value'),
-                State(parent+'tp_dd','value'),
+                State(parent+'_tp_dd','value'),
                 State({'component':'store_owner','module' : parent},'data'),
                 State({'component':'store_project','module' : parent},'data'),
                 State({'component':'stack_dd','module' : parent},'value'),

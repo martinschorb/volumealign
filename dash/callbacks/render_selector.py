@@ -51,20 +51,24 @@ def update_store(prevstore,thisstore):
  
 
 @app.callback([Output({'component': 'owner_dd', 'module': MATCH},'options'),
-                Output({'component': 'owner_dd', 'module': MATCH},'value')
+               Output({'component': 'owner_dd', 'module': MATCH},'value')
                 ],
               [Input({'component': 'store_init_render', 'module': MATCH},'data'),
-               Input('url', 'pathname')]
+               Input('url', 'pathname')],
+               State({'component': 'owner_dd', 'module': MATCH},'options')
               )
-def update_owner_dd(init_in,thispage):
+def update_owner_dd(init_in,thispage,dd_options_in):
+    
+    if thispage is None:
+        return dash.no_update
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger_module() == thispage:
+    trigger = hf.trigger()        
+    
+    if trigger == 'url' and not hf.trigger(key='module') == thispage and not dd_options_in is None:
         return dash.no_update
     
-    print(thispage)
-        
     dd_options = list(dict())
     
     allowners = params.render_owners
@@ -91,36 +95,46 @@ def update_owner_dd(init_in,thispage):
                 Output({'component': 'project_dd', 'module': MATCH}, 'value'),
                 ],
               [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'store_init_render', 'module': MATCH},'data')],
+               Input({'component': 'store_init_render', 'module': MATCH},'data'),
+               Input('url', 'pathname')],
               [State({'component': 'store_project', 'module': MATCH},'data'),
-               State('url', 'pathname')],
+               State({'component': 'project_dd', 'module': MATCH}, 'options'),
+               ],
               prevent_initial_call=True)
-def update_proj_dd(owner_sel,init_store,store_proj,thispage):
+def update_proj_dd(owner_sel,init_store,thispage,store_proj,dd_options_in):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
+        
+    if thispage is None:
+        return dash.no_update
     
     thispage = thispage.lstrip('/')        
-    
-    if not hf.trigger_module() == thispage:
+
+    trigger = hf.trigger() 
+     
+    if trigger == 'url' and not hf.trigger(key='module') == thispage and not dd_options_in is None :
         return dash.no_update
-          
-    trigger = hf.trigger_component()    
-    
+
+    if owner_sel == '' or owner_sel is None:
+        return dash.no_update
+
     out_project = ''
     
     href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+owner_sel
     
     # get list of projects on render server
     url = params.render_base_url + params.render_version + 'owner/' + owner_sel + '/projects'
+    
     projects = requests.get(url).json()
 
+    
     # assemble dropdown
     dd_options = list(dict())
     for item in projects:
         if item == store_proj:out_project=item
-        dd_options.append({'label':item, 'value':item})  
-        
+        dd_options.append({'label':item, 'value':item})   
+    
     if 'store_init_render' in trigger:
        out_project=init_store['project']
       
@@ -142,22 +156,29 @@ def update_proj_dd(owner_sel,init_store,store_proj,thispage):
                 Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
                 Input({'component': 'project_dd', 'module': MATCH}, 'value')],
               [State({'component': 'store_stack', 'module': MATCH},'data'),
+               State({'component': 'stack_dd', 'module': MATCH},'options'),
                State('url', 'pathname')]
               )
-def update_stack_dd(init_store,own_sel,proj_sel,store_stack,thispage):
+def update_stack_dd(init_store,own_sel,proj_sel,store_stack,dd_options_in,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
+
     
-    thispage = thispage.lstrip('/')        
-    
-    if not hf.trigger_module() == thispage:
+    if thispage is None:
         return dash.no_update
-        
-    trigger = hf.trigger_component()        
     
-          
-    if not (proj_sel in [None,'']):
+    thispage = thispage.lstrip('/') 
+       
+    trigger = hf.trigger()        
+     
+    if trigger == 'url' and not hf.trigger(key='module') == thispage :
+        return dash.no_update
+
+
+    if proj_sel is None or proj_sel == '':
+        return [dash.no_update] * 4
+    else:
         href_out=params.render_base_url+'view/stacks.html?renderStackOwner='+own_sel+'&renderStackProject='+proj_sel
         # get list of projects on render server
         url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
@@ -185,8 +206,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack,thispage):
     
         
         
-    else: 
-        return [dash.no_update] * 4
+    
 
 
 # Update render store fields:

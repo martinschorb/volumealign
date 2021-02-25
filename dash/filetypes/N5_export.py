@@ -113,7 +113,7 @@ stackoutput.extend(compute_tablefields)
                State({'component': 'store_stack', 'module': parent}, 'data'),
                State({'component': 'store_allstacks', 'module': parent}, 'data')]
               )
-def mipmaps_stacktodir(stack_sel,
+def n5export_stacktodir(stack_sel,
                        xmin,xmax,ymin,ymax,zmin,zmax,
                        owner,project,stack,allstacks):
     
@@ -208,15 +208,15 @@ for dim in ['X','Y','Z']:
     bbox.append(State({'component': 'end'+dim,'module' : parent},'value'))
     
 states = [State({'component':'compute_sel','module' : label},'value'),        
-                State({'component':'store_owner','module' : parent},'data'),
-                State({'component':'store_project','module' : parent},'data'),
-                State({'component':'stack_dd','module' : parent},'value'),
-                State({'component': 'input_Num_CPUs', 'module': label},'value'),
-                State({'component': 'input_runtime_minutes', 'module': label},'value')]
+          State({'component':'store_owner','module' : parent},'data'),
+          State({'component':'store_project','module' : parent},'data'),
+          State({'component':'stack_dd','module' : parent},'value'),
+          State({'component': 'input_Num_CPUs', 'module': label},'value'),
+          State({'component': 'input_runtime_minutes', 'module': label},'value')]
 
 states.extend(bbox)
 states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'))
-
+states.append(State({'component':'sliceim_section_in_0','module': parent},'value'))
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                 Output({'component': 'buttondiv', 'module': label},'children'),
@@ -228,9 +228,12 @@ states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'
               ,prevent_initial_call=True)                 
 def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n_cpu,timelim,
                                      xmin,xmax,ymin,ymax,zmin,zmax,
-                                     sp_store): 
+                                     sp_store,slice_in): 
     
-    trigger = hf.trigger_component()
+    if not dash.callback_context.triggered: 
+            raise PreventUpdate
+            
+    trigger = hf.trigger()
     
     
     stackparams = sp_store['stackparams']
@@ -313,11 +316,21 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             with open(os.path.join(params.json_template_dir,'n5export.json'),'r') as f:
                 n5run_p.update(json.load(f))
                 
-            n5run_p['--n5Path'] = n5dir           
-        
+            n5run_p['--n5Path'] = n5dir  
             
-            n5run_p['--tileSize'] = str(stackparams['stats']['maxTileWidth']) + ',' + str(stackparams['stats']['maxTileHeight'])
             
+            # get tile size from single tile
+            
+            
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+            url += '/z/' + str(slice_in) + '/tile-specs'
+            
+            tilespecs = requests.get(url).json()
+            
+            
+            tilesize = '{:.0f},{:.0f}'.format(tilespecs[0]['width'], tilespecs[0]['height'])
+                           
+            n5run_p['--tileSize'] = tilesize
             n5run_p['--min'] = ''
             n5run_p['--size'] = '' 
         
