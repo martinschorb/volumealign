@@ -142,15 +142,12 @@ def cluster_status(job_ids,logfile):
             command += j_id
             command += ' --format=jobid,state --parsable'
             
-        elif cl_type == 'sparkslurm':
+        elif cl_type == 'sparkslurm':                       
             
+            command =  'sacct --jobs='
+            command += j_id
+            command += ' --format=jobid,state,node --parsable'
             
-            command = 'cat /g/emcf/schorb/code/volumealign/sslurm'
-            
-            
-            # command =  'sacct --jobs='
-            # command += j_id
-            # command += ' --format=jobid,state,node --parsable'
         # commands for other cluster types go HERE
             
             
@@ -245,9 +242,6 @@ def cluster_status(job_ids,logfile):
                 out_stat.append('cancelled')
 
     return out_stat
-
-
-
 
 
 

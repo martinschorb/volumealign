@@ -377,8 +377,8 @@ def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,o
         log_file += '.log'
 
         
-        sift_pointmatch_p = ['sparkslurm__12535342']#launch_jobs.run(target=comp_sel,pyscript=script,
-                            # json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
+                                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
             
         params.processes[parent].extend(sift_pointmatch_p)
 
