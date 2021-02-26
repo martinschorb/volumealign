@@ -43,14 +43,21 @@ def args2string(args,separator='='):
 
 def status(processes,logfile):
     res_status,processes = checkstatus(processes,logfile) 
+    link='' 
     
-    if res_status=='error':
-        out_stat = 'Error while excecuting '+processes+'.'
-    else:
-        out_stat=res_status
+    if type(res_status) is str:
+        if res_status=='error':
+            out_stat = 'Error while excecuting '+processes+'.'
+        else:
+            out_stat=res_status
     
-    if type(res_status) is list:
+    elif type(res_status) is list:
         out_stat='wait'
+        
+        for idx,item in enumerate(res_status):
+            res_status[idx] = item.split('__')[0]
+            link = item.split['__'][2]
+            
         # multiple cluster job IDs
         if 'error' in res_status:
             out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
@@ -67,7 +74,7 @@ def status(processes,logfile):
         
         
     
-    return out_stat
+    return out_stat, link
 
 
 def checkstatus(runvar,logfile):    
@@ -131,6 +138,7 @@ def cluster_status_init(job_ids):
 def cluster_status(job_ids,logfile):
     my_env = os.environ.copy()
     out_stat=list()
+    link=None
     
     j_ids,j_types = cluster_status_init(job_ids)
     
@@ -235,6 +243,7 @@ def cluster_status(job_ids,logfile):
                 else:                    
                     out_stat.append(sp_query['activeapps'][0]['state'].lower())
                 
+                link = '__' + sp_master
                 
             elif slurm_stat=='COMPLETED':
                 out_stat.append('done')
@@ -247,7 +256,7 @@ def cluster_status(job_ids,logfile):
             elif 'CANCELLED' in slurm_stat:
                 out_stat.append('cancelled')
 
-    return out_stat
+    return out_stat + link
 
 
 

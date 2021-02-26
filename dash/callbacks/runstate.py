@@ -25,7 +25,9 @@ from utils import helper_functions as hf
 
 
 @app.callback([Output({'component': 'interval2', 'module': MATCH},'interval'),
-               Output({'component': 'store_r_status', 'module': MATCH},'data')],
+               Output({'component': 'store_r_status', 'module': MATCH},'data'),
+               Output({'component': 'statuspage_div', 'module': MATCH},'style'),
+               Output({'component': 'statuspage_link', 'module': MATCH},'href')],
               [Input({'component': 'interval2', 'module': MATCH},'n_intervals'),
                 Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')],
               [State({'component': 'store_run_state', 'module': MATCH},'data'),
@@ -38,6 +40,11 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
+    
+    
+    status_href=''
+    status_style={'display':'none'}
+    
     
     thispage = thispage.lstrip('/')        
     
@@ -58,14 +65,18 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
                 r_status['state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
-            r_status['state'] = launch_jobs.status(procs,logfile)   
+           (link, r_status['state']) = launch_jobs.status(procs,logfile)   
+           
+        if not link == '':
+            status_href = link
+            status_style = {}
 
 
         if 'Error' in r_status['state']:
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
         
-        return params.idle_interval,r_status
+        return params.idle_interval,r_status,status_style,status_href
     
     elif 'cancel' in trigger:
 
@@ -73,10 +84,10 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
         
         params.processes[module.strip('_')] = []    
         
-        return params.idle_interval, r_status
+        return params.idle_interval, r_status,status_style,status_href
     
     else:
-        return [dash.no_update] * 3
+        return dash.no_update
 
 
 

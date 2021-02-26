@@ -137,7 +137,12 @@ def log_output(module):
                 html.Div(id={'component': 'job-status', 'module': module},children=['Status of current processing run: ',
                                                           html.Div(id={'component': 'get-status', 'module': module},style={"font-family":"Courier New"},children=[
                                                               'not running']),
-                                                          html.Button('cancel cluster job(s)',id={'component': "cancel", 'module': module},style={'display': 'none'})                                                         
+                                                          html.Button('cancel cluster job(s)',id={'component': "cancel", 'module': module},style={'display': 'none'}),
+                                                          html.Div(id={'component': 'statuspage_div', 'module': module},
+                                                                   children=['Processing ',
+                                                                             html.A('status page', id={'component':'statuspage_link','module':module},
+                                                                                    target="_blank")
+                                                                       ], style={'display': 'none'})
                                                           ]),
                 html.Br(),
                 html.Details([
