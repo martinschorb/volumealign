@@ -138,7 +138,7 @@ def cluster_status_init(job_ids):
 def cluster_status(job_ids,logfile):
     my_env = os.environ.copy()
     out_stat=list()
-    link=None
+    link=''
     
     j_ids,j_types = cluster_status_init(job_ids)
     
