@@ -26,6 +26,8 @@ import params
 from utils import pages,launch_jobs
 from utils import helper_functions as hf
 
+from callbacks import substack_sel
+
 
 
 # element prefix
@@ -232,11 +234,15 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
     
     if not dash.callback_context.triggered: 
             raise PreventUpdate
-            
+    
+    if None in [xmin,xmax,ymin,ymax,zmin,zmax,
+                                     sp_store,slice_in]:
+        raise PreventUpdate
+    
     trigger = hf.trigger()
     
     
-    stackparams = sp_store['stackparams']
+    # stackparams = sp_store['stackparams']
     
     outstore = dict()
     outstore['owner'] = owner

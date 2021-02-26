@@ -8,17 +8,15 @@ Created on Mon Jan 18 14:52:17 2021
 
 
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+# import dash_core_components as dcc
+# import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-import requests
-import json
 
 from app import app
 
-import params
+# import params
 from utils import helper_functions as hf
 
 
@@ -30,6 +28,8 @@ for dim in ['X','Y','Z']:
                   Input({'component': 'store_stackparams', 'module': MATCH}, 'data')
                   )
     def paramstoouterlimits(thisstore):
+        if not dash.callback_context.triggered: 
+            raise PreventUpdate
         
         oc = hf.output_components()
         
