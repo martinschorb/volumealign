@@ -59,7 +59,7 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
 
     
     if 'interval2' in trigger:        
-        
+        link = ''
         if procs==[]:
             if run_state not in ['input','wait']:
                 r_status['state'] = 'input'               
