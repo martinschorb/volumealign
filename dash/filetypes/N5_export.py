@@ -384,6 +384,9 @@ def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,o
         
         launch_store=dict()
         launch_store['logfile'] = log_file
+        
+        launch_store['logfile']='/g/emcf/software/render-logs/pointmatch_schorb_20210226-1630'
+        
         launch_store['state'] = 'launch'
     
         return True,'', launch_store, outstore
