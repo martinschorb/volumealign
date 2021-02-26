@@ -194,7 +194,7 @@ def run_state(status_in,launch_in):
         # print(launch_in)
         out = launch_in
         print('DEBUG---MODIFY!!!')
-        out['logfile'] = '/g/emcf/software/render-logs/export_ronchi_20210226-0952.log' 
+        out['logfile'] = '/g/emcf/software/render-logs/pointmatch_schorb_20210226-1522.log' 
 
     else:
         # print('status triggered state:')

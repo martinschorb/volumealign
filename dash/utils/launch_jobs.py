@@ -9,8 +9,7 @@ Created on Wed Nov 11 14:24:32 2020
 import os
 import subprocess
 import params
-import time
-
+import datetime
 
 import requests
 import json
@@ -83,7 +82,8 @@ def checkstatus(runvar,logfile):
     
     elif type(runvar) is str:
         return cluster_status(runvar,logfile),[runvar]
-        
+
+    
     if type(runvar) is list:
         outvar=list()
         for rv in runvar:
@@ -200,25 +200,36 @@ def cluster_status(job_ids,logfile):
                     masterhost = jobstat[2]
                     slurm_stat = jobstat[1] 
             
-            
             if 'RUNNING' in slurm_stat:   
                 
                 sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
                 
                 with open(sp_masterfile) as f: sp_master=f.read()
 
-                url = sp_master + '/json/'
-
+                url = sp_master + '/json/'               
+                
                 sp_query = requests.get(url).json() 
                 
-                if sp_query['activeapps'] == []:
+                if sp_query['activeapps'] == []:                    
                     if sp_query['workers'] ==[]:
                         out_stat.append('Startup Spark')
                     else:
+                        t_format = "%Y%m%d%H%M%S"
                         e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
-                    
-                else:
-                    print('spark running')
+                        now = datetime.datetime.now().strftime(t_format)
+                        
+                        if int(now) - int(e_starttime) < 45:
+                            out_stat.append('Startup Spark')
+                        else:
+                            if sp_query['completedapps'] == []: 
+                                out_stat.append('Error in Spark setup!')
+                            else:
+                                if 'FINISHED' in sp_query['completedapps'][0]['state']:
+                                    drop = canceljobs('sparkslurm__'+j_id)
+                                    out_stat.append('done')
+                                else:
+                                    out_stat.append('running')
+                else:                    
                     out_stat.append(sp_query['activeapps'][0]['state'].lower())
                 
                 
