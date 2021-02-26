@@ -208,7 +208,10 @@ def cluster_status(job_ids,logfile):
                 try:
                     sp_query = requests.get(url).json() 
                 except:
-                    out_stat.append('Prolem connecting to Spark!')
+                    print('Problem connecting to Spark: ' + url)
+                    out_stat.append('Problem connecting to Spark!')
+                    return out_stat
+                
                 
                 if sp_query['activeapps'] == []:                    
                     if sp_query['workers'] ==[]:
