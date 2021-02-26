@@ -241,7 +241,6 @@ def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,o
     
     trigger = hf.trigger()
     
-    print(trigger)
     # stackparams = sp_store['stackparams']
     
     outstore = dict()

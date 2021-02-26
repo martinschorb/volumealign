@@ -202,11 +202,13 @@ def cluster_status(job_ids,logfile):
                 
                 sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
                 
-                with open(sp_masterfile) as f: sp_master=f.read()
+                with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
 
                 url = sp_master + '/json/'               
-                
-                sp_query = requests.get(url).json() 
+                try:
+                    sp_query = requests.get(url).json() 
+                except:
+                    out_stat.append('Prolem connecting to Spark!')
                 
                 if sp_query['activeapps'] == []:                    
                     if sp_query['workers'] ==[]:
