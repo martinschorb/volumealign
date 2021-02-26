@@ -41,14 +41,14 @@ def args2string(args,separator='='):
     return argstring
 
 
-def status(processes):
-    res_status,processes = checkstatus(processes) 
+def status(processes,logfile):
+    res_status,processes = checkstatus(processes,logfile) 
     
     if res_status=='error':
         out_stat = 'Error while excecuting '+processes+'.'
     else:
         out_stat=res_status
-        
+    
     if type(res_status) is list:
         out_stat='wait'
         # multiple cluster job IDs
@@ -60,6 +60,8 @@ def status(processes):
             out_stat = 'pending'
         elif 'cancelled' in res_status:
             out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
+        elif 'timeout' in res_status:
+            out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
         
@@ -68,7 +70,7 @@ def status(processes):
     return out_stat
 
 
-def checkstatus(runvar):    
+def checkstatus(runvar,logfile):    
     if type(runvar) is subprocess.Popen:
         if runvar.poll() is None:
             return 'running',runvar
@@ -80,7 +82,7 @@ def checkstatus(runvar):
             return 'error',runvar.args
     
     elif type(runvar) is str:
-        return cluster_status(runvar),[runvar]
+        return cluster_status(runvar,logfile),[runvar]
         
     if type(runvar) is list:
         outvar=list()
@@ -91,7 +93,7 @@ def checkstatus(runvar):
                 elif rv.poll() > 0:
                     return 'error',rv.args
             elif type(rv) is str:
-                return cluster_status(runvar),runvar 
+                return cluster_status(runvar,logfile),runvar 
             
             
         if len(outvar)>1:
@@ -125,7 +127,7 @@ def cluster_status_init(job_ids):
 
 
             
-def cluster_status(job_ids):
+def cluster_status(job_ids,logfile):
     my_env = os.environ.copy()
     out_stat=list()
     
@@ -141,9 +143,14 @@ def cluster_status(job_ids):
             command += ' --format=jobid,state --parsable'
             
         elif cl_type == 'sparkslurm':
-            command =  'sacct --jobs='
-            command += j_id
-            command += ' --format=jobid,state,node --parsable'
+            
+            
+            command = 'cat /g/emcf/schorb/code/volumealign/sslurm'
+            
+            
+            # command =  'sacct --jobs='
+            # command += j_id
+            # command += ' --format=jobid,state,node --parsable'
         # commands for other cluster types go HERE
             
             
@@ -171,15 +178,14 @@ def cluster_status(job_ids):
             elif 'FAILED' in slurm_stat:
                 out_stat.append('error')
             elif 'TIMEOUT' in slurm_stat:
-                out_stat.append('error')    
+                out_stat.append('timeout')    
             elif 'PENDING' in slurm_stat:
                 out_stat.append('pending')
             elif 'CANCELLED' in slurm_stat:
                 out_stat.append('cancelled')
                 
         elif cl_type == 'sparkslurm':
-            slurm_stat0 = result.decode()
-            
+            slurm_stat = []
             slurm_stat0 = result.decode()
             
             stat_list = slurm_stat0.split('\n')
@@ -197,8 +203,9 @@ def cluster_status(job_ids):
             
             if 'RUNNING' in slurm_stat:   
                 
+                sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
                 
-                sp_master = 'http://sb01-01.cluster.embl.de:8080'
+                with open(sp_masterfile) as f: sp_master=f.read()
 
                 url = sp_master + '/json/'
 
@@ -211,7 +218,8 @@ def cluster_status(job_ids):
                         e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
                     
                 else:
-                    print('fdf')
+                    print('spark running')
+                    out_stat.append(sp_query['activeapps'][0]['state'].lower())
                 
                 
             elif slurm_stat=='COMPLETED':
@@ -219,7 +227,7 @@ def cluster_status(job_ids):
             elif 'FAILED' in slurm_stat:
                 out_stat.append('error')
             elif 'TIMEOUT' in slurm_stat:
-                out_stat.append('error')    
+                out_stat.append('timeout')    
             elif 'PENDING' in slurm_stat:
                 out_stat.append('pending')
             elif 'CANCELLED' in slurm_stat:

@@ -29,19 +29,19 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=['convert',
-            'mipmaps',
-            'tilepairs',
-            'pointmatch',
-            'solve',
+menu_items=[#'convert',
+            # 'mipmaps',
+            # 'tilepairs',
+            # 'pointmatch',
+            # 'solve',
             'export'
             ]
 
-menu_text=['Convert & upload',
-            'Generate MipMaps',
-            'Find Tile Pairs',
-            'Find Point Matches',
-            'Solve Positions',
+menu_text=[#'Convert & upload',
+            # 'Generate MipMaps',
+            # 'Find Tile Pairs',
+            # 'Find Point Matches',
+            # 'Solve Positions',
             'Export aligned volume'
             ]
 

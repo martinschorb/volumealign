@@ -56,14 +56,14 @@ n_cpu_standalone = 8
 
 # spark
 
-n_cpu_spark = 180
-cpu_pernode_spark = 30
+n_cpu_spark = 240
+cpu_pernode_spark = 1#30
 
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
 export=dict()
-export['min/GPix/CPU_N5'] = 5
+export['min/GPix/CPU_N5'] = 50
 
 
 section_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)

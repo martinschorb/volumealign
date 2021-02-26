@@ -49,7 +49,7 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     r_status['logfile']  = logfile
     r_status['state'] = run_state
-    
+
     
     if 'interval2' in trigger:        
         
@@ -58,13 +58,13 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
                 r_status['state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
-            r_status['state'] = launch_jobs.status(procs)   
+            r_status['state'] = launch_jobs.status(procs,logfile)   
 
 
         if 'Error' in r_status['state']:
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
-
+        
         return params.idle_interval,r_status
     
     elif 'cancel' in trigger:
@@ -193,11 +193,13 @@ def run_state(status_in,launch_in):
         # print('launch triggered state:')
         # print(launch_in)
         out = launch_in
+        print('DEBUG---MODIFY!!!')
+        out['logfile'] = '/g/emcf/software/render-logs/export_ronchi_20210226-0952.log' 
 
     else:
         # print('status triggered state:')
         # print(status_in)
         out = status_in.copy()        
-    # print(out)
+    
     
     return out['state'], out['logfile']

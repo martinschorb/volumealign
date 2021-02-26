@@ -148,7 +148,7 @@ def n5export_stacktodir(stack_sel,
             
             t_fields=[stack,str(out['numsections']),'%0.2f' % int(out['gigapixels'])]
             
-            n_cpu = params.n_cpu_script
+            n_cpu = params.n_cpu_spark
             
             timelim = np.ceil(out['gigapixels'] / n_cpu * params.export['min/GPix/CPU_N5']*(1+params.time_add_buffer))
             
@@ -211,10 +211,7 @@ for dim in ['X','Y','Z']:
     
 states = [State({'component':'compute_sel','module' : label},'value'),        
           State({'component':'store_owner','module' : parent},'data'),
-          State({'component':'store_project','module' : parent},'data'),
-          State({'component':'stack_dd','module' : parent},'value'),
-          State({'component': 'input_Num_CPUs', 'module': label},'value'),
-          State({'component': 'input_runtime_minutes', 'module': label},'value')]
+          State({'component':'store_project','module' : parent},'data')]
 
 states.extend(bbox)
 states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'))
@@ -225,23 +222,26 @@ states.append(State({'component':'sliceim_section_in_0','module': parent},'value
                 Output({'component': 'store_r_launch', 'module': parent},'data'),
                 Output({'component': 'store_render_launch', 'module': parent},'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-                Input({'component': "input1", 'module': label},'value')],
+               Input({'component': "input1", 'module': label},'value'),
+               Input({'component':'stack_dd','module' : parent},'value'),
+               Input({'component': 'input_Num_CPUs', 'module': label},'value'),
+               Input({'component': 'input_runtime_minutes', 'module': label},'value')],
               states
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n_cpu,timelim,
+def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
                                      xmin,xmax,ymin,ymax,zmin,zmax,
                                      sp_store,slice_in): 
     
     if not dash.callback_context.triggered: 
             raise PreventUpdate
     
-    if None in [xmin,xmax,ymin,ymax,zmin,zmax,
+    if None in [outdir,stack,n_cpu,timelim,comp_sel,owner,project,xmin,xmax,ymin,ymax,zmin,zmax,
                                      sp_store,slice_in]:
         raise PreventUpdate
     
     trigger = hf.trigger()
     
-    
+    print(trigger)
     # stackparams = sp_store['stackparams']
     
     outstore = dict()
@@ -249,19 +249,9 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
     outstore['project'] = project
     outstore['stack'] = stack
 
-    # if outdir == '':
-    #     return True,'No output directory selected!',dash.no_update,outstore
-    
-    # if not os.access(outdir,os.W_OK | os.X_OK):
-    #     return True,'Output directory not writable!',dash.no_update,outstore
-
-    
-    if 'input' in trigger:        
-        return False,'',dash.no_update,outstore
     
     
-    
-    elif 'go' in trigger:
+    if 'go' in trigger:
         if click is None: return dash.no_update
         
         # prepare parameters:
@@ -372,8 +362,8 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
             script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'            
             script  += " --jarfile=" + params.hotknife_dir + "/target/hot-knife-0.0.4-SNAPSHOT.jar"
             
-            
-            
+                  
+   
             
         #generate script call...
         
@@ -385,22 +375,28 @@ def sift_pointmatch_execute_gobutton(click,outdir,comp_sel,owner,project,stack,n
         log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
+
         
-        
-        
-        
-        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
-                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+        sift_pointmatch_p = ['sparkslurm__12520550']#launch_jobs.run(target=comp_sel,pyscript=script,
+                            # json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
             
         params.processes[parent].extend(sift_pointmatch_p)
+
         
-        print(params.processes[parent])
-                
         launch_store=dict()
         launch_store['logfile'] = log_file
-        launch_store['state'] = 'running'
+        launch_store['state'] = 'launch'
     
         return True,'', launch_store, outstore
 
+    else:
+        if outdir == '':
+            return True,'No output directory selected!',dash.no_update,outstore
+    
+        if not os.access(outdir,os.W_OK | os.X_OK):
+            return True,'Output directory not writable!',dash.no_update,outstore
 
+        else:
+            return False,'',dash.no_update,outstore
+    
     
