@@ -211,8 +211,10 @@ def cluster_status(job_ids,logfile):
                 sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
                 
                 with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
-
-                url = sp_master + '/json/'               
+                
+                link = '__' + sp_master
+                url = sp_master + '/json/' 
+                
                 try:
                     sp_query = requests.get(url).json() 
                 except:
@@ -241,9 +243,9 @@ def cluster_status(job_ids,logfile):
                                 else:
                                     out_stat.append('running')
                 else:                    
-                    out_stat.append(sp_query['activeapps'][0]['state'].lower())
+                    out_stat.append(sp_query['activeapps'][0]['state'].lower()) + link
                 
-                link = '__' + sp_master
+                
                 
             elif slurm_stat=='COMPLETED':
                 out_stat.append('done')
@@ -256,7 +258,7 @@ def cluster_status(job_ids,logfile):
             elif 'CANCELLED' in slurm_stat:
                 out_stat.append('cancelled')
 
-    return out_stat + link
+    return out_stat
 
 
 

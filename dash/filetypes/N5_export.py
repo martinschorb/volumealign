@@ -376,8 +376,10 @@ def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,o
         log_file += '.log'
 
         
-        sift_pointmatch_p = ['sparkslurm__12539018']#launch_jobs.run(target=comp_sel,pyscript=script,
-                            # json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
+                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+            # ['sparkslurm__12539018']
+            
             
         params.processes[parent].extend(sift_pointmatch_p)
 
@@ -385,7 +387,7 @@ def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,o
         launch_store=dict()
         launch_store['logfile'] = log_file
         
-        launch_store['logfile']='/g/emcf/software/render-logs/pointmatch_schorb_20210226-1630.log'
+        # launch_store['logfile']='/g/emcf/software/render-logs/pointmatch_schorb_20210226-1630.log'
         
         launch_store['state'] = 'launch'
     
