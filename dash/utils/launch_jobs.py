@@ -56,6 +56,7 @@ def status(processes,logfile):
         
         for idx,item in enumerate(res_status):
             res_status[idx] = item.split('__')[0]
+            
             link = item.split['__'][2]
             
         # multiple cluster job IDs
@@ -232,7 +233,7 @@ def cluster_status(job_ids,logfile):
                         now = datetime.datetime.now().strftime(t_format)
                         
                         if int(now) - int(e_starttime) < 45:
-                            out_stat.append('Startup Spark')
+                            out_stat.append('Startup Spark') + link
                         else:
                             if sp_query['completedapps'] == []: 
                                 out_stat.append('Error in Spark setup!')
@@ -241,7 +242,7 @@ def cluster_status(job_ids,logfile):
                                     drop = canceljobs('sparkslurm__'+j_id)
                                     out_stat.append('done')
                                 else:
-                                    out_stat.append('running')
+                                    out_stat.append('running') + link
                 else:                    
                     out_stat.append(sp_query['activeapps'][0]['state'].lower()) + link
                 

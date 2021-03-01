@@ -228,7 +228,7 @@ states.append(State({'component':'sliceim_section_in_0','module': parent},'value
                Input({'component': 'input_runtime_minutes', 'module': label},'value')],
               states
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
+def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
                                      xmin,xmax,ymin,ymax,zmin,zmax,
                                      sp_store,slice_in): 
     
