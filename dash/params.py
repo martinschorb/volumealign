@@ -31,6 +31,8 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign'
 
+init_logfile = 'out.txt'
+
 #==============================================================
 ## Compute resources presets
 
@@ -87,9 +89,9 @@ outdirbase = 'aligned'
 #=============================================================
 
 
-default_store = {'run_state':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
-                 'r_status':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
-                 'r_launch':{'state':'input', 'logfile':render_log_dir + '/out.txt'},
+default_store = {'run_state':{'state':'input', 'logfile':init_logfile},
+                 'r_status':{'state':'input', 'logfile':init_logfile},
+                 'r_launch':{'state':'input', 'logfile':init_logfile},
                  'init_render':{'owner':'','project':'','stack':'',
                                 'matchcoll': '', 'mc_owner':''},
                  'render_launch':{'owner':'','project':'','stack':''},
