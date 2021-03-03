@@ -150,7 +150,8 @@ def log_output(module):
                     html.Div(id={'component': "collapse", 'module': module},                 
                       children=[                         
                           html.Div(id={'component': 'div-out', 'module': module},children=['Log file: ',
-                                                                 html.Div(id={'component': 'outfile', 'module': module},style={"font-family":"Courier New"})
+                                                                 html.Div(id={'component': 'outfile', 'module': module},style={"font-family":"Courier New"},
+                                                                          children=params.init_logfile)
                                                                  ]),
                           dcc.Textarea(id={'component': 'console-out', 'module': module},className="console_out",
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
