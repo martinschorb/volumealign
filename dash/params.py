@@ -31,7 +31,7 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign'
 
-init_logfile = 'out.txt'
+init_logfile = 'out.txt' #render_log_dir + '/pointmatch_schorb_20210303-1617.log'
 
 #==============================================================
 ## Compute resources presets
@@ -122,7 +122,7 @@ default_tile_scale = 0.5
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 10000   # ms
+idle_interval = 2000   # ms
 
 
 #=============================================================

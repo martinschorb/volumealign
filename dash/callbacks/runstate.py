@@ -40,7 +40,7 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    
+
     
     status_href=''
     status_style={'display':'none'}
@@ -54,8 +54,6 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     trigger = hf.trigger()
     procs=params.processes[module.strip('_')]
     
-    procs = ['sparkslurm__12756403']
-    
     r_status['logfile']  = logfile
     r_status['state'] = run_state
 
@@ -67,7 +65,9 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
                 r_status['state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
-           (link, r_status['state']) = launch_jobs.status(procs,logfile)   
+           (r_status['state'], link) = launch_jobs.status(procs,logfile)   
+           
+           
            
         if not link == '':
             status_href = link

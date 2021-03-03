@@ -42,8 +42,9 @@ def args2string(args,separator='='):
 
 
 def status(processes,logfile):
+    
     res_status,processes = checkstatus(processes,logfile) 
-    link='' 
+    link=''     
     
     if type(res_status) is str:
         if res_status=='error':
@@ -55,9 +56,14 @@ def status(processes,logfile):
         out_stat='wait'
         
         for idx,item in enumerate(res_status):
-            res_status[idx] = item.split('__')[0]
             
-            link = item.split['__'][2]
+            link = ''
+            
+            if '__' in item:
+            
+                res_status[idx] = item.split('__')[0]
+                
+                link = item.split['__'][2]
             
         # multiple cluster job IDs
         if 'error' in res_status:
@@ -72,13 +78,12 @@ def status(processes,logfile):
             out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
-        
-        
     
     return out_stat, link
 
 
-def checkstatus(runvar,logfile):    
+def checkstatus(runvar,logfile):
+    
     if type(runvar) is subprocess.Popen:
         if runvar.poll() is None:
             return 'running',runvar
@@ -239,7 +244,8 @@ def cluster_status(job_ids,logfile):
                                 out_stat.append('Error in Spark setup!')
                             else:
                                 if 'FINISHED' in sp_query['completedapps'][0]['state']:
-                                    drop = canceljobs('sparkslurm__'+j_id)
+                                    
+                                    # drop = canceljobs('sparkslurm__'+j_id)
                                     out_stat.append('done')
                                 else:
                                     out_stat.append('running' + link)
