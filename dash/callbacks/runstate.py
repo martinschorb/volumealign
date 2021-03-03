@@ -54,6 +54,8 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     trigger = hf.trigger()
     procs=params.processes[module.strip('_')]
     
+    procs = ['sparkslurm__12756403']
+    
     r_status['logfile']  = logfile
     r_status['state'] = run_state
 
