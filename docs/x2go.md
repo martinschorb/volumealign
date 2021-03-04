@@ -8,7 +8,7 @@ It makes use of the graphical login procedure for the EMBL cluster, described [h
 ## Setting up x2go
 
 Before you start, you need to install a client software to connect.
-Just download x2goclient (available for Windows, Linux and Mac from [here](https://wiki.x2go.org/doku.php/doc:installation:x2goclient, find the installer in ```releases```) and configure your session as follows.
+Just download x2goclient (available for Windows, Linux and Mac from [here](https://wiki.x2go.org/doku.php/doc:installation:x2goclient), (find the installer in ```releases```) and configure your session as follows.
 
 When you first launch the program, you need to set up the connection. Click the white symbol in the top left corner to add a new connection.
 
