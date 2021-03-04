@@ -44,6 +44,7 @@ def args2string(args,separator='='):
 def status(processes,logfile):
     
     res_status,processes = checkstatus(processes,logfile) 
+
     link=''     
     
     if type(res_status) is str:
@@ -54,16 +55,19 @@ def status(processes,logfile):
     
     elif type(res_status) is list:
         out_stat='wait'
+        print(res_status)
         
         for idx,item in enumerate(res_status):
+            
             
             link = ''
             
             if '__' in item:
-            
+                
                 res_status[idx] = item.split('__')[0]
                 
-                link = item.split['__'][2]
+                link = item.split('__')[1]
+
             
         # multiple cluster job IDs
         if 'error' in res_status:
@@ -245,8 +249,13 @@ def cluster_status(job_ids,logfile):
                             else:
                                 if 'FINISHED' in sp_query['completedapps'][0]['state']:
                                     
-                                    # drop = canceljobs('sparkslurm__'+j_id)
+                                    drop = canceljobs('sparkslurm__'+j_id)
                                     out_stat.append('done')
+                                    
+                                elif 'KILLED' in sp_query['completedapps'][0]['state']:
+                                    
+                                    drop = canceljobs('sparkslurm__'+j_id)
+                                    out_stat.append('Spark app was killed.')
                                 else:
                                     out_stat.append('running' + link)
                 else:                    

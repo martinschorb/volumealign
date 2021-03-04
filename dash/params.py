@@ -58,8 +58,8 @@ n_cpu_standalone = 8
 
 # spark
 
-n_cpu_spark = 240
-cpu_pernode_spark = 1#30
+n_cpu_spark = 300
+cpu_pernode_spark = 30
 
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
@@ -122,7 +122,7 @@ default_tile_scale = 0.5
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 2000   # ms
+idle_interval = 5000   # ms
 
 
 #=============================================================

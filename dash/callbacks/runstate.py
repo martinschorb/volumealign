@@ -40,7 +40,7 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-
+    
     
     status_href=''
     status_style={'display':'none'}
@@ -52,11 +52,13 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
         return dash.no_update
         
     trigger = hf.trigger()
-    procs=params.processes[module.strip('_')]
+
+    procs=params.processes[module.strip('_')] 
+
     
     r_status['logfile']  = logfile
     r_status['state'] = run_state
-
+    
     
     if 'interval2' in trigger:        
         link = ''
@@ -65,9 +67,8 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
                 r_status['state'] = 'input'               
         
         if (type(procs) is subprocess.Popen or len(procs)>0): 
-           (r_status['state'], link) = launch_jobs.status(procs,logfile)   
-           
-           
+
+            (r_status['state'], link) = launch_jobs.status(procs,logfile)   
            
         if not link == '':
             status_href = link
@@ -117,6 +118,7 @@ def get_status(run_state,module,thispage):
     status_style = {"font-family":"Courier New",'color':'#000'} 
     log_refresh = params.idle_interval
     procs=params.processes[module.strip('_')] 
+    
     c_button_style = {'display': 'none'}    
     if run_state == 'running':  
         
@@ -192,9 +194,10 @@ def update_output(n,outfile,thispage):
 @app.callback([Output({'component': 'store_run_state', 'module': MATCH},'data'),
                Output({'component': 'outfile', 'module': MATCH},'children')],
               [Input({'component': 'store_r_status', 'module': MATCH},'data'),
-               Input({'component': 'store_r_launch', 'module': MATCH},'data')]
+               Input({'component': 'store_r_launch', 'module': MATCH},'modified_timestamp')],
+              State({'component': 'store_r_launch', 'module': MATCH},'data')
               )
-def run_state(status_in,launch_in):
+def run_state(status_in,ts,launch_in):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     trigger = hf.trigger()
