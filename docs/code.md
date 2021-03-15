@@ -9,8 +9,6 @@ Blblablablablabla
 
 # Reference
 
-::: abcf.di
-
 
 ## mock...
 
