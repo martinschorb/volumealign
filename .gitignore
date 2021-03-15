@@ -4,3 +4,4 @@ JSON_parameters/runs/
 *.DS_Store
 ._*
 public
+*.egg*

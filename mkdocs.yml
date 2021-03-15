@@ -3,6 +3,8 @@
 site_name: Volume Alignment with Render
 site_url: https://schorb.embl-community.io/volumealign
 
+theme:
+  name: material
 
 nav:
     - Home: index.md
@@ -15,12 +17,18 @@ nav:
 
 plugins:
   - mkdocstrings:
-        handlers:
+      custom_templates: templates
+      handlers:
           python:
             setup_commands:
-              - import sys
-              - sys.path.append("../")
-              - import dash
+              - import create_doc_mock
+
+
+
+
+
+
+
 
 extra_css:
     - extra.css

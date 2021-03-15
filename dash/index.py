@@ -13,7 +13,7 @@ from dash.dependencies import Input, Output
 
 import importlib
 import json
-import sys 
+import sys
 
 from app import app
 
@@ -50,7 +50,7 @@ menu_text=[#'Convert & upload',
 
 
 
-consolefile = params.render_log_dir+'/out.txt'                 
+consolefile = params.render_log_dir+'/out.txt'
 menu=list()
 store=list()
 params.processes=dict()
@@ -67,28 +67,28 @@ for lib in menu_items:
         store.extend(thisstore)
     thispage = getattr(thismodule,'page')
     allpages.append(html.Div(thispage,id={'component': 'page', 'module': lib}, style={'display': 'none'}))
-    
+
 for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
-    menu.append(html.Br())    
-        
+    menu.append(html.Br())
+
     params.processes[m_item]=[]
-    
+
 
 sidebar = html.Nav(className='sidebar',children=menu)
 
 
 mainbody = html.Div(className='main',id='page-content',children=allpages)
-                    
-                    
+
+
 
 # ==================================================
 
 # STORAGE of important values across sub-modules
 
 
-storediv=html.Div(store)                   
-                  
+storediv=html.Div(store)
+
 
 
 
@@ -131,7 +131,7 @@ for m_i in menu_items:
               ,prevent_initial_call=True)
 def display_page(pathname):
     """
-    
+
 
     Parameters
     ----------
@@ -145,39 +145,39 @@ def display_page(pathname):
 
     """
     s1 = STYLE_active
-    menu_styles = [{}]*len(menu_items)    
-    
+    menu_styles = [{}]*len(menu_items)
+
     outlist = [{'display': 'none'}]
-    
+
     page_styles=[{'display': 'none'}] * len(menu_items)
     start = True
-    
-    for m_ind,m_item in enumerate(menu_items):    
-        if pathname=="/"+m_item:  
-            menu_styles[m_ind]=s1            
+
+    for m_ind,m_item in enumerate(menu_items):
+        if pathname=="/"+m_item:
+            menu_styles[m_ind]=s1
             page_styles[m_ind] = {}
             start = False
-            
+
     if start:
         outlist[0] = {}
 
-    
+
     outlist.extend(menu_styles)
     outlist.extend(page_styles)
-    
+
     return outlist
-    
-    
-    
+
+
+
 
 if __name__ == '__main__':
     debug = True
     port=8050
-  
+
     if len(sys.argv) >1:
         debug=False
         port = sys.argv[1]
-        
-                
-    
+
+
+
     app.run_server(host= '0.0.0.0',debug=debug,port=port)

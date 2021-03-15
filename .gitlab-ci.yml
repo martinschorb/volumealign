@@ -16,7 +16,7 @@ test:
 pages:
   stage: deploy
   script:
-  - export PYTHONPATH=../
+  - export PYTHONPATH=./
   - mkdocs build --strict --verbose
 #  - cp -r docs/*.html public
 
