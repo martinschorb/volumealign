@@ -130,6 +130,20 @@ for m_i in menu_items:
               [Input('url', 'pathname')]
               ,prevent_initial_call=True)
 def display_page(pathname):
+    """
+    
+
+    Parameters
+    ----------
+    pathname : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    outlist : TYPE
+        DESCRIPTION.
+
+    """
     s1 = STYLE_active
     menu_styles = [{}]*len(menu_items)    
     

@@ -1,3 +1,5 @@
+# mkdocs.yml
+
 site_name: Volume Alignment with Render
 site_url: https://schorb.embl-community.io/volumealign
 
@@ -7,6 +9,15 @@ nav:
     - Setup: x2go.md
     - About: about.md
     - Status: EMBL_render_status.md
+    - Code Doc: code.md
+
+
+theme:
+  name: "material"
+
+plugins:
+- search
+- mkdocstrings
 
 
 extra_css:
