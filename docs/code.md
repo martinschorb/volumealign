@@ -9,4 +9,4 @@ Blblablablablabla
 
 # Reference
 
-::: volumealign.dash.index.display_page
+::: ..dash.index.display_page
