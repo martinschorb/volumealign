@@ -9,4 +9,4 @@ Blblablablablabla
 
 # Reference
 
-::: ../dash/index.display_page
+::: ../dash/index.py
