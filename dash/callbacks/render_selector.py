@@ -58,7 +58,10 @@ def update_store(prevstore,thisstore):
                State({'component': 'owner_dd', 'module': MATCH},'options')
               )
 def update_owner_dd(init_in,thispage,dd_options_in):
-    
+        
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
+        
     if thispage is None:
         return dash.no_update
     
@@ -157,7 +160,8 @@ def update_proj_dd(owner_sel,init_store,thispage,store_proj,dd_options_in):
                 Input({'component': 'project_dd', 'module': MATCH}, 'value')],
               [State({'component': 'store_stack', 'module': MATCH},'data'),
                State({'component': 'stack_dd', 'module': MATCH},'options'),
-               State('url', 'pathname')]
+               State('url', 'pathname')],
+              prevent_initial_callback=True
               )
 def update_stack_dd(init_store,own_sel,proj_sel,store_stack,dd_options_in,thispage):
     
@@ -217,7 +221,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,store_stack,dd_options_in,thispa
                 ],
               Input({'component': 'project_dd', 'module': MATCH}, 'value'),
               State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               )
+              prevent_initial_callback=True)
 def update_render_store(proj_sel,own_sel):
     if not dash.callback_context.triggered: 
         raise PreventUpdate

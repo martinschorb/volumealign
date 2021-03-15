@@ -29,20 +29,22 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=['convert',
-            'mipmaps',
-            'tilepairs',
-            'pointmatch',
-            'solve',
-            'export'
+menu_items=[#'convert',
+            # 'mipmaps',
+            # 'tilepairs',
+            # 'pointmatch',
+            # 'solve',
+            'export',
+            'finalize'
             ]
 
-menu_text=['Convert & upload',
-            'Generate MipMaps',
-            'Find Tile Pairs',
-            'Find Point Matches',
-            'Solve Positions',
-            'Export aligned volume'
+menu_text=[#'Convert & upload',
+            # 'Generate MipMaps',
+            # 'Find Tile Pairs',
+            # 'Find Point Matches',
+            # 'Solve Positions',
+            'Export aligned volume',
+            'Final post-processing'
             ]
 
 
@@ -60,8 +62,9 @@ allpages = [html.Div([html.H3('Welcome to the Render-based alignment suite.'),
 
 for lib in menu_items:
     thismodule = importlib.import_module(lib)
-    thisstore = getattr(thismodule,'store')
-    store.extend(thisstore)
+    if 'store' in dir(thismodule):
+        thisstore = getattr(thismodule,'store')
+        store.extend(thisstore)
     thispage = getattr(thismodule,'page')
     allpages.append(html.Div(thispage,id={'component': 'page', 'module': lib}, style={'display': 'none'}))
     

@@ -252,7 +252,7 @@ def tile_view(module,numpanel=1,showlink=False):
 def section_view(module,numpanel=1):       
     
     out = list()
-    linkstyle = {'display':'none'}
+    # linkstyle = {'display':'none'}
     
     
     for idx in range(numpanel):

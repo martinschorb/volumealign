@@ -41,7 +41,9 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     
-    
+    if None in [n,click,run_state,logfile,r_status,module,thispage]:
+        raise PreventUpdate
+        
     status_href=''
     status_style={'display':'none'}
     
