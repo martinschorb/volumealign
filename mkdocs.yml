@@ -12,11 +12,8 @@ nav:
     - Code Doc: code.md
 
 
-theme:
-  name: "material"
 
 plugins:
-- search
 - mkdocstrings
 
 
