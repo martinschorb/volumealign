@@ -2,9 +2,8 @@
 # Render basic requirements:
 
 
-- render server up and running [EMBL test server](http://pc-emcf-16.embl.de)
+- render server up and running [EMBL Render server](http://render.embl.de)
 - render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): `/g/emcf/software/render/render-ws-java-client/src/main/scripts`
-- render-python from [Allen Institute](https://github.com/AllenInstitute/render-python)
 - render-python-apps `renderapi` from [Allen Institute](https://github.com/AllenInstitute/render-python-apps)
 
 
@@ -41,7 +40,9 @@ Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modul
 
 # Render to BDV:
 
-I am testing [N5 export](https://github.com/saalfeldlab/hot-knife/blob/render-to-n5-no-fit/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java). Build and conversion works. I cannot visualize the output ([Fiji](https://github.com/saalfeldlab/n5-viewer)). Eric has suggested this [viewer](https://github.com/saalfeldlab/n5-utils/blob/master/src/main/java/org/janelia/saalfeldlab/View.java#L512-L515). Some data is in `/g/emcf/schorb/render-output`
+Established [N5 export](https://github.com/saalfeldlab/hot-knife/blob/render-to-n5-no-fit/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java).
+
+Need an additional step to create proper BDV-N5 metadata context using [PyBDV](https://github.com/constantinpape/pybdv).
 
 
 # Naming conventions:
