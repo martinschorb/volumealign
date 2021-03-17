@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-  name = "vol",
+  name = "volumealign",
   version = "0.0.1",
   author = "Martin Schorb",
   author_email = "schorb@embl.de",
