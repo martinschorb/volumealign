@@ -12,8 +12,8 @@ nav:
     - About: about.md
     - Status: EMBL_render_status.md
     - Development:
-        - code.md
-        - dash.md
+        - Overview: code.md
+        - WebUI: dash.md
 
 
 
