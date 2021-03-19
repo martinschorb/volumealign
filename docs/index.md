@@ -16,6 +16,7 @@ At EMBL, this is the graphical cluster node. This means, you can access it throu
 
 
 
-##
 
-- Do not use spaces or hash signs in the directory name
+
+!!! caution
+    Do not use spaces or hash signs in the directory name

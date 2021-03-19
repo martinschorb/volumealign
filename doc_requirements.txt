@@ -6,4 +6,5 @@ findimports
 # Add your custom theme if not inside a theme_dir
 # (https://github.com/mkdocs/mkdocs/wiki/MkDocs-Themes)
 
+mkdocs-macros-plugin
 mkdocs-material>=5.4.0

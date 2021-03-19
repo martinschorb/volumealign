@@ -26,12 +26,17 @@ plugins:
           python:
             setup_commands:
               - import create_doc_mock
+  - macros
 
 
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
 
-
-
-
+extra:
+  dirs:
+    code: https://git.embl.de/schorb/volumealign/
 
 
 extra_css:
