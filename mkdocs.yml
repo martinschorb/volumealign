@@ -8,7 +8,9 @@ theme:
 
 nav:
     - Home: index.md
-    - Setup: x2go.md
+    - How to:
+        - Use it: usage.md
+        - initial setup: x2go.md
     - About: about.md
     - Status: EMBL_render_status.md
     - Development:
