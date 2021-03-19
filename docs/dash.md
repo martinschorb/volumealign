@@ -9,7 +9,7 @@ The design of the workflow is borrowed from [IMOD's](https://bio3d.colorado.edu/
 
 ## customization
 
-All sub-pages can be arranged individually. Some commonly used functionality is made available through generic functions with the page elements provided in [`index.py`]({{ dirs.code }}/dash/index.py).
+All sub-pages can be arranged individually. Some commonly used functionality is made available through generic functions with the page elements provided in [`index.py`]({{ dirs.code }}dash/index.py).
 
 
 ## mock...
