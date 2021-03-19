@@ -26,7 +26,7 @@ Client scripts communicate with the Render web services and operate on the image
 
 ### The Web frontend (Volumealign UI)
 
-This is a WebUI that provides intuitive graphical access to users. It connects with the render web services and supervises the execution of client scripts. It is built in Python/dash.
+This is a [WebUI](dash.md) that provides intuitive graphical access to users. It connects with the render web services and supervises the execution of client scripts. It is built in Python/dash.
 
 
 ## Hardware setup

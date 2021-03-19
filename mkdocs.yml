@@ -11,7 +11,7 @@ nav:
     - Setup: x2go.md
     - About: about.md
     - Status: EMBL_render_status.md
-    - Code Doc: code.md
+    - Development: code.md
 
 
 
