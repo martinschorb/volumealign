@@ -22,16 +22,3 @@ Repo: [https://github.com/martinschorb/render-modules](https://github.com/martin
 The frontend for users to interact with the services is a [WebUI](dash.md) written in [Potly.dash](https://dash.plotly.com/). It provides visual interaction with some of Render's WebInterfaces, prepares the necessary parameters and launches and controls the client script application.
 
 Most of the parameters are transparently provided to [`render-modules`](https://github.com/martinschorb/render-modules) through `JSON` files in the underlying [`argschema`](https://github.com/AllenInstitute/argschema) specification.
-
-
-
-## code here....
-
-# Reference
-
-
-## mock...
-
-::: create_doc_mock
-    rendering:
-        show_root_heading: true
