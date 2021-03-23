@@ -12,7 +12,7 @@ The design of the workflow is borrowed from [IMOD's](https://bio3d.colorado.edu/
 All sub-pages can be arranged individually. Some commonly used functionality is made available through generic functions with the page elements provided in [`index.py`]({{ dirs.code }}dash/index.py).
 
 
-## mock...
-``` python
-import tensorflow as tf
-```
+
+::: create_doc_mock
+    rendering:
+        show_root_heading: true
