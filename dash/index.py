@@ -38,11 +38,11 @@ menu_items=['convert',
             'finalize'
             ]
 
-menu_text=[#'Convert & upload',
-            # 'Generate MipMaps',
-            # 'Find Tile Pairs',
-            # 'Find Point Matches',
-            # 'Solve Positions',
+menu_text=['Convert & upload',
+            'Generate MipMaps',
+            'Find Tile Pairs',
+            'Find Point Matches',
+            'Solve Positions',
             'Export aligned volume',
             'Final post-processing'
             ]
