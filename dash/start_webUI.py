@@ -43,7 +43,7 @@ if params.user not in users_exist.keys():
 
 
         if not os.path.exists(home+'/.ssh/id_rsa_render'):
-            os.system('ssh-keygen -t rsa -b 4096 -q -p -f '+home+'/.ssh/id_rsa_render')
+            os.system("ssh-keygen -t rsa -b 4096 -q -f '+home+'/.ssh/id_rsa_render -N ''")
         
         for target in target_machines:
             os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa_render ' + target_user +'@' + target)
