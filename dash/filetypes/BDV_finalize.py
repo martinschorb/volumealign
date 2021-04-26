@@ -49,6 +49,7 @@ gobutton = html.Div(children=[html.Br(),
                               html.Div(id={'component': 'run_state', 'module': parent}, style={'display': 'none'},children='wait')])
 
 
+
 page.append(gobutton)
 
 
