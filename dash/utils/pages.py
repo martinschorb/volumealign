@@ -64,12 +64,6 @@ def render_selector(module,hidden=False):
 
     return out
 
-# def fakesel(module):
-#     out = html.Div([dcc.Dropdown(id={'component':'owner_dd','module':module}),style={'display': 'none'}),
-#                     dcc.Dropdown(id={'component':'project_dd','module':module},style={'display': 'none'}),
-#                     dcc.Dropdown(id={'component':'stack_dd','module':module},style={'display': 'none'})])
-#     return out
-
 
 
 def match_selector(module,newcoll=False):
