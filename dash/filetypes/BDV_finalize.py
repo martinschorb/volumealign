@@ -59,10 +59,39 @@ page.append(gobutton)
 
 # =============================================
              
-def n5export_execute_gobutton(): 
+
+
+
+@app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
+               Output({'component': 'buttondiv', 'module': label}, 'children'),
+               Output({'component': 'store_r_launch', 'module': parent},'data'),
+               ],
+              [Input({'component': 'go', 'module': label}, 'n_clicks'),
+               Input(parent+'_input_dd', 'value')]
+              )
+def n5export_execute_gobutton(click,n5file): 
     
     if not dash.callback_context.triggered: 
-            raise PreventUpdate
-   
+        raise PreventUpdate
+            
+    if n5file is None:
+        raise PreventUpdate
+                
+    out = dict()
+    out['state'] = 'wait'
+    out['logfile'] = ''
+            
+    if not os.path.exists(n5file):    
+
+        return True, 'Input data file does not exist.', dash.no_update
+    
+    if not os.access(n5file,os.W_OK | os.X_OK):
+        return True,'Output directory not writable!', dash.no_update
+    
+    
+    
+        
+        
+      
     
     
