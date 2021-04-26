@@ -14,7 +14,7 @@ from dash.dependencies import Input,Output,State
 import os
 import glob
 import json
-# import numpy as np
+import numpy as np
 # import requests
 
 import params
@@ -49,60 +49,67 @@ page = [intervals,main,pages.render_selector(module,hidden=True)]
 
 
 
-# # ===============================================
+# ===============================================
        
-# page2 = html.Div([html.H4("Choose post-processing target format"),
-#                   dcc.Dropdown(id=module+'_format_dd',persistence=True,
-#                                options=[{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'}],
-#                                value='BDV')
-#                   ])                                
+page2 = html.Div([html.H4("Choose post-processing target format"),
+                  dcc.Dropdown(id=module+'_format_dd',persistence=True,
+                                options=[{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'}],
+                                value='BDV')
+                  ])                                
 
-# page.append(page2)
-
-
-
-
-# # select output volume
-
-
-# page3 = html.Div([html.H4("Choose exported volume"),
-#                   dcc.Dropdown(id=module+'_input_dd',persistence=True)
-#                   ])                                
-
-# page.append(page3)
+page.append(page2)
 
 
 
 
+# select output volume
 
 
-# @app.callback([Output(module+'_input_dd', 'options'),
-#                Output(module+'_input_dd', 'value')],
-#               [Input(module+'_format_dd', 'value'),
-#                Input({'component': 'store_r_launch', 'module': previous},'modified_timestamp')
-#                ])
-# def finalize_volume_dd(dd_in,prev_in):
+page3 = html.Div([html.H4("Choose exported volume"),
+                  dcc.Dropdown(id=module+'_input_dd',persistence=True)
+                  ])                                
+
+page.append(page3)
+
+
+
+
+
+
+@app.callback([Output(module+'_input_dd', 'options'),
+                Output(module+'_input_dd', 'value')],
+              [Input(module+'_format_dd', 'value'),
+                Input({'component': 'store_r_launch', 'module': previous},'modified_timestamp')
+                ])
+def finalize_volume_dd(dd_in,prev_in):
     
         
-#     expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
+    expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
     
     
-#     dd_options=list(dict())
+    dts = []
     
-#     for jsonfile in expjson_list:
-#         with open(jsonfile,'r') as f:
-#             export_json = json.load(f)
-            
-#         vfile = export_json['--n5Path']
-#         vdescr = ' - '.join([export_json['--project'],
-#                                   export_json['--stack'],
-#                                   jsonfile.split(params.user+'_')[1].strip('.json'),
-#                                   vfile.split('_')[-1].split('.')[0]])
+    dd_options=list(dict())
+    
+    for jsonfile in expjson_list:
+        with open(jsonfile,'r') as f:
+            export_json = json.load(f)
         
-#         dd_options.append({'label':vdescr,'value':vfile})
+        datetime = jsonfile.split(params.user+'_')[1].strip('.json')
+        dts.append(datetime)
+        
+        vfile = export_json['--n5Path']
+        vdescr = ' - '.join([export_json['--project'],
+                                  export_json['--stack'],
+                                  datetime,
+                                  vfile.split('_')[-1].split('.')[0]])
+        
+        dd_options.append({'label':vdescr,'value':vfile})
         
     
-#     return dd_options, vfile
+    latest = dd_options[np.argsort(dts)[-1]]['value']
+    
+    return dd_options, latest
 
 
 
@@ -114,20 +121,20 @@ page = [intervals,main,pages.render_selector(module,hidden=True)]
 # # Page content for specific export call
 
 
-# page4 = html.Div(id=module+'_page1')
+page4 = html.Div(id=module+'_page1')
 
-# page.append(page4)
+page.append(page4)
 
 
-# @app.callback([Output(module+'_page1', 'children')],
-#                 Input(module+'_format_dd', 'value'))
-# def finalize_output(value):
+@app.callback([Output(module+'_page1', 'children')],
+                Input(module+'_format_dd', 'value'))
+def finalize_output(value):
     
-#     if value=='BDV':
-#         return [BDV_finalize.page]
+    if value=='BDV':
+        return [BDV_finalize.page]
     
-#     else:
-#         return [[html.Br(),'No output type selected.']]
+    else:
+        return [[html.Br(),'No output type selected.']]
 
 
 
