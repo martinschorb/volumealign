@@ -69,28 +69,48 @@ page.append(gobutton)
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input(parent+'_input_dd', 'value')]
               )
-def n5export_execute_gobutton(click,n5file): 
+def n5export_execute_gobutton(click,jsonfile): 
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
             
-    if n5file is None:
+    if jsonfile is None:
         raise PreventUpdate
                 
     out = dict()
-    out['state'] = 'wait'
+    out['state'] = 'wait'    
     out['logfile'] = ''
+    
+    with open(jsonfile,'r') as f:
+            export_json = json.load(f)
+    
+    n5file = export_json['--n5Path']
+    owner = export_json['--owner']
+    project = export_json['--project']
+    stack = export_json['--stack']
             
-    if not os.path.exists(n5file):    
+            
+    # if not os.path.exists(n5file):    
 
-        return True, 'Input data file does not exist.', dash.no_update
+    #     return True, 'Input data file does not exist.', dash.no_update
     
-    if not os.access(n5file,os.W_OK | os.X_OK):
-        return True,'Output directory not writable!', dash.no_update
+    # if not os.access(n5file,os.W_OK | os.X_OK):
+    #     return True,'Output directory not writable!', dash.no_update
     
-    
-    
+    trigger = hf.trigger() 
         
+    # if 'input' in trigger:
+    #     return False,'', dash.no_update
+    
+    
+    # get stack parameters from render server
+    url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/'+stack
+    
+    stackparams = requests.get(url).json()
+    
+    res = (stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY'],stackparams['currentVersion']['stackResolutionZ'])
+    
+       
         
       
     

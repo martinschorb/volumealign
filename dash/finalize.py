@@ -104,7 +104,7 @@ def finalize_volume_dd(dd_in,prev_in):
                                   datetime,
                                   vfile.split('_')[-1].split('.')[0]])
         
-        dd_options.append({'label':vdescr,'value':vfile})
+        dd_options.append({'label':vdescr,'value':jsonfile})
         
     
     latest = dd_options[np.argsort(dts)[-1]]['value']
