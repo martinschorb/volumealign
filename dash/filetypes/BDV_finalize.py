@@ -27,8 +27,6 @@ from utils import pages,launch_jobs
 from utils import helper_functions as hf
 
 
-
-
 # element prefix
 label = "BDV_finalize"
 parent = "finalize"
@@ -77,9 +75,6 @@ def n5export_execute_gobutton(click,jsonfile):
     if jsonfile is None:
         raise PreventUpdate
                 
-    out = dict()
-    out['state'] = 'wait'    
-    out['logfile'] = ''
     
     with open(jsonfile,'r') as f:
             export_json = json.load(f)
@@ -108,10 +103,17 @@ def n5export_execute_gobutton(click,jsonfile):
     
     stackparams = requests.get(url).json()
     
-    res = (stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY'],stackparams['currentVersion']['stackResolutionZ'])
+    res = [stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY'],stackparams['currentVersion']['stackResolutionZ']]
     
-       
+    out = dict()
+    out['state'] = 'launch'   
+    out['logfile'] = ''
+    
+    mkxml_p = launch_jobs.run(target='standalone',pyscript='filetypes/make_xml.py',
+                            run_args=n5file+' '+str(res),target_args='')
+    
+    params.processes[parent].extend(mkxml_p)
         
-      
+    return True, 'Input data file does not exist.', out
     
     

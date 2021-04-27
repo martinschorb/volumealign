@@ -2,7 +2,7 @@ from pybdv.metadata import write_xml_metadata, write_n5_metadata, validate_attri
 import sys
 
 
-def make_render_xml(path, scale_factors, resolution, unit):
+def make_render_xml(path, scale_factors = 3 * [[2, 2, 2]], resolution = [0.05, 0.015, 0.015], unit = 'micrometer'):
     xml_path = path.replace('.n5', '.xml')
 
     attrs = {'channel': {'id': None}}
@@ -22,15 +22,8 @@ def make_render_xml(path, scale_factors, resolution, unit):
 
 
 if __name__ == '__main__':
-
-    # I don't have write permissions here
-    # p = '/g/emcf/schorb/render-output/test-3D-downsampling.n5'
-
-    # p = './test-giovanna_rigid.n5'
     
-    p=sys.argv[1]
-    
-    scale_factors = 3 * [[2, 2, 2]]
-    unit = 'micrometer'
-    resolution = [0.05, 0.015, 0.015]
-    make_render_xml(p, scale_factors, resolution, unit)
+    p = sys.argv[1]
+    res = sys.argv[2]
+
+    make_render_xml(p, resolution = res)

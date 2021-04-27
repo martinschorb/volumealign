@@ -302,7 +302,7 @@ def canceljobs(job_ids):
     
     
 
-def run(target='standalone',pyscript='thispyscript',json='JSON',run_args=None,target_args=None,logfile='/g/emcf/schorb/render-output/render.out',errfile='/g/emcf/schorb/render-output/render.err'):
+def run(target='standalone',pyscript='thispyscript',json='',run_args=None,target_args=None,logfile=os.path.join(params.render_log_dir,'render.out'),errfile=os.path.join(params.render_log_dir,'render.err')):
     my_env = os.environ.copy()
     os.chdir(workdir)
     command = '../'+target
