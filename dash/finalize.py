@@ -44,7 +44,7 @@ intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': modul
                       ])
 
 
-page = [intervals,main]
+page = [intervals,main,pages.render_selector(module,hidden=True)]
 
 
 

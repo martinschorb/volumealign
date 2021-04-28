@@ -29,7 +29,12 @@ def init_store(storeinit,module):
 
 
 
-def render_selector(module):
+def render_selector(module,hidden=False):
+    
+    dst=dict(display='block')
+    
+    if hidden: dst = dict(display='none')
+    
     out = html.Div(id={'component':'r_sel_head','module':module},
                    children=[html.H4('Current active stack:'),
                              html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
@@ -55,7 +60,7 @@ def render_selector(module):
                                                     persistence=True,clearable=False),
                                        dcc.Store(id={'component':'stacks','module':module})
                                        ],style=dict(display='flex'))
-                             ])
+                             ],style = dst)
 
     return out
 
