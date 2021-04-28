@@ -302,7 +302,7 @@ def canceljobs(job_ids):
     
     
 
-def run(target='standalone',pyscript='thispyscript',json='',run_args=None,target_args=None,logfile=os.path.join(params.render_log_dir,'render.out'),errfile=os.path.join(params.render_log_dir,'render.err')):
+def run(target='standalone',pyscript='thispyscript',json='',run_args='',target_args=None,logfile=os.path.join(params.render_log_dir,'render.out'),errfile=os.path.join(params.render_log_dir,'render.err')):
     my_env = os.environ.copy()
     os.chdir(workdir)
     command = '../'+target
@@ -322,13 +322,22 @@ def run(target='standalone',pyscript='thispyscript',json='',run_args=None,target
         command += run_args
         
         print(command)
-
         
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
            
         return [p]
     
+    elif target == 'generic':
+        command = pyscript        
+        command += ' '+run_args
+        
+        print(command)
+        
+        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+           
+        return [p]
     elif target == 'slurm':
         
         command += pyscript

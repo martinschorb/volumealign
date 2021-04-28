@@ -13,6 +13,7 @@ from dash.exceptions import PreventUpdate
 from dash.dependencies import Input,Output,State
 
 # import sys
+import glob
 import numpy as np
 import os
 import json
@@ -34,6 +35,21 @@ parent = "finalize"
 
 page=[html.Br()]
 
+
+
+# select output volume
+
+
+page3 = html.Div([html.H4("Choose exported volume"),
+                  dcc.Dropdown(id=label+'_input_dd',persistence=True)
+                  ])                                
+
+page.append(page3)
+
+
+
+
+
 # =============================================
 # Start Button
 
@@ -51,6 +67,52 @@ gobutton = html.Div(children=[html.Br(),
 page.append(gobutton)
 
 
+
+
+# Volume selection list callback
+
+# =============================================
+
+
+@app.callback([Output(label+'_input_dd', 'options'),
+                Output(label+'_input_dd', 'value')],
+              [Input(parent+'_format_dd', 'value'),
+               Input('url', 'pathname')
+                ])
+def finalize_volume_dd(dd_in,url):
+    
+    # if not dash.callback_context.triggered: 
+    #     raise PreventUpdate
+        
+    expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
+        
+    dts = []
+    
+    dd_options=list(dict())
+    
+    for jsonfile in expjson_list:
+        with open(jsonfile,'r') as f:
+            export_json = json.load(f)
+        
+        datetime = jsonfile.split(params.user+'_')[1].strip('.json')
+        dts.append(datetime)
+        
+        vfile = export_json['--n5Path']
+        vdescr = ' - '.join([export_json['--project'],
+                                  export_json['--stack'],
+                                  datetime,
+                                  vfile.split('_')[-1].split('.')[0]])
+        
+        dd_options.append({'label':vdescr,'value':jsonfile})
+        
+    
+    latest = dd_options[np.argsort(dts)[-1]]['value']
+    
+    return dd_options, latest
+
+
+
+
 # =============================================
    
 #  LAUNCH CALLBACK FUNCTION
@@ -65,10 +127,9 @@ page.append(gobutton)
                Output({'component': 'store_r_launch', 'module': parent},'data'),
                ],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input(parent+'_input_dd', 'value')]
+               Input(label+'_input_dd', 'value')]
               )
-def n5export_execute_gobutton(click,jsonfile): 
-    
+def n5export_execute_gobutton(click,jsonfile):     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
             
@@ -85,17 +146,17 @@ def n5export_execute_gobutton(click,jsonfile):
     stack = export_json['--stack']
             
             
-    # if not os.path.exists(n5file):    
+    if not os.path.exists(n5file):    
 
-    #     return True, 'Input data file does not exist.', dash.no_update
+        return True, 'Input data file does not exist.', dash.no_update
     
-    # if not os.access(n5file,os.W_OK | os.X_OK):
-    #     return True,'Output directory not writable!', dash.no_update
+    if not os.access(n5file,os.W_OK | os.X_OK):
+        return True,'Output directory not writable!', dash.no_update
     
     trigger = hf.trigger() 
         
-    # if 'input' in trigger:
-    #     return False,'', dash.no_update
+    if 'input' in trigger:
+        return False,'', dash.no_update
     
     
     # get stack parameters from render server
@@ -103,17 +164,36 @@ def n5export_execute_gobutton(click,jsonfile):
     
     stackparams = requests.get(url).json()
     
-    res = [stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY'],stackparams['currentVersion']['stackResolutionZ']]
+    res = [stackparams['currentVersion']['stackResolutionZ'],stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY']]
     
     out = dict()
     out['state'] = 'launch'   
     out['logfile'] = ''
     
-    mkxml_p = launch_jobs.run(target='standalone',pyscript='filetypes/make_xml.py',
-                            run_args=n5file+' '+str(res))
+    run_params = dict()
+    
+    run_params['path'] = n5file
+    # run_params["scale_factors"] = 3 * [[2, 2, 2]],
+    run_params["resolution"] = res
+    # run_params["unit"] = 'micrometer'
+
+
+    param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+
+    with open(param_file,'w') as f:
+            json.dump(run_params,f,indent=4)
+    
+    log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+    err_file = log_file + '.err'
+    log_file += '.log'
+    
+    
+    mkxml_p = launch_jobs.run(target='standalone',pyscript='rendermodules/materialize/make_xml.py',json = param_file,
+                              logfile=log_file,errfile=err_file)
+                            
     
     params.processes[parent].extend(mkxml_p)
         
-    return True, 'Input data file does not exist.', out
+    return True, '', out
     
     
