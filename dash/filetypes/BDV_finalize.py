@@ -110,7 +110,7 @@ def n5export_execute_gobutton(click,jsonfile):
     out['logfile'] = ''
     
     mkxml_p = launch_jobs.run(target='standalone',pyscript='filetypes/make_xml.py',
-                            run_args=n5file+' '+str(res),target_args='')
+                            run_args=n5file+' '+str(res))
     
     params.processes[parent].extend(mkxml_p)
         

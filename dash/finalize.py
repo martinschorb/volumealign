@@ -5,9 +5,10 @@ Created on Tue Nov  3 13:30:16 2020
 
 @author: schorb
 """
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
-
+from dash.exceptions import PreventUpdate
 from dash.dependencies import Input,Output,State
 
 
@@ -79,13 +80,16 @@ page.append(page3)
 @app.callback([Output(module+'_input_dd', 'options'),
                 Output(module+'_input_dd', 'value')],
               [Input(module+'_format_dd', 'value'),
-                Input({'component': 'store_r_launch', 'module': previous},'modified_timestamp')
+               Input({'component': 'store_r_launch', 'module': previous},'modified_timestamp'),
+               Input('url', 'pathname')
                 ])
-def finalize_volume_dd(dd_in,prev_in):
-    
+def finalize_volume_dd(dd_in,prev_in,url):
+    if not dash.callback_context.triggered: 
+        raise PreventUpdate
         
     expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
     
+    print(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
     
     dts = []
     

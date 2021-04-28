@@ -8,7 +8,7 @@ def make_render_xml(path, scale_factors = 3 * [[2, 2, 2]], resolution = [0.05, 0
     attrs = {'channel': {'id': None}}
     attrs = validate_attributes(xml_path, attrs, setup_id=0,
                                 enforce_consistency=False)
-
+    
     write_xml_metadata(xml_path, path, unit, resolution,
                        is_h5=False,
                        setup_id=0, timepoint=0,

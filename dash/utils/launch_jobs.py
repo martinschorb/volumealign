@@ -319,6 +319,7 @@ def run(target='standalone',pyscript='thispyscript',json='',run_args=None,target
     if target=='standalone':
         command += pyscript
         command += ' '+json
+        command += run_args
         
         print(command)
 
