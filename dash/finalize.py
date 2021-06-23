@@ -88,9 +88,7 @@ def finalize_volume_dd(dd_in,prev_in,url):
         raise PreventUpdate
         
     expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
-    
-    print(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
-    
+        
     dts = []
     
     dd_options=list(dict())
