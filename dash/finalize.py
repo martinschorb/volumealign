@@ -61,8 +61,6 @@ page2 = html.Div([html.H4("Choose post-processing target format"),
 page.append(page2)
 
 
-
-
 # select output volume
 
 
@@ -112,11 +110,6 @@ def finalize_volume_dd(dd_in,prev_in,url):
     latest = dd_options[np.argsort(dts)[-1]]['value']
     
     return dd_options, latest
-
-
-
-
-
 
 
 # =============================================

@@ -24,7 +24,7 @@ render_log_dir = '/g/emcf/software/render-logs'
 hotknife_dir = "/g/emcf/schorb/code/hot-knife"
 
 # base directory for launchers etc...
-workdir = '/g/emcf/software/volumealign/dash'
+workdir = '/g/emcf/schorb/code/volumealign/dash'
 
 # emails
 
