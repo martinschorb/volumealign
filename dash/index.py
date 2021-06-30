@@ -31,7 +31,7 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 menu_items=['convert',
             # 'mipmaps',
-            # 'tilepairs',
+            'tilepairs',
             'pointmatch',
             'solve',
             'export',
@@ -40,7 +40,7 @@ menu_items=['convert',
 
 menu_text=['Convert & upload',
             # 'Generate MipMaps',
-            # 'Find Tile Pairs',
+            'Find Tile Pairs',
             'Find Point Matches',
             'Solve Positions',
             'Export aligned volume',
