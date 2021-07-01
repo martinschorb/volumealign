@@ -10,6 +10,7 @@ import params
 import dash_core_components as dcc
 import dash_html_components as html
 
+from utils import checks
 from utils import helper_functions as hf
 
 def init_store(storeinit,module):
@@ -271,6 +272,21 @@ def section_view(module,numpanel=1):
     
     return html.Div(out)
 
+
+def filebrowse(module,tf_in = None):
+    
+    if tf_in is None:
+        tf_in = {'component': 'path_input', 'module': module} 
+    
+    tf_in = checks.makeinput(tf_in)
+
+    fbdd = dcc.Dropdown(id={'component': 'browse_dd', 'module': module} ,searchable=True)
+
+        
+    fbrowse = html.Details([html.Summary('Browse'),fbdd])
+    fbstore = dcc.Store(id={'component': 'path_store', 'module': module})
+    
+    return html.Div([fbrowse,fbstore])
 
 # if __name__ == '__main__':
     

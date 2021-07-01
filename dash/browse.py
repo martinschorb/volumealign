@@ -9,17 +9,20 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
+
 
 import os
 #for file browsing dialogs
-import json
-import requests
-import importlib
+# import json
+# import requests
+# import importlib
 
 
 from app import app
 import params
-from utils import launch_jobs
+from utils import launch_jobs, pages
+from utils import helper_functions as hf
 
 
 # element prefix
@@ -49,28 +52,22 @@ owner = "SBEM"
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                                    html.Script(type="text/javascript",children="alert('test')"),                                   
-                                   dcc.Input(id="input1", type="text", debounce=True,value="/g/"+group,persistence=True,className='dir_textinput')
+                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,value="/g/"+group,persistence=True,className='dir_textinput')
                                    ])
-
-
-
         
         
-filebrowse = html.Details([html.Summary('Browse')])
-
-fbdd = dcc.Dropdown(id='dd',clearable=True,searchable=False)
-
-fbstore = dcc.Store(id='path')
+filebrowse = pages.filebrowse(label)
 
 startpath = os.getcwd()
-show_files = True
+show_files = False
 show_hidden = False
 
-@app.callback(Output('path','data'),
-              Input('input1','value')
+
+@app.callback(Output({'component': 'path_input', 'module': label},'value'),              
+              Input({'component': 'path_store', 'module': label},'data')
               )
 def update_store(inpath):
-    if os.path.isdir(str(inpath)):
+    if os.path.exists(str(inpath)):
         path = inpath
     else:
         path = startpath
@@ -78,33 +75,50 @@ def update_store(inpath):
     return path
 
 
-@app.callback([Output('dd','options'),
-               Output('path','data')],
-              [Input('dd','value'),
-               Input('input1','value')]
+@app.callback([Output({'component': 'browse_dd', 'module': label},'options'),
+               Output({'component': 'path_store', 'module': label},'data')],
+              [Input({'component': 'browse_dd', 'module': label},'value'),
+               Input({'component': 'path_input', 'module': label},'n_blur')],
+              [State({'component': 'path_input', 'module': label},'value'),
+               State({'component': 'path_store', 'module': label},'data')]
               )
-def update_owner_dd(filesel,inpath):
-    dd_options = list(dict())
+def update_owner_dd(filesel,intrig,inpath,path):
+    if dash.callback_context.triggered: 
+        trigger = hf.trigger_component()
+    else:
+        trigger='-'
+    
     
     if os.path.isdir(str(inpath)):
-        path = inpath
+        inpath = inpath
+    elif os.path.exists(str(inpath)):
+        inpath = os.path.dirname(inpath)
     else:
         path = startpath
+    
+    if not os.path.isdir(str(path)):        
+        if os.path.isdir(str(inpath)):
+            path = inpath
+        else:
+            path = startpath
+                
+    if trigger == 'path_input':
+            
+        if os.path.isdir(str(inpath)):
+            path = inpath
+    
         
-    return path
-    
-    
-    
     if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
-
         
         if not filesel is None:
             if filesel[0:2] ==  '> ':
                 path = os.path.join(path,filesel[2:])
             elif filesel == '..':
                 path = os.path.abspath(os.path.join(path,filesel))
+
+        files = os.listdir(path)
         
-        files = os.listdir(path)        
+        dd_options = list(dict())
     
         dd_options.append({'label':'..', 'value':'..'})
         
@@ -125,14 +139,15 @@ def update_owner_dd(filesel,inpath):
             
         if show_files:
             dd_options.extend(f_list)
-            
+                
         return dd_options,path
     
     else:
         path = os.path.join(path,filesel)
+
         return dash.no_update,path
     
 
-page = [filebrowse,fbdd,directory_sel]
+page = [filebrowse,directory_sel]
 
         
