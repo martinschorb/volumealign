@@ -14,7 +14,7 @@ from app import app
 from utils import pages
 from callbacks import runstate
 
-import browse 
+from sbem import sbem_conv
 
 module='convert'
 
@@ -55,7 +55,7 @@ page1 = html.Div(id={'component': 'page1', 'module': module})
                 Input({'component': 'import_type_dd', 'module': module}, 'value'))
 def convert_output(dd_value):
     if dd_value=='SBEMImage':
-        return [html.Div(browse.page)]
+        return [html.Div(sbem_conv.page)]
     
     else:
         return [html.Div([html.Br(),'No data type selected.'])]

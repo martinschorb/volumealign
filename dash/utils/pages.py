@@ -273,14 +273,14 @@ def section_view(module,numpanel=1):
     return html.Div(out)
 
 
-def filebrowse(module,tf_in = None):
+def path_browse(module,tf_in = None):
     
     if tf_in is None:
         tf_in = {'component': 'path_input', 'module': module} 
     
     tf_in = checks.makeinput(tf_in)
 
-    fbdd = dcc.Dropdown(id={'component': 'browse_dd', 'module': module} ,searchable=True)
+    fbdd = dcc.Dropdown(id={'component': 'browse_dd', 'module': module} ,searchable=True,className='dropdown_inline')
 
         
     fbrowse = html.Details([html.Summary('Browse'),fbdd])
