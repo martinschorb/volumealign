@@ -16,6 +16,7 @@ from dash.exceptions import PreventUpdate
 import os
 import importlib
 import json
+import time
 
 import renderapi
 
@@ -321,6 +322,8 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     render = renderapi.Render(host=rp['render']['host'],port=rp['render']['port'],client_scripts=rp['render']['client_scripts'])
     
     orig_meta = render.run(renderapi.stack.get_stack_metadata,stack,owner=owner,project=project)
+    
+    time.sleep(5)
     
     render.run(renderapi.stack.create_stack,outstack,
                stackResolutionX=orig_meta.stackResolutionX,
