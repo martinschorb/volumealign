@@ -1,6 +1,6 @@
 {
   "render": {
-    "host": "render.embl.de",
+    "host": "http://render.embl.de",
     "port": 8080,
     "owner": "SBEM",
     "project": "tests",

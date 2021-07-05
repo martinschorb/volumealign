@@ -17,13 +17,14 @@ import os
 import importlib
 import json
 
+import renderapi
+
 import params
 
 from app import app
 
 from utils import pages,launch_jobs
 from utils import helper_functions as hf
-
 
 from callbacks import runstate,render_selector,substack_sel,match_selector,tile_view
 
@@ -314,6 +315,18 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     log_file = params.render_log_dir + '/' + module + '_' + params.run_prefix
     err_file = log_file + '.err'
     log_file += '.log'
+    
+    # copy resolution metadata to the new output stack
+    
+    render = renderapi.Render(host=rp['render']['host'],port=rp['render']['port'],client_scripts=rp['render']['client_scripts'])
+    
+    orig_meta = render.run(renderapi.stack.get_stack_metadata,stack,owner=owner,project=project)
+    
+    render.run(renderapi.stack.create_stack,outstack,
+               stackResolutionX=orig_meta.stackResolutionX,
+               stackResolutionY=orig_meta.stackResolutionY,
+               stackResolutionZ=orig_meta.stackResolutionZ,
+               owner=owner,project=project)
     
     solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solver/solve.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
