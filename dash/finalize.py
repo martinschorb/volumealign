@@ -61,56 +61,6 @@ page2 = html.Div([html.H4("Choose post-processing target format"),
 page.append(page2)
 
 
-# select output volume
-
-
-page3 = html.Div([html.H4("Choose exported volume"),
-                  dcc.Dropdown(id=module+'_input_dd',persistence=True)
-                  ])                                
-
-page.append(page3)
-
-
-
-
-
-
-@app.callback([Output(module+'_input_dd', 'options'),
-                Output(module+'_input_dd', 'value')],
-              [Input(module+'_format_dd', 'value'),
-               Input({'component': 'store_r_launch', 'module': previous},'modified_timestamp'),
-               Input('url', 'pathname')
-                ])
-def finalize_volume_dd(dd_in,prev_in,url):
-    if not dash.callback_context.triggered: 
-        raise PreventUpdate
-        
-    expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
-        
-    dts = []
-    
-    dd_options=list(dict())
-    
-    for jsonfile in expjson_list:
-        with open(jsonfile,'r') as f:
-            export_json = json.load(f)
-        
-        datetime = jsonfile.split(params.user+'_')[1].strip('.json')
-        dts.append(datetime)
-        
-        vfile = export_json['--n5Path']
-        vdescr = ' - '.join([export_json['--project'],
-                                  export_json['--stack'],
-                                  datetime,
-                                  vfile.split('_')[-1].split('.')[0]])
-        
-        dd_options.append({'label':vdescr,'value':jsonfile})
-        
-    
-    latest = dd_options[np.argsort(dts)[-1]]['value']
-    
-    return dd_options, latest
-
 
 # =============================================
 # # Page content for specific export call
