@@ -137,7 +137,7 @@ page.append(stack_div)
                Input(module+'stack_input', 'value')],
               [State({'component': 'owner_dd', 'module': module}, 'value'),
                 State({'component': 'project_dd', 'module': module}, 'value')])    
-def sbem_conv_stacks(dd_options_in,newstack_name,owner,project_sel):    
+def solve_stacks(dd_options_in,newstack_name,owner,project_sel):    
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
     stack = 'newstack'
@@ -167,7 +167,7 @@ def sbem_conv_stacks(dd_options_in,newstack_name,owner,project_sel):
               Input({'component':'outstack_dd','module' : module},'value'),
               [State({'component': 'project_dd', 'module': module}, 'value'),
                State({'component': 'owner_dd', 'module': module}, 'value')])
-def sbem_conv_update_stack_browse(stack_state,project_sel,owner): 
+def solve_update_stack_browse(stack_state,project_sel,owner): 
     if project_sel is None or owner is None or stack_state is None:
         return dash.no_update
      
@@ -181,7 +181,7 @@ def sbem_conv_update_stack_browse(stack_state,project_sel,owner):
     
 @app.callback(Output(module+'newstack','style'),
               Input({'component':'outstack_dd','module' : module},'value'))
-def sbem_conv_new_stack_input(stack_value):
+def solve_new_stack_input(stack_value):
     if stack_value=='newstack':
         style={'display':'block'}
     else:
@@ -256,7 +256,7 @@ page.append(gobutton)
                 State({'component':'stack_dd','module' : module},'value'),
                 State({'component':'mc_owner_dd','module':module},'value')]
               )                 
-def tilepairs_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):       
+def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):       
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
 
