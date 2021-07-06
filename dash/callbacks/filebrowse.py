@@ -22,13 +22,21 @@ show_hidden = False
 
 
 @app.callback(Output({'component': 'path_input', 'module': MATCH},'value'),              
-              Input({'component': 'path_store', 'module': MATCH},'data')
+              [Input({'component': 'path_store', 'module': MATCH},'data'),
+               Input({'component': 'path_ext', 'module': MATCH},'data')]
               )
-def update_store(inpath):
-    if os.path.exists(str(inpath)):
-        path = inpath
+def update_store(inpath,extpath):
+    trigger=hf.trigger()
+    print('pathstore -- ')
+    print(trigger)
+    if trigger=='path_store':
+        if os.path.exists(str(inpath)):
+            path = inpath
+        else:
+            path = startpath
     else:
-        path = startpath
+        print(extpath)
+        path=extpath
         
     return path
 
@@ -40,9 +48,9 @@ def update_store(inpath):
               [State({'component': 'path_input', 'module': MATCH},'value'),
                State({'component': 'path_store', 'module': MATCH},'data')]
               )
-def update_owner_dd(filesel,intrig,inpath,path):
+def update_path_dd(filesel,intrig,inpath,path):
     if dash.callback_context.triggered: 
-        trigger = hf.trigger_component()
+        trigger = hf.trigger()
     else:
         trigger='-'
     

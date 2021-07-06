@@ -61,32 +61,32 @@ page = [directory_sel,pathbrowse]
 
         
 
-@app.callback([Output(label+'input1', 'value'),
-                Output(label+'warning-popup','children')],
-              [Input(label+'browse1', 'n_clicks'),
-                Input(label+'danger-novaliddir','submit_n_clicks'),
-                Input(label+'danger-novaliddir','cancel_n_clicks')])
-def sbem_conv_convert_filebrowse1(browse_click,popupclick1,popupclick2):
-    ctx = dash.callback_context
-    trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
-    outpage=''
-    conv_inputdir = ''
+# @app.callback([Output({'component': 'path_input', 'module': label}, 'value'),
+#                 Output(label+'warning-popup','children')],
+#               [Input(label+'browse1', 'n_clicks'),
+#                 Input(label+'danger-novaliddir','submit_n_clicks'),
+#                 Input(label+'danger-novaliddir','cancel_n_clicks')])
+# def sbem_conv_convert_filebrowse1(browse_click,popupclick1,popupclick2):
+#     ctx = dash.callback_context
+#     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
+#     outpage=''
+#     conv_inputdir = ''
     
-    if 'browse1'in trigger:        
+#     if 'browse1'in trigger:        
     
-        if params.hostname=='login-gui02.cluster.embl.de':    
-            root = tkinter.Tk()
-            root.withdraw()
-            conv_inputdir = filedialog.askdirectory()
-            root.destroy()
-            outpage=''
-        else:
-            outpage=dcc.ConfirmDialog(        
-            id=label+'danger-wrong_host',displayed=True,
-            message='This functionality only works when accessing this page from the graphical login node.'
-            )
+#         if params.hostname=='login-gui02.cluster.embl.de':    
+#             root = tkinter.Tk()
+#             root.withdraw()
+#             conv_inputdir = filedialog.askdirectory()
+#             root.destroy()
+#             outpage=''
+#         else:
+#             outpage=dcc.ConfirmDialog(        
+#             id=label+'danger-wrong_host',displayed=True,
+#             message='This functionality only works when accessing this page from the graphical login node.'
+#             )
                
-    return conv_inputdir, outpage 
+#     return conv_inputdir, outpage 
 
    
 
@@ -296,7 +296,7 @@ page.append(gobutton)
                 Output({'component': 'store_render_launch', 'module': parent},'data')
                 ],             
               [Input(label+'stack_dd','value'),
-                Input(label+'input1','value'),
+                Input({'component': 'path_input', 'module': label},'value'),
                 Input(label+'go', 'n_clicks')
                 ],
               [State(label+'project_dd', 'value'),

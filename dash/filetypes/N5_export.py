@@ -26,7 +26,7 @@ import params
 from utils import pages,launch_jobs
 from utils import helper_functions as hf
 
-from callbacks import substack_sel
+from callbacks import substack_sel, filebrowse
 
 
 
@@ -68,7 +68,7 @@ page.append(compute_settings)
 @app.callback(Output({'component':'store_compset','module':label},'data'),                            
               [Input({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols],
               prevent_initial_call=True)
-def mipmaps_store_compute_settings(*inputs): 
+def n5export_store_compute_settings(*inputs): 
     
     storage=dict()
         
@@ -96,9 +96,10 @@ for dim in ['X','Y','Z']:
 
 stackinput = [Input({'component': 'stack_dd', 'module': parent},'value')]
 stackinput.extend(bbox0)
+stackinput.append(Input({'component': "path_input", 'module': label},'n_blur'))
 
 
-stackoutput = [Output({'component': 'input1', 'module': label},'value'),
+stackoutput = [Output({'component': 'path_ext', 'module': label},'data'),
                # Output({'component': 'store_stackparams', 'module': module}, 'data')
                ]
 tablefields = [Output({'component': 't_'+col, 'module': label},'children') for col in status_table_cols]
@@ -113,11 +114,14 @@ stackoutput.extend(compute_tablefields)
               [State({'component': 'store_owner', 'module': parent}, 'data'),
                State({'component': 'store_project', 'module': parent}, 'data'),
                State({'component': 'store_stack', 'module': parent}, 'data'),
-               State({'component': 'store_allstacks', 'module': parent}, 'data')]
+               State({'component': 'store_allstacks', 'module': parent}, 'data'),
+               State({'component': "path_input", 'module': label},'value')]
               )
 def n5export_stacktodir(stack_sel,
                        xmin,xmax,ymin,ymax,zmin,zmax,
-                       owner,project,stack,allstacks):
+                       browsetrig,
+                       owner,project,stack,allstacks,
+                       browsedir):
     
     dir_out=''
     out=dict()
@@ -153,13 +157,27 @@ def n5export_stacktodir(stack_sel,
             timelim = np.ceil(out['gigapixels'] / n_cpu * params.export['min/GPix/CPU_N5']*(1+params.time_add_buffer))
             
             ct_fields = [n_cpu,timelim]  
-          
-   
+            
+    trigger = hf.trigger()  
+    print(trigger)
+    
+    if trigger == 'path_input':
+        dir_out = browsedir
+    
+    print(dir_out)
     outlist=[dir_out] #,out]   
     outlist.extend(t_fields)
     outlist.extend(ct_fields)     
         
     return outlist
+
+# @app.callback(Output({'component': 'input1', 'module': label},'value'),
+#               Input({'component': 'path_input', 'module': label},'value'))
+# def input2browsestate(inpath):
+#     print(inpath)
+#     return inpath
+
+
 
 
 # =============================================
@@ -168,13 +186,18 @@ def n5export_stacktodir(stack_sel,
 
 
 page2 = html.Div(id={'component': 'page2', 'module': label},children=[html.H4('Output path'),
-                                             dcc.Input(id={'component': "input1", 'module': label}, type="text",debounce=True,persistence=True,className='dir_textinput'),
-                                             html.Button('Browse',id={'component': "browse1", 'module': label}),
-                                             'graphical browsing works on cluster login node ONLY!',
-                                             html.Br()])
+                                             dcc.Input(id={'component': "path_input", 'module': label}, type="text",debounce=True,persistence=True,className='dir_textinput'),
+                                             # dcc.Input(id={'component': "path_input", 'module': label}, type="text",style={'display': 'none'})
+                                             # html.Button('Browse',id={'component': "browse1", 'module': label}),
+                                             # 'graphical browsing works on cluster login node ONLY!',
+                                             # html.Br()
+                                             ])
 
 page.append(page2)
+                                            
+pathbrowse = pages.path_browse(label)
 
+page.append(pathbrowse)
 
 
 
@@ -222,7 +245,7 @@ states.append(State({'component':'sliceim_section_in_0','module': parent},'value
                 Output({'component': 'store_r_launch', 'module': parent},'data'),
                 Output({'component': 'store_render_launch', 'module': parent},'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input({'component': "input1", 'module': label},'value'),
+               Input({'component': "path_input", 'module': label},'value'),
                Input({'component':'stack_dd','module' : parent},'value'),
                Input({'component': 'input_Num_CPUs', 'module': label},'value'),
                Input({'component': 'input_runtime_minutes', 'module': label},'value')],

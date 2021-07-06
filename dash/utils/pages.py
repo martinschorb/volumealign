@@ -295,7 +295,9 @@ def path_browse(module,tf_in = None):
 
         
     fbrowse = html.Details([html.Summary('Browse'),fbdd])
-    fbstore = dcc.Store(id={'component': 'path_store', 'module': module})
+    fbstore = html.Div([dcc.Store(id={'component': 'path_store', 'module': module}),
+                        dcc.Store(id={'component': 'path_ext', 'module': module})])
+    
     
     return html.Div([fbrowse,fbstore])
 
