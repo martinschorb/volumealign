@@ -16,7 +16,6 @@ from callbacks import runstate
 
 from sbem import sbem_conv
 
-
 module='convert'
 
 storeinit={}            

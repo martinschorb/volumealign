@@ -265,7 +265,6 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     trigger=hf.trigger()
     
     if not 'go' in trigger:
-        print(mc_own)
         if any(['' in [matchcoll,outstack,mc_own], None in [matchcoll,outstack,mc_own], 'newstack' in [stack,outstack]]):
             return True,dash.no_update,dash.no_update
         
