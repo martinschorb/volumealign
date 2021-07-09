@@ -34,7 +34,9 @@ You should find an icon called `Render WebUI` on your desktop.
 If you don't (some more recent EMBL users might need that), open a terminal by right-clicking in an empty area of the desktop and selecting `Open Terminal here`.
 Then copy and paste this command and execute it by pressing `Return`.
 
-```cp /g/emcf/schorb/code/admin_scripts/Render_WebUI.desktop ~/Desktop```
+```
+cp /g/emcf/schorb/code/admin_scripts/Render_WebUI.desktop ~/Desktop
+```
 
 Now, the desktop icon should be there.
 

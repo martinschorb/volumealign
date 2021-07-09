@@ -18,7 +18,13 @@ This page contains the following elements:
 
 - **select Render Project** and **select Render stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **... Stack** define the names of new instances.
 
-###SBEMImage
+### SBEMImage
 
-- **dataset root directory:** the directory path of the SBEMImage root directory.
+- **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` subfolders.
 - **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
+
+## Generate Tile Pairs
+
+This step will tell Render which of the tiles are neighbours in `x` and `y`. It will then have a collection of pairs that it can try to match with each other all in parallel.
+
+![convert](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
