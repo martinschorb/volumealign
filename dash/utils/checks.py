@@ -10,7 +10,7 @@ Created on Wed Jun 30 18:01:50 2021
 from dash.dependencies import Input
 import re
 
-def makeinput(component,prop='value'):    
+def makeinput(component,prop='value'):
     if type(component) == Input:
         return Input(component.component_id, prop)
     elif type(component) == str:
@@ -23,5 +23,3 @@ def makeinput(component,prop='value'):
 
 def clean_render_name(instr):
     return re.sub('[^a-zA-Z0-9_]','_',instr)
-    
->>>>>>> dash/utils/checks.py
