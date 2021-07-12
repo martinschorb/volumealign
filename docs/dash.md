@@ -1,4 +1,4 @@
-# VolumeAlign WebUI develpment and customization
+# VolumeAlign WebUI development and customization
 
 
 ## General design

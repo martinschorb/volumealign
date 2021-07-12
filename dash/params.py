@@ -3,8 +3,8 @@
 
 # dash volume EM interface global parameters:
 
-import json   
-import os 
+import json
+import os
 import time
 import subprocess
 import requests
@@ -29,7 +29,7 @@ workdir = '/g/emcf/schorb/code/volumealign/dash'
 # emails
 
 email = '@embl.de'
-doc_url = 'https://schorb.embl-community.io/volumealign'
+doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
 init_logfile = 'out.txt' #render_log_dir + '/pointmatch_schorb_20210303-1617.log'
 
@@ -49,9 +49,9 @@ comp_defaultoptions = ['slurm','standalone']
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
 n_cpu_script = 24
-mem_per_cpu = 8     # GB 
+mem_per_cpu = 8     # GB
 
-# standalone 
+# standalone
 
 n_cpu_standalone = 8
 
@@ -113,7 +113,7 @@ match_store = {#'init_match':{},
 
 # maximum number of tile view images per UI module
 max_tileviews = 3
-# view image width 
+# view image width
 im_width = 900
 
 default_tile_scale = 0.5
@@ -135,7 +135,7 @@ solve_transforms = [
 
 solve_types = ['montage', '3D']
 
-# -------------  
+# -------------
 # derived parameters
 
 user = os.getlogin()
@@ -167,8 +167,7 @@ render_base_url += v_base_url
 
 
 # get initial list of owners in Render:
-    
+
 url = render_base_url + render_version + 'owners'
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
-
