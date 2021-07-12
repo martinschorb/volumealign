@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul  1 10:59:21 2021
+Created on Wed Jun 30 18:01:50 2021
 
 @author: schorb
 """
 
 from dash.dependencies import Input
+import re
 
 def makeinput(component,prop='value'):    
     if type(component) == Input:
@@ -17,3 +19,9 @@ def makeinput(component,prop='value'):
         return Input(component, prop)
     else:
         raise TypeError('Component description needs to be string, valid dash dictionary or dash.dependencies.Input!')
+
+
+def clean_render_name(instr):
+    return re.sub('[^a-zA-Z0-9_]','_',instr)
+    
+>>>>>>> dash/utils/checks.py

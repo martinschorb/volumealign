@@ -21,7 +21,8 @@ import importlib
 
 from app import app
 import params
-from utils import launch_jobs, pages
+
+from utils import launch_jobs, pages, checks
 
 from callbacks import filebrowse
 
@@ -154,7 +155,9 @@ def sbem_conv_new_proj(project_name,dd_options):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id']
     if trigger != '.':        
-        # get list of projects on render server            
+        project_name = checks.clean_render_name(project_name)
+        
+        # add new project to dropdown            
         dd_options.append({'label':project_name, 'value':project_name})
 
     return dd_options,project_name
@@ -220,6 +223,7 @@ def sbem_conv_stacks(project_sel,newstack_name,orig_proj,dd_options):
             
             
     elif trigger == 'stack_input':
+        newstack_name = checks.clean_render_name(newstack_name)
         dd_options.append({'label':newstack_name, 'value':newstack_name})
         stack = newstack_name
 

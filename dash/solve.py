@@ -24,7 +24,7 @@ import params
 
 from app import app
 
-from utils import pages,launch_jobs
+from utils import pages,launch_jobs,checks
 from utils import helper_functions as hf
 
 from callbacks import runstate,render_selector,substack_sel,match_selector,tile_view
@@ -119,8 +119,10 @@ stack_div = html.Div(id=module+'out_stack_div',children=[html.H4("Select Output 
                                                                                   ],id=module+'newstack',style={'display':'none'}),
                                                               html.Br(),                                                          
                                                               html.Div([html.A('Browse Project',id=module+'browse_proj',target="_blank"),
-                                                                        ' - ',
-                                                                        html.A('Browse Stack',id=module+'browse_stack',target="_blank")],style={'display':'flex'}),
+                                                                        html.Div([' - ',
+                                                                                  html.A('Browse Stack',id=module+'browse_stack',target="_blank")
+                                                                                  ],id=module+'browse_stackdiv',style={'display':'flex','white-space': 'pre'})
+                                                                        ],style={'display':'flex'}),
                                                               html.Br(),]
                         )
 
@@ -156,6 +158,7 @@ def solve_stacks(dd_options_in,newstack_name,owner,project_sel):
         stack = 'newstack'
             
     elif trigger == 'stack_input':
+        newstack_name=checks.clean_render_name(newstack_name)
         dd_options.append({'label':newstack_name, 'value':newstack_name})
         stack = newstack_name
 
@@ -165,7 +168,7 @@ def solve_stacks(dd_options_in,newstack_name,owner,project_sel):
     
     
 @app.callback([Output(module+'browse_stack','href'),
-                Output(module+'browse_stack','style')],
+               Output(module+'browse_stackdiv','style')],
               Input({'component':'outstack_dd','module' : module},'value'),
               [State({'component': 'project_dd', 'module': module}, 'value'),
                State({'component': 'owner_dd', 'module': module}, 'value')])

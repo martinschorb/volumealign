@@ -18,6 +18,8 @@ import json
 from app import app
 
 import params
+
+from utils import checks
 from utils import helper_functions as hf
 
 
@@ -64,6 +66,7 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
             
     elif 'input' in trigger:
         dd_options = dd_own_in.copy()
+        new_owner = checks.clean_render_name(new_owner)
         dd_options.append({'label':new_owner, 'value':new_owner})
         mc_owner = new_owner
     
@@ -130,7 +133,8 @@ def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,new_enabled='
             mc_style = {'display':'flex'}
             
     elif 'mc_input' in trigger:
-        div1style = {'display':'none'} 
+        div1style = {'display':'none'}
+        new_mc = checks.clean_render_name(new_mc)
         mc_dd_opt.append({'label':new_mc, 'value':new_mc})
         mc_dd_val = new_mc
         mc_style = {'display':'flex'}           
