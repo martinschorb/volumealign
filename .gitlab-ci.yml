@@ -3,15 +3,15 @@ image: python:3.8-buster
 before_script:
   - pip install -r doc_requirements.txt
 
-test:
-  stage: test
-  script:
-  - mkdocs build --strict --verbose --site-dir test
-  artifacts:
-    paths:
-    - test
-  except:
-  - master
+# test:
+#   stage: test
+#   script:
+#   - mkdocs build --strict --verbose --site-dir test
+#   artifacts:
+#     paths:
+#     - test
+#   except:
+#   - master
 
 pages:
   stage: deploy
