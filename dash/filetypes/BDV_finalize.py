@@ -165,7 +165,7 @@ def n5export_execute_gobutton(click,jsonfile):
     stackparams = requests.get(url).json()
     
     res = [stackparams['currentVersion']['stackResolutionZ'],stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY']]
-    
+        
     out = dict()
     out['state'] = 'launch'   
     out['logfile'] = ''
@@ -175,7 +175,7 @@ def n5export_execute_gobutton(click,jsonfile):
     run_params['path'] = n5file
     # run_params["scale_factors"] = 3 * [[2, 2, 2]],
     run_params["resolution"] = res
-    # run_params["unit"] = 'micrometer'
+    run_params["unit"] = 'nanometer'
 
 
     param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 

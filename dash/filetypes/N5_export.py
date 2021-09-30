@@ -252,13 +252,13 @@ states.append(State({'component':'sliceim_section_in_0','module': parent},'value
               states
               ,prevent_initial_call=True)                 
 def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
-                                     xmin,xmax,ymin,ymax,zmin,zmax,
+                                     Xmin,Xmax,Ymin,Ymax,Zmin,Zmax,
                                      sp_store,slice_in): 
     
     if not dash.callback_context.triggered: 
             raise PreventUpdate
     
-    if None in [outdir,stack,n_cpu,timelim,comp_sel,owner,project,xmin,xmax,ymin,ymax,zmin,zmax,
+    if None in [outdir,stack,n_cpu,timelim,comp_sel,owner,project,Xmin,Xmax,Ymin,Ymax,Zmin,Zmax,
                                      sp_store,slice_in]:
         raise PreventUpdate
     
@@ -304,7 +304,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
             
-            spsl_p['--baseUrl'] = params.render_base_url + params.render_version.rstrip('/')
+            spsl_p['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
             spsl_p['--owner'] = owner
             spsl_p['--stack'] = stack
             spsl_p['--project'] = project
@@ -322,10 +322,10 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             slices = ''
             
-            if zmin == sp_store['zmin'] and zmin == sp_store['zmax']:
+            if Zmin == sp_store['zmin'] and zmin == sp_store['zmax']:
                 slices = '_full'
             else:
-                slices = '_Z' + str(zmin) + '-' + str(zmax)               
+                slices = '_Z' + str(Zmin) + '-' + str(Zmax)               
                         
             n5dir += '/' + stack + slices  + '.n5'             
             
@@ -353,18 +353,12 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             n5run_p['--tileWidth'] = '{:.0f}'.format(tilespecs[0]['width'])
             n5run_p['--tileHeight'] = '{:.0f}'.format(tilespecs[0]['height'])
-            n5run_p['--min'] = ''
-            n5run_p['--size'] = '' 
         
-            for dim in ['x','y','z']:
-                minval = eval(dim+'min')
-                maxval = eval(dim+'max')
-                n5run_p['--min'] +=  str(minval)
-                n5run_p['--size'] += str(maxval-minval)
-                
-                if not dim =='z':
-                    n5run_p['--min'] += ','
-                    n5run_p['--size'] += ','
+            for dim in ['X','Y','Z']:
+                                
+                n5run_p['--min'+dim] = eval(dim+'min')
+                n5run_p['--max'+dim] = eval(dim+'max')
+
                  
             
             # fill parameters
