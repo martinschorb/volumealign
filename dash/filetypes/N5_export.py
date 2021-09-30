@@ -346,9 +346,13 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             tilespecs = requests.get(url).json()
             
             
-            tilesize = '{:.0f},{:.0f}'.format(tilespecs[0]['width'], tilespecs[0]['height'])
+            # tilesize = '{:.0f},{:.0f}'.format(tilespecs[0]['width'], tilespecs[0]['height'])
                            
-            n5run_p['--tileSize'] = tilesize
+            # n5run_p['--tileSize'] = tilesize
+            
+            
+            n5run_p['--tileWidth'] = '{:.0f}'.format(tilespecs[0]['width'])
+            n5run_p['--tileHeight'] = '{:.0f}'.format(tilespecs[0]['height'])
             n5run_p['--min'] = ''
             n5run_p['--size'] = '' 
         
@@ -381,8 +385,13 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             target_args = spark_p.copy()
             run_args = run_params_generate.copy()
             
-            script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'            
-            script  += " --jarfile=" + params.hotknife_dir + "/target/hot-knife-0.0.4-SNAPSHOT.jar"
+            script = 'org.janelia.render.client.spark.n5.N5Client'            
+            
+            
+            # #   This is how to enforce custom jar files
+            
+            # script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'
+            # script  += " --jarfile=" + params.hotknife_dir + "/target/hot-knife-0.0.4-SNAPSHOT.jar"
             
                   
    
