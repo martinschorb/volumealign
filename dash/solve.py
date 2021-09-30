@@ -338,6 +338,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
         
     params.processes[module].extend(solve_generate_p)
+   
     
     launch_store=dict()
     launch_store['logfile'] = log_file

@@ -160,7 +160,7 @@ render_version = 'v1/'
 with open(os.path.join(json_template_dir,'render.json'),'r') as f:
     render_json = json.load(f)
 
-render_base_url = 'http://' + render_json['render']['host']
+render_base_url = render_json['render']['host']
 render_base_url += ':' + str(render_json['render']['port'])
 render_base_url += v_base_url
 
@@ -169,5 +169,6 @@ render_base_url += v_base_url
 # get initial list of owners in Render:
 
 url = render_base_url + render_version + 'owners'
+
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
