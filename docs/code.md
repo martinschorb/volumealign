@@ -10,12 +10,10 @@ The Basic installation requires the following software:
 
 - render-python-apps `renderapi` from [Allen Institute](https://github.com/AllenInstitute/render-python-apps)
 
-- the EMBL custom Render-Python module (based on `render-modules` development at the Allen Institute).
+- the EMBL custom Render-Python module (based on `render-modules` development at the Allen Institute). This includes the `BigFeta` global solver.
 Repo: [https://github.com/martinschorb/render-modules](https://github.com/martinschorb/render-modules)
 
-- for exporting stacks from Render as BDV N5, we need [hotknife](https://github.com/saalfeldlab/hot-knife/blob/render-to-n5-no-fit/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java).
-
-- in addition, an additional step to create proper BDV-N5 metadata context is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
+- in addition, an additional step to create proper BDV-N5 metadata context (last step  finalize`) is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
 
 ## Frontend
 

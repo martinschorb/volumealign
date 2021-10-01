@@ -24,19 +24,14 @@ This script does:
 - connect to the EMBL render server
 - create a new stack if defined stack not yet present
 
-2. Mipmap generation: wrapper that includes project location on group share to store mipmaps. [`EMBL_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/EMBL_mipmaps.py)
- that generates the parameters (local mimap directory in the data root) for [`generate_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/generate_mipmaps.py) which calls functionality from [`create_mipmaps.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/create_mipmaps.py) (TODO: Type conversion) to compute the mipmaps.
+2. Tilepair generation: `create_tilepairs.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/create_tilepairs.py)
 
-Then [`apply_mipmaps_to_render.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/dataimport/apply_mipmaps_to_render.py) to build render stack based on mipmaplevels in render's format.
-
-3. Tilepair generation: `create_tilepairs.py`](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/create_tilepairs.py)
-
-4. SIFT-Alignment: Option 1) [openCV](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/generate_point_matches_opencv.py)
+3. SIFT-Alignment: Option 1) [openCV](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/generate_point_matches_opencv.py)
   Option 2) [spark](https://github.com/martinschorb/render-modules/blob/master/rendermodules/pointmatch/generate_point_matches_spark.py)->[SIFTPointMatchClient](https://github.com/saalfeldlab/render/blob/geometric_descriptor/render-ws-spark-client/src/main/java/org/janelia/render/client/spark/SIFTPointMatchClient.java"). Right now call the Client Script from [submission bash script](https://git.embl.de/schorb/volumealign/-/blob/master/spark_slurm.sh) directly.
 
-5. Solve (Allen's `bigfeta` [solver](https://github.com/martinschorb/render-modules/blob/master/rendermodules/solver/solve.py)) - Need to activate MogoDB's network access (in `/etc/mongod.conf`, add local IP). Alternatively: set `db_interface` to `render`.
+4. Solve (Allen's `bigfeta` [solver](https://github.com/martinschorb/render-modules/blob/master/rendermodules/solver/solve.py)) - Need to activate MogoDB's network access (in `/etc/mongod.conf`, add local IP). Alternatively: set `db_interface` to `render`.
 
-6. 2D montage and 3D cross-layer matching can be iterated.
+5. 2D montage and 3D cross-layer matching can be iterated.
 
 # Render to BDV:
 
