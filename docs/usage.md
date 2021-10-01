@@ -29,8 +29,8 @@ This step will tell Render which of the tiles are neighbours in `x` and `y` and 
 
 It will be necessary to perform this step multiple times: once for the neighbours in `2D`, and once across slices (`3D`, here you can choose how many neighbouring sections should be considered). This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further.
 
+![tilepairs](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
 
-![convert](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
 
 ## Generate/Update PointMatchCollection for Render stack
 
@@ -38,7 +38,7 @@ This is the most resource-demanding step of the procedure. Here we now like to f
 
 It will be necessary to perform this step multiple times: once for the neighbours in `x` and `y`, and once across slices. This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further.
 
-![convert](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
+![pointmatch](img/webui_pointmatch.png "VolumeAlign WebUI Pointmatch")
 
 This page contains the following elements:
 
@@ -52,3 +52,28 @@ At the moment, only the SIFT client developed in Janelia that makes use of [Spar
 
 
 ### SIFT point matches
+
+Each SIFT run requires several sets of parameters that control the information features that are extracted from each image as well as the criteria to match them.
+
+Render provides a web interface where these parameters can be set and the the quality of the matches as well as their compute time can be estimated for a single representative tile pair.
+
+There is a small library of parameter templates available for several specimens. You can pick them from:
+
+- **Organism Selector**
+
+and
+
+- **Match Trial Selector**
+
+![pointmatch](img/webui_pointmatch_tile.png "VolumeAlign WebUI SIFT Pointmatch - Tiles")
+
+There are also two **Tile Viewers** where you can browse the stack and identify two neighbouring tiles to be used for the match trial.
+
+If you click **Explore MatchTrial**, you will get to the Match Trial web interface. It will show the results of the template trial (the images might not be available).
+
+![matchtrial_template](img/match_trial_create.png "Render WebUI matchTrial")
+
+
+Click **Create New Trial** at the top of the page. This will open the Parameter editor with the parameters defined in the template.
+
+![matchtrial_params](img/match_trial_params.png "Render WebUI matchTrial Parameters")
