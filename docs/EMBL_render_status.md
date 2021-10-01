@@ -35,7 +35,7 @@ This script does:
 
 # Render to BDV:
 
-Established [N5 export](https://github.com/saalfeldlab/hot-knife/blob/render-to-n5-no-fit/src/main/java/org/janelia/saalfeldlab/hotknife/SparkConvertRenderStackToN5.java).
+Established [N5 export](https://github.com/saalfeldlab/render/blob/geometric_descriptor/render-ws-spark-client/src/main/java/org/janelia/render/client/spark/n5/N5Client.java).
 
 Need an additional step to create proper BDV-N5 metadata context using [PyBDV](https://github.com/constantinpape/pybdv).
 

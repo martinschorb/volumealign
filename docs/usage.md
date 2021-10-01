@@ -16,7 +16,7 @@ This page contains the following elements:
 
 - The type-dependent import content (see below)
 
-- **select Render Project** and **select Render stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **... Stack** define the names of new instances.
+- **select Render Project** and **select Render stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances.
 
 ### SBEMImage
 
@@ -27,7 +27,7 @@ This page contains the following elements:
 
 This step will tell Render which of the tiles are neighbours in `x` and `y` and also in `z`. It will then have a collection of pairs that it can try to match with each other all in parallel.
 
-It will be necessary to perform this step multiple times: once for the neighbours in `2D`, and once across slices (`3D`, here you can choose how many neighbouring sections should be considered). This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further.
+It will be necessary to perform this step multiple times: once for the neighbours in **`2D`**, and once across slices (**`3D`**, here you can choose how many neighbouring sections should be considered). This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further using **Substack selection**.
 
 ![tilepairs](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
 
@@ -86,7 +86,7 @@ Click `Run Trial` at the bottom of the page to see if the parameters work for yo
 
 On the next page, you will see the results. At the bottom, the two tiles are shown with coloured circles or lines indicating the matching features. Also, it provides statistics and the time it took to derive the matches.
 
-![matchtrial_explore](img/matchtrial_explore.png "MatchTrial Explorer, results")
+![matchtrial_explore](img/match_trial_explore.png "MatchTrial Explorer, results")
 
 You want to make sure that the Standard Deviation of the matches is within your expectations. This depends on the pixel size and section spacing. Something close to 1 pixel is acceptable.
 
@@ -105,4 +105,11 @@ If you are happy with the parameters, copy the long ID at the very end of the we
 ...?matchTrialId=xxxxxxxxxxxxxxxxxxxx
 ```
 
-There, paste it into the text box after ***Use this Match Trial as compute parameters:***.
+There, paste it into the text box after **Use this Match Trial as compute parameters:**.
+
+These parameters will then be used for the search of all the tiles.
+
+With the known number of tile pairs and the estimated run time for each pair from the trial, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+
+Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
+You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
