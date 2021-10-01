@@ -77,3 +77,32 @@ If you click **Explore MatchTrial**, you will get to the Match Trial web interfa
 Click **Create New Trial** at the top of the page. This will open the Parameter editor with the parameters defined in the template.
 
 ![matchtrial_params](img/match_trial_params.png "Render WebUI matchTrial Parameters")
+
+To make the tiles from the current stack available to this interface, you need to copy and paste the link that is shown above each tile view in the main UI into the two big text boxes at the bottom of the parameter interface.
+
+Make sure that their relative position (`2D`) is correct in the `Clip Parameters` section.
+
+Click `Run Trial` at the bottom of the page to see if the parameters work for your stack.
+
+On the next page, you will see the results. At the bottom, the two tiles are shown with coloured circles or lines indicating the matching features. Also, it provides statistics and the time it took to derive the matches.
+
+![matchtrial_explore](img/matchtrial_explore.png "MatchTrial Explorer, results")
+
+You want to make sure that the Standard Deviation of the matches is within your expectations. This depends on the pixel size and section spacing. Something close to 1 pixel is acceptable.
+
+If the combined time of deriving features and matches is significantly higher than a few hundred ms (`2D`) or 2 seconds (`3D`), it might be worth working with lower resolution images. This decreases the accuracy of the matching but makes it faster.
+
+To change the scaling, modify the last part of the two image URLs in the large text boxes (`scale`) and run the trial again.
+
+```
+...&scale=0.4
+```
+
+
+If you are happy with the parameters, copy the long ID at the very end of the website address bar over to the Main UI.
+
+```
+...?matchTrialId=xxxxxxxxxxxxxxxxxxxx
+```
+
+There, paste it into the text box after ***Use this Match Trial as compute parameters:***.
