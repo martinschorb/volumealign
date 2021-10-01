@@ -34,14 +34,20 @@ for idx in range(params.max_tileviews):
                       Input({'component': 'stack_dd','module': MATCH},'value'),
                       State({'component': 'store_allstacks', 'module': MATCH}, 'data'))
         def stacktoslice(stack_sel,allstacks):
-            stacklist=[]
+            stacklist=[]            
             
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
                  # stack = stack_sel
             
+            
+            
             if not stacklist == []:
-                stackparams = stacklist[0]        
+                stackparams = stacklist[0]
+                                               
+                if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
+                    return dash.no_update
+                
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
                 

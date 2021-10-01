@@ -13,13 +13,9 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-import requests
-import json
 
 from app import app
 
-import params
-from utils import helper_functions as hf
 
 @app.callback(Output({'component': 'store_stackparams', 'module': MATCH}, 'data'),
               Input({'component':'stack_dd','module' : MATCH},'value'),
@@ -34,7 +30,10 @@ def stacktoparams(stack_sel,allstacks):
     if not(stack_sel=='-' ):   
         stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
         if not stacklist == []:
-            stackparams = stacklist[0]    
+            stackparams = stacklist[0]
+            
+            if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
+                return dash.no_update
             
             thisstore['stack'] = stackparams['stackId']['stack']
             thisstore['stackparams'] = stackparams
