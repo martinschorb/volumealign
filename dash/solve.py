@@ -326,19 +326,37 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     
     orig_meta = render.run(renderapi.stack.get_stack_metadata,stack,owner=owner,project=project)
     
-    time.sleep(5)
+    # time.sleep(5)
     
-    render.run(renderapi.stack.create_stack,outstack,
-               stackResolutionX=orig_meta.stackResolutionX,
-               stackResolutionY=orig_meta.stackResolutionY,
-               stackResolutionZ=orig_meta.stackResolutionZ,
-               owner=owner,project=project)
     
     solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solver/solve.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
         
     params.processes[module].extend(solve_generate_p)
+    
+    
+    # populate new stack with the original resolution values
+    
+    md=(renderapi.stack.get_stack_metadata(outstack,render=render,project=project,owner=owner))
    
+    time.sleep(5)
+    
+    md.stackResolutionX = orig_meta.stackResolutionX
+    md.stackResolutionY = orig_meta.stackResolutionY
+    md.stackResolutionZ = orig_meta.stackResolutionZ
+    
+    md1 = renderapi.stack.get_full_stack_metadata(outstack,render=render,owner=owner,project=project)
+    
+    # in case the solve process is already done
+    
+    setcomplete = False
+    if md1['state'] == 'COMPLETE': setcomplete = True
+    
+    render.run(renderapi.stack.set_stack_metadata,outstack,md,owner=owner,project=project)
+    
+    if setcomplete:
+        renderapi.stack.set_stack_state(outstack,state='COMPLETE',render=render,owner=owner,project=project)
+    
     
     launch_store=dict()
     launch_store['logfile'] = log_file
