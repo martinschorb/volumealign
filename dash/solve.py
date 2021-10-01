@@ -334,13 +334,12 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
         
     params.processes[module].extend(solve_generate_p)
     
+    time.sleep(5)
     
     # populate new stack with the original resolution values
     
     md=(renderapi.stack.get_stack_metadata(outstack,render=render,project=project,owner=owner))
-   
-    time.sleep(5)
-    
+       
     md.stackResolutionX = orig_meta.stackResolutionX
     md.stackResolutionY = orig_meta.stackResolutionY
     md.stackResolutionZ = orig_meta.stackResolutionZ
