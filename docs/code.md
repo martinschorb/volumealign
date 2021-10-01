@@ -13,7 +13,7 @@ The Basic installation requires the following software:
 - the EMBL custom Render-Python module (based on `render-modules` development at the Allen Institute). This includes the `BigFeta` global solver.
 Repo: [https://github.com/martinschorb/render-modules](https://github.com/martinschorb/render-modules)
 
-- in addition, an additional step to create proper BDV-N5 metadata context (last step  finalize`) is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
+- in addition, an additional step to create proper BDV-N5 metadata context (last step  `finalize`) is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
 
 ## Frontend
 

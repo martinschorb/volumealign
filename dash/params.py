@@ -21,8 +21,6 @@ json_match_dir = '/g/emcf/software/volumealign/JSON_parameters/MatchTrials'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
-# hotknife_dir = "/g/emcf/schorb/code/hot-knife"
-
 # base directory for launchers etc...
 workdir = '/g/emcf/software/volumealign/dash'
 
@@ -31,7 +29,7 @@ workdir = '/g/emcf/software/volumealign/dash'
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
-init_logfile = 'out.txt' #render_log_dir + '/pointmatch_schorb_20210303-1617.log'
+init_logfile = 'out.txt' #render_log_dir + 'fancylogfile.log'
 
 #==============================================================
 ## Compute resources presets
