@@ -322,7 +322,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     
     # copy resolution metadata to the new output stack
     
-    render = renderapi.Render(host='http://'+rp['render']['host'],port=rp['render']['port'],client_scripts=rp['render']['client_scripts'])
+    render = renderapi.Render(host=rp['render']['host'],port=rp['render']['port'],client_scripts=rp['render']['client_scripts'])
     
     orig_meta = render.run(renderapi.stack.get_stack_metadata,stack,owner=owner,project=project)
     
