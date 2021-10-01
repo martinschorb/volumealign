@@ -159,12 +159,10 @@ def n5export_stacktodir(stack_sel,
             ct_fields = [n_cpu,timelim]  
             
     trigger = hf.trigger()  
-    print(trigger)
     
     if trigger == 'path_input':
         dir_out = browsedir
     
-    print(dir_out)
     outlist=[dir_out] #,out]   
     outlist.extend(t_fields)
     outlist.extend(ct_fields)     
