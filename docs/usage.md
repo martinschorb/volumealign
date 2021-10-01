@@ -138,3 +138,30 @@ You will see a 3D graph containing all the tiles and their interconnections. The
 -**Select Transform type:** Select a transformation type to be used for the solving. `rigid` or `TranslationModel` should match for most volume EM data (except ssTEM).
 
 -**Select solve type:** You can choose between `2D` (inside one section only) and `3D` considering the full volume for the solve.
+
+
+### Export Render stack to volume
+
+You can export a Render stack at any time to disk ("materialize").
+
+![export](img/webui_export_slice.png "VolumeAlign WebUI export")
+
+You can **explore slice** to determine the **volume region to consider**.
+
+At the moment only `N5` is available as **output type**.
+
+Pick the desired **output path** and the result will appear in a sub-directory `aligned` with the date and a reference to the stack.
+
+With the known number of tiles and the estimated run time for exporting a tile, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+
+![export](img/webui_export_computesettings.png "VolumeAlign WebUI export")
+
+Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
+You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
+
+## Finalize output format
+
+Here you can finalize your data export and generate the necessary metadata file to view the volume in BigDataViewer or MoBIE.
+Currently only `BDV-XML` is supported as **post-processing target format**.
+
+- **Choose exported volume:** This provides a list of already exported volumes. The files have to still reside in the original location on the storage system.
