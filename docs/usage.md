@@ -25,6 +25,30 @@ This page contains the following elements:
 
 ## Generate Tile Pairs
 
-This step will tell Render which of the tiles are neighbours in `x` and `y`. It will then have a collection of pairs that it can try to match with each other all in parallel.
+This step will tell Render which of the tiles are neighbours in `x` and `y` and also in `z`. It will then have a collection of pairs that it can try to match with each other all in parallel.
+
+It will be necessary to perform this step multiple times: once for the neighbours in `2D`, and once across slices (`3D`, here you can choose how many neighbouring sections should be considered). This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further.
+
 
 ![convert](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
+
+## Generate/Update PointMatchCollection for Render stack
+
+This is the most resource-demanding step of the procedure. Here we now like to find matching image areas in neighbouring tiles, the so-called **Point Matches**. This can be done using various image analysis methods like cross-correlation or [SIFT](https://en.wikipedia.org/wiki/Scale-invariant_feature_transform).
+
+It will be necessary to perform this step multiple times: once for the neighbours in `x` and `y`, and once across slices. This is needed because the image analysis algorithms likely need different parameters to work well, especially with an anisotropic datasets. In case the data changes significantly within a stack, you can also split up your data further.
+
+![convert](img/webui_tilepair.png "VolumeAlign WebUI tilepairs")
+
+This page contains the following elements:
+
+- **Tilepair source directory selector:** here you select the tile pairs you want to process. These are the results of the previous step and will be shown based on the stack selection.
+
+- **Type selector:** choose the type of image analysis algorithm to use for determining the point matches. The rest of the page will adapt accordingly.
+
+At the moment, only the SIFT client developed in Janelia that makes use of [Spark](https://en.wikipedia.org/wiki/Apache_Spark) for resource parallelisation is implemented.
+
+- **Select Match Collection:** The results of the analysis will be stored in a database (independent from the stack database). You can store as many runs into the same collection, even if they comprise the same pairs. If you want to add matches to an existing collection, select one. Otherwise create a new one. The `Owner` should describe the nature and project of your dataset while the collection name would specify the stack and potentially some hint about the method(s) and parameters used for determining the matches.
+
+
+### SIFT point matches

@@ -77,32 +77,26 @@ def pointmatch_update_store(*args):
 
 page1 = pages.render_selector(module)
 
-
 page.append(page1)
-
-
-page2 = pages.match_selector(module,newcoll=True)
-
-       
-page.append(page2)       
 
 
 # ===============================================
        
-page3 = html.Div([html.H4("Choose type of PointMatch determination:"),
-                  dcc.Dropdown(id=module+'dropdown1',persistence=True,
-                               options=[{'label': 'SIFT', 'value': 'SIFT'}],
-                               value='SIFT'),                          
-                  html.Div([html.H4("Select Tilepair source directory:"),
+page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                             dcc.Dropdown(id=module+'_tp_dd',persistence=True,
                                          clearable=False),
                             html.Br(),
                             html.Div(id=module+'tp_prefix',style={'display':'none'})                              
-                            ])
+                            ]),
+                  html.H4("Choose type of PointMatch determination:"),
+                  dcc.Dropdown(id=module+'dropdown1',persistence=True,
+                               options=[{'label': 'SIFT', 'value': 'SIFT'}],
+                               value='SIFT')   
               ])
 
 
-page.append(page3)  
+page.append(page2)  
+
 
 
 @app.callback([Output(module+'_tp_dd','options'),
@@ -126,6 +120,17 @@ def pointmatch_tp_dd_fill(stack):
     
 
     return tpdir_dd_options,tpdir_dd_options[-1]['value']
+
+
+
+# ===============================================
+
+
+page3 = pages.match_selector(module,newcoll=True)
+
+       
+page.append(page3)       
+
 
 
 
@@ -203,7 +208,11 @@ def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,owner,project,stac
         stack = stack_sel
         
         if not stacklist == []:
-            stackparams = stacklist[0]        
+            stackparams = stacklist[0]     
+            
+            if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
+                return dash.no_update
+            
             out['zmin']=stackparams['stats']['stackBounds']['minZ']
             out['zmax']=stackparams['stats']['stackBounds']['maxZ']
             out['numtiles']=stackparams['stats']['tileCount']
