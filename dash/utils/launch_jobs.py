@@ -55,7 +55,7 @@ def status(processes,logfile):
     
     elif type(res_status) is list:
         out_stat='wait'
-        print(res_status)
+        # print(res_status)
         
         for idx,item in enumerate(res_status):
             
@@ -307,6 +307,9 @@ def run(target='standalone',pyscript='thispyscript',json='',run_args='',target_a
     os.chdir(workdir)
     command = '../'+target
     command += '/launcher.sh '    
+    
+    
+    if run_args is None: run_args = ''
     
     
     # DEBUG function.......
