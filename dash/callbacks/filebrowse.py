@@ -27,8 +27,8 @@ show_hidden = False
               )
 def update_store(inpath,extpath):
     trigger=hf.trigger()
-    print('pathstore -- ')
-    print(trigger)
+    # print('pathstore -- ')
+    # print(trigger)
     if trigger=='path_store':
         if os.path.exists(str(inpath)):
             path = inpath
