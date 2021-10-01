@@ -113,3 +113,28 @@ With the known number of tile pairs and the estimated run time for each pair fro
 
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
 You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
+
+## Solve Positions
+
+Now that we have collected matching features for the tiles, these connections need to be compiled into a global solution positioning all tiles in 3D space to result in the aligned volume.
+
+![solve](img/webui_solve.png "VolumeAlign WebUI solve")
+
+
+This page contains the following elements:
+
+- **Select Match Collection:** select the match collection that you want to use to align your stack.
+
+- **Explore Match Collection:** This link will lead you to Render's Web tool to visualize and browse match collections.
+
+![match_explore](img/pointmatch_explorer.png "Render Explore Pointmatches")
+
+You will see a 3D graph containing all the tiles and their interconnections. The colours of the links represent the quality and weight of each connection and how it contributes to the global solution. You can also access metadata for each tile and its neighbours.
+
+- **Explore tile/slice:** you can browse individual tiles or slices to determine the **substack selection**.
+
+- **Select Output Render Stack:** The procedure will write a new stack into the existing project. Here you select the target stack.
+
+-**Select Transform type:** Select a transformation type to be used for the solving. `rigid` or `TranslationModel` should match for most volume EM data (except ssTEM).
+
+-**Select solve type:** You can choose between `2D` (inside one section only) and `3D` considering the full volume for the solve.
