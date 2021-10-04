@@ -135,7 +135,11 @@ def n5export_stacktodir(stack_sel,
         stack = stack_sel
         
         if not stacklist == []:
-            stackparams = stacklist[0]        
+            stackparams = stacklist[0]   
+            
+            if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
+                    return dash.no_update
+            
             out['zmin']=zmin
             out['zmax']=zmax
             out['numsections']=zmax-zmin
