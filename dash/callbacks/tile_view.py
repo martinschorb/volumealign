@@ -75,6 +75,9 @@ for idx in range(params.max_tileviews):
         if None in (slicenum,owner,project,stack):
             return dash.no_update
         
+        if 'None' in (owner,project,stack):
+            return dash.no_update
+        
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
         
@@ -129,6 +132,9 @@ for idx in range(params.max_tileviews):
         if None in (tile,runstore,owner,project,stack):
             return dash.no_update
         
+        if 'None' in (owner,project,stack):
+            return dash.no_update
+        
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tile/' + tile 
         
@@ -171,9 +177,13 @@ for idx in range(params.max_tileviews):
         
         if not hf.trigger(key='module') == thispage:
             return dash.no_update
-    
+
         if None in (section,runstore,owner,project,stack):
             return dash.no_update
+        
+        if 'None' in (owner,project,stack):
+            return dash.no_update
+        
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         
