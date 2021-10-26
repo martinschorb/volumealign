@@ -14,6 +14,4 @@ conda activate render
 
 rendermodules_dir=`./pyvar.sh ../dash/params.py  rendermodules_dir`
 
-# echo $rendermodules_dir
-
 export rendermodules=$rendermodules_dir

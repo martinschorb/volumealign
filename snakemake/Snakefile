@@ -1,0 +1,6 @@
+
+rule count:
+    output:
+        "logfile.log"
+    shell:
+        "sh ../launchers/launcher.sh thisstring1 anotherstring > {output}"

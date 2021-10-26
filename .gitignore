@@ -5,3 +5,4 @@ JSON_parameters/runs/
 ._*
 public
 *.egg*
+.snakemake/

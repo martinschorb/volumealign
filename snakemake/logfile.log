@@ -1,0 +1,3 @@
+/g/emcf/schorb/code/render-modules/
+Launching Render standalone processing script on  whitman.fritz.box
+python /g/emcf/schorb/code/render-modules/thisstring1 --input_json anotherstring
