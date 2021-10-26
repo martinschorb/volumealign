@@ -24,7 +24,7 @@ rendermodules_dir = '/g/emcf/schorb/code/render-modules/'
 # derived base directories for launchers etc...
 # you can point these to other targets if desired
 
-workdir = os.path.join(base_dir,'dash')
+workdir = os.path.join(base_dir,'launchers')
 
 json_template_dir = os.path.join(base_dir,'JSON_parameters','templates')
 
