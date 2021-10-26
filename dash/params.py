@@ -13,18 +13,27 @@ import socket
 #=============================================================
 ## Directory presets
 
-json_template_dir = '/g/emcf/software/volumealign/JSON_parameters/templates'
+base_dir = '/g/emcf/software/volumealign/'
 
-json_run_dir = '/g/emcf/software/volumealign/JSON_parameters/runs'
-
-json_match_dir = '/g/emcf/software/volumealign/JSON_parameters/MatchTrials'
+conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
-# base directory for launchers etc...
-workdir = '/g/emcf/software/volumealign/dash'
+rendermodules_dir = '/g/emcf/schorb/code/render-modules/'
 
-# emails
+# derived base directories for launchers etc...
+# you can point these to other targets if desired
+
+workdir = os.path.join(base_dir,'launchers')
+
+json_template_dir = os.path.join(base_dir,'JSON_parameters','templates')
+
+json_run_dir = os.path.join(base_dir,'JSON_parameters','runs')
+
+json_match_dir = os.path.join(base_dir,'JSON_parameters','MatchTrials')
+
+
+# notification and documentation
 
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
