@@ -137,9 +137,11 @@ def n5export_stacktodir(stack_sel,
         if not stacklist == []:
             stackparams = stacklist[0]   
             
+
             if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                     return dash.no_update
-            
+                
+            print(stackparams)
             out['zmin']=zmin
             out['zmax']=zmax
             out['numsections']=zmax-zmin
@@ -324,7 +326,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             slices = ''
             
-            if Zmin == sp_store['zmin'] and zmin == sp_store['zmax']:
+            if Zmin == sp_store['zmin'] and Zmin == sp_store['zmax']:
                 slices = '_full'
             else:
                 slices = '_Z' + str(Zmin) + '-' + str(Zmax)               
