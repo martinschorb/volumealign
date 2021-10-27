@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# Extracts the string representation of a variable define in a Python script
+# returns it to the stdout.
+# If multiple variables or declaration statements are found, the last match will be used.
+
+
+
 
 if [[ $# -lt 2 ]]; then
     echo "Need to provide script and variable"
@@ -31,8 +38,13 @@ if [[ -z $instring ]]; then
   exit 1
 fi
 
+# choose last match 
+instring=${instring##*$2}
+
+# clean string delimiters and white spaces
 pystring=`echo $instring | tr -d \'\""\\ "`
 
+# split string to remove the variable declaration
 outstring=${pystring#*=}
 
 echo $outstring
