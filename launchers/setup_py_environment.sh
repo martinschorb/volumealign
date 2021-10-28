@@ -9,7 +9,6 @@ conda activate render
 
 # echo render environment activated
 
-
 # path to excecutables and python client scripts
 
 rendermodules_dir=`./pyvar.sh ../dash/params.py  rendermodules_dir`
