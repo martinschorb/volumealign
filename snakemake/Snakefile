@@ -2,5 +2,10 @@
 rule count:
     output:
         "logfile.log"
+    resources:
+        time: 10
+        cpus-per-task: 4
+        ntasks-per-node: 1
+        mem_mb: 4096
     shell:
         "sh ../launchers/launcher.sh thisstring1 anotherstring > {output}"

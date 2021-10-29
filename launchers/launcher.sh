@@ -10,4 +10,6 @@ echo hahahaha > /g/emcf/schorb/code/snakemake.txt
 
 echo python $rendermodules$1 --input_json $2
 
+sleep 180
+
 #python $rendermodules$1 --input_json $2
