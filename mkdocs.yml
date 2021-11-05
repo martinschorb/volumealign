@@ -25,13 +25,14 @@ plugins:
       handlers:
           python:
             setup_commands:
+              - import sys
+              - sys.path.append("dash")
               - import create_doc_mock
-              
+
   - macros
 
 
 markdown_extensions:
-  - admonition
   - pymdownx.highlight
   - pymdownx.superfences
 

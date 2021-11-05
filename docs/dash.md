@@ -13,6 +13,6 @@ All sub-pages can be arranged individually. Some commonly used functionality is 
 
 
 
-::: create_doc_mock
+::: solve
     rendering:
         show_root_heading: true
