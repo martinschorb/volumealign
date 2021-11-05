@@ -27,18 +27,8 @@ plugins:
             setup_commands:
               - import sys
               - sys.path.append("dash")
-              - import findimports
-              - import glob
-              - from unittest.mock import MagicMock as mock
-              - src_dir = 'dash'
-              - flist = glob.glob(src_dir+'/**/*.py',recursive=True)
-              - imp_list=['unittest.mock.MagicMock','sys']
-              - for cfile in flist:
-                  c_imps = findimports.find_imports(cfile)
-                  for imp in c_imps:
-                      if imp.name not in imp_list:
-                          imp_list.append(imp.name)
-                          sys.modules[imp.name] = mock()
+              - sys.path.append("../dash")
+              - import create_doc_mock
 
   - macros
 
