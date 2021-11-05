@@ -35,7 +35,6 @@ plugins:
               - imp_list=['unittest.mock.MagicMock','sys']
               - for cfile in flist:
                   c_imps = findimports.find_imports(cfile)
-
                   for imp in c_imps:
                       if imp.name not in imp_list:
                           imp_list.append(imp.name)
