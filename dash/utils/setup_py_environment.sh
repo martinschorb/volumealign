@@ -1,15 +1,19 @@
 #!/bin/bash
 
-conda_init="/g/emcf/software/python/miniconda/etc/profile.d/conda.sh"
+conda_init=`./pyvar.sh ../dash/params.py  conda_dir`"/etc/profile.d/conda.sh"
 
 source $conda_init
 conda init bash > /dev/null
 
 conda activate render
+
 # echo render environment activated
 
 
-# path do excecutables and python client scripts
+# path to excecutables and python client scripts
 
-export rendermodules="/g/emcf/schorb/code/render-modules/"
-#export hotknife="/g/emcf/schorb/code/hot-knife/"
+rendermodules_dir=`./pyvar.sh ../dash/params.py  rendermodules_dir`
+
+# echo $rendermodules_dir
+
+export rendermodules=$rendermodules_dir
