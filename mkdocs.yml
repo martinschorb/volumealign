@@ -5,6 +5,7 @@ site_url: https://schorb.embl-community.io/volumealign
 
 theme:
   name: material
+  font: false
 
 nav:
     - Home: index.md
@@ -20,22 +21,13 @@ nav:
 
 
 plugins:
-  - mkdocstrings:
-      custom_templates: templates
-      handlers:
-          python:
-            setup_commands:
-              - import sys
-              - sys.path.append("dash")
-              - sys.path.append("../dash")
-              - import create_doc_mock
-
   - macros
 
 
 markdown_extensions:
-  - pymdownx.highlight
-  - pymdownx.superfences
+  - admonition
+  - codehilite
+  - mkautodoc
 
 extra:
   dirs:
