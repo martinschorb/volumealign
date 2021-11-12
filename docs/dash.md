@@ -10,8 +10,3 @@ The design of the workflow is inspired and borrowed from [IMOD's](https://bio3d.
 ## customization
 
 All sub-pages can be arranged individually. Some commonly used functionality is made available through generic functions with the page elements provided in [`index.py`]({{ dirs.code }}dash/index.py).
-
-
-
-::: volumealign.dash.index.display_page
-    :docstring:

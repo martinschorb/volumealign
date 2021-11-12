@@ -25,9 +25,8 @@ plugins:
 
 
 markdown_extensions:
-  - admonition
   - codehilite
-  - mkautodoc
+
 
 extra:
   dirs:
