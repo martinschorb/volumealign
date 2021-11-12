@@ -13,6 +13,5 @@ All sub-pages can be arranged individually. Some commonly used functionality is 
 
 
 
-::: solve
-    rendering:
-        show_root_heading: true
+::: volumealign.dash.index.display_page
+    :docstring:
