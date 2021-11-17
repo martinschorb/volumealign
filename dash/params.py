@@ -52,6 +52,7 @@ comp_default = 'slurm'
 
 comp_defaultoptions = ['slurm','standalone']
 
+min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 

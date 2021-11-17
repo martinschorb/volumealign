@@ -355,13 +355,34 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             n5run_p['--tileWidth'] = '{:.0f}'.format(tilespecs[0]['width'])
             n5run_p['--tileHeight'] = '{:.0f}'.format(tilespecs[0]['height'])
+            
+            blocksize = list(map(int,n5run_p['--blockSize'].split(',')))
+            factors = list(map(int,n5run_p['--factors'].split(',')))
         
-            for dim in ['X','Y','Z']:
+            for idx,dim in enumerate(['X','Y','Z']):
                                 
                 n5run_p['--min'+dim] = eval(dim+'min')
-                n5run_p['--max'+dim] = eval(dim+'max')
+                n5run_p['--max'+dim] = eval(dim+'max') + 1
+                
+                
+                # make sure blocksize and factors are not bigger than data
+                
+                extent = n5run_p['--max'+dim] - n5run_p['--min'+dim]                                               
 
-                 
+                blocksize[idx] = min(blocksize[idx],extent)
+                factors[idx] = min(blocksize[idx],factors[idx])
+                
+                
+            
+            # optimize block size
+            
+            while np.prod(blocksize) < params.min_chunksize:
+                blocksize[0] *= 2
+                blocksize[1] *= 2
+            
+            
+            n5run_p['--blockSize'] = ','.join(map(str,blocksize))
+            n5run_p['--factors'] = ','.join(map(str,factors))    
             
             # fill parameters
                         
