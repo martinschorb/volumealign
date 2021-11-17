@@ -324,7 +324,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             slices = ''
             
-            if Zmin == sp_store['zmin'] and zmin == sp_store['zmax']:
+            if Zmin == sp_store['zmin'] and Zmax == sp_store['zmax']:
                 slices = '_full'
             else:
                 slices = '_Z' + str(Zmin) + '-' + str(Zmax)               
