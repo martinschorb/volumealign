@@ -85,7 +85,8 @@ section_split = 500 #split stack into processing chunks for certain operations (
 # directory structure
 
 datasubdirs = {
-    'SBEM':'/tiles'}
+    'SBEM':'/tiles',
+    'SerialEM':'.'}
 
 mipmapdir = 'mipmaps'
 
