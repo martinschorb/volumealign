@@ -140,9 +140,9 @@ def n5export_stacktodir(stack_sel,
             if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                     return dash.no_update
             
-            out['zmin']=zmin
-            out['zmax']=zmax
-            out['numsections']=zmax-zmin
+            out['zmin'] = zmin
+            out['zmax'] = zmax
+            out['numsections'] = zmax-zmin + 1
                      
             url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/'+ str(out['zmin']) +'/render-parameters'
             tiles0 = requests.get(url).json()
@@ -152,9 +152,9 @@ def n5export_stacktodir(stack_sel,
             basedirsep = params.datasubdirs[owner]
             dir_out = tilefile0[:tilefile0.find(basedirsep)]
             
-            out['gigapixels']=out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
+            out['gigapixels'] = out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
             
-            t_fields=[stack,str(out['numsections']),'%0.2f' % int(out['gigapixels'])]
+            t_fields = [stack,str(out['numsections']),'%0.2f' % int(out['gigapixels'])]
             
             n_cpu = params.n_cpu_spark
             
