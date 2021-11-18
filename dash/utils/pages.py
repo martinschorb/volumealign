@@ -219,14 +219,18 @@ def boundingbox(module,hidden=False):
 
 
 
-def tile_view(module,numpanel=1,showlink=False):       
+def tile_view(module,numpanel=1,showlink=False,contrast=True):       
     
     out = list()
     linkstyle = {'display':'none'}
+    contraststyle = {'display':'none'}
     
     if showlink:
         linkstyle = {}
-    
+        
+    if contrast:
+        contraststyle = {}
+        
     for idx in range(numpanel):
         idx_str = '_'+str(idx)
         if numpanel>1:            
@@ -240,6 +244,19 @@ def tile_view(module,numpanel=1,showlink=False):
                                                        html.Td('Tile'),
                                                        html.Td(dcc.Dropdown(id={'component': 'tile_dd'+idx_str, 'module': module},className='dropdown_inline'))])
                                               ]),
+                                  html.Div(style=contraststyle,id={'component': 'ts_contrastdiv'+idx_str, 'module': module},children=[
+                                      'Contrast limits: ',
+                                      dcc.RangeSlider(
+                                            id={'component': 'ts_contrastslider'+idx_str, 'module': module},
+                                            min=0,
+                                            max=500,
+                                            value=[0, 255],
+                                            allowCross=False,
+                                            tooltip={"placement": "bottom"}
+                                        )
+                                      ]),
+                                  html.Br(),
+                                  html.Div(style={'display':'none'},id={'component': 'ts_imurl'+idx_str, 'module': module}),
                                   html.Div(style=linkstyle,id={'component': 'ts_linkdiv'+idx_str, 'module': module},children=[
                                       'Link to Image specs:  ',
                                       html.Div(id={'component': 'ts_link'+idx_str, 'module': module},style={'margin-left': '0.5em'})
@@ -255,12 +272,15 @@ def tile_view(module,numpanel=1,showlink=False):
     return html.Div(out)
 
 
-def section_view(module,numpanel=1):       
+def section_view(module,numpanel=1,contrast=True):       
     
     out = list()
-    # linkstyle = {'display':'none'}
-    
-    
+
+    contraststyle = {'display':'none'}
+
+    if contrast:
+        contraststyle = {}
+
     for idx in range(numpanel):
         idx_str = '_'+str(idx)
         if numpanel>1:            
@@ -273,7 +293,19 @@ def section_view(module,numpanel=1):
                                                        html.Td(dcc.Input(id={'component': 'sliceim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
                                                        ])                                 
                                       ]),
+                                  html.Div(style=contraststyle,id={'component': 'sliceim_contrastdiv'+idx_str, 'module': module},children=[
+                                      'Contrast limits: ',
+                                      dcc.RangeSlider(
+                                            id={'component': 'sliceim_contrastslider'+idx_str, 'module': module},
+                                            min=0,
+                                            max=500,
+                                            value=[0, 255],
+                                            allowCross=False,
+                                            tooltip={"placement": "bottom", "always_visible": True}
+                                        )
+                                      ]),
                                   html.Br(),
+                                  html.Div(style={'display':'none'},id={'component': 'slice_imurl'+idx_str, 'module': module}),
                                   html.Img(id={'component': 'slice_image'+idx_str, 'module': module},width=params.im_width),
                                   html.Br()])
                     ]

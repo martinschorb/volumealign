@@ -111,15 +111,17 @@ for idx in range(params.max_tileviews):
     
     # init image display    # update tilespec link
     @app.callback([Output({'component': 'image'+idx_str, 'module': MATCH},'src'),
-                   Output({'component': 'ts_link'+idx_str, 'module': MATCH},'children')],
+                   Output({'component': 'ts_link'+idx_str, 'module': MATCH},'children'),
+                   Output({'component': 'ts_contrastslider'+idx_str, 'module': MATCH},'max')],
                   [Input({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
-                   Input({'component': 'store_render_launch', 'module': MATCH},'data')],
+                   Input({'component': 'store_render_launch', 'module': MATCH},'data'),
+                   Input({'component': 'ts_contrastslider'+idx_str, 'module': MATCH},'value')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State('url', 'pathname')
                    ])           
-    def im_view(tile,runstore,owner,project,stack,thispage):        
+    def im_view(tile,runstore,c_limits,owner,project,stack,thispage):        
         if not dash.callback_context.triggered: 
             raise PreventUpdate
         # print('tile is now: '+ tile)
@@ -144,6 +146,8 @@ for idx in range(params.max_tileviews):
         
         scale = float(params.im_width) / float(tilespec['width'])
         
+        max_int = tilespec['tileSpecs'][0]['maxIntensity']        
+        
         out_scale = '%0.2f' %scale
         
         imurl = url +'/jpeg-image?scale=' + out_scale
@@ -156,20 +160,23 @@ for idx in range(params.max_tileviews):
 
         
         url1 += '?filter=true&scale=' + str(scale1)
-                
-        return imurl, url1
+        
+        imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
+        
+        return imurl, url1, max_int
     
 
     # init image display    # update tilespec link
     @app.callback(Output({'component': 'slice_image'+idx_str, 'module': MATCH},'src'),
                   [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
-                   Input({'component': 'store_render_launch', 'module': MATCH},'data')],
+                   Input({'component': 'store_render_launch', 'module': MATCH},'data'),
+                   Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State('url', 'pathname')
                    ])           
-    def slice_view(section,runstore,owner,project,stack,thispage):
+    def slice_view(section,runstore,c_limits,owner,project,stack,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
         
@@ -200,6 +207,8 @@ for idx in range(params.max_tileviews):
         out_scale = '%0.2f' %scale
         
         imurl = url +'/jpeg-image?scale=' + out_scale   
+        
+        imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
         
         return imurl
     
