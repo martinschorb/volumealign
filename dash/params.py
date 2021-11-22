@@ -43,6 +43,8 @@ init_logfile = 'out.txt' #render_log_dir + 'fancylogfile.log'
 #==============================================================
 ## Compute resources presets
 
+# name of the conda environment that provides the gc3Pie runtime
+gc3_envname = 'gc3pie'
 
 comp_options = [{'label': 'Cluster (slurm)', 'value': 'slurm'},
                 {'label': 'locally (this submission node)', 'value': 'standalone'},
