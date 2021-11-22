@@ -6,9 +6,8 @@ sleep 5
 echo this is the input file
 echo $1
 sleep 5
-cp $1 out.jpg
 echo Now we go on...
-sleep 15
+sleep 5
 echo and another hostname
-sleep 30
+sleep 3
 hostname

@@ -302,7 +302,14 @@ def canceljobs(job_ids):
     
     
 
-def run(target='standalone',pyscript='thispyscript',json='',run_args='',target_args=None,logfile=os.path.join(params.render_log_dir,'render.out'),errfile=os.path.join(params.render_log_dir,'render.err')):
+def run(target='standalone',
+        pyscript='thispyscript',
+        json='',
+        run_args='',
+        target_args=None,
+        logfile=os.path.join(params.render_log_dir,'render.out'),
+        errfile=os.path.join(params.render_log_dir,'render.err')):
+    
     my_env = os.environ.copy()
     os.chdir(workdir)
     command = '../'+target

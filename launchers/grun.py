@@ -32,10 +32,9 @@ import shlex
 
 import gc3libs
 import gc3libs.exceptions
-from gc3libs import Application, Run
-from gc3libs.cmdline import SessionBasedScript, nonnegative_int
-from gc3libs.workflow import TaskCollection
-from gc3libs.workflow import ParallelTaskCollection, SequentialTaskCollection
+from gc3libs import Application
+from gc3libs.cmdline import SessionBasedScript
+
 
 ## main: run command-line
 
@@ -57,11 +56,13 @@ class GRunApplication(Application):
         # Fix path of the executable
         inputs = extra_args.get('inputs', [])
         shellargs = []
+        
         for arg in arguments:
             shellargs.extend(shlex.split(arg))
             argpath = os.path.expandvars(os.path.expanduser(arg))
             if os.path.exists(argpath):
                 inputs.append(argpath)
+                
         Application.__init__(self,
                              arguments = ["bash", "-c", str.join(' ', shellargs)],
                              inputs = inputs,
@@ -82,20 +83,7 @@ class GRunScript(SessionBasedScript):
     consider writing a specialized script.
     """
     version = '1.1.1'
-    # def setup_options(self):
-    #     """Add options specific to this session-based script."""
-    #     self.add_param('--parallel', metavar="COUNT",
-    #                    action="store", default=0, type=nonnegative_int,
-    #                    help='Execute the command line this many times in parallel')
-    #     self.add_param('--sequential', metavar="COUNT",
-    #                    action="store", default=0, type=nonnegative_int,
-    #                    help='Execute the command line this many times in a sequence')
 
-    # def parse_args(self):
-    #     if not self.params.parallel and not self.params.sequential:
-    #         raise RuntimeError("You must specify either --parallel or --sequential.")
-    #     if self.params.parallel and self.params.sequential:
-    #         raise RuntimeError("You can either use --parallel or --sequential, not both")
 
     def new_tasks(self, extra):
         appextra = extra.copy()
@@ -105,17 +93,4 @@ class GRunScript(SessionBasedScript):
 
         return [task]
 
-    # def after_main_loop(self):
-    #     print("")
-    #     tasks = self.session.tasks.values()
-    #     for app in tasks:
-    #         if isinstance(app, TaskCollection):
-    #             tasks.extend(app.tasks)
-    #         if not isinstance(app, Application):
-    #             continue
-    #         print("===========================================")
-    #         print("Application     %s" % app.jobname)
-    #         print("  state:        %s" % app.execution.state)
-    #         print("  command line: %s" % str.join(" ", app.arguments))
-    #         print("  return code:  %s" % app.execution._exitcode)
-    #         print("  output dir:   %s" % app.output_dir)
+  
