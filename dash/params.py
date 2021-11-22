@@ -93,6 +93,32 @@ mipmapdir = 'mipmaps'
 
 outdirbase = 'aligned'
 
+# slice numeration schemes
+
+slicenumformat = { # string format in which the slice number appears in the tile labels
+    'SBEM':'.%05i'
+    }
+
+
+# tile reformatting scheme
+
+#SBEM
+def tile_display_SBEM(tiles,prev_tile,slicenum):
+    t_labels = tiles.copy()
+    tile = tiles[0]
+    
+    for t_idx,t_label in enumerate(tiles): 
+        t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
+        
+        if (not prev_tile is None) and t_labels[t_idx] in prev_tile:
+            tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + slicenumformat['SBEM'] %slicenum        
+            
+            
+    return t_labels, tile
+
+tile_display = {
+    'SBEM':tile_display_SBEM
+    }
 
 
 #=============================================================

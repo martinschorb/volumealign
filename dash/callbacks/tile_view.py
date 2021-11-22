@@ -30,16 +30,19 @@ for idx in range(params.max_tileviews):
         
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
-                       Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max')],
+                       Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max'),
+                       Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'max'),
+                       Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
                       Input({'component': 'stack_dd','module': MATCH},'value'),
-                      State({'component': 'store_allstacks', 'module': MATCH}, 'data'))
-        def stacktoslice(stack_sel,allstacks):
+                      [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
+                       State({'component': 'owner_dd','module': MATCH},'value'),
+                       State({'component': 'project_dd','module': MATCH},'value')])
+        def stacktoslice(stack_sel,allstacks,owner,project):
             stacklist=[]            
             
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
-                 # stack = stack_sel
-            
+                 # stack = stack_sel          
             
             
             if not stacklist == []:
@@ -48,19 +51,34 @@ for idx in range(params.max_tileviews):
                 if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                     return dash.no_update
                 
+                                
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
                 
                 o_val = int((o_max-o_min)/2) + o_min 
+                
+                
+                url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack_sel
+                url1 = url + '/tileIds'
+                
+                tile = requests.get(url1).json()[0]
+                
+                url2 = url +'/tile/' + tile                 
+                url2 +=  '/render-parameters'
+
+                
+                tilespec = requests.get(url2).json()
+                                
+                max_int = tilespec['tileSpecs'][0]['maxIntensity']     
             
-                return o_val,o_min,o_max
+                return o_val,o_min,o_max,max_int,[0,max_int]
             
             else:
                 return dash.no_update
             
-    
-    
-    
+                
+                
+
     
     # init tile selector
     @app.callback([Output({'component':'tile_dd'+idx_str,'module': MATCH},'options'),
@@ -76,13 +94,13 @@ for idx in range(params.max_tileviews):
             return dash.no_update
         
         if 'None' in (owner,project,stack):
-            return dash.no_update
+            return dash.no_update        
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
         
-        if owner == 'SBEM':
-            url += '.%05i' %slicenum
+        if owner in params.slicenumformat.keys():            
+            url += params.slicenumformat[owner] %slicenum
         
         tiles = requests.get(url).json()
         
@@ -92,13 +110,15 @@ for idx in range(params.max_tileviews):
         t_labels = tiles.copy()
         tile = tiles[int(len(tiles)/2)]
         
-        if owner == 'SBEM':
-            for t_idx,t_label in enumerate(tiles): 
-                t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
-                
-                if (not prev_tile is None) and t_labels[t_idx] in prev_tile:
-                    tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + '.%05i' %slicenum
-
+        if prev_tile is None:
+            prev_tile = tile
+        
+        if owner in params.tile_display.keys():
+            t_labels, tile = params.tile_display[owner](tiles,prev_tile,slicenum)
+        
+        if None in (t_labels,tile):
+            return dash.no_update
+        
         # assemble dropdown
         dd_options = list(dict())
         for t_idx,item in enumerate(tiles):
@@ -107,21 +127,16 @@ for idx in range(params.max_tileviews):
         return dd_options, tile
     
     
-    
-    
-    # init image display    # update tilespec link
-    @app.callback([Output({'component': 'image'+idx_str, 'module': MATCH},'src'),
-                   Output({'component': 'ts_link'+idx_str, 'module': MATCH},'children'),
-                   Output({'component': 'ts_contrastslider'+idx_str, 'module': MATCH},'max')],
+    @app.callback([Output({'component': 'tileim_imurl'+idx_str, 'module': MATCH},'children'),
+                   Output({'component': 'tileim_link'+idx_str, 'module': MATCH},'children')],
                   [Input({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
-                   Input({'component': 'store_render_launch', 'module': MATCH},'data'),
-                   Input({'component': 'ts_contrastslider'+idx_str, 'module': MATCH},'value')],
+                   Input({'component': 'store_render_launch', 'module': MATCH},'data')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State('url', 'pathname')
                    ])           
-    def im_view(tile,runstore,c_limits,owner,project,stack,thispage):        
+    def im_view_url(tile,runstore,owner,project,stack,thispage):        
         if not dash.callback_context.triggered: 
             raise PreventUpdate
         # print('tile is now: '+ tile)
@@ -137,6 +152,7 @@ for idx in range(params.max_tileviews):
         if 'None' in (owner,project,stack):
             return dash.no_update
         
+        
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tile/' + tile 
         
@@ -144,14 +160,11 @@ for idx in range(params.max_tileviews):
         
         tilespec = requests.get(url1).json()
         
-        scale = float(params.im_width) / float(tilespec['width'])
-        
-        max_int = tilespec['tileSpecs'][0]['maxIntensity']        
+        scale = float(params.im_width) / float(tilespec['width'])  
         
         out_scale = '%0.2f' %scale
         
-        imurl = url +'/jpeg-image?scale=' + out_scale
-        
+        imurl = url +'/jpeg-image?scale=' + out_scale      
         
         if runstore is None or not 'mt_params' in runstore.keys():
             scale1 = params.default_tile_scale
@@ -161,13 +174,31 @@ for idx in range(params.max_tileviews):
         
         url1 += '?filter=true&scale=' + str(scale1)
         
+        return imurl, url1
+    
+    
+    # init image display
+    @app.callback(Output({'component': 'tileim_image'+idx_str, 'module': MATCH},'src'),
+                  [Input({'component': 'tileim_contrastslider'+idx_str, 'module': MATCH},'value'),
+                   Input({'component': 'tileim_imurl'+idx_str, 'module': MATCH},'children')]
+                  )
+    def im_view(c_limits,imurl):
+        if not dash.callback_context.triggered: 
+            raise PreventUpdate     
+            
+        if None in (c_limits,imurl):
+            return dash.no_update
+        
+        if 'None' in (c_limits,imurl):
+            return dash.no_update
+        
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
         
-        return imurl, url1, max_int
+        return imurl
     
 
-    # init image display    # update tilespec link
-    @app.callback(Output({'component': 'slice_image'+idx_str, 'module': MATCH},'src'),
+    # init image display
+    @app.callback(Output({'component': 'sliceim_image'+idx_str, 'module': MATCH},'src'),
                   [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
                    Input({'component': 'store_render_launch', 'module': MATCH},'data'),
                    Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value')],
