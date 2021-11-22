@@ -39,7 +39,7 @@ menu_items=['convert',
             ]
 
 menu_text=['Convert & upload',
-            'Genera1te MipMaps',
+            'Generate MipMaps',
             'Find Tile Pairs',
             'Find Point Matches',
             'Solve Positions',
