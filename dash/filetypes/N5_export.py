@@ -241,6 +241,8 @@ states = [State({'component':'compute_sel','module' : label},'value'),
 states.extend(bbox)
 states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'))
 states.append(State({'component':'sliceim_section_in_0','module': parent},'value'))
+states.append(State({'component':'sliceim_contrastslider_0','module': parent},'value'))
+
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                 Output({'component': 'buttondiv', 'module': label},'children'),
@@ -255,7 +257,7 @@ states.append(State({'component':'sliceim_section_in_0','module': parent},'value
               ,prevent_initial_call=True)                 
 def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
                                      Xmin,Xmax,Ymin,Ymax,Zmin,Zmax,
-                                     sp_store,slice_in): 
+                                     sp_store,slice_in,c_limits): 
     
     if not dash.callback_context.triggered: 
             raise PreventUpdate
@@ -373,6 +375,11 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
                 factors[idx] = min(blocksize[idx],factors[idx])
                 
                 
+            # contrast limits
+            
+            n5run_p['--minIntensity'] = c_limits[0]
+            n5run_p['--maxIntensity'] = c_limits[1]
+            
             
             # optimize block size
             
