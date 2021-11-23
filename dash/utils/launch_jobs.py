@@ -326,7 +326,11 @@ def run(target='standalone',
     # for i in range(10): command+='&& sleep 1 && echo '+str(i)
     print('launching - ')
     
-    if target=='standalone':
+    if target=='gc3':
+        command = '../launchers/'+target
+        
+    
+    elif target=='standalone':
         command += pyscript
         command += ' '+json
         command += run_args
