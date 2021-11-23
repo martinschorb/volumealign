@@ -31,7 +31,7 @@ for idx in range(params.max_tileviews):
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max'),
-                       Output({'component':imtype+'section_in'+idx_str,'module': MATCH},'style'),
+                       Output({'component':imtype+'_section_div'+idx_str,'module': MATCH},'style'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'max'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
                       Input({'component': 'stack_dd','module': MATCH},'value'),
