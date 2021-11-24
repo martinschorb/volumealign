@@ -240,8 +240,11 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True):
             idx_title=''
 
         out.append(html.Div([html.Details([html.Summary('Explore tile'+idx_title),
-                                  html.Table([html.Tr([html.Td('Slice:'),
-                                                       html.Td(dcc.Input(id={'component': 'tileim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
+                                  html.Table([html.Tr([html.Div(
+                                      [html.Td('Slice:'),
+                                       html.Td(dcc.Input(id={'component': 'tileim_section_in'+idx_str, 'module': module},type='number',min=0,value=0))],
+                                                               id={'component': 'tileim_section_div'+idx_str, 'module': module},
+                                                               style={}),
                                                        html.Td('Tile'),
                                                        html.Td(dcc.Dropdown(id={'component': 'tile_dd'+idx_str, 'module': module},className='dropdown_inline'))])
                                               ]),
@@ -290,10 +293,13 @@ def section_view(module,numpanel=1,contrast=True):
             idx_title=''
 
         out.append(html.Div([html.Details([html.Summary('Explore slice'+idx_title),
-                                  html.Table([html.Tr([html.Td('Slice:'),
+                                  html.Div(
+                                      html.Table([html.Tr([html.Td('Slice:'),
                                                        html.Td(dcc.Input(id={'component': 'sliceim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
                                                        ])                                 
                                       ]),
+                                      id={'component': 'sliceim_section_div'+idx_str, 'module': module},
+                                      style={}),
                                   html.Div(style=contraststyle,id={'component': 'sliceim_contrastdiv'+idx_str, 'module': module},children=[
                                       'Contrast limits: ',
                                       dcc.RangeSlider(

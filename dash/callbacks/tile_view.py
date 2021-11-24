@@ -31,6 +31,7 @@ for idx in range(params.max_tileviews):
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max'),
+                       Output({'component':imtype+'_section_div'+idx_str,'module': MATCH},'style'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'max'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
                       Input({'component': 'stack_dd','module': MATCH},'value'),
@@ -39,6 +40,7 @@ for idx in range(params.max_tileviews):
                        State({'component': 'project_dd','module': MATCH},'value')])
         def stacktoslice(stack_sel,allstacks,owner,project):
             stacklist=[]            
+            slicestyle = {}
             
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
@@ -54,6 +56,8 @@ for idx in range(params.max_tileviews):
                                 
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
+                
+                if o_min == o_max: slicestyle = {'display':'none'}
                 
                 o_val = int((o_max-o_min)/2) + o_min 
                 
@@ -71,7 +75,7 @@ for idx in range(params.max_tileviews):
                                 
                 max_int = tilespec['tileSpecs'][0]['maxIntensity']     
             
-                return o_val,o_min,o_max,max_int,[0,max_int]
+                return o_val,o_min,o_max,slicestyle,max_int,[0,max_int]
             
             else:
                 return dash.no_update
