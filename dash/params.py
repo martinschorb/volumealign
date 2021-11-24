@@ -9,17 +9,20 @@ import time
 import subprocess
 import requests
 import socket
+from gc3libs.config import Configuration
 
 #=============================================================
 ## Directory presets
 
-base_dir = '/g/emcf/software/volumealign/'
+base_dir = '..'#'/g/emcf/software/volumealign/'
 
 conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
 rendermodules_dir = '/g/emcf/schorb/code/render-modules/'
+
+gc3_conf = os.path.join(base_dir,'launchers/gc3conf/gc3pie.conf')
 
 # derived base directories for launchers etc...
 # you can point these to other targets if desired
@@ -46,13 +49,23 @@ init_logfile = 'out.txt' #render_log_dir + 'fancylogfile.log'
 # name of the conda environment that provides the gc3Pie runtime
 gc3_envname = 'gc3pie'
 
-comp_options = [{'label': 'Cluster (slurm)', 'value': 'slurm'},
+
+
+comp_options = [
+                # {'label': 'Gc3', 'value': 'gc3'},
+                # {'label': 'Cluster (slurm)', 'value': 'slurm'},
                 {'label': 'locally (this submission node)', 'value': 'standalone'},
-                {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}]
+                {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}
+                ]
 
-comp_default = 'slurm'
+gc3conf = Configuration(gc3_conf)
 
-comp_defaultoptions = ['slurm','standalone']
+for resource in gc3conf.resources.keys():
+    comp_options.append({'label': resource, 'value': 'gc3_'+resource})
+
+comp_default = 'gc3_localhost'
+
+comp_defaultoptions = ['gc3_localhost','standalone','sparkslurm']
 
 min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 

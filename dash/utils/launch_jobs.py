@@ -312,9 +312,9 @@ def run(target='standalone',
     
     my_env = os.environ.copy()
     os.chdir(workdir)
-    command = '../'+target
-    command += '/launcher.sh '    
-    
+    # command = '../'+target
+    # command += '/launcher.sh '    
+    command = '../launchers/'+ target +'.sh'
     
     if run_args is None: run_args = ''
     
@@ -327,8 +327,17 @@ def run(target='standalone',
     print('launching - ')
     
     if target=='gc3':
-        command = '../launchers/'+target
         
+        
+        gc3_session = logfile.rstrip('.log')
+        
+        command += ' -s '+gc3_session
+                
+        command += pyscript
+        command += ' '+json
+        command += run_args
+        
+        print(command)
     
     elif target=='standalone':
         command += pyscript
