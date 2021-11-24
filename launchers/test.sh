@@ -5,9 +5,9 @@ hostname
 sleep 5
 echo this is the input file
 echo $1
-sleep 5
+sleep 25
 echo Now we go on...
-sleep 5
+sleep 25
 echo and another hostname
 sleep 3
 hostname

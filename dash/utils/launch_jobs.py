@@ -15,6 +15,7 @@ import datetime
 import requests
 import json
 
+from gc3libs.session import Session
 
 workdir = params.workdir
 
@@ -99,7 +100,10 @@ def checkstatus(runvar,logfile):
             return 'error',runvar.args
     
     elif type(runvar) is str:
-        return cluster_status(runvar,logfile),[runvar]
+        if runvar.startswith('gc3_'):
+            return gc3_status(runvar,logfile),[runvar]
+        else:
+            return cluster_status(runvar,logfile),[runvar]
 
     
     if type(runvar) is list:
@@ -111,7 +115,10 @@ def checkstatus(runvar,logfile):
                 elif rv.poll() > 0:
                     return 'error',rv.args
             elif type(rv) is str:
-                return cluster_status(runvar,logfile),runvar 
+                if runvar.startswith('gc3_'):
+                    return gc3_status(runvar,logfile),runvar
+                else:
+                    return cluster_status(runvar,logfile),runvar
             
             
         if len(outvar)>1:
@@ -119,8 +126,40 @@ def checkstatus(runvar,logfile):
         elif len(outvar)==1:
             return 'running',rv
         else:
-            return 'done',outvar        
+            return 'done',outvar
 
+
+def gc3_status(job_ids,logfile):
+    if type(job_ids) is str:
+        job_ids=[job_ids]
+    
+    
+    
+    for jobid in job_ids:
+        if (type(jobid) is not str or not '__' in jobid): raise TypeError('ERROR! JOB IDs need to be passed as string with cluster type __ ID!')
+        
+        gc3_sessiondir = jobid.lstrip('gc3_')
+        
+        gc3_session = Session(gc3_sessiondir)
+        
+        out_stat =[]
+        
+        for task in gc3_session.tasks.values():
+            if 'RUNNING' in task.execution.state:
+                out_stat.append('running')
+            elif task.execution.state=='TERMINATED':                
+                if task.execution.exitcode > 0:
+                    out_stat.append('error')
+                elif task.execution.exitcode == 0:
+                    out_stat.append('done')
+  
+            elif 'SUBMITTED' in task.execution.state:
+                out_stat.append('pending')
+            elif 'FAILED' in task.execution.state:
+                out_stat.append('error')
+            
+            
+    return out_stat
 
 
 def cluster_status_init(job_ids):
@@ -326,18 +365,31 @@ def run(target='standalone',
     # for i in range(10): command+='&& sleep 1 && echo '+str(i)
     print('launching - ')
     
-    if target=='gc3':
+    if target.startswith('gc3_'): 
         
+        command = '../launchers/gc3run.sh'
+        
+        resource = target.lstrip('gc3_')
         
         gc3_session = logfile.rstrip('.log')
         
-        command += ' -s '+gc3_session
-                
-        command += pyscript
-        command += ' '+json
+        command += ' -s ' + gc3_session        
+        command += ' -r ' + resource
+        command += ' --config-files ' + params.gc3_conffile
+        
+        if not target_args is None:
+            command += args2string(target_args)  
+        
+        command += ' ' + pyscript
+        command += ' ' + json
         command += run_args
         
         print(command)
+        
+        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+         
+        return gc3_session
     
     elif target=='standalone':
         command += pyscript
