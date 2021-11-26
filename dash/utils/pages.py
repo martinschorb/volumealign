@@ -95,10 +95,10 @@ def render_selector(module,header='Active stack:',owner=False,create=False,show=
                         html.Td([html.Table(html.Tr([
                             html.Td(html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'})),
                             html.Td(dcc.Dropdown(id={'component':'owner_dd','module':module},
-                                      className='dropdown_inline',
-                                     options=[],value=owner,
-                                     style={'width':'120px'},
-                                     persistence=True,clearable=False))])),
+                                                 className='dropdown_inline',
+                                                 options=[],value=owner,
+                                                 persistence=True,clearable=False))
+                            ])),
                         html.Div(id={'component':'owner','module':module},
                                  style={'display':'none'}),            
                         ],style=own_style),
@@ -107,29 +107,48 @@ def render_selector(module,header='Active stack:',owner=False,create=False,show=
                         html.Td([html.Table(html.Tr([                        
                             html.Td(html.Div('Project:',style={'margin-left': '2em'})),
                             html.Td(html.A('(Browse)',id={'component':'browse_proj','module':module},
-                               target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
+                                           target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
                             html.Td(dcc.Dropdown(id={'component':'project_dd','module':module},
-                                      className='dropdown_inline',
-                                     persistence=True,clearable=False))])),
-                            html.Div(id={'component':'project','module':module},
-                                     style={'display':'none'}),
+                                                 className='dropdown_inline',
+                                                 persistence=True,clearable=False))
+                            ])),
+                            dcc.Store(id={'component':'project_store','module':module}),
+                            
                         # creator
-                        html.Div(''
+                        html.Div(html.Div(['Enter new project name: ',
+                                           dcc.Input(id={'component':"proj_input",'module':module}, type="text", debounce=True,placeholder="new_project",persistence=False)
+                                           ],
+                                          id={'component':'render_project','module':module}
+                                          ,style={'display':'none'})
+                                 ,id={'component':'new_project_div','module':module}
                                  ,style=new_proj_style)
                         
-                        ],style=proj_style),
+                            ]
+                            ,id={'component':'full_project_div','module':module}
+                            ,style=proj_style),
                         
                         # Stack selection
                         html.Td([html.Table(html.Tr([
-                                           html.Td(html.Div('Stack:',style={'margin-left': '2em'})),
-                                           html.Td(html.A('(Browse)',id={'component':'browse_stack','module':module},
-                                                  target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
-                                           html.Td(dcc.Dropdown(id={'component':'stack_dd','module':module},
-                                                                className='dropdown_inline',
-                                                        persistence=True,clearable=False))])),
-                                           dcc.Store(id={'component':'stacks','module':module})
-                                           ],style=stack_style)
-                            ]))
+                            html.Td(html.Div('Stack:',style={'margin-left': '2em'})),
+                            html.Td(html.A('(Browse)',id={'component':'browse_stack','module':module},
+                                           target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
+                            html.Td(dcc.Dropdown(id={'component':'stack_dd','module':module},
+                                                 className='dropdown_inline',
+                                                 persistence=True,clearable=False))
+                            ])),
+                            dcc.Store(id={'component':'stacks','module':module}),
+                            
+                            # creator
+                            html.Div(html.Div(['Enter new stack name: ',
+                                               dcc.Input(id={'component':"stack_input",'module':module}, type="text", debounce=True,placeholder="new_stack",persistence=False)
+                                               ],
+                                              id={'component':'render_stack','module':module},style={'display':'none'})
+                                     ,id={'component':'new_stack_div','module':module}
+                                     ,style=new_stack_style)    
+                            ]
+                            ,id={'component':'full_stack_div','module':module}
+                            ,style=stack_style)
+                        ]))
                     ],style = dst)
 
     return out

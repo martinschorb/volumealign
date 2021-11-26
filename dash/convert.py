@@ -12,7 +12,7 @@ from dash.dependencies import Input,Output,State
 import params
 from app import app
 from utils import pages
-from callbacks import runstate
+from callbacks import runstate,render_selector
 
 from inputtypes import sbem_conv, serialem_conv
 
@@ -67,7 +67,14 @@ def convert_output(dd_value):
 
 page.append(page1)
 
-page2 = pages.render_selector(module,create=True,header='This stack selector is called ABC')
+
+# # ===============================================
+#  RENDER STACK SELECTOR
+
+# Pre-fill render stack selection from previous module
+
+
+page2 = pages.render_selector(module,create=True,show=['stack','project'],header='Select target stack')
 
 page.append(page2)
 
