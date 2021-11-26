@@ -14,7 +14,7 @@ from app import app
 from utils import pages
 from callbacks import runstate
 
-from sbem import sbem_conv
+from inputtypes import sbem_conv, serialem_conv
 
 module='convert'
 
@@ -25,7 +25,8 @@ store = pages.init_store(storeinit, module)
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id={'component': 'import_type_dd', 'module': module},persistence=True,
         options=[
-            {'label': 'SBEMImage', 'value': 'SBEMImage'}            
+            {'label': 'SBEMImage', 'value': 'SBEMImage'},
+            {'label': 'SerialEM Montage', 'value': 'SerialEM'},
         ],
         value='SBEMImage'
         )
@@ -40,10 +41,10 @@ intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': modul
 
 page = [intervals,main]
 
-r_sel = pages.render_selector(module)
-r_sel.style = {'display':'none'}
+# r_sel = pages.render_selector(module)
+# r_sel.style = {'display':'none'}
 
-page.append(r_sel)
+# page.append(r_sel)
 
 page1 = html.Div(id={'component': 'page1', 'module': module})
 
@@ -57,12 +58,20 @@ def convert_output(dd_value):
     if dd_value=='SBEMImage':
         return [html.Div(sbem_conv.page)]
     
+    elif dd_value=='SerialEM':
+        return [html.Div(serialem_conv.page)]
     else:
         return [html.Div([html.Br(),'No data type selected.'])]
 
 
 
 page.append(page1)
+
+page2 = pages.render_selector(module,create=True,header='This stack selector is called ABC')
+
+page.append(page2)
+
+
 
 
 # =============================================
