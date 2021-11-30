@@ -417,7 +417,7 @@ def section_view(module,numpanel=1,contrast=True):
     return html.Div(out)
 
 
-def path_browse(module,tf_in = None):
+def path_browse(module,tf_in = None,show_files=False,file_types=[]):
     
     if tf_in is None:
         tf_in = {'component': 'path_input', 'module': module} 
@@ -430,9 +430,10 @@ def path_browse(module,tf_in = None):
     fbrowse = html.Details([html.Summary('Browse'),fbdd])
     fbstore = html.Div([dcc.Store(id={'component': 'path_store', 'module': module}),
                         dcc.Store(id={'component': 'path_ext', 'module': module})])
+    showfiles = dcc.Store(data=show_files,id={'component': 'path_showfiles', 'module': module})
+    filetypes = dcc.Store(data=file_types,id={'component': 'path_filetypes', 'module': module})
     
-    
-    return html.Div([fbrowse,fbstore])
+    return html.Div([fbrowse,fbstore,showfiles,filetypes])
 
 # if __name__ == '__main__':
     

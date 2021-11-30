@@ -62,7 +62,7 @@ def convert_output(dd_value):
         return [html.Div(sbem_conv.page),html.Div(sbem_conv.page2)]
     
     elif dd_value=='SerialEM':
-        return [html.Div(serialem_conv.page),dash.no_update]
+        return [html.Div(serialem_conv.page),html.Div(serialem_conv.page2)]
     else:
         return [html.Div([html.Br(),'No data type selected.']),dash.no_update]
 
