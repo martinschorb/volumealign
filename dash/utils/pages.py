@@ -30,40 +30,134 @@ def init_store(storeinit,module):
 
 
 
-def render_selector(module,hidden=False):
+def render_selector(module,header='Active stack:',owner=False,create=False,show=True):
     
-    dst=dict(display='block')
+    dst=dict(display='block')    
+
     
-    if hidden: dst = dict(display='none')
+    new_proj_style = dict(display='none')
+    new_stack_style =  dict(display='none')
+    
+    
+    # determine which selectors to show
+    own_style = dict(display='none')
+    proj_style = dict(display='none')
+    stack_style = dict(display='none')
+    
+    if show == True:
+        own_style = dict(display='inline-block')
+        proj_style = dict(display='inline-block')
+        stack_style = dict(display='inline-block')
+    elif not show: 
+        dst = dict(display='none')
+        own_style = dict(display='none')
+        proj_style = dict(display='none')
+        stack_style = dict(display='none')
+    else:
+        if type(show) is str: show = [show]
+        
+        if any(o in show for o in ['Owner','owner']):
+            own_style = dict(display='inline-block')
+        if any(p in show for p in ['Project','project']):    
+            proj_style = dict(display='inline-block')
+        if any(s in show for s in ['Stack','stack']):    
+            stack_style = dict(display='inline-block')   
+    
+    # determine which creation elements to show
+    
+    if create == True:
+        new_proj_style = {}
+        new_stack_style =  {}
+    elif not create: 
+        new_proj_style = dict(display='none')
+        new_stack_style =  dict(display='none')
+    else:
+        if type(create) is str: create = [create]
+        
+        if any(p in create for p in ['Project','project']):    
+            new_proj_style = {}
+        if any(s in create for s in ['Stack','stack']):    
+            new_stack_style = {}
+    
+    
+    # show owner selector or predetermine its value
+    
+    if owner in (False,''):
+        owner = ''        
+    else: own_style = dict(display='none')
+    
     
     out = html.Div(id={'component':'r_sel_head','module':module},
-                   children=[html.H4('Current active stack:'),
-                             html.Div([html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'}),
-                                       dcc.Dropdown(id={'component':'owner_dd','module':module},
-                                                    className='dropdown_inline',
-                                                    options=[],value='',
-                                                    style={'width':'120px'},
-                                                    persistence=True,clearable=False),
-                                       html.Div(id={'component':'owner','module':module},
-                                                style={'display':'none'}),
-                                       html.Div('Project',style={'margin-left': '2em'}),
-                                       html.A('(Browse)',id={'component':'browse_proj','module':module},
-                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
-                                       dcc.Dropdown(id={'component':'project_dd','module':module},
-                                                    className='dropdown_inline',
-                                                    persistence=True,clearable=False),
-                                       html.Div(id={'component':'project','module':module},
-                                                style={'display':'none'}),
-                                       html.Div('Stack',style={'margin-left': '2em'}),
-                                       html.A('(Browse)',id={'component':'browse_stack','module':module},
-                                              target="_blank",style={'margin-left': '0.5em','margin-right': '1em'}),
-                                       dcc.Dropdown(id={'component':'stack_dd','module':module},className='dropdown_inline',
-                                                    persistence=True,clearable=False),
-                                       dcc.Store(id={'component':'stacks','module':module})
-                                       ],style=dict(display='flex'))
-                             ],style = dst)
+                   children=[html.H4(header),
+                             html.Table(html.Tr([
+                                 
+                        # Owner selection
+                        html.Td([html.Table(html.Tr([
+                            html.Td(html.Div('Owner:',style={'margin-right': '1em','margin-left': '2em'})),
+                            html.Td(dcc.Dropdown(id={'component':'owner_dd','module':module},
+                                                 className='dropdown_inline',
+                                                 options=[],value=owner,
+                                                 persistence=True,clearable=False))
+                            ])),
+                        html.Div(id={'component':'owner','module':module},
+                                 style={'display':'none'}),            
+                        ],style=own_style),
+                                     
+                        # Project selection
+                        html.Td([html.Table(html.Tr([                        
+                            html.Td(html.Div('Project:',style={'margin-left': '2em'})),
+                            html.Td(html.A('(Browse)',id={'component':'browse_proj','module':module},
+                                           target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
+                            html.Td(dcc.Dropdown(id={'component':'project_dd','module':module},
+                                                 className='dropdown_inline',
+                                                 persistence=True,clearable=False))
+                            ])),
+                            dcc.Store(id={'component':'project_store','module':module}),
+                            
+                        # creator
+                        html.Div(html.Div(['Enter new project name: ',
+                                           dcc.Input(id={'component':"proj_input",'module':module}, type="text", debounce=True,placeholder="new_project",persistence=False)
+                                           ],
+                                          id={'component':'render_project','module':module}
+                                          ,style={'display':'none'})
+                                 ,id={'component':'new_project_div','module':module}
+                                 ,style=new_proj_style)
+                        
+                            ]
+                            ,id={'component':'full_project_div','module':module}
+                            ,style=proj_style),
+                        
+                        # Stack selection
+                        html.Td([html.Table(html.Tr([
+                            html.Td(html.Div('Stack:',style={'margin-left': '2em'})),
+                            html.Td(html.A('(Browse)',id={'component':'browse_stack','module':module},
+                                           target="_blank",style={'margin-left': '0.5em','margin-right': '1em'})),
+                            html.Td(dcc.Dropdown(id={'component':'stack_dd','module':module},
+                                                 className='dropdown_inline',
+                                                 persistence=True,clearable=False))
+                            ])),
+                            dcc.Store(id={'component':'stacks','module':module}),
+                            
+                            # creator
+                            html.Div(html.Div(['Enter new stack name: ',
+                                               dcc.Input(id={'component':"stack_input",'module':module}, type="text", debounce=True,placeholder="new_stack",persistence=False)
+                                               ],
+                                              id={'component':'render_stack','module':module},style={'display':'none'})
+                                     ,id={'component':'new_stack_div','module':module}
+                                     ,style=new_stack_style)    
+                            ]
+                            ,id={'component':'full_stack_div','module':module}
+                            ,style=stack_style)
+                        ]))
+                    ],style = dst)
 
     return out
+
+
+
+
+
+
 
 
 
@@ -323,7 +417,7 @@ def section_view(module,numpanel=1,contrast=True):
     return html.Div(out)
 
 
-def path_browse(module,tf_in = None):
+def path_browse(module,tf_in = None,show_files=False,file_types=[]):
     
     if tf_in is None:
         tf_in = {'component': 'path_input', 'module': module} 
@@ -336,9 +430,10 @@ def path_browse(module,tf_in = None):
     fbrowse = html.Details([html.Summary('Browse'),fbdd])
     fbstore = html.Div([dcc.Store(id={'component': 'path_store', 'module': module}),
                         dcc.Store(id={'component': 'path_ext', 'module': module})])
+    showfiles = dcc.Store(data=show_files,id={'component': 'path_showfiles', 'module': module})
+    filetypes = dcc.Store(data=file_types,id={'component': 'path_filetypes', 'module': module})
     
-    
-    return html.Div([fbrowse,fbstore])
+    return html.Div([fbrowse,fbstore,showfiles,filetypes])
 
 # if __name__ == '__main__':
     

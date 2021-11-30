@@ -17,7 +17,7 @@ from utils import helper_functions as hf
 
 
 startpath = os.getcwd()
-show_files = False
+# show_files = False
 show_hidden = False
 
 
@@ -35,7 +35,7 @@ def update_store(inpath,extpath):
         else:
             path = startpath
     else:
-        print(extpath)
+        # print(extpath)
         path=extpath
         
     return path
@@ -46,9 +46,11 @@ def update_store(inpath,extpath):
               [Input({'component': 'browse_dd', 'module': MATCH},'value'),
                Input({'component': 'path_input', 'module': MATCH},'n_blur')],
               [State({'component': 'path_input', 'module': MATCH},'value'),
-               State({'component': 'path_store', 'module': MATCH},'data')]
+               State({'component': 'path_store', 'module': MATCH},'data'),
+               State({'component': 'path_showfiles', 'module': MATCH},'data'),
+               State({'component': 'path_filetypes', 'module': MATCH},'data')]
               )
-def update_path_dd(filesel,intrig,inpath,path):
+def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
     if dash.callback_context.triggered: 
         trigger = hf.trigger()
     else:
@@ -72,9 +74,18 @@ def update_path_dd(filesel,intrig,inpath,path):
             
         if os.path.isdir(str(inpath)):
             path = inpath
-            filesel = None
+            filesel = None    
     
-    
+    if type(filetypes) is str:
+        filetypes = [filetypes]
+
+    if not filetypes==[]: show_files=True
+
+    for idx,filetype in enumerate(filetypes):
+        filetypes[idx] = filetype.lower()
+        if not filetype.startswith(os.path.extsep):
+            filetypes[idx] = os.path.extsep + filetypes[idx]
+        
     
     if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
         
@@ -84,7 +95,7 @@ def update_path_dd(filesel,intrig,inpath,path):
             elif filesel == '..':
                 path = os.path.abspath(os.path.join(path,filesel))
 
-        files = os.listdir(path)
+        files = os.listdir(path)        
         
         dd_options = list(dict())
     
@@ -98,13 +109,14 @@ def update_path_dd(filesel,intrig,inpath,path):
             # print(item)
             # print(os.path.isdir(os.path.join(path,item)))
             if os.path.isdir(os.path.join(path,item)):
-                dd_options.append({'label':'\u21AA '+item, 'value':'> '+item})
+                if item.startswith('.') and show_hidden or not item.startswith('.'):
+                    dd_options.append({'label':'\u21AA '+item, 'value':'> '+item})
             else:
                 if item.startswith('.') and show_hidden or not item.startswith('.'):
-                    f_list.append({'label':item, 'value':item})
-            
-            
-            
+                    
+                    if not(len(filetypes)>0 and os.path.splitext(item)[1].lower() not in filetypes):              
+                        f_list.append({'label':item, 'value':item})
+                        
         if show_files:
             dd_options.extend(f_list)
                 

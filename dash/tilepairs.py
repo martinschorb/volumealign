@@ -48,11 +48,11 @@ page = [intervals,main]
 
 # Pre-fill render stack selection from previous module
 
-us_out,us_in,us_state = render_selector.init_update_store(module,'mipmaps')
+us_out,us_in,us_state = render_selector.init_update_store(module,'convert')
 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
-def mipmaps_update_store(*args): 
+def tilepairs_update_store(*args): 
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)
