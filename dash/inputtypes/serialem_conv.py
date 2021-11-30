@@ -40,14 +40,6 @@ group = params.group
 
 
 
-
-
-# ============================
-# set up render parameters
-
-owner = "SBEM"
-
-
 # =============================================
 # # Page content
 
@@ -133,7 +125,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
     
     # outstore = dash.no_update
     outstore = dict()
-    outstore['owner'] = 'SBEM'
+    outstore['owner'] = 'SerialEM'  
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
     
@@ -147,7 +139,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         param_file = params.json_run_dir + '/' + label + '_' + params.run_prefix + '.json' 
         
         run_params = params.render_json.copy()
-        run_params['render']['owner'] = owner
+        run_params['render']['owner'] = outstore['owner']
         run_params['render']['project'] = proj_dd_sel
         
         with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
@@ -159,7 +151,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         with open(param_file,'w') as f:
             json.dump(run_params,f,indent=4)
     
-        log_file = params.render_log_dir + '/' + 'sbem_conv_' + params.run_prefix
+        log_file = params.render_log_dir + '/' + 'serialem_conv_' + params.run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
             
@@ -185,7 +177,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
                     popup = 'No input file chosen.'
                     
         elif os.path.isfile(in_dir): 
-            print(in_dir)
+            # print(in_dir)
             if any([stack_sel=='newstack', proj_dd_sel=='newproj']):
                 if not (run_state == 'running'): 
                     run_state = 'wait'

@@ -238,14 +238,16 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
             out_project='newstack'
         
         for item in stacks:
-
-            if item['stackId']['stack'] == init_store['stack']:out_stack=item['stackId']['stack']
+            if 'stack' in init_store.keys():
+                if item['stackId']['stack'] == init_store['stack']:
+                    out_stack=item['stackId']['stack']
             
             dd_options.append({'label':item['stackId']['stack'], 'value':item['stackId']['stack']})
             
             
         if 'store_init_render' in trigger:
-            out_stack=init_store['stack']
+            if 'stack' in init_store.keys() and  init_store['stack'] not in (None,''):
+                out_stack=init_store['stack']
         
         if trigger == 'stack_input':            
             dd_options.append({'label':newstack_in, 'value':newstack_in})

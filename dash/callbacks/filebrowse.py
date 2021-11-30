@@ -80,8 +80,7 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
         filetypes = [filetypes]
 
     if not filetypes==[]: show_files=True
-    
-    
+
     for idx,filetype in enumerate(filetypes):
         filetypes[idx] = filetype.lower()
         if not filetype.startswith(os.path.extsep):
@@ -96,7 +95,7 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
             elif filesel == '..':
                 path = os.path.abspath(os.path.join(path,filesel))
 
-        files = os.listdir(path)
+        files = os.listdir(path)        
         
         dd_options = list(dict())
     
@@ -117,9 +116,7 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
                     
                     if not(len(filetypes)>0 and os.path.splitext(item)[1].lower() not in filetypes):              
                         f_list.append({'label':item, 'value':item})
-            
-            
-            
+                        
         if show_files:
             dd_options.extend(f_list)
                 

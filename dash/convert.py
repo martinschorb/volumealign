@@ -123,7 +123,6 @@ def convert_output(dd_value):
     
     for ix, mod in enumerate(modules):
         if mod == dd_value:
-            print(ix)
             outstyles[ix+2]={}
     
     if dd_value in modules:
