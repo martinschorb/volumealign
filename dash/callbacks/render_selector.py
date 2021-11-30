@@ -211,12 +211,13 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
         out = [dash.no_update] * 4
         out.append(dict(display='none'))
         out.append(new_project_style)
+        
         return out
     
     
-    elif proj_sel not in proj_store['allprojects']:
-        dd_options = list({'label':'Create new Stack', 'value':'newstack'})
-        
+    elif trigger != 'stack_input' and proj_sel not in proj_store['allprojects']:
+        dd_options = [{'label':'Create new Stack', 'value':'newstack'},
+                      {'label':'Create new Stack', 'value':'newstack'}]
         return dash.no_update, dd_options, 'newstack', dash.no_update, stackdiv_style, {'display':'none'}
         
     else: 
@@ -246,6 +247,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
             out_stack=init_store['stack']
         
         if trigger == 'stack_input':
+            print(dd_options)
             dd_options.append({'label':newstack_in, 'value':newstack_in})
             out_stack = newstack_in            
         
