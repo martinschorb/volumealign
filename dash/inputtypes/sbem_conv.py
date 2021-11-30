@@ -28,9 +28,9 @@ from callbacks import filebrowse
 
 
 # element prefix
-label = "sbem_conv"
 parent = "convert"
 
+label = parent+"_SBEM"
 
 # SELECT input directory
 
@@ -58,7 +58,7 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
         
 pathbrowse = pages.path_browse(label)
 
-page = [directory_sel,pathbrowse]
+page1 = [directory_sel,pathbrowse]
 
         
 

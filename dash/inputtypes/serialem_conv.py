@@ -28,15 +28,19 @@ from callbacks import filebrowse
 
 
 # element prefix
-label = "serialem_conv"
-parent = "convert"
 
+parent = "convert"
+label = parent+"_SerialEM"
 
 # SELECT input directory
 
 # get user name and main group to pre-polulate input directory
 
 group = params.group
+
+
+
+
 
 # ============================
 # set up render parameters
@@ -58,7 +62,7 @@ directory_sel = html.Div(children=[html.H4("Select dataset metadata file (*.idoc
         
 pathbrowse = pages.path_browse(label,show_files=True,file_types='idoc')
 
-page = [directory_sel,pathbrowse]
+page1 = [directory_sel,pathbrowse]
 
         
 
@@ -149,7 +153,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         with open(os.path.join(params.json_template_dir,'SBEMImage_importer.json'),'r') as f:
             run_params.update(json.load(f))
         
-        run_params['image_directory'] = in_dir
+        run_params['image_file'] = in_dir
         run_params['stack'] = stack_sel
         
         with open(param_file,'w') as f:

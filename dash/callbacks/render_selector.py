@@ -140,7 +140,8 @@ def update_proj_dd(owner_sel,init_store,newproj_in,thispage,store_proj,dd_option
     store['allprojects'] = projects
 
     if 'store_init_render' in trigger:
-       out_project=init_store['project']
+        if 'project' in init_store.keys() and  init_store['project'] not in (None,''):
+            out_project=init_store['project']
       
 
     # assemble dropdown
