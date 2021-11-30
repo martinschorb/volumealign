@@ -74,10 +74,13 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
             
         if os.path.isdir(str(inpath)):
             path = inpath
-            filesel = None
+            filesel = None    
     
     if type(filetypes) is str:
         filetypes = [filetypes]
+
+    if not filetypes==[]: show_files=True
+    
     
     for idx,filetype in enumerate(filetypes):
         filetypes[idx] = filetype.lower()

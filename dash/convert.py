@@ -121,16 +121,12 @@ def convert_output(dd_value):
     
     modules = [m['id']['module'] for m in outputs[2:]]
     
-    print(dd_value)
-    print(modules)
-    
     for ix, mod in enumerate(modules):
         if mod == dd_value:
             print(ix)
             outstyles[ix+2]={}
     
     if dd_value in modules:
-        print('found')
         outstyles[1]={}
     else:
         outstyles[0]={}
