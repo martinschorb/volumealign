@@ -246,8 +246,7 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
         if 'store_init_render' in trigger:
             out_stack=init_store['stack']
         
-        if trigger == 'stack_input':
-            print(dd_options)
+        if trigger == 'stack_input':            
             dd_options.append({'label':newstack_in, 'value':newstack_in})
             out_stack = newstack_in            
         

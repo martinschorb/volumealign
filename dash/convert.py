@@ -5,6 +5,7 @@ Created on Tue Nov  3 13:30:16 2020
 
 @author: schorb
 """
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input,Output,State
@@ -48,20 +49,22 @@ page = [intervals,main]
 
 page1 = html.Div(id={'component': 'page1', 'module': module})
 
+page3 = html.Div(id={'component': 'page3', 'module': module})
+
 # # =============================================
 # # # Page content
 
 @app.callback([Output({'component': 'page1', 'module': module}, 'children'),
-               ],
+               Output({'component': 'page3', 'module': module}, 'children')],
                 Input({'component': 'import_type_dd', 'module': module}, 'value'))
 def convert_output(dd_value):
     if dd_value=='SBEMImage':
-        return [html.Div(sbem_conv.page)]
+        return [html.Div(sbem_conv.page),html.Div(sbem_conv.page2)]
     
     elif dd_value=='SerialEM':
-        return [html.Div(serialem_conv.page)]
+        return [html.Div(serialem_conv.page),dash.no_update]
     else:
-        return [html.Div([html.Br(),'No data type selected.'])]
+        return [html.Div([html.Br(),'No data type selected.']),dash.no_update]
 
 
 
@@ -74,12 +77,16 @@ page.append(page1)
 # Pre-fill render stack selection from previous module
 
 
-page2 = pages.render_selector(module,create=True,show=['stack','project'],header='Select target stack')
+page2 = pages.render_selector(module,create=True,show=['stack','project'],header='Select target stack:')
 
 page.append(page2)
 
 
 
+# # ===============================================
+# Go Button and associated events:
+
+page.append(page3)
 
 # =============================================
 # Processing status
