@@ -398,9 +398,10 @@ def run(target='standalone',
         
         print(command)
         
-        with open(logfile,"wb") as out, open(errfile,"wb") as err:
-            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-           
+        # with open(logfile,"wb") as out, open(errfile,"wb") as err:
+        #     p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+        
+        p='test123'
         return [p]
     
     elif target == 'generic':
@@ -490,7 +491,7 @@ def run(target='standalone',
         
         return jobid
        
-        
+       
      
 if __name__ == '__main__':
     run()    

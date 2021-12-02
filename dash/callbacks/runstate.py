@@ -7,7 +7,7 @@ Created on Thu Jan 14 14:50:48 2021
 """
 from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash
-import dash_html_components as html
+from dash import html
 from dash.exceptions import PreventUpdate
 
 import subprocess
@@ -24,24 +24,23 @@ from utils import helper_functions as hf
 #  =================================================
 
 
-@app.callback([Output({'component': 'interval2', 'module': MATCH},'interval'),
-               Output({'component': 'store_r_status', 'module': MATCH},'data'),
+@app.callback([Output({'component': 'store_r_status', 'module': MATCH},'data'),
                Output({'component': 'statuspage_div', 'module': MATCH},'style'),
                Output({'component': 'statuspage_link', 'module': MATCH},'href')],
-              [Input({'component': 'interval2', 'module': MATCH},'n_intervals'),
-                Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')],
-              [State({'component': 'store_run_state', 'module': MATCH},'data'),
+              [Input('interval2','n_intervals'),
+               Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')
+               ],
+              [State({'component': 'store_run_status', 'module': MATCH},'data'),
                State({'component': 'outfile', 'module': MATCH},'children'),
-               State({'component': 'store_r_status', 'module': MATCH},'data'),
                State({'component': 'name', 'module': MATCH},'data'),
                State('url', 'pathname')]
               )
-def update_status(n,click,run_state,logfile,r_status,module,thispage):
+def update_status(n,click,run_state,logfile,module,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     
-    if None in [n,click,run_state,logfile,r_status,module,thispage]:
+    if None in [n,click,run_state,logfile,module,thispage]:
         raise PreventUpdate
         
     status_href=''
@@ -50,13 +49,13 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger(key='module') == thispage:
-        return dash.no_update
+    # if not hf.trigger(key='module') == thispage:
+    #     return dash.no_update
         
     trigger = hf.trigger()
 
-    procs=params.processes[module.strip('_')] 
-
+    
+    r_status=run_state
     
     r_status['logfile']  = logfile
     r_status['state'] = run_state
@@ -64,13 +63,13 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
     
     if 'interval2' in trigger:        
         link = ''
-        if procs==[]:
-            if run_state not in ['input','wait']:
-                r_status['state'] = 'input'               
+        # if procs==[]:
+        #     if run_state not in ['input','wait']:
+        #         r_status['state'] = 'input'               
         
-        if (type(procs) is subprocess.Popen or len(procs)>0): 
+        # if (type(procs) is subprocess.Popen or len(procs)>0): 
 
-            (r_status['state'], link) = launch_jobs.status(procs,logfile)   
+        #     (r_status['state'], link) = launch_jobs.status(procs,logfile)   
            
         if not link == '':
             status_href = link
@@ -81,15 +80,15 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
         
-        return params.idle_interval,r_status,status_style,status_href
+        return r_status,status_style,status_href
     
     elif 'cancel' in trigger:
 
-        r_status['state'] = launch_jobs.canceljobs(procs)
+        # r_status['state'] = launch_jobs.canceljobs(procs)
         
         params.processes[module.strip('_')] = []    
         
-        return params.idle_interval, r_status,status_style,status_href
+        return r_status,status_style,status_href
     
     else:
         return dash.no_update
@@ -101,10 +100,9 @@ def update_status(n,click,run_state,logfile,r_status,module,thispage):
 
 @app.callback([Output({'component': 'get-status', 'module': MATCH},'children'),
                Output({'component': 'get-status', 'module': MATCH},'style'),
-               Output({'component': 'interval1', 'module': MATCH}, 'interval'),
                Output({'component': 'cancel', 'module': MATCH},'style')
                ],
-              Input({'component': 'store_run_state', 'module': MATCH},'data'),
+              Input({'component': 'store_run_status', 'module': MATCH},'data'),
               [State({'component': 'name', 'module': MATCH},'data'),
                State('url', 'pathname')])
 def get_status(run_state,module,thispage):
@@ -114,43 +112,41 @@ def get_status(run_state,module,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger(key='module') == thispage:
-        return dash.no_update
+    # if not hf.trigger(key='module') == thispage:
+    #     return dash.no_update
         
     status_style = {"font-family":"Courier New",'color':'#000'} 
-    log_refresh = params.idle_interval
-    procs=params.processes[module.strip('_')] 
+    # procs=params.processes[module.strip('_')] 
     
     c_button_style = {'display': 'none'}    
-    if run_state == 'running':  
+    if run_state['status'] == 'running':  
         
-        if procs == []:
-            status = 'not running'
-        else:
+        # if procs == []:
+        #     status = 'not running'
+        # else:
             status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
-            log_refresh = params.refresh_interval
-            if not type(procs) is subprocess.Popen:
-                if  type(procs) is str:
-                    c_button_style = {}                    
-                elif not type(procs[0]) is subprocess.Popen:
-                    c_button_style = {}
+            # if not type(procs) is subprocess.Popen:
+            #     if  type(procs) is str:
+            #         c_button_style = {}                    
+            #     elif not type(procs[0]) is subprocess.Popen:
+            #         c_button_style = {}
                     
-    elif run_state == 'input':
+    elif run_state['status'] == 'input':
         status='process will start on click.'
-    elif run_state == 'done':
+    elif run_state['status'] == 'done':
         status='DONE'
         status_style = {'color':'#0E0'}
-    elif run_state == 'pending':
+    elif run_state['status'] == 'pending':
         c_button_style = {} 
         status = ['Waiting for cluster resources to be allocated.']
-    elif run_state == 'wait':
+    elif run_state['status'] == 'wait':
         status='not running'
     else:
-        status=run_state
+        status=run_state['status']
     
     # print('display status:  '+str(status))
     
-    return status, status_style, log_refresh, c_button_style
+    return status, status_style, c_button_style
 
 
 # #  =================================================
@@ -158,7 +154,7 @@ def get_status(run_state,module,thispage):
 
 
 @app.callback(Output({'component': 'console-out', 'module': MATCH},'value'),
-              [Input({'component': 'interval1', 'module': MATCH}, 'n_intervals'),
+              [Input('interval1', 'n_intervals'),
                Input({'component': 'outfile', 'module': MATCH},'children')],
               State('url', 'pathname')
               )
@@ -169,8 +165,8 @@ def update_output(n,outfile,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    if not hf.trigger(key='module') == thispage:
-        return dash.no_update
+    # if not hf.trigger(key='module') == thispage:
+    #     return dash.no_update
      
     data=''
 
@@ -193,13 +189,12 @@ def update_output(n,outfile,thispage):
 
 
 
-@app.callback([Output({'component': 'store_run_state', 'module': MATCH},'data'),
+@app.callback([Output({'component': 'store_run_status', 'module': MATCH},'data'),
                Output({'component': 'outfile', 'module': MATCH},'children')],
-              [Input({'component': 'store_r_status', 'module': MATCH},'data'),
-               Input({'component': 'store_r_launch', 'module': MATCH},'modified_timestamp')],
-              State({'component': 'store_r_launch', 'module': MATCH},'data')
+              [Input({'component': 'store_launch_status', 'module': MATCH},'data'),
+               Input({'component': 'store_r_status', 'module': MATCH},'data')]
               )
-def run_state(status_in,ts,launch_in):
+def run_state(launch_in,status_in):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     trigger = hf.trigger()
@@ -218,4 +213,4 @@ def run_state(status_in,ts,launch_in):
         out = status_in.copy()        
     
     
-    return out['state'], out['logfile']
+    return out, out['logfile']

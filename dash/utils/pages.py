@@ -7,8 +7,8 @@ Created on Wed Nov 11 14:24:32 2020
 """
 
 import params
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 
 from utils import checks
 from utils import helper_functions as hf
@@ -22,10 +22,9 @@ def init_store(storeinit,module):
     newstore = params.default_store.copy()
     newstore.update(storeinit)
 
-    
     for storeitem in newstore.keys():       
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=newstore[storeitem]))
-    
+
     return store
 
 

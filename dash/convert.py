@@ -6,8 +6,8 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input,Output,State
 
 import importlib
@@ -29,18 +29,14 @@ inputtypes = [
         {'label': 'SerialEM Montage', 'value': 'SerialEM'},
         ]
 
-inputmodules = ['inputtypes.sbem_conv',
-                'inputtypes.serialem_conv']
+inputmodules = [
+                'inputtypes.sbem_conv',
+                'inputtypes.serialem_conv'
+                ]
 
 defaulttype = 'SBEM'
 
 
-
-
-
-storeinit={}            
-
-store = pages.init_store(storeinit, module)
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id={'component': 'import_type_dd', 'module': module},persistence=True,
@@ -49,14 +45,10 @@ main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id=
         )
     ])
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
 
 
-page = [intervals,main]
+page = [main]
+
 
 #  RENDER STACK SELECTOR
 
@@ -83,11 +75,12 @@ page1 = []
 page1.append(html.Div([html.Br(),'No data type selected.'],
                       id='nullpage'))
 
-switch_out = [Output('nullpage','style'),
-              Output({'component':'render_seldiv','module':module},'style')]
+switch_outputs = [Output('nullpage','style')]
+
+status_inputs = []
 
 
-page3=[]
+page2=[]
 
 for inputsel,impmod in zip(inputtypes,inputmodules):
     thismodule = importlib.import_module(impmod)
@@ -95,70 +88,42 @@ for inputsel,impmod in zip(inputtypes,inputmodules):
     page1.append(html.Div(getattr(thismodule,'page1'),
                          id={'component':'page1','module':inputsel['value']},
                          style = {'display':'none'}))
-    switch_out.append(Output({'component':'page1','module':inputsel['value']},'style'))
+    switch_outputs.append(Output({'component':'page1','module':inputsel['value']},'style'))
     
-    page3.append(html.Div(getattr(thismodule,'page2'),
+    page2.append(html.Div(getattr(thismodule,'page2'),
                          id={'component':'page2','module':inputsel['value']},
                          style = {'display':'none'}))
-    switch_out.append(Output({'component':'page2','module':inputsel['value']},'style'))
+    switch_outputs.append(Output({'component':'page2','module':inputsel['value']},'style'))
+    
+    status_inputs.append(Input({'component':'status','module':inputsel['value']},'data'))
 
 
 
-page2 = html.Div(pages.render_selector(module,create=True,show=['stack','project'],header='Select target stack:'),
-                 id={'component':'render_seldiv','module':module},
-                 style = {'display':'none'})
+# Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-
-
-
-@app.callback(switch_out,
+@app.callback(switch_outputs,
               Input({'component': 'import_type_dd', 'module': module}, 'value'))
 def convert_output(dd_value):
     
     outputs = dash.callback_context.outputs_list
-    
     outstyles = [{'display':'none'}]*len(outputs)
     
-    modules = [m['id']['module'] for m in outputs[2:]]
+    modules = [m['id']['module'] for m in outputs[1:]]
     
     for ix, mod in enumerate(modules):
+        
         if mod == dd_value:
-            outstyles[ix+2]={}
+            outstyles[ix+1]={}
     
-    if dd_value in modules:
-        outstyles[1]={}
-    else:
+    if dd_value not in modules:    
         outstyles[0]={}
         
     return outstyles
 
-    
-    # else:
-                
-    #     return {},{'display':'none'},
 
 
 page.append(html.Div(page1))
 page.append(html.Div(page2))
-page.append(html.Div(page3))
 
 
-# =============================================
-# Processing status
-
-# initialized with store
-# embedded from callbacks import runstate
-
-# # =============================================
-# # PROGRESS OUTPUT
-
-
-collapse_stdout = pages.log_output(module)
-
-# ----------------
-
-# Full page layout:
-    
-
-page.append(collapse_stdout)
 

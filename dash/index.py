@@ -6,8 +6,8 @@ Created on Tue Nov  3 15:26:45 2020
 @author: schorb
 """
 
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
 # from pydoc import locate
 
@@ -29,9 +29,9 @@ STYLE_active = {"background-color": "#077","color":"#f1f1f1"}
 sidebar_back = html.Nav(className='sidebar_back',children='')
 
 
-menu_items=[#'convert',
+menu_items=['convert',
             # 'mipmaps',
-            'tilepairs',            # 'pointmatch',
+            # 'tilepairs',            # 'pointmatch',
             # 'solve',
             # 'export',
             # 'finalize'
@@ -45,6 +45,16 @@ menu_text=['Convert & upload',
             'Export aligned volume',
             'Final post-processing'
             ]
+
+
+
+
+intervals = html.Div([dcc.Interval(id='interval1', interval=params.idle_interval,
+                                       n_intervals=0),
+                      dcc.Interval(id='interval2', interval=params.idle_interval,
+                                       n_intervals=0)
+                      ])
+
 
 
 
@@ -72,7 +82,7 @@ for m_ind,m_item in enumerate(menu_items):
     menu.append(dcc.Link(id='menu_'+m_item,href='/'+m_item,children=menu_text[m_ind]))
     menu.append(html.Br())
 
-    params.processes[m_item]=[]
+    # params.processes[m_item]=[]
 
 
 sidebar = html.Nav(className='sidebar',children=menu)
@@ -107,7 +117,8 @@ app.layout = html.Div(
                 sidebar_back,
                 sidebar,
                 mainbody,
-                storediv
+                storediv,
+                intervals
                 ])
     ])
 

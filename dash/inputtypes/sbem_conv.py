@@ -6,8 +6,8 @@ Created on Wed Nov  4 08:42:12 2020
 @author: schorb
 """
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input,Output,State
 
 import os
@@ -24,7 +24,7 @@ import params
 
 from utils import launch_jobs, pages, checks
 
-from callbacks import filebrowse
+from callbacks import filebrowse,render_selector
 
 
 # element prefix
@@ -48,6 +48,9 @@ owner = "SBEM"
 # # Page content
 
 
+store = pages.init_store({}, label)
+
+
 # Pick source directory
 
 
@@ -58,17 +61,37 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
         
 pathbrowse = pages.path_browse(label)
 
-page1 = [directory_sel,pathbrowse]
+page1 = [directory_sel,pathbrowse,html.Div(store)]
 
-        
+
+
+
+# # ===============================================
+#  RENDER STACK SELECTOR
+
+
+# Pre-fill render stack selection from previous module
+
+us_out,us_in,us_state = render_selector.init_update_store(label,parent)
+
+@app.callback(us_out,us_in,us_state,
+              prevent_initial_call=True)
+def tilepairs_update_store(*args): 
+    return render_selector.update_store(*args)
+
+
+page2 = []
+page2.append(html.Div(pages.render_selector(label,create=True,show=['stack','project'],header='Select target stack:'),
+                 id={'component':'render_seldiv','module':label},
+                 style = {'display':'none'})
+             )
+
 
 
 
 # =============================================
 # Start Button
 
-
-page2 = []
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion',id=label+"go",disabled=True),
@@ -94,6 +117,25 @@ gobutton = html.Div(children=[html.Br(),
 page2.append(gobutton)
  
 
+# =============================================
+# Processing status
+
+# initialized with store
+# embedded from callbacks import runstate
+
+# # =============================================
+# # PROGRESS OUTPUT
+
+
+collapse_stdout = pages.log_output(label)
+
+# ----------------
+
+# Full page layout:
+    
+
+page2.append(collapse_stdout)
+
 
 
 # =============================================
@@ -106,26 +148,26 @@ page2.append(gobutton)
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'directory-popup','children'),
                Output(label+'danger-novaliddir','displayed'),
-               # Output({'component': 'store_r_launch', 'module': parent},'data'),
-               # Output({'component': 'store_render_launch', 'module': parent},'data')
+               Output({'component': 'store_launch_status', 'module': label},'data'),
+               Output({'component': 'store_render_launch', 'module': label},'data')
                ],             
-              [Input({'component':'stack_dd','module':parent},'value'),
+              [Input({'component':'stack_dd','module':label},'value'),
                Input({'component': 'path_input', 'module': label},'value'),
                Input(label+'go', 'n_clicks')
                ],
-              [State({'component':'project_dd','module':parent}, 'value'),
+              [State({'component':'project_dd','module':label}, 'value'),
                State(label+'compute_sel','value'),
-               State({'component': 'store_run_state', 'module': parent},'data'),
-               State({'component': 'store_r_launch', 'module': parent},'data'),
-               State({'component': 'store_render_launch', 'module': parent},'data')]
+               State({'component': 'store_run_status', 'module': label},'data'),               
+               State({'component': 'store_render_launch', 'module': label},'data')]
               ,prevent_initial_call=True)
-def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state,out,outstore):   
+def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state,outstore):   
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
     popup = ''
     pop_display = False
-    log_file = out['logfile']
+    out=run_state
+    log_file = run_state['logfile']
     
     # outstore = dash.no_update
     outstore = dict()
@@ -162,47 +204,49 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
             
         #launch
         # -----------------------
-        
+
         sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
                         json=param_file,run_args=None,logfile=log_file,errfile=err_file)
-        
-        run_state = 'running'
-        params.processes[parent.strip('_')] = sbem_conv_p       
-        
-
-        
+                       
+        run_state['status'] = 'running'     
+        run_state['id'] = sbem_conv_p
+        run_state['type'] = compute_sel
+        run_state['logfile'] = log_file
+                
     else:
+        
         # outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
-            if not (run_state == 'running'): 
-                    run_state = 'wait'
-                    params.processes[parent.strip('_')] = []
+            if not (run_state['status'] == 'running'): 
+                    run_state['status'] = 'wait'
+                    # params.processes[parent.strip('_')] = []
                     popup = 'No input directory chosen.'
                     
-        elif os.path.isdir(in_dir):        
+        elif os.path.isdir(in_dir): 
+            
             if any([stack_sel=='newstack', proj_dd_sel=='newproj']):
-                if not (run_state == 'running'): 
-                    run_state = 'wait'
-                    params.processes[parent.strip('_')] = []
+                if not (run_state['status'] == 'running'): 
+                    run_state['status'] = 'wait'
+                    # params.processes[parent.strip('_')] = []
 
             else:
-                if not (run_state == 'running'): 
-                    run_state = 'input'
-                    params.processes[parent.strip('_')] = []
+                if not (run_state['status'] == 'running'): 
+                    run_state['status'] = 'input'
+                    # params.processes[parent.strip('_')] = []
                     but_disabled = False
             
         else:
-            if not (run_state == 'running'): 
-                run_state = 'wait'
-                params.processes[parent.strip('_')] = []
+            if not (run_state['status'] == 'running'): 
+                run_state['status'] = 'wait'
+                # params.processes[parent.strip('_')] = []
                 popup = 'Directory not accessible.'
                 pop_display = True
     
     out['logfile'] = log_file
-    out['state'] = run_state
-    
-    return but_disabled, popup, pop_display#, out, outstore
+    out['status'] = run_state['status']
+
+    return but_disabled, popup, pop_display, out, outstore
 
         
         

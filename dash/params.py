@@ -138,10 +138,12 @@ tile_display = {
 
 #=============================================================
 
+default_status = {'id':None,'type':None, 'status':'input', 'logfile':init_logfile}
 
-default_store = {'run_state':{'state':'input', 'logfile':init_logfile},
-                 'r_status':{'state':'input', 'logfile':init_logfile},
-                 'r_launch':{'state':'input', 'logfile':init_logfile},
+
+default_store = {'run_status':default_status,
+                 'r_status':default_status,
+                 'launch_status':default_status,
                  'init_render':{'owner':'','project':'','stack':'',
                                 'matchcoll': '', 'mc_owner':''},
                  'render_launch':{'owner':'','project':'','stack':''},
@@ -152,6 +154,8 @@ default_store = {'run_state':{'state':'input', 'logfile':init_logfile},
                  'stack':'',
                  'stackparams':None
                  }
+
+
 
 match_store = {#'init_match':{},
                'all_matchcolls':None
