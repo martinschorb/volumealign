@@ -7,8 +7,8 @@ Created on Tue Nov  3 13:30:16 2020
 """
 import dash
 
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input,Output,State
 import os
 import glob

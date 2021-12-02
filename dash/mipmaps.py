@@ -6,8 +6,8 @@ Created on Thu Nov 12 16:15:27 2020
 @author: schorb
 """
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input,Output,State, MATCH, ALL
 
 import json
