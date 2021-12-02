@@ -209,7 +209,9 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
         return [dash.no_update] * 6
     
     elif proj_sel == 'newproj':
-        out = [dash.no_update] * 4
+        out = [dash.no_update] * 2
+        out.append(dd_options_in[0]['value'])
+        out.append(dash.no_update)
         out.append(dict(display='none'))
         out.append(new_project_style)
         
