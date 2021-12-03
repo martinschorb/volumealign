@@ -48,17 +48,8 @@ compute_table_cols = ['Num_CPUs',
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Generate MipMaps for Render stack"))
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval3', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      html.Div(id={'component':'tmpstore' , 'module': module})
-                      ])
 
-
-page = [intervals,main]
+page = [main]
 
 
 
@@ -218,16 +209,14 @@ page.append(gobutton)
 
 
 @app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
-                Output({'component':'directory-popup' , 'module': module},'children'),
-                Output({'component': 'run_state', 'module': module},'children'),
+                Output({'component':'directory-popup' , 'module': module},'children'),                
                 Output({'component':'runstep','module':module},'data'),
-                Output({'component': 'store_r_launch', 'module': module},'data'),
-                Output({'component': 'interval3', 'module': module},'interval'),
+                Output({'component': 'store_launch_status', 'module': module},'data'),
                 Output({'component': 'store_render_launch', 'module': module},'data')],              
               [Input({'component': 'input1', 'module': module},'value'),
                Input({'component': 'go', 'module': module}, 'n_clicks'),
-               Input({'component': 'interval3', 'module': module},'n_intervals')],
-              [State({'component':'store_run_state','module':module},'data'),
+               Input('interval1','n_intervals')],
+              [State({'component':'store_run_status','module':module},'data'),
                State({'component': 'compute_sel', 'module': module},'value'),
                State({'component':'runstep','module':module},'data'),
                State({'component': 'store_owner', 'module': module},'data'),
@@ -237,11 +226,10 @@ page.append(gobutton)
                State({'component': 'store_compset', 'module': module}, 'data'),
                State({'component': 'go', 'module': module}, 'disabled'),
                State({'component':'directory-popup' , 'module': module},'children'),
-               State({'component':'outfile' , 'module': module},'children'),
-               State({'component': 'interval3', 'module': module},'interval'),
+               State({'component':'outfile' , 'module': module},'children'),               
                State({'component': 'store_render_launch', 'module': module},'data')]
               , prevent_initial_call=True)
-def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,interval,outstore):
+def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,project,stack,stackparams,comp_set,disable_out,dircheckdiv,logfile,outstore):
     trigger = hf.trigger()    
 
     # init output    
@@ -255,8 +243,8 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
         logfile = params.render_log_dir + '/out.txt'
         launch_store=dict()
         launch_store['logfile'] = logfile
-        launch_store['state'] = 'wait'
-        run_state = 'wait'
+        launch_store['status'] = 'wait'
+        run_state['status'] = 'wait'
         
         
     out_pop=dcc.ConfirmDialog(        
@@ -268,11 +256,10 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     # activate button, prepare launch
     
     if 'input1' in trigger:
-        interval = params.idle_interval
 
         disable_out = True
         if any([mipmapdir=='',mipmapdir==None]):
-            if not (run_state == 'running'): 
+            if not (run_state['status'] == 'running'): 
                     rstate = 'wait'
         
         elif os.path.isdir(mipmapdir):
@@ -283,12 +270,12 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                     dircheckdiv = out_pop
                     
     
-                if not (runstate == 'running'): 
+                if not (run_state['status'] == 'running'): 
                     rstate = 'input'
                     disable_out = False
   
         else:
-            if not (run_state == 'running'): 
+            if not (run_state['status'] == 'running'): 
                 rstate = 'wait'
                 dircheckdiv = [out_pop, 'The selected directory does not exist or is not writable!']
     
@@ -300,7 +287,6 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 
     elif 'go' in trigger:
         disable_out = True
-        interval = params.idle_interval * 0.4
         importlib.reload(params)
         runstep = 'generate'
         
@@ -374,11 +360,12 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
             mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
                             json=param_file,run_args=None,target_args=target_args,logfile=log_file,errfile=err_file)
             
-            params.processes[module.strip('_')].extend(mipmap_generate_p)
         
         launch_store=dict()
         launch_store['logfile'] = log_file
-        launch_store['state'] = 'running'
+        launch_store['status'] = 'running'
+        launch_store['id'] = mipmap_generate_p
+        launch_store['type'] = comp_sel
         
         outstore = dict()
         outstore['owner'] = owner
@@ -389,10 +376,9 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
     # launch apply mipmaps task when generate mipmaps task has completed successfully
     
         
-    elif 'interval3' in trigger:        
+    elif 'interval1' in trigger:        
         outstore = dash.no_update
-        if runstep == 'generate' and run_state == 'done' and mipmapdir is not None:
-                interval = params.idle_interval * 0.4
+        if runstep == 'generate' and run_state['status'] == 'done' and mipmapdir is not None:
 
                 runstep = 'apply'
                 importlib.reload(params)
@@ -428,21 +414,21 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
                               json=param_file,run_args=None,logfile=log_file,errfile=err_file)
                 
-                params.processes[module.strip('_')] = [mipmap_apply_p]
                 launch_store=dict()
                 launch_store['logfile'] = log_file
-                launch_store['state'] = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
+                launch_store['status'] = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
+                launch_store['id'] = mipmap_apply_p
+                launch_store['type'] = comp_sel
                 
-        elif runstep == 'apply' and run_state == 'done' and mipmapdir is not None:
-                interval = params.idle_interval
+                
+        elif runstep == 'apply' and run_state['status'] == 'done' and mipmapdir is not None:
 
                 launch_store=dict()
-                launch_store['state'] = 'done'
+                launch_store['status'] = 'done'
                 launch_store['logfile'] = logfile
-                params.processes[module.strip('_')]=[]
     
         
-    return disable_out, dircheckdiv, rstate, runstep, launch_store, interval, outstore
+    return disable_out, dircheckdiv, runstep, launch_store, outstore
 
 
 
