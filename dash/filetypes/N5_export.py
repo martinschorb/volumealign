@@ -246,7 +246,7 @@ states.append(State({'component':'sliceim_contrastslider_0','module': parent},'v
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                 Output({'component': 'buttondiv', 'module': label},'children'),
-                Output({'component': 'store_r_launch', 'module': parent},'data'),
+                Output({'component': 'store_launch_status', 'module': parent},'data'),
                 Output({'component': 'store_render_launch', 'module': parent},'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': label},'value'),
@@ -432,19 +432,16 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         log_file += '.log'
 
         
-        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
+        n5export_p = launch_jobs.run(target=comp_sel,pyscript=script,
                             json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
             # ['sparkslurm__12539018']
             
-        params.processes[parent].extend(sift_pointmatch_p)
-
         
         launch_store=dict()
         launch_store['logfile'] = log_file
-        
-        # launch_store['logfile']='/g/emcf/software/render-logs/pointmatch_schorb_20210226-1630.log'
-        
-        launch_store['state'] = 'launch'
+        launch_store['status'] = 'running'
+        launch_store['id'] = n5export_p
+        launch_store['type'] = comp_sel
         
         return True,'', launch_store, outstore
 

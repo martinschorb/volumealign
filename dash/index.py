@@ -33,8 +33,8 @@ menu_items=['convert',
             # 'mipmaps',
             # 'tilepairs', 
             # 'pointmatch',
-            'solve',
-            # 'export',
+            # 'solve',
+            'export',
             # 'finalize'
             ]
 

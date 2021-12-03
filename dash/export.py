@@ -30,20 +30,14 @@ module='export'
 
 
 
-storeinit = {'tpmatchtime':1000}            
+storeinit = {}            
 store = pages.init_store(storeinit, module)
 
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Export Render stack to volume"))
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
 
-
-page = [intervals,main]
+page = [main]
 
 
 
