@@ -33,19 +33,13 @@ from filetypes import BDV_finalize
 module='finalize'
 previous = 'export'
  
-store = pages.init_store([],module)
+store = pages.init_store({},module)
 
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Finalize output format."))
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
 
-
-page = [intervals,main,pages.render_selector(module,hidden=True)]
+page = [main,pages.render_selector(module,show=False)]
 
 
 

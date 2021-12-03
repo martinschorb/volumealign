@@ -106,10 +106,10 @@ def update_status(n,click,run_state,logfile,module,thispage):
               [State({'component': 'name', 'module': MATCH},'data'),
                State('url', 'pathname')])
 def get_status(run_state,module,thispage):
-    
+
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    
+        
     thispage = thispage.lstrip('/')        
     
     # if not hf.trigger(key='module') == thispage:

@@ -34,8 +34,8 @@ menu_items=['convert',
             # 'tilepairs', 
             # 'pointmatch',
             # 'solve',
-            'export',
-            # 'finalize'
+            # 'export',
+            'finalize'
             ]
 
 menu_text=['Convert & upload',

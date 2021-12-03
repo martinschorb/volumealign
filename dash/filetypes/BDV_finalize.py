@@ -124,12 +124,13 @@ def finalize_volume_dd(dd_in,url):
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                Output({'component': 'buttondiv', 'module': label}, 'children'),
-               Output({'component': 'store_r_launch', 'module': parent},'data'),
+               Output({'component': 'store_launch_status', 'module': parent},'data'),
                ],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input(label+'_input_dd', 'value')]
+               Input(label+'_input_dd', 'value')],
+              State({'component': 'store_launch_status', 'module': parent},'data')
               )
-def n5export_execute_gobutton(click,jsonfile):     
+def n5export_execute_gobutton(click,jsonfile,launch_store):     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
             
@@ -144,7 +145,6 @@ def n5export_execute_gobutton(click,jsonfile):
     owner = export_json['--owner']
     project = export_json['--project']
     stack = export_json['--stack']
-            
             
     if not os.path.exists(n5file):    
 
@@ -165,10 +165,7 @@ def n5export_execute_gobutton(click,jsonfile):
     stackparams = requests.get(url).json()
     
     res = [stackparams['currentVersion']['stackResolutionZ'],stackparams['currentVersion']['stackResolutionX'],stackparams['currentVersion']['stackResolutionY']]
-        
-    out = dict()
-    out['state'] = 'launch'   
-    out['logfile'] = ''
+     
     
     run_params = dict()
     
@@ -192,8 +189,10 @@ def n5export_execute_gobutton(click,jsonfile):
                               logfile=log_file,errfile=err_file)
                             
     
-    params.processes[parent].extend(mkxml_p)
+    launch_store['status'] = 'running'
+    launch_store['id'] = mkxml_p
+    launch_store['type'] = 'standalone'
         
-    return True, '', out
+    return True, '', launch_store
     
     
