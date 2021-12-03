@@ -118,7 +118,7 @@ page.append(gobutton)
 
 
 @app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
-               Output({'component': 'store_r_launch', 'module': module},'data'),
+               Output({'component': 'store_launch_status', 'module': module},'data'),
                Output({'component': 'store_render_launch', 'module': module},'data')],
               Input({'component': 'go', 'module': module}, 'n_clicks'),
               [State({'component':'sec_input1','module' : module},'value'),
@@ -183,11 +183,13 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
         
-    params.processes[module.strip('_')].extend(tilepairs_generate_p)
     
     launch_store=dict()
     launch_store['logfile'] = log_file
-    launch_store['state'] = 'running'
+    launch_store['status'] = 'running'
+    launch_store['id'] = tilepairs_generate_p
+    launch_store['type'] = comp_sel
+    launch_store['logfile'] = log_file
     
     outstore = dict()
     outstore['owner'] = owner
