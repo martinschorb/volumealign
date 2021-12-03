@@ -14,7 +14,7 @@ from gc3libs.config import Configuration
 #=============================================================
 ## Directory presets
 
-base_dir = '..'#'/g/emcf/software/volumealign/'
+base_dir = '/g/emcf/schorb/code/volumealign/'#'/g/emcf/software/volumealign/'
 
 conda_dir = '/g/emcf/software/python/miniconda'
 
@@ -22,7 +22,7 @@ render_log_dir = '/g/emcf/software/render-logs'
 
 rendermodules_dir = '/g/emcf/schorb/code/render-modules/'
 
-gc3_conffile = os.path.join(base_dir,'launchers/gc3conf/gc3pie.conf')
+gc3_conffile = os.path.join(base_dir,'launchers/gc3conf/template_gc3pie.conf')
 
 # derived base directories for launchers etc...
 # you can point these to other targets if desired

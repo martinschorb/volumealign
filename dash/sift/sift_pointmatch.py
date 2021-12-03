@@ -166,7 +166,7 @@ def sift_browse_matchTrial(matchID):
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'mtnotfound','children'),
-               Output({'component': 'store_r_launch', 'module': parent},'data'),
+               Output({'component': 'store_launch_status', 'module': parent},'data'),
                Output({'component': 'store_render_launch', 'module': parent},'data'),
                Output({'component': 'store_tpmatchtime', 'module': parent}, 'data')],
               [Input(label+'go', 'n_clicks'),
@@ -330,13 +330,14 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         
         sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
                             json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
-            
-        params.processes[parent].extend(sift_pointmatch_p)
-        
+                    
                 
         launch_store=dict()
         launch_store['logfile'] = log_file
-        launch_store['state'] = 'running'
+        launch_store['status'] = 'running'
+        launch_store['id'] = sift_pointmatch_p
+        launch_store['type'] = comp_sel
+
     
         return True,'', launch_store, outstore, mt_params['ptime']
 

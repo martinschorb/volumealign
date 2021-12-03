@@ -5,4 +5,4 @@ JSON_parameters/runs/
 ._*
 public
 *.egg*
-launchers/gc3conf/
+launchers/gc3conf/gc3pie.conf

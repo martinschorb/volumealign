@@ -52,14 +52,9 @@ for storeitem in params.match_store.keys():
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Generate/Update PointMatchCollection for Render stack"))
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
 
 
-page = [intervals,main]
+page = [main]
 
 
 
