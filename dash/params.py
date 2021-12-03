@@ -52,7 +52,7 @@ gc3_envname = 'gc3pie'
 
 
 comp_options = [
-                # {'label': 'Gc3', 'value': 'gc3'},
+                {'label': 'Gc3', 'value': 'gc3'},
                 # {'label': 'Cluster (slurm)', 'value': 'slurm'},
                 {'label': 'locally (direct command)', 'value': 'standalone'},
                 {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}

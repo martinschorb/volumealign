@@ -367,7 +367,7 @@ def run(target='standalone',
     
     if target.startswith('gc3_'): 
         
-        command = '../launchers/gc3run.sh'
+        command = os.path.join(params.base_dir,'launchers','gc3run.sh')
         
         resource = target.lstrip('gc3_')
         
