@@ -44,14 +44,8 @@ for storeitem in params.match_store.keys():
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Solve tile Positions from PointMatchCollection"))
 
-intervals = html.Div([dcc.Interval(id={'component': 'interval1', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id={'component': 'interval2', 'module': module}, interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
 
-
-page = [intervals,main]
+page = [main]
 
 
 
@@ -246,7 +240,7 @@ page.append(gobutton)
 
 
 @app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
-               Output({'component': 'store_r_launch', 'module': module},'data'),
+               Output({'component': 'store_launch_status', 'module': module},'data'),
                Output({'component': 'store_render_launch', 'module': module},'data')],
               [Input({'component': 'go', 'module': module}, 'n_clicks'),
                Input({'component': 'matchcoll_dd', 'module': module}, 'value'),
@@ -332,8 +326,6 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solver/solve.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
 
-    params.processes[module].extend(solve_generate_p)
-
     time.sleep(5)
 
     # populate new stack with the original resolution values
@@ -359,8 +351,11 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
 
     launch_store=dict()
     launch_store['logfile'] = log_file
-    launch_store['state'] = 'running'
-
+    launch_store['status'] = 'running'
+    launch_store['id'] = solve_generate_p
+    launch_store['type'] = comp_sel
+    
+    
     outstore = dict()
     outstore['owner'] = owner
     outstore['project'] = project
