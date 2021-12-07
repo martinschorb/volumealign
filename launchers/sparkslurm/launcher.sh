@@ -5,6 +5,12 @@
 template="../spark_slurm_template.sh"
 runscript="./slurm-spark_test.sh"
 
+# import Parameters
+
+emaildomain=`../pyvar.sh ../../dash/params.py  email`
+
+
+
 #Default values
 
 MASTER_MEM="1"
@@ -13,7 +19,7 @@ TIME="00:10:00"
 WORKER_NODES="1"
 WORKER_CPU="1"
 WORKER_MEMPERCPU="4"
-EMAIL=`whoami`"@embl.de"
+EMAIL=`whoami`$emaildomain
 LOGDIR=`pwd`
 LOGFILE=sparkslurm-%j.out
 ERRFILE=sparkslurm-%j.err

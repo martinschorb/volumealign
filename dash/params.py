@@ -16,6 +16,8 @@ from gc3libs.config import Configuration
 
 base_dir = '/g/emcf/schorb/code/volumealign/'#'/g/emcf/software/volumealign/'
 
+render_dir = '/g/emcf/software/render'
+
 conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = '/g/emcf/software/render-logs'
@@ -23,6 +25,8 @@ render_log_dir = '/g/emcf/software/render-logs'
 rendermodules_dir = '/g/emcf/schorb/code/render-modules/'
 
 gc3_conffile = os.path.join(base_dir,'launchers/gc3conf/template_gc3pie.conf')
+
+spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 
 # derived base directories for launchers etc...
 # you can point these to other targets if desired
@@ -121,14 +125,14 @@ slicenumformat = { # string format in which the slice number appears in the tile
 def tile_display_SBEM(tiles,prev_tile,slicenum):
     t_labels = tiles.copy()
     tile = tiles[0]
-    
-    for t_idx,t_label in enumerate(tiles): 
+
+    for t_idx,t_label in enumerate(tiles):
         t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
-        
+
         if (not prev_tile is None) and t_labels[t_idx] in prev_tile:
-            tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + slicenumformat['SBEM'] %slicenum        
-            
-            
+            tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + slicenumformat['SBEM'] %slicenum
+
+
     return t_labels, tile
 
 tile_display = {

@@ -19,22 +19,28 @@
 #SBATCH --ntasks-per-node=1
 
 
+# import Parameters
+
+render_dir=`../pyvar.sh ../../dash/params.py  render_dir`
+
+
+
 export DISPLAY=""
-export JAVA_HOME=`readlink -m /g/emcf/software/render/deploy/jdk*`
+export JAVA_HOME=`readlink -m $render_dir/deploy/jdk*`
 export LOGDIR=`pwd`
 
 # CLEAN LOGDIR
 
 rm -f $LOGDIR/$SLURM_JOB_NAME-*/worker/*/*.jar
 
-export SPARK_HOME=/g/emcf/software/spark-3.0.0-bin-hadoop3.2
+export SPARK_HOME=`../pyvar.sh ../../dash/params.py  spark_dir`
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
 export MASTER_URL="spark://$(hostname):7077"
 export MASTER_WEB="http://$(hostname):8080"
 
 CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
-JARFILE="/g/emcf/software/render/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-PARAMS="--baseDataUrl http://pc-emcf-16.embl.de:8080/render-ws/v1 --owner SBEM"
+JARFILE=$render_dir"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
+PARAMS="--baseDataUrl http://render.embl.de:8080/render-ws/v1 --owner SBEM"
 
 # PARSE COMMAND LINE ARGUMENTS
 
