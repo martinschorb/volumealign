@@ -6,8 +6,8 @@ runscript="./slurm-spark_test.sh"
 
 # import Parameters
 
-emaildomain=`../pyvar.sh ../../dash/params.py  email`
-render_dir=`../pyvar.sh ../../dash/params.py  render_dir`
+emaildomain=`./pyvar.sh ../dash/params.py  email`
+render_dir=`./pyvar.sh ../dash/params.py  render_dir`
 
 
 #Default values
@@ -125,7 +125,7 @@ export LOGDIR=`pwd`
 
 rm -f $LOGDIR/worker/*/*.jar
 
-export SPARK_HOME=`../pyvar.sh ../../dash/params.py  spark_dir`
+export SPARK_HOME=`./pyvar.sh ../dash/params.py  spark_dir`
 JOB="localspark"
 export MASTER_URL="spark://$(hostname):7077"
 export MASTER_WEB="http://$(hostname):8080"
@@ -161,7 +161,6 @@ export SPARK_WORKER_MEMORY=$SPARK_MEM
 #======================================
 
 
-
 # start MASTER
 
 $SPARK_HOME/sbin/start-master.sh
@@ -182,14 +181,3 @@ echo $sparksubmitcall
 $sparksubmitcall
 
 sleep infinity
-
-
-
-
-
-
-# call the submission
-
-# echo $runscript $PARAMS
-
-sbatch $runscript $PARAMS
