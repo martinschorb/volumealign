@@ -8,4 +8,7 @@ echo params:
 
 echo $*
 
-sleep 123
+echo "sleeping for 1 minute""
+sleep 1m
+
+echo done
