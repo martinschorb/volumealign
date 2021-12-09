@@ -42,91 +42,106 @@ def args2string(args,separator='='):
     return argstring
 
 
-def status(processes,logfile):
-    
-    res_status,processes = checkstatus(processes,logfile) 
+def status(run_state):   
+        
+    res_status = checkstatus(run_state) 
 
     link=''     
     
     if type(res_status) is str:
         if res_status=='error':
-            out_stat = 'Error while excecuting '+processes+'.'
+            out_stat = 'Error while excecuting '+run_state['id']+'.'
         else:
             out_stat=res_status
     
-    elif type(res_status) is list:
-        out_stat='wait'
-        # print(res_status)
+    # ONLY single processes/jobs for now!
+    
+    # elif type(res_status) is list:
+    #     out_stat='wait'
+    #     # print(res_status)
         
-        for idx,item in enumerate(res_status):
+    #     for idx,item in enumerate(res_status):
             
             
-            link = ''
+    #         link = ''
             
-            if '__' in item:
+    #         if '__' in item:
                 
-                res_status[idx] = item.split('__')[0]
+    #             res_status[idx] = item.split('__')[0]
                 
-                link = item.split('__')[1]
+    #             link = item.split('__')[1]
 
             
-        # multiple cluster job IDs
-        if 'error' in res_status:
-            out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
-        elif 'running' in res_status:
-            out_stat = 'running'
-        elif 'pending' in res_status:
-            out_stat = 'pending'
-        elif 'cancelled' in res_status:
-            out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
-        elif 'timeout' in res_status:
-            out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
-        elif all(item=='done' for item in res_status):
-            out_stat = 'done'
+    #     # multiple cluster job IDs
+    #     if 'error' in res_status:
+    #         out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
+    #     elif 'running' in res_status:
+    #         out_stat = 'running'
+    #     elif 'pending' in res_status:
+    #         out_stat = 'pending'
+    #     elif 'cancelled' in res_status:
+    #         out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
+    #     elif 'timeout' in res_status:
+    #         out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
+    #     elif all(item=='done' for item in res_status):
+    #         out_stat = 'done'
     
     return out_stat, link
 
 
-def checkstatus(runvar,logfile):
+def checkstatus(run_state):
     
-    if type(runvar) is subprocess.Popen:
-        if runvar.poll() is None:
-            return 'running',runvar
-        
-        elif runvar.poll() == 0:
-            return 'done',None
+    print(run_state)
+    print(params.processes)
+    
+    logfile = run_state['logfile']
+    
+    runvar = run_state['id']
+    
+    if run_state['type'] == 'standalone':
+        if run_state['status'] in ['running','launch']:
+            command = 'ps -p '+str(runvar)
             
-        else:
-            return 'error',runvar.args
+            p = subprocess.Popen(command, shell=True)        
+            
+            exitcode = p.poll()
+            
+            if exitcode == 0:
+                return 'running'
+            
+            else:
+                return 'done' 
+         
+         
     
-    elif type(runvar) is str:
-        if runvar.startswith('gc3_'):
-            return gc3_status(runvar,logfile),[runvar]
-        else:
-            return cluster_status(runvar,logfile),[runvar]
+    # elif type(runvar) is str:
+    #     if runvar.startswith('gc3_'):
+    #         return gc3_status(runvar,logfile),[runvar]
+    #     else:
+    #         return cluster_status(runvar,logfile),[runvar]
 
     
-    if type(runvar) is list:
-        outvar=list()
-        for rv in runvar:
-            if type(rv) is subprocess.Popen:
-                if rv.poll() is None:
-                    outvar.append(rv)
-                elif rv.poll() > 0:
-                    return 'error',rv.args
-            elif type(rv) is str:
-                if runvar.startswith('gc3_'):
-                    return gc3_status(runvar,logfile),runvar
-                else:
-                    return cluster_status(runvar,logfile),runvar
+    # if type(runvar) is list:
+    #     outvar=list()
+    #     for rv in runvar:
+    #         if type(rv) is subprocess.Popen:
+    #             if rv.poll() is None:
+    #                 outvar.append(rv)
+    #             elif rv.poll() > 0:
+    #                 return 'error',rv.args
+    #         elif type(rv) is str:
+    #             if runvar.startswith('gc3_'):
+    #                 return gc3_status(runvar,logfile),runvar
+    #             else:
+    #                 return cluster_status(runvar,logfile),runvar
             
             
-        if len(outvar)>1:
-            return 'running',outvar
-        elif len(outvar)==1:
-            return 'running',rv
-        else:
-            return 'done',outvar
+    #     if len(outvar)>1:
+    #         return 'running',outvar
+    #     elif len(outvar)==1:
+    #         return 'running',rv
+    #     else:
+    #         return 'done',outvar
 
 
 def gc3_status(job_ids,logfile):
@@ -402,11 +417,13 @@ def run(target='standalone',
         
         print(command)
         
-        # with open(logfile,"wb") as out, open(errfile,"wb") as err:
-        #     p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-        
-        p='test123'
-        return [p]
+        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+            pid = p.pid
+            
+            params.processes[pid]=p
+            
+            return p.pid
     
     elif target == 'generic':
         command = pyscript        
@@ -417,7 +434,8 @@ def run(target='standalone',
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
            
-        return [p]
+        return p
+    
     elif target == 'slurm':
         
         command += pyscript
@@ -494,7 +512,15 @@ def run(target='standalone',
             jobid=['sparkslurm__'+jobid]
         
         return jobid
-       
+
+        
+def run_prefix():
+    timestamp = time.localtime()
+    user = os.getlogin()
+
+    return user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
+
+
        
      
 if __name__ == '__main__':

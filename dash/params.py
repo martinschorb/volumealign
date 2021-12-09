@@ -5,7 +5,6 @@
 
 import json
 import os
-import time
 import subprocess
 import requests
 import socket
@@ -200,19 +199,11 @@ solve_types = ['montage', '3D']
 # -------------
 # derived parameters
 
-user = os.getlogin()
-
 hostname = socket.gethostname()
-
-
-timestamp = time.localtime()
-
 
 p=subprocess.Popen('id -gn',stdout=subprocess.PIPE,shell=True)
 group = p.communicate()[0].decode(encoding='utf8').strip("\n")
 
-
-run_prefix = user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 
 v_base_url = '/render-ws/'
 render_version = 'v1/'

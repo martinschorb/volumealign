@@ -128,7 +128,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     if click is None: return dash.no_update
         
     # prepare parameters:
-    importlib.reload(params)
+    run_prefix = launch_jobs.run_prefix()
 
     run_params = params.render_json.copy()
     run_params['render']['owner'] = owner
@@ -176,7 +176,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     
     tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
-        
+
     
     launch_store=dict()
     launch_store['logfile'] = log_file
@@ -190,7 +190,13 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     outstore['project'] = project
     outstore['stack'] = stack
     outstore['tilepairdir'] = tilepairdir
-
+    
+    print('------')
+    
+    print(tilepairs_generate_p)
+    
+    print(type(tilepairs_generate_p))
+    
     return True, launch_store, outstore
 
 
