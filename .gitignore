@@ -7,3 +7,4 @@ public
 *.egg*
 *.out*
 launchers/gc3conf/gc3pie.conf
+.idea
