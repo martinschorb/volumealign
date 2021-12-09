@@ -269,7 +269,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
 
     if click is None: return dash.no_update
     # prepare parameters:
-    importlib.reload(params)
+    run_prefix = launch_jobs.run_prefix()
 
     rp = params.render_json.copy()
     rp['render']['owner'] = owner
@@ -283,7 +283,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     with open(os.path.join(params.json_template_dir,module+'.json'),'r') as f:
         run_params_generate.update(json.load(f))
 
-    run_params_generate['output_json'] = params.render_log_dir + '/' + module + '_' + params.run_prefix + '_' + stack + '.json'
+    run_params_generate['output_json'] = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + stack + '.json'
 
     run_params_generate['first_section'] = startsection
     run_params_generate['last_section'] = endsection
@@ -304,13 +304,13 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
 
 
 
-    param_file = params.json_run_dir + '/' + module + '_' + params.run_prefix + '.json'
+    param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '.json'
 
 
     with open(param_file,'w') as f:
         json.dump(run_params_generate,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + module + '_' + params.run_prefix
+    log_file = params.render_log_dir + '/' + module + '_' + run_prefix
     err_file = log_file + '.err'
     log_file += '.log'
 

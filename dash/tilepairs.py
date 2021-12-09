@@ -139,7 +139,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     
     #generate script call...
     
-    tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix + '_'+ stack + '_' + pairmode
+    tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_'+ stack + '_' + pairmode
     
     if not os.path.exists(tilepairdir): os.makedirs(tilepairdir)
     
@@ -164,13 +164,13 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
         run_params_generate['excludeSameLayerNeighbors'] = 'True'
 
 
-    param_file = params.json_run_dir + '/' + module + '_' + params.run_prefix + '_' + pairmode + '.json' 
+    param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + pairmode + '.json' 
 
            
     with open(param_file,'w') as f:
         json.dump(run_params_generate,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + module + '_' + params.run_prefix + '_' + pairmode
+    log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode
     err_file = log_file + '.err'
     log_file += '.log'
     
