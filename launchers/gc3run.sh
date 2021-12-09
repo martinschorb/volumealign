@@ -1,14 +1,10 @@
 #!/bin/bash
+
 pwd
-source setup_gc3.sh
 
-echo 123
+source ./setup_gc3.sh
 
-echo $1
-
-echo $2
-
-echo $3
+echo params:
 
 echo $*
 
