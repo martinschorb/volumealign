@@ -60,36 +60,29 @@ def status(run_state):
     
     # ONLY single processes/jobs for now!
     
-    # elif type(res_status) is list:
+    elif type(res_status) is list:
     #     out_stat='wait'
     #     # print(res_status)
-        
     #     for idx,item in enumerate(res_status):
-            
-            
+
     #         link = ''
-            
     #         if '__' in item:
-                
     #             res_status[idx] = item.split('__')[0]
-                
     #             link = item.split('__')[1]
 
-
-            
     #     # multiple cluster job IDs
-    if 'error' in res_status:
-        out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
-    elif 'running' in res_status:
-        out_stat = 'running'
-    elif 'pending' in res_status:
-        out_stat = 'pending'
-    elif 'cancelled' in res_status:
-        out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
-    elif 'timeout' in res_status:
-        out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
-    elif all(item=='done' for item in res_status):
-        out_stat = 'done'
+        if 'error' in res_status:
+            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
+        elif 'running' in res_status:
+            out_stat = 'running'
+        elif 'pending' in res_status:
+            out_stat = 'pending'
+        elif 'cancelled' in res_status:
+            out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
+        elif 'timeout' in res_status:
+            out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
+        elif all(item=='done' for item in res_status):
+            out_stat = 'done'
     
     return out_stat , link
 
@@ -121,9 +114,9 @@ def checkstatus(run_state):
          
          
     
-    # elif type(runvar) is str:
-    #     if runvar.startswith('gc3_'):
-    #         return gc3_status(runvar,logfile),[runvar]
+    elif run_state['type'].startswith('gc3_'):
+        return gc3_status(run_state)
+
     #     else:
     #         return cluster_status(runvar,logfile),[runvar]
 
@@ -151,37 +144,35 @@ def checkstatus(run_state):
     #         return 'done',outvar
 
 
-def gc3_status(job_ids,logfile):
-    if type(job_ids) is str:
-        job_ids=[job_ids]
-    
-    
-    
-    for jobid in job_ids:
-        if (type(jobid) is not str or not '__' in jobid): raise TypeError('ERROR! JOB IDs need to be passed as string with cluster type __ ID!')
+def gc3_status(run_state):
         
-        gc3_sessiondir = jobid.lstrip('gc3_')
-        
-        gc3_session = Session(gc3_sessiondir)
-        
-        out_stat =[]
-        
-        for task in gc3_session.tasks.values():
-            if 'RUNNING' in task.execution.state:
-                out_stat.append('running')
-            elif task.execution.state=='TERMINATED':                
-                if task.execution.exitcode > 0:
-                    out_stat.append('error')
-                elif task.execution.exitcode == 0:
-                    out_stat.append('done')
-  
-            elif 'SUBMITTED' in task.execution.state:
-                out_stat.append('pending')
-            elif 'FAILED' in task.execution.state:
-                out_stat.append('error')
-            
-            
-    return out_stat
+    gc3_sessiondir = run_state['type'].lstrip('gc3_')
+
+    gc3_session = Session(gc3_sessiondir)
+
+    out_statlist =[]
+
+    for task in gc3_session.tasks.values():
+        print(task.execution.state)
+
+        if 'RUNNING' in task.execution.state:
+            out_statlist.append('running')
+        elif task.execution.state=='TERMINATED':
+            print(task.execution.exitcode)
+
+            if task.execution.exitcode > 0:
+                out_statlist.append('error')
+            elif task.execution.exitcode == 0:
+                out_statlist.append('done')
+
+        elif 'SUBMITTED' in task.execution.state:
+            out_statlist.append('pending')
+        elif 'FAILED' in task.execution.state:
+            out_statlist.append('error')
+
+
+
+    return out_statlist
 
 
 def cluster_status_init(job_ids):
