@@ -75,7 +75,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
         print('----'+str(n))
         print(dash.callback_context.outputs_list[0]['id']['module'])
 
-        if run_state['type'] is not None: 
+        if run_state['type'] is not None :
 
              (r_status['status'], link) = launch_jobs.status(run_state)   
            
@@ -94,7 +94,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
 
         # r_status['state'] = launch_jobs.canceljobs(procs)
         
-        params.processes[module.strip('_')] = []    
+        params.processes[module.strip('_')] = []
         
         return r_status,status_style,status_href
     

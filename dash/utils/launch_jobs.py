@@ -46,11 +46,15 @@ def status(run_state):
         
     res_status = checkstatus(run_state) 
 
-    link=''     
-    
+    link=''
+
+    if res_status is None:
+        return 'input',link
+
+
     if type(res_status) is str:
         if res_status=='error':
-            out_stat = 'Error while excecuting '+run_state['id']+'.'
+            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         else:
             out_stat=res_status
     
@@ -71,46 +75,49 @@ def status(run_state):
                 
     #             link = item.split('__')[1]
 
+
             
     #     # multiple cluster job IDs
-    #     if 'error' in res_status:
-    #         out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
-    #     elif 'running' in res_status:
-    #         out_stat = 'running'
-    #     elif 'pending' in res_status:
-    #         out_stat = 'pending'
-    #     elif 'cancelled' in res_status:
-    #         out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
-    #     elif 'timeout' in res_status:
-    #         out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
-    #     elif all(item=='done' for item in res_status):
-    #         out_stat = 'done'
+    if 'error' in res_status:
+        out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
+    elif 'running' in res_status:
+        out_stat = 'running'
+    elif 'pending' in res_status:
+        out_stat = 'pending'
+    elif 'cancelled' in res_status:
+        out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
+    elif 'timeout' in res_status:
+        out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
+    elif all(item=='done' for item in res_status):
+        out_stat = 'done'
     
-    return out_stat, link
+    return out_stat , link
 
 
 def checkstatus(run_state):
-    
-    print(run_state)
-    print(params.processes)
-    
+
     logfile = run_state['logfile']
     
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
         if run_state['status'] in ['running','launch']:
-            command = 'ps -p '+str(runvar)
-            
-            p = subprocess.Popen(command, shell=True)        
-            
-            exitcode = p.poll()
-            
-            if exitcode == 0:
-                return 'running'
-            
-            else:
-                return 'done' 
+
+            if runvar in params.processes.keys():
+                p = params.processes[runvar]
+
+                if p.poll() is None:
+                    return 'running'
+
+                elif p.poll() == 0:
+                    params.processes.pop(runvar)
+                    return 'done'
+
+                else:
+                    params.processes.pop(runvar)
+                    return 'error'
+        else:
+            return run_state['status']
          
          
     

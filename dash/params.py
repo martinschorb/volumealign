@@ -225,3 +225,5 @@ url = render_base_url + render_version + 'owners'
 
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
+
+processes = dict()
