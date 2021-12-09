@@ -128,7 +128,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     if click is None: return dash.no_update
         
     # prepare parameters:
-    importlib.reload(params)
+    run_prefix = launch_jobs.run_prefix()
 
     run_params = params.render_json.copy()
     run_params['render']['owner'] = owner
@@ -139,7 +139,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     
     #generate script call...
     
-    tilepairdir = params.json_run_dir + '/tilepairs_' + params.run_prefix + '_'+ stack + '_' + pairmode
+    tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_'+ stack + '_' + pairmode
     
     if not os.path.exists(tilepairdir): os.makedirs(tilepairdir)
     
@@ -164,19 +164,19 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
         run_params_generate['excludeSameLayerNeighbors'] = 'True'
 
 
-    param_file = params.json_run_dir + '/' + module + '_' + params.run_prefix + '_' + pairmode + '.json' 
+    param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + pairmode + '.json' 
 
            
     with open(param_file,'w') as f:
         json.dump(run_params_generate,f,indent=4)
 
-    log_file = params.render_log_dir + '/' + module + '_' + params.run_prefix + '_' + pairmode
+    log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode
     err_file = log_file + '.err'
     log_file += '.log'
     
     tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/pointmatch/create_tilepairs.py',
                         json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
-        
+
     
     launch_store=dict()
     launch_store['logfile'] = log_file
@@ -190,7 +190,13 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     outstore['project'] = project
     outstore['stack'] = stack
     outstore['tilepairdir'] = tilepairdir
-
+    
+    print('------')
+    
+    print(tilepairs_generate_p)
+    
+    print(type(tilepairs_generate_p))
+    
     return True, launch_store, outstore
 
 

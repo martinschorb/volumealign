@@ -39,10 +39,11 @@ def update_status(n,click,run_state,logfile,module,thispage):
     
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    
-    if None in [n,click,run_state,logfile,module,thispage]:
-        raise PreventUpdate
         
+    
+    if None in [n,run_state,logfile,module,thispage]:
+        raise PreventUpdate
+    
     status_href=''
     status_style={'display':'none'}
     
@@ -55,28 +56,35 @@ def update_status(n,click,run_state,logfile,module,thispage):
     trigger = hf.trigger()
 
     
-    r_status=run_state
+    r_status=run_state.copy()
+    
+
     
     r_status['logfile']  = logfile
-    r_status['state'] = run_state
     
     
     if 'interval2' in trigger:        
         link = ''
-        # if procs==[]:
-        #     if run_state not in ['input','wait']:
-        #         r_status['state'] = 'input'               
         
-        # if (type(procs) is subprocess.Popen or len(procs)>0): 
+        if run_state['id'] is None:
+            if run_state['status'] not in ['input','wait']:
+                r_status['status'] = 'input'
+            return r_status,status_style,status_href
+        
+        print(r_status)
+        print('----'+str(n))
+        print(dash.callback_context.outputs_list[0]['id']['module'])
 
-        #     (r_status['state'], link) = launch_jobs.status(procs,logfile)   
+        if run_state['type'] is not None :
+
+             (r_status['status'], link) = launch_jobs.status(run_state)   
            
         if not link == '':
             status_href = link
             status_style = {}
 
 
-        if 'Error' in r_status['state']:
+        if 'Error' in r_status['status']:
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
         
@@ -86,7 +94,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
 
         # r_status['state'] = launch_jobs.canceljobs(procs)
         
-        params.processes[module.strip('_')] = []    
+        params.processes[module.strip('_')] = []
         
         return r_status,status_style,status_href
     

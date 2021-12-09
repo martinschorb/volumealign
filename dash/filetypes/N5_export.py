@@ -281,7 +281,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         if click is None: return dash.no_update
         
         # prepare parameters:
-        importlib.reload(params)
+        run_prefix = launch_jobs.run_prefix()
     
         run_params = params.render_json.copy()
         run_params['render']['owner'] = owner
@@ -290,7 +290,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         run_params_generate = run_params.copy()
           
         
-        param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json' 
     
         
         
@@ -427,7 +427,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
         
     
-        log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+        log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
 

@@ -381,7 +381,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
         if runstep == 'generate' and run_state['status'] == 'done' and mipmapdir is not None:
 
                 runstep = 'apply'
-                importlib.reload(params)
+                run_prefix = launch_jobs.run_prefix()
                 
                 run_params = params.render_json.copy()
                 run_params['render']['owner'] = owner

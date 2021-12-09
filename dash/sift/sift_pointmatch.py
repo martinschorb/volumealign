@@ -215,8 +215,8 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         if click is None: return dash.no_update
         
         # prepare parameters:
-        importlib.reload(params)
-    
+        run_prefix = launch_jobs.run_prefix()
+        
         run_params = params.render_json.copy()
         run_params['render']['owner'] = owner
         run_params['render']['project'] = project
@@ -231,7 +231,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         
         tp_jsonfiles = [os.path.join(params.json_run_dir, tilepairdir, tpj) for tpj in tp_json]
         
-        param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json' 
     
         
         
@@ -254,7 +254,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
             "match_collection": matchcoll,
         
             "ncpus": params.ncpu_standalone,
-            "output_json":params.render_log_dir + '/' + '_' + params.run_prefix + "_SIFT_openCV.json",
+            "output_json":params.render_log_dir + '/' + '_' + run_prefix + "_SIFT_openCV.json",
             }
             
             run_params_generate.update(cv_params)            
@@ -321,7 +321,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
             
         
     
-        log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+        log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
         

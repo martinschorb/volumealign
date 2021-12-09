@@ -136,7 +136,8 @@ def n5export_execute_gobutton(click,jsonfile,launch_store):
             
     if jsonfile is None:
         raise PreventUpdate
-                
+    
+    run_prefix = launch_jobs.run_prefix()           
     
     with open(jsonfile,'r') as f:
             export_json = json.load(f)
@@ -175,12 +176,12 @@ def n5export_execute_gobutton(click,jsonfile,launch_store):
     run_params["unit"] = 'nanometer'
 
 
-    param_file = params.json_run_dir + '/' + parent + '_' + params.run_prefix + '.json' 
+    param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json' 
 
     with open(param_file,'w') as f:
             json.dump(run_params,f,indent=4)
     
-    log_file = params.render_log_dir + '/' + parent + '_' + params.run_prefix
+    log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
     err_file = log_file + '.err'
     log_file += '.log'
     

@@ -42,37 +42,37 @@ def args2string(args,separator='='):
     return argstring
 
 
-def status(processes,logfile):
-    
-    res_status,processes = checkstatus(processes,logfile) 
+def status(run_state):   
+        
+    res_status = checkstatus(run_state) 
 
-    link=''     
-    
+    link=''
+
+    if res_status is None:
+        return 'input',link
+
+
     if type(res_status) is str:
         if res_status=='error':
-            out_stat = 'Error while excecuting '+processes+'.'
+            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         else:
             out_stat=res_status
     
+    # ONLY single processes/jobs for now!
+    
     elif type(res_status) is list:
-        out_stat='wait'
-        # print(res_status)
-        
-        for idx,item in enumerate(res_status):
-            
-            
-            link = ''
-            
-            if '__' in item:
-                
-                res_status[idx] = item.split('__')[0]
-                
-                link = item.split('__')[1]
+    #     out_stat='wait'
+    #     # print(res_status)
+    #     for idx,item in enumerate(res_status):
 
-            
-        # multiple cluster job IDs
+    #         link = ''
+    #         if '__' in item:
+    #             res_status[idx] = item.split('__')[0]
+    #             link = item.split('__')[1]
+
+    #     # multiple cluster job IDs
         if 'error' in res_status:
-            out_stat = 'Error while excecuting '+processes[res_status.index('error')]+'.'
+            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         elif 'running' in res_status:
             out_stat = 'running'
         elif 'pending' in res_status:
@@ -84,82 +84,95 @@ def status(processes,logfile):
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
     
-    return out_stat, link
+    return out_stat , link
 
 
-def checkstatus(runvar,logfile):
-    
-    if type(runvar) is subprocess.Popen:
-        if runvar.poll() is None:
-            return 'running',runvar
-        
-        elif runvar.poll() == 0:
-            return 'done',None
-            
-        else:
-            return 'error',runvar.args
-    
-    elif type(runvar) is str:
-        if runvar.startswith('gc3_'):
-            return gc3_status(runvar,logfile),[runvar]
-        else:
-            return cluster_status(runvar,logfile),[runvar]
+def checkstatus(run_state):
 
+    logfile = run_state['logfile']
     
-    if type(runvar) is list:
-        outvar=list()
-        for rv in runvar:
-            if type(rv) is subprocess.Popen:
-                if rv.poll() is None:
-                    outvar.append(rv)
-                elif rv.poll() > 0:
-                    return 'error',rv.args
-            elif type(rv) is str:
-                if runvar.startswith('gc3_'):
-                    return gc3_status(runvar,logfile),runvar
+    runvar = run_state['id']
+    
+    if run_state['type'] == 'standalone':
+        if run_state['status'] in ['running','launch']:
+
+            if runvar in params.processes.keys():
+                p = params.processes[runvar]
+
+                if p.poll() is None:
+                    return 'running'
+
+                elif p.poll() == 0:
+                    params.processes.pop(runvar)
+                    return 'done'
+
                 else:
-                    return cluster_status(runvar,logfile),runvar
-            
-            
-        if len(outvar)>1:
-            return 'running',outvar
-        elif len(outvar)==1:
-            return 'running',rv
+                    params.processes.pop(runvar)
+                    return 'error'
         else:
-            return 'done',outvar
+            return run_state['status']
+         
+         
+    
+    elif run_state['type'].startswith('gc3_'):
+        return gc3_status(run_state)
 
+    #     else:
+    #         return cluster_status(runvar,logfile),[runvar]
 
-def gc3_status(job_ids,logfile):
-    if type(job_ids) is str:
-        job_ids=[job_ids]
     
-    
-    
-    for jobid in job_ids:
-        if (type(jobid) is not str or not '__' in jobid): raise TypeError('ERROR! JOB IDs need to be passed as string with cluster type __ ID!')
-        
-        gc3_sessiondir = jobid.lstrip('gc3_')
-        
-        gc3_session = Session(gc3_sessiondir)
-        
-        out_stat =[]
-        
-        for task in gc3_session.tasks.values():
-            if 'RUNNING' in task.execution.state:
-                out_stat.append('running')
-            elif task.execution.state=='TERMINATED':                
-                if task.execution.exitcode > 0:
-                    out_stat.append('error')
-                elif task.execution.exitcode == 0:
-                    out_stat.append('done')
-  
-            elif 'SUBMITTED' in task.execution.state:
-                out_stat.append('pending')
-            elif 'FAILED' in task.execution.state:
-                out_stat.append('error')
+    # if type(runvar) is list:
+    #     outvar=list()
+    #     for rv in runvar:
+    #         if type(rv) is subprocess.Popen:
+    #             if rv.poll() is None:
+    #                 outvar.append(rv)
+    #             elif rv.poll() > 0:
+    #                 return 'error',rv.args
+    #         elif type(rv) is str:
+    #             if runvar.startswith('gc3_'):
+    #                 return gc3_status(runvar,logfile),runvar
+    #             else:
+    #                 return cluster_status(runvar,logfile),runvar
             
             
-    return out_stat
+    #     if len(outvar)>1:
+    #         return 'running',outvar
+    #     elif len(outvar)==1:
+    #         return 'running',rv
+    #     else:
+    #         return 'done',outvar
+
+
+def gc3_status(run_state):
+        
+    gc3_sessiondir = run_state['type'].lstrip('gc3_')
+
+    gc3_session = Session(gc3_sessiondir)
+
+    out_statlist =[]
+
+    for task in gc3_session.tasks.values():
+        print(task.execution.state)
+
+        if 'RUNNING' in task.execution.state:
+            out_statlist.append('running')
+        elif task.execution.state=='TERMINATED':
+            print(task.execution.exitcode)
+
+            if task.execution.exitcode > 0:
+                out_statlist.append('error')
+            elif task.execution.exitcode == 0:
+                out_statlist.append('done')
+
+        elif 'SUBMITTED' in task.execution.state:
+            out_statlist.append('pending')
+        elif 'FAILED' in task.execution.state:
+            out_statlist.append('error')
+
+
+
+    return out_statlist
 
 
 def cluster_status_init(job_ids):
@@ -402,11 +415,13 @@ def run(target='standalone',
         
         print(command)
         
-        # with open(logfile,"wb") as out, open(errfile,"wb") as err:
-        #     p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-        
-        p='test123'
-        return [p]
+        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+            pid = p.pid
+            
+            params.processes[pid]=p
+            
+            return p.pid
     
     elif target == 'generic':
         command = pyscript        
@@ -417,7 +432,8 @@ def run(target='standalone',
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
            
-        return [p]
+        return p
+    
     elif target == 'slurm':
         
         command += pyscript
@@ -494,7 +510,15 @@ def run(target='standalone',
             jobid=['sparkslurm__'+jobid]
         
         return jobid
-       
+
+        
+def run_prefix():
+    timestamp = time.localtime()
+    user = os.getlogin()
+
+    return user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
+
+
        
      
 if __name__ == '__main__':
