@@ -33,6 +33,8 @@ spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 
 workdir = os.path.join(base_dir,'dash')
 
+launch_dir = os.path.join(base_dir,'launchers')
+
 json_template_dir = os.path.join(base_dir,'JSON_parameters','templates')
 
 json_run_dir = os.path.join(base_dir,'JSON_parameters','runs')
@@ -53,6 +55,8 @@ init_logfile = 'out.txt' #render_log_dir + 'fancylogfile.log'
 # name of the conda environment that provides the gc3Pie runtime
 gc3_envname = 'gc3pie'
 
+# name of the conda environment that provides the render-modules and renderapi packages
+render_envname = 'render'
 
 
 comp_options = [

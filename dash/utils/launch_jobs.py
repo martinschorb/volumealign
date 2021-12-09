@@ -351,23 +351,27 @@ def run(target='standalone',
     
     my_env = os.environ.copy()
     os.chdir(workdir)
-    # command = '../'+target
-    # command += '/launcher.sh '    
-    command = '../launchers/'+ target +'.sh'
     
+    # # command = '../'+target
+    # # command += '/launcher.sh '    
+    # command = '../launchers/'+ target +'.sh'
+    
+    command = 'cd ' + params.launch_dir
+        
+    command += ' && '
+    
+
     if run_args is None: run_args = ''
     
     
     # DEBUG function.......
-    
-    # command = 'hostname '
-    
-    # for i in range(10): command+='&& sleep 1 && echo '+str(i)
+
     print('launching - ')
     
     if target.startswith('gc3_'): 
         
-        command = os.path.join(params.base_dir,'launchers','gc3run.sh')
+        
+        command += './gc3run.sh'
         
         resource = target.lstrip('gc3_')
         
