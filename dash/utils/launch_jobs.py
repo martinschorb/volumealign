@@ -384,25 +384,27 @@ def run(target='standalone',
 
     print('launching - ')
     
-    if target.startswith('gc3_'): 
-        
+    if target.startswith('gc3_'):
         
         command += './gc3run.sh'
         
         resource = target.lstrip('gc3_')
-        
-        gc3_session = logfile.rstrip('.log')
 
-        gc3_session = os.path.join(os.path.dirname(gc3_session),'gc3_'+os.path.basename(gc3_session))
+        logbase = os.path.basename(logfile).rstrip('.log')
+
+        gc3_session = os.path.join(os.path.dirname(gc3_session),'gc3_session_'+logbase)
+        gc3_outdir = os.path.join(os.path.dirname(gc3_session),'gc3_session_'+logbase)
         
-        command += ' -s ' + gc3_session        
+        command += ' -s ' + gc3_session
+        command += ' -o ' + gc3_outdir
         command += ' -r ' + resource
+        command += ' -C 5'  # poll every 5 seconds and trigger job launch
         command += ' --config-files ' + params.gc3_conffile
         
         if not target_args is None:
             command += args2string(target_args)  
         
-        command += ' ' + pyscript
+        command += ' python ' + pyscript
         command += ' ' + json
         command += run_args
         
