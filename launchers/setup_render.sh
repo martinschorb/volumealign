@@ -8,4 +8,3 @@ conda init bash > /dev/null
 
 conda activate `./pyvar.sh ../dash/params.py  render_envname`
 
-source ./env_vars
