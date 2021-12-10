@@ -391,8 +391,8 @@ def run(target='standalone',
 
         logbase = os.path.basename(logfile).rstrip('.log')
 
-        gc3_session = os.path.join(os.path.dirname(logbase),'gc3_session_'+logbase)
-        gc3_outdir = os.path.join(os.path.dirname(logbase),'gc3_session_'+logbase)
+        gc3_session = os.path.join(os.path.dirname(logfile),'gc3_session_'+logbase)
+        gc3_outdir = os.path.join(os.path.dirname(logfile),'gc3_session_'+logbase)
         
         command += ' -s ' + gc3_session
         command += ' -o ' + gc3_outdir
