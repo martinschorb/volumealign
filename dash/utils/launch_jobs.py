@@ -403,7 +403,7 @@ def run(target='standalone',
         if not target_args is None:
             command += args2string(target_args)  
         
-        command += ' source ./setup_render.sh &&'
+        command += ' render_run.sh'
         command += ' python ' + pyscript
         command += ' ' + jsonfile
         command += run_args
