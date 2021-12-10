@@ -433,7 +433,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
 
         
         n5export_p = launch_jobs.run(target=comp_sel,pyscript=script,
-                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+                            jsonfile=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
             # ['sparkslurm__12539018']
             
         

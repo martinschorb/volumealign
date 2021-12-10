@@ -13,7 +13,6 @@ import time
 import datetime
 
 import requests
-import json
 
 from gc3libs.session import Session
 
@@ -359,7 +358,7 @@ def canceljobs(job_ids):
 
 def run(target='standalone',
         pyscript='thispyscript',
-        json='',
+        jsonfile='',
         run_args='',
         target_args=None,
         logfile=os.path.join(params.render_log_dir,'render.out'),
@@ -404,8 +403,9 @@ def run(target='standalone',
         if not target_args is None:
             command += args2string(target_args)  
         
-        command += ' python ' + pyscript
-        command += ' ' + json
+        command += 'source ./setup_render.sh &&'
+        command += 'python ' + pyscript
+        command += ' ' + jsonfile
         command += run_args
         
         print(command)
@@ -417,7 +417,7 @@ def run(target='standalone',
     
     elif target=='standalone':
         command += pyscript
-        command += ' '+json
+        command += ' '+jsonfile
         command += run_args
         
         print(command)
@@ -444,7 +444,7 @@ def run(target='standalone',
     elif target == 'slurm':
         
         command += pyscript
-        command += ' '+json
+        command += ' ' + jsonfile
         
         if target_args==None:
             slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '

@@ -329,7 +329,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         
         
         sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
-                            json=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+                            jsonfile=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
                     
                 
         launch_store=dict()

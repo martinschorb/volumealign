@@ -324,7 +324,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
 
 
     solve_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/solver/solve.py',
-                        json=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
+                        jsonfile=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
 
     time.sleep(5)
 

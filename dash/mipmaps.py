@@ -412,7 +412,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 log_file += '.log'
                 
                 mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
-                              json=param_file,run_args=None,logfile=log_file,errfile=err_file)
+                              jsonfile=param_file,run_args=None,logfile=log_file,errfile=err_file)
                 
                 launch_store=dict()
                 launch_store['logfile'] = log_file
