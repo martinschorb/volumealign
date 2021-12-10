@@ -150,6 +150,9 @@ def gc3_status(run_state):
 
     gc3_session = Session(gc3_sessiondir)
 
+    if gc3_session ==[]:
+        return 'error'
+
     out_statlist =[]
 
     for task in gc3_session.tasks.values():
