@@ -191,12 +191,6 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     outstore['stack'] = stack
     outstore['tilepairdir'] = tilepairdir
     
-    print('------')
-    
-    print(tilepairs_generate_p)
-    
-    print(type(tilepairs_generate_p))
-    
     return True, launch_store, outstore
 
 
