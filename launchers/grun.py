@@ -62,7 +62,11 @@ class GRunApplication(Application):
             argpath = os.path.expandvars(os.path.expanduser(arg))
             if os.path.exists(argpath):
                 inputs.append(argpath)
-                
+
+        for file in os.listdir():
+            inputs.append(os.path.abspath(file))
+
+
         Application.__init__(self,
                              arguments = ["bash", "-c", str.join(' ', shellargs)],
                              inputs = inputs,
