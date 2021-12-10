@@ -389,6 +389,8 @@ def run(target='standalone',
         resource = target.lstrip('gc3_')
         
         gc3_session = logfile.rstrip('.log')
+
+        gc3_session = os.path.join(os.path.dirname(gc3_session),'gc3_'+os.path.basename(gc3_session))
         
         command += ' -s ' + gc3_session        
         command += ' -r ' + resource
