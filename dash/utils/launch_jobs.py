@@ -406,7 +406,7 @@ def run(target='standalone',
         command += ' ./render_run.sh '
         command += params.launch_dir
         command += ' python ' + pyscript
-        command += ' ' + jsonfile
+        command += ' --input_json ' + jsonfile
         command += run_args
         
         print(command)
