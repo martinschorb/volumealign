@@ -93,4 +93,17 @@ class GRunScript(SessionBasedScript):
 
         return [task]
 
-  
+    def after_main_loop(self):
+        print("")
+        tasks = self.session.tasks.values()
+        for app in tasks:
+            if isinstance(app, TaskCollection):
+                tasks.extend(app.tasks)
+            if not isinstance(app, Application):
+                continue
+            print("===========================================")
+            print("Application     %s" % app.jobname)
+            print("  state:        %s" % app.execution.state)
+            print("  command line: %s" % str.join(" ", app.arguments))
+            print("  return code:  %s" % app.execution._exitcode)
+            print("  output dir:   %s" % app.output_dir)
