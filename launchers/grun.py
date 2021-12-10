@@ -41,7 +41,7 @@ from gc3libs.cmdline import SessionBasedScript
 if "__main__" == __name__:
     import grun
     grun.GRunScript().run()
-
+    grun.GRunScript().run()
 
 ## aux application classes
 
@@ -92,18 +92,3 @@ class GRunScript(SessionBasedScript):
         task = GRunApplication(self.params.args, **extra)
 
         return [task]
-
-    def after_main_loop(self):
-        print("")
-        tasks = self.session.tasks.values()
-        for app in tasks:
-            if isinstance(app, TaskCollection):
-                tasks.extend(app.tasks)
-            if not isinstance(app, Application):
-                continue
-            print("===========================================")
-            print("Application     %s" % app.jobname)
-            print("  state:        %s" % app.execution.state)
-            print("  command line: %s" % str.join(" ", app.arguments))
-            print("  return code:  %s" % app.execution._exitcode)
-            print("  output dir:   %s" % app.output_dir)
