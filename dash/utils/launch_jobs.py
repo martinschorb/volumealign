@@ -399,7 +399,8 @@ def run(target='standalone',
 
         os.system('cp '+os.path.join(params.launch_dir,'gc3run.sh')+' '+runscriptfile)
 
-        runscript = activate_conda()
+        runscript = '\n'
+        runscript += activate_conda()
         runscript += '\n'
         runscript += 'python ' + pyscript
         runscript += ' --input_json ' + jsonfile
