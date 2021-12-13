@@ -145,7 +145,7 @@ def checkstatus(run_state):
 
 def gc3_status(run_state):
         
-    gc3_sessiondir = run_state['type'].lstrip('gc3_')
+    gc3_sessiondir = run_state['id']
 
     gc3_session = Session(gc3_sessiondir)
 
@@ -166,6 +166,8 @@ def gc3_status(run_state):
                 out_statlist.append('error')
             elif task.execution.exitcode == 0:
                 out_statlist.append('done')
+            else:
+                out_statlist.append('cancelled')
 
         elif 'SUBMITTED' in task.execution.state:
             out_statlist.append('pending')
