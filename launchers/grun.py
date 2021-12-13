@@ -41,7 +41,7 @@ from gc3libs.cmdline import SessionBasedScript
 if "__main__" == __name__:
     import grun
     grun.GRunScript().run()
-    grun.GRunScript().run()
+
 
 ## aux application classes
 

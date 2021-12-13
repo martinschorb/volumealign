@@ -31,7 +31,7 @@ export LOGDIR=`pwd`
 
 # CLEAN LOGDIR
 
-rm -f $LOGDIR/$SLURM_JOB_NAME-*/worker/*/*.jar
+rm -f $LOGDIR/**/worker/*/*.jar
 
 export SPARK_HOME=`../pyvar.sh ../../dash/params.py  spark_dir`
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"

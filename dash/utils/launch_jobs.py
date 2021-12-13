@@ -196,8 +196,6 @@ def cluster_status_init(job_ids):
                       
     return out_ids,out_type
 
-
-
             
 def cluster_status(job_ids,logfile):
     my_env = os.environ.copy()
@@ -331,9 +329,6 @@ def cluster_status(job_ids,logfile):
     return out_stat
 
 
-
-
-        
 def canceljobs(job_ids):
     out_status=list()
     j_ids,j_types=cluster_status_init(job_ids)
@@ -348,13 +343,9 @@ def canceljobs(job_ids):
         
     
     out_status = 'cancelled'
-    
-    
+
     return out_status
-        
-    
-    
-    
+
 
 def run(target='standalone',
         pyscript='thispyscript',
@@ -390,10 +381,13 @@ def run(target='standalone',
         resource = target.lstrip('gc3_')
 
         logbase = os.path.basename(logfile).rstrip('.log')
+        logdir = os.path.dirname(logfile)
 
-        gc3_session = os.path.join(os.path.dirname(logfile),'gc3_session_'+logbase)
-        gc3_outdir = os.path.join(os.path.dirname(logfile),'gc3_session_'+logbase)
-        
+        gc3_session = os.path.join(logdir,'gc3_session_'+logbase)
+        gc3_outdir = os.path.join(logdir,'gc3_session_'+logbase)
+
+        runscriptfile = os.path.join(logdir,logbase+'.sh')
+
         command += ' -s ' + gc3_session
         command += ' -o ' + gc3_outdir
         command += ' -r ' + resource
@@ -401,16 +395,26 @@ def run(target='standalone',
         command += ' --config-files ' + params.gc3_conffile
         
         if not target_args is None:
-            command += args2string(target_args)  
-        
-        command += ' "./render_run.sh '
-        command += params.launch_dir
-        command += ' python ' + pyscript
-        command += ' --input_json ' + jsonfile +'"'
-        command += run_args
-        
+            command += args2string(target_args)
+
+        os.system('cp '+os.path.join(params.launch_dir,'gc3run.sh')+' '+runscriptfile)
+
+        runscript = activate_conda()
+        runscript += '\n'
+        runscript += 'python ' + pyscript
+        runscript += ' --input_json ' + jsonfile
+        runscript += run_args
+        runscript += '\n'
+
+        with open(runscriptfile,'a') as f:
+            f.write(runscript)
+
+        command += ' '+runscriptfile
+
+
         print(command)
-        
+        # print(runscript)
+
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
          
@@ -527,7 +531,15 @@ def run_prefix():
     return user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 
 
-       
+def activate_conda(conda_dir=params.conda_dir,
+                   env_name=params.render_envname):
+    script = ''
+    script += 'source '+os.path.join(conda_dir,"etc/profile.d/conda.sh")+'\n'
+    script += '\n'
+    script += 'conda activate ' + env_name + '\n'
+
+    return script
+
      
 if __name__ == '__main__':
     run()    
