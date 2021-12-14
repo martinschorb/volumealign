@@ -70,10 +70,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
             if run_state['status'] not in ['input','wait']:
                 r_status['status'] = 'input'
             return r_status,status_style,status_href
-        
-        print(r_status)
-        print('----'+str(n))
-        print(dash.callback_context.outputs_list[0]['id']['module'])
+
 
         if run_state['type'] is not None :
 

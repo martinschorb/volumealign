@@ -88,8 +88,9 @@ def status(run_state):
 
 def checkstatus(run_state):
 
-    logfile = run_state['logfile']
-    
+    print(run_state)
+
+
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
@@ -114,6 +115,7 @@ def checkstatus(run_state):
          
     
     elif run_state['type'].startswith('gc3_'):
+        print('GC3!!!')
         return gc3_status(run_state)
 
     #     else:
@@ -147,9 +149,13 @@ def gc3_status(run_state):
         
     gc3_sessiondir = run_state['id']
 
+    print(gc3_sessiondir)
+    print(os.listdir(gc3_sessiondir))
+
     gc3_session = Session(gc3_sessiondir)
 
     if gc3_session ==[]:
+        print('EMPTY!')
         return 'error'
 
     out_statlist =[]
