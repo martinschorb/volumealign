@@ -190,6 +190,8 @@ if __name__ == '__main__':
         debug=False
         port = sys.argv[1]
 
+    # needed for gc3pie status calls
+    sys.path.append(params.launch_dir)
 
 
     app.run_server(host= '0.0.0.0',debug=debug,port=port)
