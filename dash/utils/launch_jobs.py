@@ -152,6 +152,9 @@ def gc3_status(run_state):
     if not os.path.isdir(gc3_sessiondir):
         return 'launch'
 
+    print(gc3_sessiondir)
+    print(os.listdir(gc3_sessiondir))
+
     gc3_session = Session(gc3_sessiondir)
 
     if gc3_session ==[]:
