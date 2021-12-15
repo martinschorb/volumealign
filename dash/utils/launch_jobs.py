@@ -11,7 +11,7 @@ import subprocess
 import params
 import time
 import datetime
-
+import psutil
 import requests
 
 
@@ -92,19 +92,17 @@ def checkstatus(run_state):
     if run_state['type'] == 'standalone':
         if run_state['status'] in ['running','launch']:
 
-            if runvar in params.processes.keys():
-                p = params.processes[runvar]
+            if psutil.pid_exists(runvar):
+                p = psutil.Process(runvar)
 
-                if p.poll() is None:
+                if p.is_running():
                     return 'running'
 
-                elif p.poll() == 0:
-                    params.processes.pop(runvar)
-                    return 'done'
+                elif os.path.exists(run_state['logfile']+'_exit'):
+                    return 'error'
 
                 else:
-                    params.processes.pop(runvar)
-                    return 'error'
+                    return 'done'
         else:
             return run_state['status']
          
@@ -436,13 +434,12 @@ def run(target='standalone',
         command += run_args
         
         print(command)
-        
+
+        command += ' || echo $? > ' + logfile + '_exit'
+
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-            pid = p.pid
-            
-            params.processes[pid]=p
-            
+
             return p.pid
     
     elif target == 'generic':
