@@ -88,9 +88,6 @@ def status(run_state):
 
 def checkstatus(run_state):
 
-    print(run_state)
-
-
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
@@ -118,8 +115,8 @@ def checkstatus(run_state):
         print('GC3!!!')
         return gc3_status(run_state)
 
-    #     else:
-    #         return cluster_status(runvar,logfile),[runvar]
+    else:
+        return cluster_status(run_state)
 
     
     # if type(runvar) is list:
@@ -208,12 +205,13 @@ def cluster_status_init(job_ids):
     return out_ids,out_type
 
             
-def cluster_status(job_ids,logfile):
+def cluster_status(run_state):
     my_env = os.environ.copy()
     out_stat=list()
     link=''
-    
-    j_ids,j_types = cluster_status_init(job_ids)
+
+
+    j_ids,j_types = cluster_status_init(run_state['id'])
     
     for j_idx,j_id in enumerate(j_ids):
     
@@ -487,7 +485,7 @@ def run(target='standalone',
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
             
-            jobid=['slurm__'+jobid]
+            #jobid=['slurm__'+jobid]
             
         
         return jobid
