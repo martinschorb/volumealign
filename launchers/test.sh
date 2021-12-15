@@ -6,5 +6,4 @@ echo hallo
 hostname
 #sleep 40
 echo 123
-sleep 10
 exit 123

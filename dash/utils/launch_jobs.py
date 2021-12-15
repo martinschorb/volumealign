@@ -90,19 +90,25 @@ def checkstatus(run_state):
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
+        print(run_state)
         if run_state['status'] in ['running','launch']:
 
             if psutil.pid_exists(runvar):
                 p = psutil.Process(runvar)
-
+                print('pid exists')
+                print(p)
                 if p.is_running():
                     return 'running'
 
-                elif os.path.exists(run_state['logfile']+'_exit'):
+                if p.status() == 'zombie':
+                    p.kill()
                     return 'error'
 
-                else:
-                    return 'done'
+            if os.path.exists(run_state['logfile']+'_exit'):
+                return 'error'
+
+            else:
+                return 'done'
         else:
             return run_state['status']
          
