@@ -95,8 +95,7 @@ def checkstatus(run_state):
 
             if psutil.pid_exists(runvar):
                 p = psutil.Process(runvar)
-                print('pid exists')
-                print(p)
+
                 if p.is_running():
                     return 'running'
 
