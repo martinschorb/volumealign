@@ -64,6 +64,9 @@ comp_options = [
                 {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}
                 ]
 
+# list remote workstations/login nodes and the remote user format
+remote_machines = {'login.cluster.embl.de':user}
+
 # gc3conf = Configuration(gc3_conffile)
 #
 # for resource in gc3conf.resources.keys():

@@ -14,8 +14,7 @@ import subprocess
 import params
 
 
-target_machines = ['login.cluster.embl.de']
-target_user = params.user
+target_machines = list(params.remote_machines.keys())
 
 
 user_file = './web_users.json'
@@ -46,7 +45,7 @@ if params.user not in users_exist.keys():
             os.system("ssh-keygen -t rsa -b 4096 -q -f '+home+'/.ssh/id_rsa_render -N ''")
         
         for target in target_machines:
-            os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa_render ' + target_user +'@' + target)
+            os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa_render ' + target_machines[target] +'@' + target)
         
     
     port = max(users_exist.values()) + 1
