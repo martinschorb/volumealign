@@ -58,7 +58,6 @@ render_envname = 'render'
 
 
 comp_options = [
-                # {'label': 'Gc3', 'value': 'gc3'},
                 {'label': 'Cluster (slurm)', 'value': 'slurm'},
                 {'label': 'locally', 'value': 'standalone'},
                 {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}
@@ -67,11 +66,9 @@ comp_options = [
 # list remote workstations/login nodes and the remote user format
 remote_machines = {'login.cluster.embl.de':user}
 
-# gc3conf = Configuration(gc3_conffile)
-#
-# for resource in gc3conf.resources.keys():
-#     comp_options.append({'label': resource, 'value': 'gc3_'+resource})
-#
+for resource in remote_machines.keys():
+     comp_options.append({'label': resource, 'value': 'remote_'+resource})
+
 
 comp_default = 'standalone'
 
