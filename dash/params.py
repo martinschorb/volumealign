@@ -70,7 +70,7 @@ comp_options = [
 #     comp_options.append({'label': resource, 'value': 'gc3_'+resource})
 #
 
-comp_default = 'localhost'
+comp_default = 'standalone'
 
 comp_defaultoptions = ['standalone']#,'sparkslurm']
 
