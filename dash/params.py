@@ -41,7 +41,7 @@ json_match_dir = os.path.join(base_dir,'JSON_parameters','MatchTrials')
 
 
 # notification and documentation
-
+user = os.getlogin()
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
@@ -69,7 +69,8 @@ comp_options = [
 # for resource in gc3conf.resources.keys():
 #     comp_options.append({'label': resource, 'value': 'gc3_'+resource})
 #
-# comp_default = 'gc3_localhost'
+
+comp_default = 'localhost'
 
 comp_defaultoptions = ['standalone']#,'sparkslurm']
 

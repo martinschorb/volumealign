@@ -536,9 +536,8 @@ def run(target='standalone',
         
 def run_prefix():
     timestamp = time.localtime()
-    user = os.getlogin()
 
-    return user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
+    return params.user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 
 
 def activate_conda(conda_dir=params.conda_dir,

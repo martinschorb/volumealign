@@ -32,10 +32,10 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 menu_items=['convert',
             # 'mipmaps',
             'tilepairs', 
-            # 'pointmatch',
-            # 'solve',
-            # 'export',
-            # 'finalize'
+            'pointmatch',
+            'solve',
+            'export',
+            'finalize'
             ]
 
 menu_text=['Convert & upload',
