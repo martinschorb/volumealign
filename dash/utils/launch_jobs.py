@@ -14,7 +14,6 @@ import datetime
 
 import requests
 
-from gc3libs.session import Session
 
 workdir = params.workdir
 
@@ -111,9 +110,9 @@ def checkstatus(run_state):
          
          
     
-    elif run_state['type'].startswith('gc3_'):
-        print('GC3!!!')
-        return gc3_status(run_state)
+    # elif run_state['type'].startswith('gc3_'):
+    #
+    #     return gc3_status(run_state)
 
     else:
         return cluster_status(run_state)
@@ -142,47 +141,47 @@ def checkstatus(run_state):
     #         return 'done',outvar
 
 
-def gc3_status(run_state):
-        
-    gc3_sessiondir = run_state['id']
-
-    if not os.path.isdir(gc3_sessiondir):
-        return 'launch'
-
-    print(gc3_sessiondir)
-    print(os.listdir(gc3_sessiondir))
-
-    gc3_session = Session(gc3_sessiondir)
-
-    if gc3_session ==[]:
-        print('EMPTY!')
-        return 'error'
-
-    out_statlist =[]
-
-    for task in gc3_session.tasks.values():
-        print(task.execution.state)
-
-        if 'RUNNING' in task.execution.state:
-            out_statlist.append('running')
-        elif task.execution.state=='TERMINATED':
-            print(task.execution.exitcode)
-
-            if task.execution.exitcode > 0:
-                out_statlist.append('error')
-            elif task.execution.exitcode == 0:
-                out_statlist.append('done')
-            else:
-                out_statlist.append('cancelled')
-
-        elif 'SUBMITTED' in task.execution.state:
-            out_statlist.append('pending')
-        elif 'FAILED' in task.execution.state:
-            out_statlist.append('error')
-
-
-
-    return out_statlist
+# def gc3_status(run_state):
+#
+#     gc3_sessiondir = run_state['id']
+#
+#     if not os.path.isdir(gc3_sessiondir):
+#         return 'launch'
+#
+#     print(gc3_sessiondir)
+#     print(os.listdir(gc3_sessiondir))
+#
+#     gc3_session = Session(gc3_sessiondir)
+#
+#     if gc3_session ==[]:
+#         print('EMPTY!')
+#         return 'error'
+#
+#     out_statlist =[]
+#
+#     for task in gc3_session.tasks.values():
+#         print(task.execution.state)
+#
+#         if 'RUNNING' in task.execution.state:
+#             out_statlist.append('running')
+#         elif task.execution.state=='TERMINATED':
+#             print(task.execution.exitcode)
+#
+#             if task.execution.exitcode > 0:
+#                 out_statlist.append('error')
+#             elif task.execution.exitcode == 0:
+#                 out_statlist.append('done')
+#             else:
+#                 out_statlist.append('cancelled')
+#
+#         elif 'SUBMITTED' in task.execution.state:
+#             out_statlist.append('pending')
+#         elif 'FAILED' in task.execution.state:
+#             out_statlist.append('error')
+#
+#
+#
+#     return out_statlist
 
 
 def cluster_status_init(job_ids):
@@ -383,54 +382,55 @@ def run(target='standalone',
 
     print('launching - ')
     
-    if target.startswith('gc3_'):
-        
-        command += './gc3run.sh'
-        
-        resource = target.lstrip('gc3_')
-
-        logbase = os.path.basename(logfile).rstrip('.log')
-        logdir = os.path.dirname(logfile)
-
-        gc3_session = os.path.join(logdir,'gc3_session_'+logbase)
-        gc3_outdir = os.path.join(logdir,'gc3_session_'+logbase)
-
-        runscriptfile = os.path.join(logdir,logbase+'.sh')
-
-        command += ' -s ' + gc3_session
-        command += ' -o ' + gc3_outdir
-        command += ' -r ' + resource
-        command += ' -C 5'  # poll every 5 seconds and trigger job launch
-        command += ' --config-files ' + params.gc3_conffile
-        
-        if not target_args is None:
-            command += args2string(target_args)
-
-        os.system('cp '+os.path.join(params.launch_dir,'gc3run.sh')+' '+runscriptfile)
-
-        runscript = '\n'
-        runscript += activate_conda()
-        runscript += '\n'
-        runscript += 'python ' + pyscript
-        runscript += ' --input_json ' + jsonfile
-        runscript += run_args
-        runscript += '\n'
-
-        with open(runscriptfile,'a') as f:
-            f.write(runscript)
-
-        command += ' '+runscriptfile
-
-
-        print(command)
-        # print(runscript)
-
-        with open(logfile,"wb") as out, open(errfile,"wb") as err:
-            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-         
-        return gc3_session
-    
-    elif target=='standalone':
+    # if target.startswith('gc3_'):
+    #
+    #     command += './gc3run.sh'
+    #
+    #     resource = target.lstrip('gc3_')
+    #
+    #     logbase = os.path.basename(logfile).rstrip('.log')
+    #     logdir = os.path.dirname(logfile)
+    #
+    #     gc3_session = os.path.join(logdir,'gc3_session_'+logbase)
+    #     gc3_outdir = os.path.join(logdir,'gc3_session_'+logbase)
+    #
+    #     runscriptfile = os.path.join(logdir,logbase+'.sh')
+    #
+    #     command += ' -s ' + gc3_session
+    #     command += ' -o ' + gc3_outdir
+    #     command += ' -r ' + resource
+    #     command += ' -C 5'  # poll every 5 seconds and trigger job launch
+    #     command += ' --config-files ' + params.gc3_conffile
+    #
+    #     if not target_args is None:
+    #         command += args2string(target_args)
+    #
+    #     os.system('cp '+os.path.join(params.launch_dir,'gc3run.sh')+' '+runscriptfile)
+    #
+    #     runscript = '\n'
+    #     runscript += activate_conda()
+    #     runscript += '\n'
+    #     runscript += 'python ' + pyscript
+    #     runscript += ' --input_json ' + jsonfile
+    #     runscript += run_args
+    #     runscript += '\n'
+    #
+    #     with open(runscriptfile,'a') as f:
+    #         f.write(runscript)
+    #
+    #     command += ' '+runscriptfile
+    #
+    #
+    #     print(command)
+    #     # print(runscript)
+    #
+    #     with open(logfile,"wb") as out, open(errfile,"wb") as err:
+    #         p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+    #
+    #     return gc3_session
+    #
+    # el
+    if target=='standalone':
         command += pyscript
         command += ' '+jsonfile
         command += run_args

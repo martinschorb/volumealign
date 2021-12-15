@@ -8,7 +8,6 @@ import os
 import subprocess
 import requests
 import socket
-from gc3libs.config import Configuration
 
 #=============================================================
 ## Directory presets
@@ -59,27 +58,27 @@ render_envname = 'render'
 
 
 comp_options = [
-                {'label': 'Gc3', 'value': 'gc3'},
-                # {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                {'label': 'locally (direct command)', 'value': 'standalone'},
+                # {'label': 'Gc3', 'value': 'gc3'},
+                {'label': 'Cluster (slurm)', 'value': 'slurm'},
+                {'label': 'locally', 'value': 'standalone'},
                 {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}
                 ]
 
-gc3conf = Configuration(gc3_conffile)
+# gc3conf = Configuration(gc3_conffile)
+#
+# for resource in gc3conf.resources.keys():
+#     comp_options.append({'label': resource, 'value': 'gc3_'+resource})
+#
+# comp_default = 'gc3_localhost'
 
-for resource in gc3conf.resources.keys():
-    comp_options.append({'label': resource, 'value': 'gc3_'+resource})
-
-comp_default = 'gc3_localhost'
-
-comp_defaultoptions = ['gc3_localhost','standalone','sparkslurm']
+comp_defaultoptions = ['standalone']#,'sparkslurm']
 
 min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
 n_cpu_script = 24
-mem_per_cpu = 8     # GB
+mem_per_cpu = 4     # GB
 
 # standalone
 
@@ -89,13 +88,13 @@ n_cpu_standalone = 8
 # spark
 
 n_cpu_spark = 300
-cpu_pernode_spark = 30
+cpu_pernode_spark = 10
 
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
 export=dict()
-export['min/GPix/CPU_N5'] = 50
+export['min/GPix/CPU_N5'] = 30
 
 
 section_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)
