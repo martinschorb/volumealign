@@ -98,14 +98,16 @@ page.append(page2)
                Output(module+'_tp_dd','value')],
               Input({'component': 'stack_dd', 'module': module},'value'))
 def pointmatch_tp_dd_fill(stack):
-    
-    if stack is None:
+
+    print('stack:')
+    print(stack)
+
+    if stack in (None,''):
         return dash.no_update
    
     tp_dirlist = [d_item for d_item in glob.glob(params.json_run_dir+'/tilepairs_'+params.user+'*'+stack+'*') if os.path.isdir(d_item)]
     tpdir_dd_options=list(dict())
-    
-    
+
     if tp_dirlist == []:
         tpdir_dd_options.append({'label':'no tilepairs found for selected stack', 'value': ''})
     else:

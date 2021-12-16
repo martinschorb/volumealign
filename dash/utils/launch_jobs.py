@@ -61,7 +61,6 @@ def status(run_state):
     
     elif type(res_status) is list:
 
-        print(res_status)
         if 'error' in res_status:
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         elif 'running' in res_status:
@@ -74,8 +73,7 @@ def status(run_state):
             out_stat = 'Cluster Job '+run_state['id']+' was cancelled due to a timeout. Try again with longer time constraint.'
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
-    print('out_stat:')
-    print(out_stat)
+
     return out_stat, link
 
 
@@ -84,7 +82,7 @@ def checkstatus(run_state):
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
-        print(run_state)
+
         if run_state['status'] in ['running','launch']:
 
             if psutil.pid_exists(runvar):
@@ -152,7 +150,6 @@ def cluster_status(run_state):
 
         for job_item in stat_list[1:]:
             jobstat = job_item.split('|')
-            print(jobstat)
             if len(jobstat)<2:
                 continue
 
@@ -281,7 +278,7 @@ def run(target='standalone',
     os.chdir(workdir)
     
     # # command = '../'+target
-    # # command += '/launch_spark_slurm.sh '
+    # # command += '/launcher_sparkslurm.sh '
     # command = '../launchers/'+ target +'.sh'
     #
     # command = 'cd ' + params.launch_dir

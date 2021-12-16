@@ -119,13 +119,11 @@ def tilepair_numfromlog(tilepairdir,stack):
         l_out = os.popen('tail -n 5 '+tp_log_mipmaps).read().partition('total pairs\n')
     else:
         l_out = ''
-               
-    
-    tpairs = l_out[0].partition('NeighborPairs: exit, saved ')[2]
-    
-    if tpairs == '': return 'no tilepairs'
 
-    
+    if l_out == '': return 'no tilepairs'
+
+    tpairs = l_out[0].partition('NeighborPairs: exit, saved ')[2]
+
     return int(tpairs)
     
 

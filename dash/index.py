@@ -31,7 +31,7 @@ sidebar_back = html.Nav(className='sidebar_back',children='')
 
 menu_items=['convert',
             # 'mipmaps',
-            # 'tilepairs',
+            'tilepairs',
             'pointmatch',
             # 'solve',
             # 'export',
