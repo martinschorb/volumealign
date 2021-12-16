@@ -121,10 +121,12 @@ def tilepair_numfromlog(tilepairdir,stack):
         l_out = ''
 
     if l_out == '': return 'no tilepairs'
-
     tpairs = l_out[0].partition('NeighborPairs: exit, saved ')[2]
 
-    return int(tpairs)
+    if tpairs == '':
+        return 'no tilepairs'
+    else:
+        return int(tpairs)
     
 
 def spark_nodes(n_cpu):

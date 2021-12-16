@@ -5,10 +5,6 @@
 template="./spark_slurm_template.sh"
 runscript="./test.sh"
 
-# import Parameters
-
-emaildomain=`./pyvar.sh ../dash/params.py  email`
-
 #Default values
 
 MASTER_MEM="1"
@@ -17,7 +13,7 @@ TIME="00:10:00"
 WORKER_NODES="1"
 WORKER_CPU="1"
 WORKER_MEMPERCPU="4"
-EMAIL=`whoami`$emaildomain
+EMAIL=`whoami`'@domain'
 LOGDIR=`pwd`
 LOGFILE=sparkslurm-%j.out
 ERRFILE=sparkslurm-%j.err
@@ -29,6 +25,10 @@ while [ "$1" != "" ]; do
     case $PARAM in
         --runscript)
             runscript=$VALUE
+            shift
+            ;;
+        --template)
+            template=$VALUE
             shift
             ;;
         --email)

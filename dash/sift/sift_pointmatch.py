@@ -337,7 +337,6 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
         launch_store['status'] = 'running'
         launch_store['id'] = sift_pointmatch_p
         launch_store['type'] = comp_sel
-
     
         return True,'', launch_store, outstore, mt_params['ptime']
 

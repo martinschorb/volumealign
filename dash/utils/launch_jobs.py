@@ -15,9 +15,6 @@ import psutil
 import requests
 
 
-workdir = params.workdir
-
-
 def args2string(args,separator='='):
     if args==None:
         argstring=''
@@ -43,6 +40,9 @@ def args2string(args,separator='='):
 def status(run_state):   
         
     res_status = checkstatus(run_state) 
+    # print(run_state)
+    # print('res_status:')
+    # print(res_status)
 
     link=''
 
@@ -89,10 +89,8 @@ def checkstatus(run_state):
                 p = psutil.Process(runvar)
 
                 if p.is_running():
-                    if p.status() == 'zombie':
-                        p.terminate()
-
-                    return 'running'
+                    if not p.status() == 'zombie':
+                        return 'running'
 
 
 
@@ -116,12 +114,14 @@ def cluster_status(run_state):
     link=''
 
     j_id = run_state['id']
+    # print('JOB-ID:')
+    # print(j_id)
 
     if j_id=='':
         return 'wait'
 
     cl_type = run_state['type']
-
+    logfile = run_state['logfile']
     if cl_type == 'slurm':
             command =  'sacct --jobs='
             command += j_id
@@ -275,33 +275,40 @@ def run(target='standalone',
         errfile=os.path.join(params.render_log_dir,'render.err')):
     
     my_env = os.environ.copy()
-    os.chdir(workdir)
-    
-    # # command = '../'+target
-    # # command += '/launcher_sparkslurm.sh '
-    # command = '../launchers/'+ target +'.sh'
-    #
-    # command = 'cd ' + params.launch_dir
-    #
-    # command += ' && '
-    #
-    command = ''
+
+    logbase = os.path.basename(logfile).rstrip('.log')
+    logdir = os.path.dirname(logfile)
+
+    runscriptfile = os.path.join(logdir, logbase + '.sh')
 
     if run_args is None: run_args = ''
-    
+
+    runscript = '#!/bin/bash \n'
+    runscript += activate_conda()
+    runscript += '\n'
+    runscript += '#launch message \n'
+    runscript += 'python ' + pyscript
+    runscript += ' --input_json ' + jsonfile
+    runscript += args2string(run_args)
+
+
     
     # DEBUG function.......
 
     print('launching - ')
 
     if target=='standalone':
-        command += pyscript
-        command += ' '+jsonfile
-        command += run_args
-        
+        command = 'bash ' + runscriptfile
+
+        runscript.replace('#launch message','"Launching Render standalone processing script on " `hostname`')
+        runscript += ' || echo $? > ' + logfile + '_exit'
+
+        with open(runscriptfile, 'a') as f:
+            f.write(runscript)
+
         print(command)
 
-        command += ' || echo $? > ' + logfile + '_exit'
+
 
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
@@ -320,10 +327,13 @@ def run(target='standalone',
         return p
     
     elif target == 'slurm':
-        
-        command += pyscript
-        command += ' ' + jsonfile
-        
+        runscript.replace('#launch message','"Launching Render processing script on " `hostname`". Slurm job ID: " $SLURM_JOBID"."')
+
+        with open(runscriptfile, 'a') as f:
+            f.write(runscript)
+
+        command = runscriptfile
+
         if target_args==None:
             slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
         else:
@@ -332,7 +342,7 @@ def run(target='standalone',
         
         slurm_args += '-e ' + errfile + ' -o ' + logfile
         
-        sl_command = 'sbatch '+ slurm_args + ' ' + command + ' ' + args2string(run_args)
+        sl_command = 'sbatch '+ slurm_args + ' ' + command
         
         print(sl_command)
 
@@ -354,9 +364,13 @@ def run(target='standalone',
         return jobid
     
     elif target == 'sparkslurm':
+
+        command = params.launch_dir + '/launcher_' + target
+        command += '.sh '
         
         target_args['--email'] = params.user + params.email
-        
+        target_args['--template'] = os.path.join(params.launch_dir,"spark_slurm_template.sh")
+
         logbase = logfile.partition('.log')[0]
         
         target_args['--runscript'] = logbase + '.' + target + '.sh'
@@ -391,8 +405,6 @@ def run(target='standalone',
             f.write(jobid)
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
-            
-            jobid=['sparkslurm__'+jobid]
         
         return jobid
 

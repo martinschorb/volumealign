@@ -49,7 +49,10 @@ def update_status(n,click,run_state,logfile,module,thispage):
     
     
     thispage = thispage.lstrip('/')        
-    
+    #
+    # print(hf.trigger(key='module'))
+    # print(thispage in hf.trigger(key='module'))
+
     if not thispage in hf.trigger(key='module'):
         return dash.no_update
         
@@ -170,7 +173,7 @@ def update_output(n,outfile,thispage):
     
     thispage = thispage.lstrip('/')        
 
-    if not hf.trigger(key='module') == thispage:
+    if not thispage in hf.trigger(key='module'):
         return dash.no_update
      
     data=''
@@ -196,25 +199,27 @@ def update_output(n,outfile,thispage):
 
 @app.callback([Output({'component': 'store_run_status', 'module': MATCH},'data'),
                Output({'component': 'outfile', 'module': MATCH},'children')],
-              [Input({'component': 'store_launch_status', 'module': MATCH},'data'),
-               Input({'component': 'store_r_status', 'module': MATCH},'data')]
+              [Input({'component': 'store_launch_status', 'module': MATCH},'modified_timestamp'),
+               Input({'component': 'store_r_status', 'module': MATCH},'modified_timestamp')],
+              [State({'component': 'store_launch_status', 'module': MATCH},'data'),
+               State({'component': 'store_r_status', 'module': MATCH},'data')]
               )
-def run_state(launch_in,status_in):
+def run_state(launch_trigger,status_trigger,launch_in,status_in):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
     trigger = hf.trigger()
     
     # print('-- merge status --')
-    # print(trigger)
+    print(trigger)
 
     if 'launch' in trigger:
-        # print('launch triggered state:')
-        # print(launch_in)
+        print('launch triggered state:')
+        print(launch_in)
         out = launch_in
         
     else:
-        # print('status triggered state:')
-        # print(status_in)
+        print('status triggered state:')
+        print(status_in)
         out = status_in.copy()        
     
     

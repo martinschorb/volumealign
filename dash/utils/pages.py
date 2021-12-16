@@ -217,7 +217,12 @@ def match_selector(module,newcoll=False):
 
 
 def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.comp_default):
-    out = html.Details([html.Summary('Compute location:'),
+    if len(c_options)<2:
+        dispstyle={'display':'none'}
+    else:
+        dispstyle={}
+
+    out = html.Div(html.Details([html.Summary('Compute location:'),
                         dcc.RadioItems(
                             options = hf.compset_radiobutton(c_options),
                             value = c_default,
@@ -225,7 +230,8 @@ def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.com
                             id={'component':'compute_sel','module':module}
                             )
                         ],
-                      id={'component':'compute','module':module})
+                      id={'component':'compute','module':module}),
+                   style=dispstyle)
     return out
 
 

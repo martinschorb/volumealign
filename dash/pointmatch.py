@@ -99,9 +99,6 @@ page.append(page2)
               Input({'component': 'stack_dd', 'module': module},'value'))
 def pointmatch_tp_dd_fill(stack):
 
-    print('stack:')
-    print(stack)
-
     if stack in (None,''):
         return dash.no_update
    
@@ -144,7 +141,6 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                              ],className='table'),
                                              dcc.Store(id={'component':'store_compset','module':module})
                                              ])
-page.append(compute_settings)
 
 
 # callbacks
@@ -268,6 +264,9 @@ def pointmatch_output(value):
 
 # initialized with store
 # embedded from callbacks import runstate
+
+page.append(compute_settings)
+
 
 # # =============================================
 # # PROGRESS OUTPUT
