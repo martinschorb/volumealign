@@ -174,8 +174,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     err_file = log_file + '.err'
     log_file += '.log'
     
-    tilepairs_generate_p = launch_jobs.run(target=comp_sel,#pyscript=params.rendermodules_dir+'rendermodules/pointmatch/create_tilepairs.py',
-                                           pyscript=os.path.join(params.launch_dir,'test.sh'),
+    tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript=params.rendermodules_dir+'rendermodules/pointmatch/create_tilepairs.py',
                         jsonfile=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
 
     
@@ -184,6 +183,7 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     launch_store['status'] = 'launch'
     launch_store['id'] = tilepairs_generate_p
     launch_store['type'] = comp_sel
+
 
     outstore = dict()
     outstore['owner'] = owner

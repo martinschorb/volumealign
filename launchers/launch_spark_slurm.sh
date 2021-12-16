@@ -2,14 +2,12 @@
 
 # Launcher for Spark on SLURM
 
-template="../spark_slurm_template.sh"
-runscript="./slurm-spark_test.sh"
+template="./spark_slurm_template.sh"
+runscript="./test.sh"
 
 # import Parameters
 
-emaildomain=`../pyvar.sh ../../dash/params.py  email`
-
-
+emaildomain=`./pyvar.sh ../dash/params.py  email`
 
 #Default values
 

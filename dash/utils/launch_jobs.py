@@ -11,6 +11,7 @@ import subprocess
 import params
 import time
 import datetime
+import psutil
 import requests
 
 
@@ -280,7 +281,7 @@ def run(target='standalone',
     os.chdir(workdir)
     
     # # command = '../'+target
-    # # command += '/launcher.sh '    
+    # # command += '/launch_spark_slurm.sh '
     # command = '../launchers/'+ target +'.sh'
     #
     # command = 'cd ' + params.launch_dir
@@ -334,7 +335,7 @@ def run(target='standalone',
         
         slurm_args += '-e ' + errfile + ' -o ' + logfile
         
-        sl_command = 'sbatch '+ slurm_args + ' "' + command + ' ' + args2string(run_args)+'"'
+        sl_command = 'sbatch '+ slurm_args + ' ' + command + ' ' + args2string(run_args)
         
         print(sl_command)
 

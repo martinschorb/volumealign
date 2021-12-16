@@ -50,8 +50,8 @@ def update_status(n,click,run_state,logfile,module,thispage):
     
     thispage = thispage.lstrip('/')        
     
-    # if not hf.trigger(key='module') == thispage:
-    #     return dash.no_update
+    if not thispage in hf.trigger(key='module'):
+        return dash.no_update
         
     trigger = hf.trigger()
 
@@ -169,9 +169,9 @@ def update_output(n,outfile,thispage):
         raise PreventUpdate
     
     thispage = thispage.lstrip('/')        
-    
-    # if not hf.trigger(key='module') == thispage:
-    #     return dash.no_update
+
+    if not hf.trigger(key='module') == thispage:
+        return dash.no_update
      
     data=''
 
