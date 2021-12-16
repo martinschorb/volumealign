@@ -181,11 +181,10 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
     
     launch_store=dict()
     launch_store['logfile'] = log_file
-    launch_store['status'] = 'running'
+    launch_store['status'] = 'launch'
     launch_store['id'] = tilepairs_generate_p
     launch_store['type'] = comp_sel
-    launch_store['logfile'] = log_file
-    
+
     outstore = dict()
     outstore['owner'] = owner
     outstore['project'] = project

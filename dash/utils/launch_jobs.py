@@ -11,7 +11,6 @@ import subprocess
 import params
 import time
 import datetime
-import psutil
 import requests
 
 
@@ -49,6 +48,7 @@ def status(run_state):
     if res_status is None:
         return 'input',link
 
+    out_stat=''
 
     if type(res_status) is str:
         if res_status=='error':
@@ -59,16 +59,8 @@ def status(run_state):
     # ONLY single processes/jobs for now!
     
     elif type(res_status) is list:
-    #     out_stat='wait'
-    #     # print(res_status)
-    #     for idx,item in enumerate(res_status):
 
-    #         link = ''
-    #         if '__' in item:
-    #             res_status[idx] = item.split('__')[0]
-    #             link = item.split('__')[1]
-
-    #     # multiple cluster job IDs
+        print(res_status)
         if 'error' in res_status:
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         elif 'running' in res_status:
@@ -76,13 +68,14 @@ def status(run_state):
         elif 'pending' in res_status:
             out_stat = 'pending'
         elif 'cancelled' in res_status:
-            out_stat = 'Cluster Job '+processes[res_status.index('cancelled')]+' was cancelled.'
+            out_stat = 'Cluster Job '+run_state['id']+' was cancelled.'
         elif 'timeout' in res_status:
-            out_stat = 'Cluster Job '+processes[res_status.index('timeout')]+' was cancelled due to a timeout. Try again with longer time constraint.'
+            out_stat = 'Cluster Job '+run_state['id']+' was cancelled due to a timeout. Try again with longer time constraint.'
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
-    
-    return out_stat , link
+    print('out_stat:')
+    print(out_stat)
+    return out_stat, link
 
 
 def checkstatus(run_state):
@@ -97,11 +90,12 @@ def checkstatus(run_state):
                 p = psutil.Process(runvar)
 
                 if p.is_running():
+                    if p.status() == 'zombie':
+                        p.terminate()
+
                     return 'running'
 
-                if p.status() == 'zombie':
-                    p.kill()
-                    return 'error'
+
 
             if os.path.exists(run_state['logfile']+'_exit'):
                 return 'error'
@@ -110,101 +104,11 @@ def checkstatus(run_state):
                 return 'done'
         else:
             return run_state['status']
-         
-         
-    
-    # elif run_state['type'].startswith('gc3_'):
-    #
-    #     return gc3_status(run_state)
 
     else:
         return cluster_status(run_state)
 
-    
-    # if type(runvar) is list:
-    #     outvar=list()
-    #     for rv in runvar:
-    #         if type(rv) is subprocess.Popen:
-    #             if rv.poll() is None:
-    #                 outvar.append(rv)
-    #             elif rv.poll() > 0:
-    #                 return 'error',rv.args
-    #         elif type(rv) is str:
-    #             if runvar.startswith('gc3_'):
-    #                 return gc3_status(runvar,logfile),runvar
-    #             else:
-    #                 return cluster_status(runvar,logfile),runvar
-            
-            
-    #     if len(outvar)>1:
-    #         return 'running',outvar
-    #     elif len(outvar)==1:
-    #         return 'running',rv
-    #     else:
-    #         return 'done',outvar
 
-
-# def gc3_status(run_state):
-#
-#     gc3_sessiondir = run_state['id']
-#
-#     if not os.path.isdir(gc3_sessiondir):
-#         return 'launch'
-#
-#     print(gc3_sessiondir)
-#     print(os.listdir(gc3_sessiondir))
-#
-#     gc3_session = Session(gc3_sessiondir)
-#
-#     if gc3_session ==[]:
-#         print('EMPTY!')
-#         return 'error'
-#
-#     out_statlist =[]
-#
-#     for task in gc3_session.tasks.values():
-#         print(task.execution.state)
-#
-#         if 'RUNNING' in task.execution.state:
-#             out_statlist.append('running')
-#         elif task.execution.state=='TERMINATED':
-#             print(task.execution.exitcode)
-#
-#             if task.execution.exitcode > 0:
-#                 out_statlist.append('error')
-#             elif task.execution.exitcode == 0:
-#                 out_statlist.append('done')
-#             else:
-#                 out_statlist.append('cancelled')
-#
-#         elif 'SUBMITTED' in task.execution.state:
-#             out_statlist.append('pending')
-#         elif 'FAILED' in task.execution.state:
-#             out_statlist.append('error')
-#
-#
-#
-#     return out_statlist
-
-
-def cluster_status_init(job_ids):
-    out_ids=list()
-    out_type=list()
-    if type(job_ids) is str:
-        job_ids=[job_ids]
-    
-    if type(job_ids) is not list:
-        raise TypeError('ERROR! JOB IDs need to be passed as list of strings with cluster type __ ID!')
-        
-    for jobid in job_ids:
-        if (type(jobid) is not str or not '__' in jobid): raise TypeError('ERROR! JOB IDs need to be passed as string with cluster type __ ID!')
-        
-        cl_type = jobid[:jobid.find('__')]
-        out_type.append(cl_type)
-        j_id = jobid[jobid.rfind('__')+2:]
-        out_ids.append(j_id)
-                      
-    return out_ids,out_type
 
             
 def cluster_status(run_state):
@@ -212,19 +116,19 @@ def cluster_status(run_state):
     out_stat=list()
     link=''
 
+    j_id = run_state['id']
 
-    j_ids,j_types = cluster_status_init(run_state['id'])
-    
-    for j_idx,j_id in enumerate(j_ids):
-    
-        cl_type = j_types[j_idx]
-        
-        if cl_type == 'slurm':
+    if j_id=='':
+        return 'wait'
+
+    cl_type = run_state['type']
+
+    if cl_type == 'slurm':
             command =  'sacct --jobs='
             command += j_id
             command += ' --format=jobid,state --parsable'
             
-        elif cl_type == 'sparkslurm':                       
+    elif cl_type == 'sparkslurm':
             
             command =  'sacct --jobs='
             command += j_id
@@ -233,109 +137,115 @@ def cluster_status(run_state):
         # commands for other cluster types go HERE
             
             
-        result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
+    result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
         
-        if cl_type == 'slurm':
-            
-            
-            slurm_stat0 = result.decode()
-            
-            stat_list = slurm_stat0.split('\n')
-            
-            #check for master job
-            
-            for job_item in stat_list[1:]:
-                jobstat = job_item.split('|')
-                
-                if jobstat[0] == j_id:
-                    slurm_stat = jobstat[1] 
-               
-            if 'RUNNING' in slurm_stat:
-                out_stat.append('running')
-            elif slurm_stat=='COMPLETED':
-                out_stat.append('done')
-            elif 'FAILED' in slurm_stat:
-                out_stat.append('error')
-            elif 'TIMEOUT' in slurm_stat:
-                out_stat.append('timeout')    
-            elif 'PENDING' in slurm_stat:
-                out_stat.append('pending')
-            elif 'CANCELLED' in slurm_stat:
-                out_stat.append('cancelled')
-                
-        elif cl_type == 'sparkslurm':
-            slurm_stat = []
-            slurm_stat0 = result.decode()
-            
-            stat_list = slurm_stat0.split('\n')
-            
-            #check for master job
-            
-            for job_item in stat_list[1:]:
-                jobstat = job_item.split('|')
-                
-                if jobstat[0] == j_id + '+0':
-                    # master job
-                    masterhost = jobstat[2]
-                    slurm_stat = jobstat[1] 
-            
-            if 'RUNNING' in slurm_stat:   
-                
-                sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
-                
-                with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
-                
-                link = '__' + sp_master
-                url = sp_master + '/json/' 
-                
-                try:
-                    sp_query = requests.get(url).json() 
-                except:
-                    print('Problem connecting to Spark: ' + url)
-                    out_stat.append('Problem connecting to Spark!')
-                    return out_stat
-                
-                
-                if sp_query['activeapps'] == []:                    
-                    if sp_query['workers'] ==[]:
-                        out_stat.append('Startup Spark')
+    if cl_type == 'slurm':
+
+
+        slurm_stat0 = result.decode()
+
+        stat_list = slurm_stat0.split('\n')
+
+        #check for master job
+        slurm_stat=''
+
+        for job_item in stat_list[1:]:
+            jobstat = job_item.split('|')
+            print(jobstat)
+            if len(jobstat)<2:
+                continue
+
+            if jobstat[0] == j_id:
+                slurm_stat = jobstat[1]
+
+        if 'RUNNING' in slurm_stat:
+            out_stat.append('running')
+        elif slurm_stat=='COMPLETED':
+            out_stat.append('done')
+        elif 'FAILED' in slurm_stat:
+            out_stat.append('error')
+        elif 'TIMEOUT' in slurm_stat:
+            out_stat.append('timeout')
+        elif 'PENDING' in slurm_stat:
+            out_stat.append('pending')
+        elif 'CANCELLED' in slurm_stat:
+            out_stat.append('cancelled')
+        else:
+            out_stat.append('launch')
+
+    elif cl_type == 'sparkslurm':
+        slurm_stat = []
+        slurm_stat0 = result.decode()
+
+        stat_list = slurm_stat0.split('\n')
+
+        #check for master job
+
+        for job_item in stat_list[1:]:
+            jobstat = job_item.split('|')
+
+            if jobstat[0] == j_id + '+0':
+                # master job
+                masterhost = jobstat[2]
+                slurm_stat = jobstat[1]
+
+        if 'RUNNING' in slurm_stat:
+
+            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
+
+            with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
+
+            link = '__' + sp_master
+            url = sp_master + '/json/'
+
+            try:
+                sp_query = requests.get(url).json()
+            except:
+                print('Problem connecting to Spark: ' + url)
+                out_stat.append('Problem connecting to Spark!')
+                return out_stat
+
+
+            if sp_query['activeapps'] == []:
+                if sp_query['workers'] ==[]:
+                    out_stat.append('Startup Spark')
+                else:
+                    t_format = "%Y%m%d%H%M%S"
+                    e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
+                    now = datetime.datetime.now().strftime(t_format)
+
+                    if int(now) - int(e_starttime) < 45:
+                        out_stat.append('Startup Spark' + link)
                     else:
-                        t_format = "%Y%m%d%H%M%S"
-                        e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
-                        now = datetime.datetime.now().strftime(t_format)
-                        
-                        if int(now) - int(e_starttime) < 45:
-                            out_stat.append('Startup Spark' + link)
+                        if sp_query['completedapps'] == []:
+                            out_stat.append('Error in Spark setup!')
                         else:
-                            if sp_query['completedapps'] == []: 
-                                out_stat.append('Error in Spark setup!')
+                            if 'FINISHED' in sp_query['completedapps'][0]['state']:
+
+                                drop = canceljobs('sparkslurm__'+j_id)
+                                out_stat.append('done')
+
+                            elif 'KILLED' in sp_query['completedapps'][0]['state']:
+
+                                drop = canceljobs('sparkslurm__'+j_id)
+                                out_stat.append('Spark app was killed.')
                             else:
-                                if 'FINISHED' in sp_query['completedapps'][0]['state']:
-                                    
-                                    drop = canceljobs('sparkslurm__'+j_id)
-                                    out_stat.append('done')
-                                    
-                                elif 'KILLED' in sp_query['completedapps'][0]['state']:
-                                    
-                                    drop = canceljobs('sparkslurm__'+j_id)
-                                    out_stat.append('Spark app was killed.')
-                                else:
-                                    out_stat.append('running' + link)
-                else:                    
-                    out_stat.append(sp_query['activeapps'][0]['state'].lower() + link)
-                
-                
-                
-            elif slurm_stat=='COMPLETED':
-                out_stat.append('done')
-            elif 'FAILED' in slurm_stat:
-                out_stat.append('error')
-            elif 'TIMEOUT' in slurm_stat:
-                out_stat.append('timeout')    
-            elif 'PENDING' in slurm_stat:
-                out_stat.append('pending')
-            elif 'CANCELLED' in slurm_stat:
-                out_stat.append('cancelled')
+                                out_stat.append('running' + link)
+            else:
+                out_stat.append(sp_query['activeapps'][0]['state'].lower() + link)
+
+
+
+        elif slurm_stat=='COMPLETED':
+            out_stat.append('done')
+        elif 'FAILED' in slurm_stat:
+            out_stat.append('error')
+        elif 'TIMEOUT' in slurm_stat:
+            out_stat.append('timeout')
+        elif 'PENDING' in slurm_stat:
+            out_stat.append('pending')
+        elif 'CANCELLED' in slurm_stat:
+            out_stat.append('cancelled')
 
     return out_stat
 
@@ -372,11 +282,12 @@ def run(target='standalone',
     # # command = '../'+target
     # # command += '/launcher.sh '    
     # command = '../launchers/'+ target +'.sh'
-    
-    command = 'cd ' + params.launch_dir
-        
-    command += ' && '
-    
+    #
+    # command = 'cd ' + params.launch_dir
+    #
+    # command += ' && '
+    #
+    command = ''
 
     if run_args is None: run_args = ''
     
@@ -384,55 +295,7 @@ def run(target='standalone',
     # DEBUG function.......
 
     print('launching - ')
-    
-    # if target.startswith('gc3_'):
-    #
-    #     command += './gc3run.sh'
-    #
-    #     resource = target.lstrip('gc3_')
-    #
-    #     logbase = os.path.basename(logfile).rstrip('.log')
-    #     logdir = os.path.dirname(logfile)
-    #
-    #     gc3_session = os.path.join(logdir,'gc3_session_'+logbase)
-    #     gc3_outdir = os.path.join(logdir,'gc3_session_'+logbase)
-    #
-    #     runscriptfile = os.path.join(logdir,logbase+'.sh')
-    #
-    #     command += ' -s ' + gc3_session
-    #     command += ' -o ' + gc3_outdir
-    #     command += ' -r ' + resource
-    #     command += ' -C 5'  # poll every 5 seconds and trigger job launch
-    #     command += ' --config-files ' + params.gc3_conffile
-    #
-    #     if not target_args is None:
-    #         command += args2string(target_args)
-    #
-    #     os.system('cp '+os.path.join(params.launch_dir,'gc3run.sh')+' '+runscriptfile)
-    #
-    #     runscript = '\n'
-    #     runscript += activate_conda()
-    #     runscript += '\n'
-    #     runscript += 'python ' + pyscript
-    #     runscript += ' --input_json ' + jsonfile
-    #     runscript += run_args
-    #     runscript += '\n'
-    #
-    #     with open(runscriptfile,'a') as f:
-    #         f.write(runscript)
-    #
-    #     command += ' '+runscriptfile
-    #
-    #
-    #     print(command)
-    #     # print(runscript)
-    #
-    #     with open(logfile,"wb") as out, open(errfile,"wb") as err:
-    #         p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-    #
-    #     return gc3_session
-    #
-    # el
+
     if target=='standalone':
         command += pyscript
         command += ' '+jsonfile
@@ -471,7 +334,7 @@ def run(target='standalone',
         
         slurm_args += '-e ' + errfile + ' -o ' + logfile
         
-        sl_command = 'sbatch '+ slurm_args + ' ' + command + ' ' + args2string(run_args)
+        sl_command = 'sbatch '+ slurm_args + ' "' + command + ' ' + args2string(run_args)+'"'
         
         print(sl_command)
 

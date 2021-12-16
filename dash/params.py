@@ -72,7 +72,7 @@ for resource in remote_machines.keys():
 
 comp_default = 'standalone'
 
-comp_defaultoptions = ['standalone']#,'sparkslurm']
+comp_defaultoptions = ['standalone','slurm']
 
 min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 
