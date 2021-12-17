@@ -114,17 +114,18 @@ page.append(gobutton)
 @app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
                Output({'component': 'store_launch_status', 'module': module},'data'),
                Output({'component': 'store_render_launch', 'module': module},'data')],
-              Input({'component': 'go', 'module': module}, 'n_clicks'),
+              [Input({'component': 'go', 'module': module}, 'n_clicks'),
+               Input({'component':'pairmode','module' : module},'value')],
               [State({'component':'sec_input1','module' : module},'value'),
                 State({'component':'compute_sel','module' : module},'value'),
-                State({'component':'pairmode','module' : module},'value'),
+
                 State({'component':'startsection','module' : module},'value'),
                 State({'component':'endsection','module' : module},'value'),
                 State({'component':'store_owner','module' : module},'data'),
                 State({'component':'store_project','module' : module},'data'),
                 State({'component':'stack_dd','module' : module},'value')]
               ,prevent_initial_call=True)                 
-def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,endsection,owner,project,stack):   
+def tilepairs_execute_gobutton(click,pairmode,slicedepth,comp_sel,startsection,endsection,owner,project,stack):
     if click is None: return dash.no_update
         
     # prepare parameters:
