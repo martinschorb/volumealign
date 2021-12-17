@@ -78,10 +78,10 @@ page.append(page1)
 # ===============================================
        
 page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
-                            dcc.Dropdown(id=module+'_tp_dd',persistence=True,
+                            dcc.Dropdown(id={'component': 'tp_dd', 'module': module},persistence=True,
                                          clearable=False),
                             html.Br(),
-                            html.Div(id=module+'tp_prefix',style={'display':'none'})                              
+                            html.Div(id={'component': 'tp_prefix', 'module': module},style={'display':'none'})
                             ]),
                   html.H4("Choose type of PointMatch determination:"),
                   dcc.Dropdown(id=module+'dropdown1',persistence=True,
@@ -94,8 +94,8 @@ page.append(page2)
 
 
 
-@app.callback([Output(module+'_tp_dd','options'),
-               Output(module+'_tp_dd','value')],
+@app.callback([Output({'component': 'tp_dd', 'module': module},'options'),
+               Output({'component': 'tp_dd', 'module': module},'value')],
               Input({'component': 'stack_dd', 'module': module},'value'))
 def pointmatch_tp_dd_fill(stack):
 
@@ -206,7 +206,7 @@ stackoutput.extend(tablefields)
 stackoutput.extend(compute_tablefields)        
 
 @app.callback(stackoutput,              
-              [Input(module+'_tp_dd','value'),
+              [Input({'component': 'tp_dd', 'module': module},'value'),
                Input({'component': 'store_tpmatchtime', 'module': module}, 'data'),
                Input({'component': 'input_Num_CPUs', 'module': module},'value')],
               [State({'component': 'stack_dd', 'module': module},'value'),

@@ -13,6 +13,7 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
 import requests
+import os
 import json
 
 from app import app
@@ -91,8 +92,12 @@ for idx in range(params.max_tileviews):
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
-                   State({'component':'tile_dd'+idx_str,'module': MATCH},'value')])
-    def slicetotiles(slicenum,owner,project,stack,prev_tile):
+                   State({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
+                   State({'component': 'tp_dd', 'module': MATCH},'value'),
+                   State({'component': 'neighbours'+idx_str, 'module': MATCH},'children')
+                   ]
+                  )
+    def slicetotiles(slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours):
 
         if None in (slicenum,owner,project,stack):
             return dash.no_update
@@ -122,7 +127,16 @@ for idx in range(params.max_tileviews):
         
         if None in (t_labels,tile):
             return dash.no_update
-        
+
+
+
+        tp_dir = os.path.join(params.json_run_dir, tilepairdir)
+
+        tp_json = os.listdir(tp_dir)
+
+        tp_jsonfiles = [os.path.join(params.json_run_dir, tilepairdir, tpj) for tpj in tp_json]
+
+
         # assemble dropdown
         dd_options = list(dict())
         for t_idx,item in enumerate(tiles):

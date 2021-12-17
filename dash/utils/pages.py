@@ -309,7 +309,7 @@ def boundingbox(module,hidden=False):
 
 
 
-def tile_view(module,numpanel=1,showlink=False,contrast=True):       
+def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
     
     out = list()
         
@@ -357,6 +357,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True):
                                       ]),
                                   html.Br(),
                                   html.Img(id={'component': 'tileim_image'+idx_str, 'module': module},width=params.im_width),
+                                  html.Div(str(neighbours),id={'component': 'neighbours'+idx_str, 'module': module},style = {'display':'none'}),
                                   html.Br()])
                     ]
                    )

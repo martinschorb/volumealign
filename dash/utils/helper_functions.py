@@ -127,7 +127,7 @@ def tilepair_numfromlog(tilepairdir,stack):
         return 'no tilepairs'
     else:
         return int(tpairs)
-    
+
 
 def spark_nodes(n_cpu):
     nodes,cores1 = np.divmod(n_cpu,params.cpu_pernode_spark)
