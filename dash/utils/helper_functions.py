@@ -144,12 +144,14 @@ def neighbours_from_json(infiles,target_id):
     neighbours = list()
     slices = list()
 
-    for pair in tile_entries['neighborPairs']:
-        for a,b in zip(('p','q'),('q','p')):
-            if target_id in pair[a]['id']:
-                neighbours.append(pair[b]['id'])
-                if pair[b]['groupId'] not in slices:
-                    slices.append(pair[b]['groupId'])
+    if 'neighborPairs' in tile_entries.keys():
+
+        for pair in tile_entries['neighborPairs']:
+            for a,b in zip(('p','q'),('q','p')):
+                if target_id in pair[a]['id']:
+                    neighbours.append(pair[b]['id'])
+                    if pair[b]['groupId'] not in slices:
+                        slices.append(pair[b]['groupId'])
 
 
     return neighbours,slices

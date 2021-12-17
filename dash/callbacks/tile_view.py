@@ -120,10 +120,13 @@ for idx in range(params.max_tileviews):
                   )
     def slicetotiles(slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile):
 
-        if None in (slicenum,owner,project,stack):
+        if None in (slicenum,owner,project,stack,neighbours,lead_tile):
             return dash.no_update
         
         if 'None' in (owner,project,stack):
+            return dash.no_update
+
+        if {} in (slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile):
             return dash.no_update
 
         trigger = hf.trigger()
@@ -153,11 +156,11 @@ for idx in range(params.max_tileviews):
         if neighbours == 'True' and tileim_index != '0' and tilepairdir not in ('', None):
 
             tp_jsonfiles = hf.jsonfiles(tilepairdir)
+            if 'tile' in lead_tile.keys():
+                tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
+                t_labels = tiles
 
-            tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
-            t_labels = tiles
-
-            tile = tiles[-1]
+                tile = tiles[-1]
 
             if owner in params.tile_display.keys():
                 t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
