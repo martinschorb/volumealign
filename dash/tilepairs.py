@@ -163,6 +163,8 @@ def tilepairs_execute_gobutton(click,slicedepth,comp_sel,pairmode,startsection,e
         run_params_generate['zNeighborDistance'] = slicedepth
         run_params_generate['excludeSameLayerNeighbors'] = 'True'
 
+        if owner == 'SBEM':
+            run_params_generate["xyNeighborFactor"] = 0.3
 
     param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + pairmode + '.json' 
 
