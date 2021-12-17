@@ -127,7 +127,13 @@ page.append(gobutton)
               ,prevent_initial_call=True)                 
 def tilepairs_execute_gobutton(click,pairmode,slicedepth,comp_sel,startsection,endsection,owner,project,stack):
     if click is None: return dash.no_update
-        
+
+    trigger = hf.trigger()
+
+    if not 'go' in trigger:
+        return False, dash.no_update, dash.no_update
+
+
     # prepare parameters:
     run_prefix = launch_jobs.run_prefix()
 

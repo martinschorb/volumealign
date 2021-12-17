@@ -321,6 +321,9 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
         
     if contrast:
         contraststyle = {}
+
+    out.append(html.Div(str(neighbours), id={'component': 'neighbours', 'module': module}, style={'display': 'none'}))
+    out.append(dcc.Store(data=dict(),id={'component': 'lead_tile', 'module': module}))
         
     for idx in range(numpanel):
         idx_str = '_'+str(idx)
@@ -348,7 +351,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
                                             allowCross=False,
                                             tooltip={"placement": "bottom"}
                                         )
-                                      ]),                                  
+                                      ]),
                                   dcc.Store(id={'component': 'tileim_urlset'+idx_str, 'module': module}, data={}),
                                   html.Div(style={'display':'none'},id={'component': 'tileim_imurl'+idx_str, 'module': module}),
                                   html.Div(style=linkstyle,id={'component': 'tileim_linkdiv'+idx_str, 'module': module},children=[
@@ -357,7 +360,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
                                       ]),
                                   html.Br(),
                                   html.Img(id={'component': 'tileim_image'+idx_str, 'module': module},width=params.im_width),
-                                  html.Div(str(neighbours),id={'component': 'neighbours'+idx_str, 'module': module},style = {'display':'none'}),
+                                  dcc.Store(data=dict(),id={'component': 'lead_tile'+idx_str, 'module': module}),
                                   html.Br()])
                     ]
                    )
@@ -388,7 +391,7 @@ def section_view(module,numpanel=1,contrast=True):
                                   html.Div(
                                       html.Table([html.Tr([html.Td('Slice:'),
                                                        html.Td(dcc.Input(id={'component': 'sliceim_section_in'+idx_str, 'module': module},type='number',min=0,value=0)),
-                                                       ])                                 
+                                                       ])
                                       ]),
                                       id={'component': 'sliceim_section_div'+idx_str, 'module': module},
                                       style={}),
@@ -402,7 +405,7 @@ def section_view(module,numpanel=1,contrast=True):
                                             allowCross=False,
                                             tooltip={"placement": "bottom", "always_visible": True}
                                         )
-                                      ]),                                  
+                                      ]),
                                   dcc.Store(id={'component': 'sliceim_urlset'+idx_str, 'module': module}, data = {}),
                                   html.Div(style={'display':'none'},id={'component': 'sliceim_imurl'+idx_str, 'module': module}),
                                   html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},width=params.im_width),

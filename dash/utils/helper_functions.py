@@ -128,6 +128,38 @@ def tilepair_numfromlog(tilepairdir,stack):
     else:
         return int(tpairs)
 
+def neighbours_from_json(infiles,target_id):
+
+    if type(infiles) is str:
+        infiles=[infiles]
+    elif type(infiles) is not list:
+        TypeError('expecting file name or list thereof!')
+
+    tile_entries = dict()
+
+    for jsonfile in infiles:
+        with open(jsonfile, 'r') as f:
+            tile_entries.update(json.load(f))
+
+    neighbours = list()
+    slices = list()
+
+    for pair in tile_entries['neighborPairs']:
+        for a,b in zip(('p','q'),('q','p')):
+            if target_id in pair[a]['id']:
+                neighbours.append(pair[b]['id'])
+                if pair[b]['groupId'] not in slices:
+                    slices.append(pair[b]['groupId'])
+
+
+    return neighbours,slices
+
+def jsonfiles(dirname):
+    tp_dir = os.path.join(params.json_run_dir, dirname)
+    tp_json = os.listdir(tp_dir)
+
+    return [os.path.join(params.json_run_dir, dirname, tpj) for tpj in tp_json]
+
 
 def spark_nodes(n_cpu):
     nodes,cores1 = np.divmod(n_cpu,params.cpu_pernode_spark)
