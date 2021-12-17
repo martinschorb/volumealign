@@ -17,6 +17,7 @@ import importlib
 
 from app import app
 from utils import launch_jobs, pages
+from utils import helper_functions as hf
 
 from callbacks import runstate,render_selector,substack_sel
 
@@ -118,7 +119,6 @@ page.append(gobutton)
                Input({'component':'pairmode','module' : module},'value')],
               [State({'component':'sec_input1','module' : module},'value'),
                 State({'component':'compute_sel','module' : module},'value'),
-
                 State({'component':'startsection','module' : module},'value'),
                 State({'component':'endsection','module' : module},'value'),
                 State({'component':'store_owner','module' : module},'data'),
