@@ -223,7 +223,7 @@ def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,owner,project,stac
     n_cpu = int(n_cpu)
 
     out=dict()
-    
+    factors=dict()
     t_fields = ['']*len(status_table_cols)
 
     numtp = 1
