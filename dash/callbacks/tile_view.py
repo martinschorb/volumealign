@@ -41,11 +41,14 @@ for idx in range(params.max_tileviews):
                        State({'component': 'project_dd','module': MATCH},'value'),
                        State({'component': 'tp_dd', 'module': MATCH}, 'value'),
                        State({'component': 'neighbours', 'module': MATCH}, 'children'),
-                       State({'component': 'lead_tile', 'module': MATCH},'data')
+                       State({'component': 'lead_tile', 'module': MATCH},'data'),
+                       State({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value')
                        ])
-        def stacktoslice(stack_sel,lead_trigger,allstacks,owner,project,tilepairdir,neighbours,lead_tile):
+        def stacktoslice(stack_sel,lead_trigger,allstacks,owner,project,tilepairdir,neighbours,lead_tile,orig_sec):
             stacklist=[]            
             slicestyle = {}
+
+            trigger = hf.trigger()
 
             ol = dash.callback_context.outputs_list
 
@@ -68,7 +71,7 @@ for idx in range(params.max_tileviews):
                 o_max = stackparams['stats']['stackBounds']['maxZ']
                 
 
-                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
+                if not 'stack' in trigger and neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
@@ -77,6 +80,10 @@ for idx in range(params.max_tileviews):
                     o_min = min(slices)
                     o_max = min(slices)
                     o_val = min(slices)
+
+
+                if not 'stack' in trigger:
+                    o_val = orig_sec
                 else:
                     o_val = int((o_max-o_min)/2) + o_min
 
@@ -126,8 +133,6 @@ for idx in range(params.max_tileviews):
         if 'None' in (owner,project,stack):
             return dash.no_update
 
-        if {} in (slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile):
-            return dash.no_update
 
         trigger = hf.trigger()
 
@@ -146,12 +151,17 @@ for idx in range(params.max_tileviews):
         
         t_labels = tiles.copy()
         tile = tiles[int(len(tiles)/2)]
-        
+
         if prev_tile is None:
             prev_tile = tile
 
         if lead_tile in (None,{},''):
             lead_tile=dict(tile=prev_tile)
+
+        if not 'stack' in lead_tile.keys() or lead_tile['stack'] != stack:
+            lead_tile = dict(tile=prev_tile,stack=stack)
+
+        lead_tile['slice'] = slicenum
 
         if neighbours == 'True' and tileim_index != '0' and tilepairdir not in ('', None):
 
@@ -162,13 +172,13 @@ for idx in range(params.max_tileviews):
 
                 tile = tiles[-1]
 
+                print(tiles)
+                print(slices)
+
             if owner in params.tile_display.keys():
-                t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
+                t_labels, tile0 = params.tile_display[owner](tiles, prev_tile, slicenum)
                 for t_idx,label in enumerate(t_labels):
                     t_labels[t_idx] = 'Slice '+str(slices[t_idx])+' - '+label
-
-
-
 
         elif owner in params.tile_display.keys():
             t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
@@ -233,7 +243,7 @@ for idx in range(params.max_tileviews):
         
         url1 += '?filter=true&scale=' + str(scale1)
 
-        leadtile = dict(tile=tile,section=section)
+        leadtile = dict(tile=tile,section=section,stack=stack)
 
         return imurl, url1, leadtile
     
