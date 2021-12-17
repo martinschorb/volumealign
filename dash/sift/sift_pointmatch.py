@@ -170,9 +170,9 @@ def sift_browse_matchTrial(matchID):
                Output({'component': 'store_render_launch', 'module': parent},'data'),
                Output({'component': 'store_tpmatchtime', 'module': parent}, 'data')],
               [Input(label+'go', 'n_clicks'),
-               Input(label+'mtselect','value')],
+                Input(label+'mtselect','value'),
+                Input({'component':'matchcoll_dd','module': parent},'value')],
               [State({'component':'compute_sel','module' : parent},'value'),
-                State({'component':'matchcoll_dd','module': parent},'value'),
                 State({'component': 'mc_owner_dd', 'module': parent},'value'),
                 State(parent+'_tp_dd','value'),
                 State({'component':'store_owner','module' : parent},'data'),
@@ -181,7 +181,7 @@ def sift_browse_matchTrial(matchID):
                 State({'component': 'input_Num_CPUs', 'module': parent},'value'),
                 State({'component': 'input_runtime_minutes', 'module': parent},'value')]
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim): 
+def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim):
     ctx = dash.callback_context
     
     trigger = ctx.triggered[0]['prop_id']
@@ -201,16 +201,19 @@ def sift_pointmatch_execute_gobutton(click,matchID,comp_sel,matchcoll,mc_owner,t
     # outstore['mt_params'] = mt_params
     outstore['matchcoll'] = matchcoll
     outstore['mc_owner'] = mc_owner
-             
+
     if tilepairdir == '':
         return True,'No tile pair directory selected!',dash.no_update,outstore,dash.no_update
-        
-    
+
+    if matchcoll in ('','new_mc','new_mcoll'):
+        return True,'No Match collection selected!',dash.no_update,outstore,dash.no_update
+
+
     if 'mtselect' in trigger:
-        
         return False,'',dash.no_update,outstore,mt_params['ptime']
-        
-    
+    elif 'matchcoll_dd' in trigger:
+        return False,'',dash.no_update,outstore,mt_params['ptime']
+
     elif 'go' in trigger:
         if click is None: return dash.no_update
         
