@@ -154,12 +154,6 @@ def render_selector(module,header='Active stack:',owner=False,create=False,show=
 
 
 
-
-
-
-
-
-
 def match_selector(module,newcoll=False):
     mc_owner_dd_options = list(dict())
     mc_dd_options = list(dict())
@@ -214,8 +208,6 @@ def match_selector(module,newcoll=False):
 
 
 
-
-
 def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.comp_default):
     if len(c_options)<2:
         dispstyle={'display':'none'}
@@ -265,7 +257,8 @@ def log_output(module):
             ],id={'component': 'consolebox', 'module': module})
     
     return out
-     
+
+
 
 def substack_sel(module,hidden=False):   
     dispstyle = {}
@@ -287,7 +280,6 @@ def substack_sel(module,hidden=False):
                    
     
     return out
-
 
 
 
@@ -314,7 +306,6 @@ def boundingbox(module,hidden=False):
                    
     
     return out
-
 
 
 
@@ -375,6 +366,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True):
     return html.Div(out)
 
 
+
 def section_view(module,numpanel=1,contrast=True):       
     
     out = list()    
@@ -420,6 +412,7 @@ def section_view(module,numpanel=1,contrast=True):
 
     
     return html.Div(out)
+
 
 
 def path_browse(module,tf_in = None,show_files=False,file_types=[]):

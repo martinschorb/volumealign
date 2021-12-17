@@ -132,18 +132,50 @@ page.append(page3)
 # Compute Settings
 
 compute_settings = html.Details(children=[html.Summary('Compute settings:'),
-                                             html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
-                                                  html.Tr([html.Td('',id={'component': 't_'+col, 'module': module}) for col in status_table_cols])
-                                             ],className='table'),
-                                             html.Br(),
-                                             html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
-                                                  html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': module},type='number',min=1)) for col in compute_table_cols])
-                                             ],className='table'),
-                                             dcc.Store(id={'component':'store_compset','module':module})
-                                             ])
+                                          html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                      html.Tr([html.Td('',id={'component': 't_'+col, 'module': module}) for col in status_table_cols])
+                                                      ],className='table'),
+                                          html.Br(),
+                                          html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                      html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': module},type='number',min=1)) for col in compute_table_cols])
+                                                      ],className='table'),
+                                          dcc.Store(id={'component': 'factors', 'module': module},data={}),
+                                          dcc.Store(id={'component':'store_compset','module':module})
+                                          ])
 
 
 # callbacks
+
+@app.callback([Output({'component':'input_'+col, 'module': module},'value') for col in compute_table_cols],
+              [Output({'component': 'factors', 'module': module},'modified_timestamp')],
+              [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols],
+              [Input({'component': 'factors', 'module': module},'modified_timestamp')],
+              State({'component': 'factors', 'module': module},'data')
+              )
+def pointmatch_update_compute_settings(*inputs):
+
+    idx_offset = len(compute_table_cols)
+
+    out = list(inputs[:idx_offset])
+    out.append(dash.no_update)
+
+    if inputs[0] is None:
+        out[0] = params.n_cpu_spark
+    else:
+        out[0] = inputs[0]
+
+
+    if type(inputs[1]) in (str,type(None)):
+        out[1] = 1
+    else:
+        if None in inputs[-1].values():
+            out[1] = dash.no_update
+        else:
+            out[1] = np.ceil(inputs [-1][compute_table_cols[-1]] / 60000 / out[0] * (1 + params.time_add_buffer)) + 1
+
+    return out
+
+
 
 @app.callback(Output({'component':'store_compset','module':module},'data'),                            
               [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
@@ -168,16 +200,16 @@ def pointmatch_store_compute_settings(*inputs):
 stackoutput = []
 
 tablefields = [Output({'component': 't_'+col, 'module': module},'children') for col in status_table_cols]
-compute_tablefields = [Output({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols]
+compute_tablefields = [Output({'component': 'factors', 'module': module},'data')]
 
 stackoutput.extend(tablefields)  
 stackoutput.extend(compute_tablefields)        
 
 @app.callback(stackoutput,              
               [Input(module+'_tp_dd','value'),
-               Input({'component': 'store_tpmatchtime', 'module': module}, 'data')],
-              [State({'component': 'input_Num_CPUs', 'module': module},'value'),
-               State({'component': 'stack_dd', 'module': module},'value'),
+               Input({'component': 'store_tpmatchtime', 'module': module}, 'data'),
+               Input({'component': 'input_Num_CPUs', 'module': module},'value')],
+              [State({'component': 'stack_dd', 'module': module},'value'),
                State({'component': 'store_owner', 'module': module}, 'data'),
                State({'component': 'store_project', 'module': module}, 'data'),
                State({'component': 'store_stack', 'module': module}, 'data'),
@@ -187,13 +219,13 @@ def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,owner,project,stac
 
     if n_cpu is None:
         n_cpu = params.n_cpu_spark
-    
+
     n_cpu = int(n_cpu)
 
     out=dict()
     
     t_fields = ['']*len(status_table_cols)
-    ct_fields = [1]*len(compute_table_cols)
+
     numtp = 1
     
     if (not stack_sel=='-' ) and (not allstacks is None):   
@@ -213,25 +245,25 @@ def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,owner,project,stac
 
             if tilepairdir is None or tilepairdir=='':
                 numtp_out = 'no tilepairs'
+                totaltime = None
             else:
                 numtp = hf.tilepair_numfromlog(tilepairdir,stack_sel)
-                numtp_out =str(numtp)
-            
-            if type(numtp) is str:
-                timelim = 1
-            else:                
-                totaltime = numtp * matchtime * params.n_cpu_standalone
-                        
-                t_fields=[stack,str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),numtp_out]
-                
-                timelim = np.ceil( totaltime / 60000 / n_cpu *(1+params.time_add_buffer))+1
-            
-            ct_fields = [n_cpu,timelim]  
+
+                if type(numtp) is int:
+                    numtp_out = str(numtp)
+                    totaltime = numtp * matchtime * params.n_cpu_standalone
+                else:
+                    numtp_out = 'no tilepairs'
+                    totaltime = None
+
+            t_fields=[stack,str(stackparams['stats']['sectionCount']),str(stackparams['stats']['tileCount']),numtp_out]
+
+            factors = {'runtime_minutes':totaltime}
           
    
     outlist=[]#,out]   
     outlist.extend(t_fields)
-    outlist.extend(ct_fields)     
+    outlist.append(factors)
     
     return outlist
 
