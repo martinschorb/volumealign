@@ -116,16 +116,16 @@ page.append(gobutton)
                Output({'component': 'store_launch_status', 'module': module},'data'),
                Output({'component': 'store_render_launch', 'module': module},'data')],
               [Input({'component': 'go', 'module': module}, 'n_clicks'),
-               Input({'component':'pairmode','module' : module},'value')],
+               Input({'component':'pairmode','module' : module},'value'),
+               Input({'component':'stack_dd','module' : module},'value')],
               [State({'component':'sec_input1','module' : module},'value'),
                 State({'component':'compute_sel','module' : module},'value'),
                 State({'component':'startsection','module' : module},'value'),
                 State({'component':'endsection','module' : module},'value'),
                 State({'component':'store_owner','module' : module},'data'),
-                State({'component':'store_project','module' : module},'data'),
-                State({'component':'stack_dd','module' : module},'value')]
+                State({'component':'store_project','module' : module},'data')]
               ,prevent_initial_call=True)                 
-def tilepairs_execute_gobutton(click,pairmode,slicedepth,comp_sel,startsection,endsection,owner,project,stack):
+def tilepairs_execute_gobutton(click,pairmode,stack,slicedepth,comp_sel,startsection,endsection,owner,project):
     if click is None: return dash.no_update
 
     trigger = hf.trigger()

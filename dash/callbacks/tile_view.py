@@ -77,10 +77,10 @@ for idx in range(params.max_tileviews):
 
                     tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
                     slices = list(map(int,slices))
-                    o_min = min(slices)
-                    o_max = min(slices)
+
                     o_val = min(slices)
 
+                    slicestyle = {'display': 'none'}
 
                 if not 'stack' in trigger:
                     o_val = orig_sec
@@ -170,10 +170,15 @@ for idx in range(params.max_tileviews):
                 tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
                 t_labels = tiles
 
-                tile = tiles[-1]
+                if tiles==[]:
+                    return dash.no_update
 
                 print(tiles)
                 print(slices)
+
+                tile = tiles[-1]
+
+                
 
             if owner in params.tile_display.keys():
                 t_labels, tile0 = params.tile_display[owner](tiles, prev_tile, slicenum)
