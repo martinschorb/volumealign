@@ -71,7 +71,7 @@ for idx in range(params.max_tileviews):
                 o_max = stackparams['stats']['stackBounds']['maxZ']
                 
 
-                if not 'stack' in trigger and neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
+                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
@@ -173,17 +173,20 @@ for idx in range(params.max_tileviews):
                 if tiles==[]:
                     return dash.no_update
 
-                print(tiles)
-                print(slices)
-
                 tile = tiles[-1]
 
                 
 
             if owner in params.tile_display.keys():
                 t_labels, tile0 = params.tile_display[owner](tiles, prev_tile, slicenum)
+
                 for t_idx,label in enumerate(t_labels):
-                    t_labels[t_idx] = 'Slice '+str(slices[t_idx])+' - '+label
+                    if len(slices)>1:
+                        slicestr = 'Slice '+str(slices[t_idx])+' - '
+                    else:
+                        slicestr = ''
+
+                    t_labels[t_idx] = slicestr+label
 
         elif owner in params.tile_display.keys():
             t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
@@ -195,6 +198,7 @@ for idx in range(params.max_tileviews):
         dd_options = list(dict())
         for t_idx,item in enumerate(tiles):
             dd_options.append({'label':t_labels[t_idx], 'value':item})
+
 
         return dd_options, tile
     
@@ -214,7 +218,8 @@ for idx in range(params.max_tileviews):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
         # print('tile is now: '+ tile)
-        
+        # print('stack is now: '+ stack)
+
         thispage = thispage.lstrip('/')        
                 
         if not hf.trigger(key='module') == thispage:
@@ -323,4 +328,5 @@ for idx in range(params.max_tileviews):
 @app.callback(Output({'component': 'lead_tile', 'module': MATCH},'data'),
               Input({'component': 'lead_tile_0', 'module': MATCH},'data'))
 def collect_leadtiles(lead_in):
+    # print(lead_in)
     return lead_in

@@ -143,6 +143,7 @@ def neighbours_from_json(infiles,target_id):
 
     neighbours = list()
     slices = list()
+    positions = list()
 
     if 'neighborPairs' in tile_entries.keys():
 
@@ -150,11 +151,16 @@ def neighbours_from_json(infiles,target_id):
             for a,b in zip(('p','q'),('q','p')):
                 if target_id in pair[a]['id']:
                     neighbours.append(pair[b]['id'])
+                    if 'relativePosition' in pair[b].keys():
+                        positions.append(pair[b]['relativePosition'])
+                    else:
+                        positions.append('')
+
                     if pair[b]['groupId'] not in slices:
                         slices.append(pair[b]['groupId'])
 
 
-    return neighbours,slices
+    return neighbours,slices,positions
 
 def jsonfiles(dirname):
     tp_dir = os.path.join(params.json_run_dir, dirname)
