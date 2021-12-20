@@ -159,7 +159,6 @@ def neighbours_from_json(infiles,target_id):
                     if pair[b]['groupId'] not in slices:
                         slices.append(pair[b]['groupId'])
 
-
     return neighbours,slices,positions
 
 def jsonfiles(dirname):

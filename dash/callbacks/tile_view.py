@@ -75,7 +75,7 @@ for idx in range(params.max_tileviews):
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
-                    tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
+                    tiles,slices,positions = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
                     slices = list(map(int,slices))
 
                     o_val = min(slices)
@@ -167,7 +167,7 @@ for idx in range(params.max_tileviews):
 
             tp_jsonfiles = hf.jsonfiles(tilepairdir)
             if 'tile' in lead_tile.keys():
-                tiles,slices = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
+                tiles,slices,positions = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
                 t_labels = tiles
 
                 if tiles==[]:
@@ -187,6 +187,9 @@ for idx in range(params.max_tileviews):
                         slicestr = ''
 
                     t_labels[t_idx] = slicestr+label
+
+            for t_idx,label in enumerate(t_labels):
+                t_labels[t_idx] = t_labels[t_idx]+' '+positions[t_idx]
 
         elif owner in params.tile_display.keys():
             t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
