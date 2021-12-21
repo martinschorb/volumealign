@@ -18,29 +18,11 @@
 #SBATCH --cpus-per-task=<SoS_WORKER_CPU>
 #SBATCH --ntasks-per-node=1
 
-
 # import Parameters
-
-render_dir=`../pyvar.sh ../../dash/params.py  render_dir`
-
 
 
 export DISPLAY=""
-export JAVA_HOME=`readlink -m $render_dir/deploy/jdk*`
 export LOGDIR=`pwd`
-
-# CLEAN LOGDIR
-
-rm -f $LOGDIR/**/worker/*/*.jar
-
-export SPARK_HOME=`../pyvar.sh ../../dash/params.py  spark_dir`
-JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
-export MASTER_URL="spark://$(hostname):7077"
-export MASTER_WEB="http://$(hostname):8080"
-
-CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
-JARFILE=$render_dir"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-PARAMS="--baseDataUrl http://render.embl.de:8080/render-ws/v1 --owner SBEM"
 
 # PARSE COMMAND LINE ARGUMENTS
 
@@ -50,6 +32,10 @@ while [ "$1" != "" ]; do
     case $PARAM in
         --java_home)
             JAVA_HOME=$VALUE
+            shift
+            ;;
+        --render_dir)
+            RENDER_DIR=$VALUE
             shift
             ;;
         --logdir)
@@ -79,6 +65,23 @@ while [ "$1" != "" ]; do
             ;;
     esac
 done
+
+if [ -z $JAVA_HOME]; then
+  export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/jdk*`
+fi
+
+# CLEAN LOGDIR
+
+rm -f $LOGDIR/**/worker/*/*.jar
+
+JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
+export MASTER_URL="spark://$(hostname):7077"
+export MASTER_WEB="http://$(hostname):8080"
+
+CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
+JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
+PARAMS="--baseDataUrl http://render.embl.de:8080/render-ws/v1 --owner SBEM"
+
 
 mkdir $LOGDIR
 mkdir $LOGDIR/$JOB

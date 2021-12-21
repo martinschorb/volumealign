@@ -367,6 +367,8 @@ def run(target='standalone',
 
         command = params.launch_dir + '/launcher_' + target
         command += '.sh '
+
+
         
         target_args['--email'] = params.user + params.email
         target_args['--template'] = os.path.join(params.launch_dir,"spark_slurm_template.sh")
@@ -385,7 +387,7 @@ def run(target='standalone',
         spark_args = dict()
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
-                
+        spark_args['--spark_home'] = params.spark_dir
         
         spsl_args += '--scriptparams= ' + args2string(spark_args) 
         spsl_args += '--params= ' + args2string(run_args,' ')
