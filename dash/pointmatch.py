@@ -156,6 +156,11 @@ def pointmatch_update_compute_settings(*inputs):
 
     idx_offset = len(compute_table_cols)
 
+    trigger = hf.trigger()
+
+    if not trigger in ('factors','input_'+compute_table_cols[0]):
+        return dash.no_update
+
     out = list(inputs[:idx_offset])
     out.append(dash.no_update)
 
