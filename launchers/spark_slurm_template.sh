@@ -79,8 +79,6 @@ export MASTER_URL="spark://$(hostname):7077"
 export MASTER_WEB="http://$(hostname):8080"
 
 JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-PARAMS="--baseDataUrl http://render.embl.de:8080/render-ws/v1 --owner SBEM"
-
 
 mkdir $LOGDIR
 mkdir $LOGDIR/$JOB

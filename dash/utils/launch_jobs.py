@@ -37,12 +37,12 @@ def args2string(args,separator='='):
     return argstring
 
 
-def status(run_state):   
-        
+def status(run_state):
+    run_state.update({'id':31801858,'type':'sparkslurm'})
     res_status = checkstatus(run_state) 
-    # print(run_state)
-    # print('res_status:')
-    # print(res_status)
+    print(run_state)
+    print('res_status:')
+    print(res_status)
 
     link=''
 
