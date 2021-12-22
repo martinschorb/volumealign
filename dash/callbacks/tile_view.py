@@ -27,24 +27,33 @@ for idx in range(params.max_tileviews):
     
     # init slice selector
     for imtype in ['sliceim','tileim']:
-        
+
+        inputs = [Input({'component': 'stack_dd','module': MATCH},'value')]
+        states = [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
+                  State({'component': 'owner_dd','module': MATCH},'value'),
+                  State({'component': 'project_dd','module': MATCH},'value'),
+                  State({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value')]
+
+        if imtype == 'tileim':
+            inputs.append(Input({'component': 'lead_tile', 'module': MATCH},'modified_timestamp'))
+            states.extend([
+                       State({'component': 'tp_dd', 'module': MATCH}, 'value'),
+                       State({'component': 'neighbours', 'module': MATCH}, 'children'),
+                       State({'component': 'lead_tile', 'module': MATCH},'data')
+                       ])
+        else:
+            inputs.append(Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp'))
+            states.extend([State({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*3)
+
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max'),
                        Output({'component':imtype+'_section_div'+idx_str,'module': MATCH},'style'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'max'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
-                      [Input({'component': 'stack_dd','module': MATCH},'value'),
-                       Input({'component': 'lead_tile', 'module': MATCH},'modified_timestamp')],
-                      [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
-                       State({'component': 'owner_dd','module': MATCH},'value'),
-                       State({'component': 'project_dd','module': MATCH},'value'),
-                       State({'component': 'tp_dd', 'module': MATCH}, 'value'),
-                       State({'component': 'neighbours', 'module': MATCH}, 'children'),
-                       State({'component': 'lead_tile', 'module': MATCH},'data'),
-                       State({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value')
-                       ])
-        def stacktoslice(stack_sel,lead_trigger,allstacks,owner,project,tilepairdir,neighbours,lead_tile,orig_sec):
+                      inputs,
+                      states)
+        def stacktoslice(stack_sel,lead_trigger,allstacks,owner,project,orig_sec,tilepairdir,neighbours,lead_tile):
             stacklist=[]            
             slicestyle = {}
 
