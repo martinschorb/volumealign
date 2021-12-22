@@ -248,19 +248,18 @@ def cluster_status(run_state):
     return out_stat
 
 
-def canceljobs(job_ids):
+def canceljobs(run_state):
     out_status=list()
-    j_ids,j_types=cluster_status_init(job_ids)
 
-    for j_idx,j_id in enumerate(j_ids):
+    j_id = run_state['id']
     
-        cl_type = j_types[j_idx]
+    cl_type = run_state['type']
         
-        if 'slurm' in cl_type:
-            command = 'scancel '+j_id
-            os.system(command)
-        
-    
+    if 'slurm' in cl_type:
+        command = 'scancel '+j_id
+        os.system(command)
+
+
     out_status = 'cancelled'
 
     return out_status

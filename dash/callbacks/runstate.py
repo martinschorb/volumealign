@@ -92,7 +92,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
     
     elif 'cancel' in trigger:
 
-        r_status['status'] = launch_jobs.canceljobs(procs)
+        r_status['status'] = launch_jobs.canceljobs(run_state)
 
         return r_status,status_style,status_href
     
