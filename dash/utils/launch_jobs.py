@@ -39,12 +39,10 @@ def args2string(args,separator='='):
 
 def status(run_state):
     run_state.update({'id':31801858,'type':'sparkslurm'})
-    res_status = checkstatus(run_state) 
-    print(run_state)
-    print('res_status:')
-    print(res_status)
-
-    link=''
+    res_status,link = checkstatus(run_state)
+    # print(run_state)
+    # print('res_status:')
+    # print(res_status)
 
     if res_status is None:
         return 'input',link
@@ -90,17 +88,17 @@ def checkstatus(run_state):
 
                 if p.is_running():
                     if not p.status() == 'zombie':
-                        return 'running'
+                        return 'running',''
 
 
 
             if os.path.exists(run_state['logfile']+'_exit'):
-                return 'error'
+                return 'error',''
 
             else:
-                return 'done'
+                return 'done',''
         else:
-            return run_state['status']
+            return run_state['status'],''
 
     else:
         return cluster_status(run_state)
@@ -111,7 +109,7 @@ def checkstatus(run_state):
 def cluster_status(run_state):
     my_env = os.environ.copy()
     out_stat=list()
-    link=''
+    sp_master=''
 
     j_id = run_state['id']
     # print('JOB-ID:')
@@ -124,13 +122,13 @@ def cluster_status(run_state):
     logfile = run_state['logfile']
     if cl_type == 'slurm':
             command =  'sacct --jobs='
-            command += j_id
+            command += str(j_id)
             command += ' --format=jobid,state --parsable'
             
     elif cl_type == 'sparkslurm':
             
             command =  'sacct --jobs='
-            command += j_id
+            command += str(j_id)
             command += ' --format=jobid,state,node --parsable'
             
         # commands for other cluster types go HERE
@@ -182,14 +180,14 @@ def cluster_status(run_state):
         for job_item in stat_list[1:]:
             jobstat = job_item.split('|')
 
-            if jobstat[0] == j_id + '+0':
+            if jobstat[0] == str(j_id) + '+0':
                 # master job
                 masterhost = jobstat[2]
                 slurm_stat = jobstat[1]
 
         if 'RUNNING' in slurm_stat:
 
-            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + j_id,'master')
+            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_id),'master')
 
             with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
 
@@ -220,19 +218,17 @@ def cluster_status(run_state):
                         else:
                             if 'FINISHED' in sp_query['completedapps'][0]['state']:
 
-                                drop = canceljobs('sparkslurm__'+j_id)
+                                drop = canceljobs('sparkslurm__'+str(j_id))
                                 out_stat.append('done')
 
                             elif 'KILLED' in sp_query['completedapps'][0]['state']:
 
-                                drop = canceljobs('sparkslurm__'+j_id)
+                                drop = canceljobs('sparkslurm__'+str(j_id))
                                 out_stat.append('Spark app was killed.')
                             else:
                                 out_stat.append('running' + link)
             else:
                 out_stat.append(sp_query['activeapps'][0]['state'].lower() + link)
-
-
 
         elif slurm_stat=='COMPLETED':
             out_stat.append('done')
@@ -245,7 +241,7 @@ def cluster_status(run_state):
         elif 'CANCELLED' in slurm_stat:
             out_stat.append('cancelled')
 
-    return out_stat
+    return out_stat[0],sp_master
 
 
 def canceljobs(run_state):
@@ -256,7 +252,7 @@ def canceljobs(run_state):
     cl_type = run_state['type']
         
     if 'slurm' in cl_type:
-        command = 'scancel '+j_id
+        command = 'scancel '+str(j_id)
         os.system(command)
 
 
