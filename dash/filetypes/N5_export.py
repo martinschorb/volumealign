@@ -319,9 +319,9 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
             if not os.path.isdir(aldir):
                 os.makedirs(aldir)
-            
-            timestamp = params.timestamp
-            
+
+            run_prefix = launch_jobs.run_prefix(nouser=True)
+
             n5dir = os.path.join(aldir,'{}{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday))
             
             slices = ''

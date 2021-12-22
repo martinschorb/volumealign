@@ -411,11 +411,18 @@ def run(target='standalone',
         return jobid
 
         
-def run_prefix():
+def run_prefix(nouser=False,dateonly=False):
     timestamp = time.localtime()
+    user=''
+    if not nouser:
+        user = params.user + '_'
 
-    return params.user + '_{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
+    if dateonly:
+        t={}{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday)
+    else:
+        t={}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
 
+    return user + t
 
 def activate_conda(conda_dir=params.conda_dir,
                    env_name=params.render_envname):
