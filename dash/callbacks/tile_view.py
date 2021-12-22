@@ -58,6 +58,7 @@ for idx in range(params.max_tileviews):
             slicestyle = {}
 
             trigger = hf.trigger()
+            if 'dummy' in trigger: return dash.no_update
 
             ol = dash.callback_context.outputs_list
 
