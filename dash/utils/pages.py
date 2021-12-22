@@ -416,7 +416,7 @@ def section_view(module,numpanel=1,contrast=True,with_tileview=False):
     if not with_tileview:
         out.append(dcc.Store(data=dict(), id={'component': 'lead_tile', 'module': module}))
         out.append(dcc.Dropdown(id={'component': 'tp_dd', 'module': module},persistence=True,
-                                         clearable=False),style={'display':'none'},value='')
+                                         clearable=False,style={'display':'none'},value=''))
 
     return html.Div(out)
 
