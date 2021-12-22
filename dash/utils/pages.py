@@ -371,7 +371,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
 
 
 
-def section_view(module,numpanel=1,contrast=True):       
+def section_view(module,numpanel=1,contrast=True,with_tileview=False):
     
     out = list()    
 
@@ -413,8 +413,10 @@ def section_view(module,numpanel=1,contrast=True):
                     ]
                    )
                    )
-
-    out.append(dcc.Store(data=dict(), id={'component': 'lead_tile', 'module': module}))
+    if not with_tileview:
+        out.append(dcc.Store(data=dict(), id={'component': 'lead_tile', 'module': module}))
+        out.append(dcc.Dropdown(id={'component': 'tp_dd', 'module': module},persistence=True,
+                                         clearable=False),style={'display':'none'},value='')
 
     return html.Div(out)
 
