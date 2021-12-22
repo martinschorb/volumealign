@@ -387,6 +387,7 @@ def run(target='standalone',
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
         spark_args['--spark_home'] = params.spark_dir
+        spark_args['--render_dir'] = params.render_dir
         
         spsl_args += '--scriptparams= ' + args2string(spark_args) 
         spsl_args += '--params= ' + args2string(run_args,' ')

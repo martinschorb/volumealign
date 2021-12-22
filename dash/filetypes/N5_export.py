@@ -320,9 +320,9 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             if not os.path.isdir(aldir):
                 os.makedirs(aldir)
 
-            run_prefix = launch_jobs.run_prefix(nouser=True)
+            n5dir = launch_jobs.run_prefix(nouser=True)
 
-            n5dir = os.path.join(aldir,run_prefix)
+            n5dir = os.path.join(aldir,n5dir)
             
             slices = ''
             
@@ -425,7 +425,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         with open(param_file,'w') as f:
             json.dump(run_params_generate,f,indent=4)
             
-        
+        run_prefix = launch_jobs.run_prefix()
     
         log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
         err_file = log_file + '.err'
