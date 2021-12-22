@@ -414,7 +414,8 @@ def section_view(module,numpanel=1,contrast=True):
                    )
                    )
 
-    
+    out.append(dcc.Store(data=dict(), id={'component': 'lead_tile', 'module': module}))
+
     return html.Div(out)
 
 
