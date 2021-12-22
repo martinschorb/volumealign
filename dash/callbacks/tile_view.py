@@ -58,7 +58,7 @@ for idx in range(params.max_tileviews):
             slicestyle = {}
 
             trigger = hf.trigger()
-            
+ 
             ol = dash.callback_context.outputs_list
 
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
@@ -91,7 +91,7 @@ for idx in range(params.max_tileviews):
 
                     slicestyle = {'display': 'none'}
 
-                if trigger in ('stack','dummystore'):
+                if trigger in ('stack_dd','dummystore'):
                     o_val = int((o_max - o_min) / 2) + o_min
                 else:
                     o_val = orig_sec
