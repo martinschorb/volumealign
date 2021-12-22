@@ -92,10 +92,10 @@ for idx in range(params.max_tileviews):
 
                     slicestyle = {'display': 'none'}
 
-                if not 'stack' in trigger:
-                    o_val = orig_sec
+                if trigger in ('stack','dummystore'):
+                    o_val = int((o_max - o_min) / 2) + o_min
                 else:
-                    o_val = int((o_max-o_min)/2) + o_min
+                    o_val = orig_sec
 
                 if o_min == o_max: slicestyle = {'display':'none'}
 
