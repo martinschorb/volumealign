@@ -77,7 +77,7 @@ rm -f $LOGDIR/**/worker/**/*.jar 2> /dev/null
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
 export MASTER_URL="spark://$(hostname):7077"
 export MASTER_HOST=`hostname`
-export MASTER_IP=`resolveip -s $MASTER_HOST`
+export MASTER_IP=`host $MASTER_HOST | sed 's/^.*address //'`
 export MASTER_WEB="http://$MASTER_IP:8080"
 
 JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"

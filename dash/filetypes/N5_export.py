@@ -398,6 +398,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             spark_p['--time'] = '00:' + str(timelim)+':00'
                         
             spark_p['--worker_cpu'] = params.cpu_pernode_spark
+            spark_p['--worker_mempercpu'] = params.mem_per_cpu
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
             
             
