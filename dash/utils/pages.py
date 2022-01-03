@@ -310,7 +310,9 @@ def boundingbox(module,hidden=False):
 
 
 def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
-    
+
+    if numpanel<2: neighbours=False
+
     out = list()
         
     linkstyle = {'display':'none'}
@@ -321,6 +323,9 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
         
     if contrast:
         contraststyle = {}
+
+    if not neighbours:
+        out.append(dcc.Dropdown(id={'component': 'tp_dd', 'module': module},style={'display':'none'}))
 
     out.append(html.Div(str(neighbours), id={'component': 'neighbours', 'module': module}, style={'display': 'none'}))
     out.append(dcc.Store(data=dict(),id={'component': 'lead_tile', 'module': module}))
