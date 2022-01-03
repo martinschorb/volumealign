@@ -60,7 +60,8 @@ render_envname = 'render'
 comp_options = [
                 {'label': 'Cluster (slurm)', 'value': 'slurm'},
                 {'label': 'locally', 'value': 'standalone'},
-                {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'}
+                {'label': 'Spark Cluster (on slurm)', 'value': 'sparkslurm'},
+                {'label': 'Spark locally', 'value':'localspark'}
                 ]
 
 # list remote workstations/login nodes and the remote user format
@@ -79,7 +80,7 @@ min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
 n_cpu_script = 24
-mem_per_cpu = 2     # GB
+mem_per_cpu = 4     # GB
 
 # standalone
 

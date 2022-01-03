@@ -7,7 +7,7 @@ runscript="./test.sh"
 
 #Default values
 
-MASTER_MEM="1"
+MASTER_MEM="2"
 MASTER_CPU="1"
 TIME="00:10:00"
 WORKER_NODES="1"
