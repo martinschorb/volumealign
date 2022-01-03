@@ -59,7 +59,7 @@ while [ "$1" != "" ]; do
             WORKER_MEMPERCPU=$VALUE
             shift
             ;;
-        --worker_mempercpu)
+        --runscript)
             runscript=$VALUE
             shift
             ;;
