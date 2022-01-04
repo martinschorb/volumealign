@@ -76,6 +76,11 @@ def n5export_update_compute_settings(*inputs):
 
     idx_offset = len(compute_table_cols)
 
+    trigger = hf.trigger()
+
+    if not trigger in ('factors','input_'+compute_table_cols[0]):
+        return dash.no_update
+
     out = list(inputs[:idx_offset])
     out.append(dash.no_update)
 
@@ -84,7 +89,9 @@ def n5export_update_compute_settings(*inputs):
     else:
         out[0] = inputs[0]
 
-    if type(inputs[1]) in (str,type(None)):
+    print(inputs)
+
+    if type(inputs[1]) in (str,type(None)) or inputs[1]=={}:
         out[1] = 120
     else:
         if None in inputs[-1].values():
