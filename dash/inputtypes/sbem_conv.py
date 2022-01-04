@@ -82,8 +82,7 @@ def tilepairs_update_store(*args):
 
 page2 = []
 page2.append(html.Div(pages.render_selector(label,create=True,show=['stack','project'],header='Select target stack:'),
-                 id={'component':'render_seldiv','module':label},
-                 style = {'display':'none'})
+                 id={'component':'render_seldiv','module':label})
              )
 
 
