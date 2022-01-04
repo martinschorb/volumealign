@@ -38,7 +38,6 @@ def args2string(args,separator='='):
 
 
 def status(run_state):
-    run_state.update({'id':31801858,'type':'sparkslurm'})
     res_status,link = checkstatus(run_state)
     # print(run_state)
     # print('res_status:')
@@ -109,11 +108,10 @@ def checkstatus(run_state):
 def cluster_status(run_state):
     my_env = os.environ.copy()
     out_stat=list()
-    sp_master=''
+    link=''
 
     j_id = run_state['id']
-    # print('JOB-ID:')
-    # print(j_id)
+    print(run_state)
 
     if j_id=='':
         return 'wait'
@@ -185,14 +183,15 @@ def cluster_status(run_state):
                 masterhost = jobstat[2]
                 slurm_stat = jobstat[1]
 
+        print(command)
         if 'RUNNING' in slurm_stat:
 
             sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_id),'master')
 
             with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
 
-            link = '__' + sp_master
-            url = sp_master + '/json/'
+            link = '__http://' + sp_master + ':' + params.spark_job_port
+            url = 'http://' + sp_master + ':' + params.spark_port + '/json/'
 
             try:
                 sp_query = requests.get(url).json()
@@ -241,7 +240,7 @@ def cluster_status(run_state):
         elif 'CANCELLED' in slurm_stat:
             out_stat.append('cancelled')
 
-    return out_stat[0],sp_master
+    return out_stat[0],link
 
 
 def canceljobs(run_state):
@@ -403,7 +402,7 @@ def run(target='standalone',
             f.write(jobid)
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
-        
+        print('---'+jobid)
         return jobid
 
         

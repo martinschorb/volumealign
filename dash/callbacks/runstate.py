@@ -80,7 +80,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
              (r_status['status'], link) = launch_jobs.status(run_state)   
            
         if not link == '':
-            status_href = link
+            status_href = link.split('__')[-1]
             status_style = {}
 
 
@@ -211,13 +211,13 @@ def run_state(launch_trigger,status_trigger,launch_in,status_in):
     # print(trigger)
 
     if 'launch' in trigger:
-        # print('launch triggered state:')
-        # print(launch_in)
+        print('launch triggered state:')
+        print(launch_in)
         out = launch_in
         
     else:
-        # print('status triggered state:')
-        # print(status_in)
+        print('status triggered state:')
+        print(status_in)
         out = status_in.copy()        
     
     

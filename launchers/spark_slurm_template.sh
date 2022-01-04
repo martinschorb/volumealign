@@ -87,7 +87,7 @@ mkdir $LOGDIR/$JOB
 
 # SET UP ENV for the spark run
 
-echo $MASTER_WEB > $LOGDIR/$JOB/master
+echo $MASTER_IP > $LOGDIR/$JOB/master
 
 export SPARK_LOG_DIR="$LOGDIR/$JOB/logs"
 export SPARK_WORKER_DIR="$LOGDIR/$JOB/worker"

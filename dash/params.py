@@ -92,6 +92,12 @@ n_cpu_standalone = 8
 n_cpu_spark = 200
 cpu_pernode_spark = 15
 
+spark_port = '8080'
+spark_job_port = '4040'
+
+
+# runtime parameters
+
 mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
