@@ -58,12 +58,43 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                              html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
                                                   html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': label},type='number',min=1)) for col in compute_table_cols])
                                              ],className='table'),
+                                             dcc.Store(id={'component': 'factors', 'module': label},data={}),
                                              dcc.Store(id={'component':'store_compset','module':label})
                                              ])
 page.append(compute_settings)
 
 
 # callbacks
+
+@app.callback([Output({'component':'input_'+col, 'module': label},'value') for col in compute_table_cols],
+              [Output({'component': 'factors', 'module': label},'modified_timestamp')],
+              [Input({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols],
+              [Input({'component': 'factors', 'module': label},'modified_timestamp')],
+              State({'component': 'factors', 'module': label},'data')
+              )
+def n5export_update_compute_settings(*inputs):
+
+    idx_offset = len(compute_table_cols)
+
+    out = list(inputs[:idx_offset])
+    out.append(dash.no_update)
+
+    if inputs[0] is None:
+        out[0] = params.n_cpu_spark
+    else:
+        out[0] = inputs[0]
+
+    if type(inputs[1]) in (str,type(None)):
+        out[1] = 120
+    else:
+        if None in inputs[-1].values():
+            out[1] = dash.no_update
+        else:
+            out[1] = np.ceil(inputs [-1][compute_table_cols[-1]] / out[0] * (1 + params.time_add_buffer)) + 1
+
+    return out
+
+
 
 @app.callback(Output({'component':'store_compset','module':label},'data'),                            
               [Input({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols],
@@ -81,8 +112,6 @@ def n5export_store_compute_settings(*inputs):
     return storage
 
 
-
-
 # Update directory and compute settings from stack selection
 
 
@@ -97,13 +126,11 @@ for dim in ['X','Y','Z']:
 stackinput = [Input({'component': 'stack_dd', 'module': parent},'value')]
 stackinput.extend(bbox0)
 stackinput.append(Input({'component': "path_input", 'module': label},'n_blur'))
-
-
 stackoutput = [Output({'component': 'path_ext', 'module': label},'data'),
                # Output({'component': 'store_stackparams', 'module': module}, 'data')
                ]
 tablefields = [Output({'component': 't_'+col, 'module': label},'children') for col in status_table_cols]
-compute_tablefields = [Output({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols]
+compute_tablefields = [Output({'component': 'factors', 'module': label},'data')]
 
 stackoutput.extend(tablefields) 
  
@@ -122,13 +149,13 @@ def n5export_stacktodir(stack_sel,
                        browsetrig,
                        owner,project,stack,allstacks,
                        browsedir):
-    
+
     dir_out=''
     out=dict()
+    factors=dict()
     
     t_fields = ['']*len(status_table_cols)
-    ct_fields = [1]*len(compute_table_cols)
-
+    # ct_fields = [1]*len(compute_table_cols)
     
     if (not stack_sel=='-' ) and (not allstacks is None):   
         stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
@@ -152,15 +179,13 @@ def n5export_stacktodir(stack_sel,
             basedirsep = params.datasubdirs[owner]
             dir_out = tilefile0[:tilefile0.find(basedirsep)]
             
-            out['gigapixels'] = out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
+            out['Gigapixels'] = out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
             
-            t_fields = [stack,str(out['numsections']),'%0.2f' % int(out['gigapixels'])]
+            t_fields = [stack,str(out['numsections']),'%0.2f' % int(out['Gigapixels'])]
             
-            n_cpu = params.n_cpu_spark
-            
-            timelim = np.ceil(out['gigapixels'] / n_cpu * params.export['min/GPix/CPU_N5']*(1+params.time_add_buffer))
-            
-            ct_fields = [n_cpu,timelim]  
+            timelim = np.ceil(out['Gigapixels'] * params.export['min/GPix/CPU_N5'])
+
+            factors = {'runtime_minutes': timelim}
             
     trigger = hf.trigger()  
     
@@ -169,8 +194,8 @@ def n5export_stacktodir(stack_sel,
     
     outlist=[dir_out] #,out]   
     outlist.extend(t_fields)
-    outlist.extend(ct_fields)     
-        
+    outlist.append(factors)
+
     return outlist
 
 # @app.callback(Output({'component': 'input1', 'module': label},'value'),

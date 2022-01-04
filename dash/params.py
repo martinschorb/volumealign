@@ -96,7 +96,7 @@ mipmaps=dict()
 mipmaps['min/Gpix/CPU'] = 6
 
 export=dict()
-export['min/GPix/CPU_N5'] = 30
+export['min/GPix/CPU_N5'] = 5
 
 
 section_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)
