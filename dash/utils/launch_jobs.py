@@ -111,7 +111,6 @@ def cluster_status(run_state):
     link=''
 
     j_id = run_state['id']
-    print(run_state)
 
     if j_id=='':
         return 'wait'
@@ -183,7 +182,6 @@ def cluster_status(run_state):
                 masterhost = jobstat[2]
                 slurm_stat = jobstat[1]
 
-        print(command)
         if 'RUNNING' in slurm_stat:
 
             sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_id),'master')
@@ -402,7 +400,6 @@ def run(target='standalone',
             f.write(jobid)
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
-        print('---'+jobid)
         return jobid
 
         
