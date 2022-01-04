@@ -89,8 +89,6 @@ def n5export_update_compute_settings(*inputs):
     else:
         out[0] = inputs[0]
 
-    print(inputs)
-
     if type(inputs[1]) in (str,type(None)) or inputs[1]=={}:
         out[1] = 120
     else:
