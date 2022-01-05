@@ -63,10 +63,6 @@ for idx in range(params.max_tileviews):
 
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
 
-            print(trigger)
-            print('idx: '+str(tileim_idx))
-            print('orig_sec: '+str(orig_sec))
-
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
                  # stack = stack_sel          
@@ -115,7 +111,7 @@ for idx in range(params.max_tileviews):
                 tilespec = requests.get(url2).json()
                                 
                 max_int = tilespec['tileSpecs'][0]['maxIntensity']     
-                print('return slice: '+str(o_val))
+
                 return o_val,o_min,o_max,slicestyle,max_int,[0,max_int]
             
             else:
@@ -147,10 +143,6 @@ for idx in range(params.max_tileviews):
             return dash.no_update
         trigger = hf.trigger()
         tileim_index = trigger.split('_')[-1]
-
-        print('Trigger = '+trigger)
-        # print('Prevtile =  ' + str(prev_tile))
-        print(lead_tile)
 
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
@@ -216,7 +208,7 @@ for idx in range(params.max_tileviews):
 
         if tileim_index == '0' and lead_tile['tile'] in tiles:
             tile = lead_tile['tile']
-        print('return tile: ' + tile)
+
         return dd_options, tile
     
     
