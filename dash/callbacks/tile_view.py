@@ -32,7 +32,7 @@ for idx in range(params.max_tileviews):
         states = [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
                   State({'component': 'owner_dd','module': MATCH},'value'),
                   State({'component': 'project_dd','module': MATCH},'value'),
-                  State({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value')]
+                  State({'component': imtype+'_section_in'+idx_str,'module': MATCH},'value')]
 
         if imtype == 'tileim':
             inputs.append(Input({'component': 'lead_tile', 'module': MATCH},'modified_timestamp'))
@@ -58,10 +58,14 @@ for idx in range(params.max_tileviews):
             slicestyle = {}
 
             trigger = hf.trigger()
- 
+
             ol = dash.callback_context.outputs_list
 
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
+
+            print(trigger)
+            print('idx: '+str(tileim_idx))
+            print('orig_sec: '+str(orig_sec))
 
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
@@ -76,11 +80,17 @@ for idx in range(params.max_tileviews):
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
 
+                if orig_sec < o_min : orig_sec = o_min
+                if orig_sec > o_max : orig_sec = o_max
+
                 if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) and lead_tile != {} :
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
                     tiles,slices,positions = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
+
+                    if tiles in (None,[]): return dash.no_update
+
                     slices = list(map(int,slices))
 
                     o_val = min(slices)
@@ -105,7 +115,7 @@ for idx in range(params.max_tileviews):
                 tilespec = requests.get(url2).json()
                                 
                 max_int = tilespec['tileSpecs'][0]['maxIntensity']     
-            
+                print('return slice: '+str(o_val))
                 return o_val,o_min,o_max,slicestyle,max_int,[0,max_int]
             
             else:
@@ -135,11 +145,12 @@ for idx in range(params.max_tileviews):
         
         if 'None' in (owner,project,stack):
             return dash.no_update
-
-
         trigger = hf.trigger()
-
         tileim_index = trigger.split('_')[-1]
+
+        print('Trigger = '+trigger)
+        # print('Prevtile =  ' + str(prev_tile))
+        print(lead_tile)
 
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
         url += '/tileIds?matchPattern='
@@ -148,7 +159,7 @@ for idx in range(params.max_tileviews):
             url += params.slicenumformat[owner] %slicenum
         
         tiles = requests.get(url).json()
-        
+
         if tiles == []:
             return dash.no_update        
         
@@ -203,7 +214,9 @@ for idx in range(params.max_tileviews):
         for t_idx,item in enumerate(tiles):
             dd_options.append({'label':t_labels[t_idx], 'value':item})
 
-
+        if tileim_index == '0' and lead_tile['tile'] in tiles:
+            tile = lead_tile['tile']
+        print('return tile: ' + tile)
         return dd_options, tile
     
     
@@ -241,7 +254,10 @@ for idx in range(params.max_tileviews):
         
         url1 = url + '/render-parameters'
         
-        tilespec = requests.get(url1).json()
+        try:
+            tilespec = requests.get(url1).json()
+        except:
+            return dash.no_update
         
         scale = float(params.im_width) / float(tilespec['width'])  
         
