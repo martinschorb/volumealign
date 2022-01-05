@@ -25,7 +25,7 @@ def stacktoparams(stack_sel,allstacks):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
 
-    if allstacks in (None,'',[])
+    if allstacks in (None,'',[]):
         raise PreventUpdate
 
     thisstore=dict()
