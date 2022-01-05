@@ -130,7 +130,7 @@ def finalize_volume_dd(dd_in,url):
                Input(label+'_input_dd', 'value')],
               State({'component': 'store_launch_status', 'module': parent},'data')
               )
-def n5export_execute_gobutton(click,jsonfile,launch_store):     
+def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
             
@@ -186,7 +186,7 @@ def n5export_execute_gobutton(click,jsonfile,launch_store):
     log_file += '.log'
     
     
-    mkxml_p = launch_jobs.run(target='standalone',pyscript=params.rendermodules_dir+'rendermodules/materialize/make_xml.py',json = param_file,
+    mkxml_p = launch_jobs.run(target='standalone',pyscript=params.rendermodules_dir+'rendermodules/materialize/make_xml.py',jsonfile = param_file,
                               logfile=log_file,errfile=err_file)
                             
     
