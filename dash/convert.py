@@ -15,7 +15,7 @@ import importlib
 import params
 from app import app
 from utils import pages
-from callbacks import runstate,render_selector
+# from callbacks import runstate
 
 
 from inputtypes import sbem_conv, serialem_conv
@@ -45,25 +45,10 @@ main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id=
         )
     ])
 
+store = dcc.Store(id={'component':'store_render_init','module':module}, storage_type='session',data='')#pages.init_store({}, module)
 
 
-page = [main]
-
-
-#  RENDER STACK SELECTOR
-
-# Pre-fill render stack selection from input selection
-
-
-@app.callback(Output({'component': 'store_init_render', 'module': module},'data'),
-              Input({'component': 'import_type_dd', 'module': module}, 'value'),
-              prevent_initial_call=True)
-def convert_update_store(owner_dd): 
-    outstore=dict()
-    outstore['owner'] = owner_dd
-    
-    return outstore
-
+page = [main,store]
 
 
 page1 = []
@@ -94,9 +79,10 @@ for inputsel,impmod in zip(inputtypes,inputmodules):
                          id={'component':'page2','module':inputsel['value']},
                          style = {'display':'none'}))
     switch_outputs.append(Output({'component':'page2','module':inputsel['value']},'style'))
-    
+
     status_inputs.append(Input({'component':'status','module':inputsel['value']},'data'))
 
+switch_outputs.append(Output({'component': 'store_render_init', 'module': module}, 'data'))
 
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
@@ -106,7 +92,7 @@ for inputsel,impmod in zip(inputtypes,inputmodules):
 def convert_output(dd_value):
     
     outputs = dash.callback_context.outputs_list
-    outstyles = [{'display':'none'}]*len(outputs)
+    outstyles = [{'display':'none'}]*(len(outputs)-1)
     
     modules = [m['id']['module'] for m in outputs[1:]]
     
@@ -117,8 +103,16 @@ def convert_output(dd_value):
     
     if dd_value not in modules:    
         outstyles[0]={}
-        
-    return outstyles
+
+    if dd_value in (None,''):
+        dd_value = 'SBEM'
+    outstore=dict()
+    outstore['owner'] = dd_value
+
+    out=outstyles
+    out.append(outstore)
+
+    return out
 
 
 
