@@ -36,14 +36,14 @@ for idx in range(params.max_tileviews):
 
         if imtype == 'tileim':
             inputs.append(Input({'component': 'lead_tile', 'module': MATCH},'modified_timestamp'))
+            inputs.append(Input({'component': 'tp_dd', 'module': MATCH}, 'value'))
             states.extend([
-                       State({'component': 'tp_dd', 'module': MATCH}, 'value'),
-                       State({'component': 'neighbours', 'module': MATCH}, 'children'),
-                       State({'component': 'lead_tile', 'module': MATCH},'data')
-                       ])
+                State({'component': 'neighbours', 'module': MATCH}, 'children'),
+                State({'component': 'lead_tile', 'module': MATCH},'data')
+                ])
         else:
-            inputs.append(Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp'))
-            states.extend([State({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*3)
+            inputs.append([Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
+            states.extend([State({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
 
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
@@ -53,7 +53,7 @@ for idx in range(params.max_tileviews):
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
                       inputs,
                       states)
-        def stacktoslice(stack_sel,lead_trigger,allstacks,owner,project,orig_sec,tilepairdir,neighbours,lead_tile):
+        def stacktoslice(stack_sel,lead_trigger,tilepairdir,allstacks,owner,project,orig_sec,neighbours,lead_tile):
             stacklist=[]            
             slicestyle = {}
 
@@ -62,7 +62,6 @@ for idx in range(params.max_tileviews):
             ol = dash.callback_context.outputs_list
 
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
-
 
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
@@ -74,13 +73,12 @@ for idx in range(params.max_tileviews):
                                                
                 if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                     return dash.no_update
-                
                                 
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
-                
 
-                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
+
+                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) and lead_tile != {} :
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
