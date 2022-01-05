@@ -66,8 +66,7 @@ for idx in range(params.max_tileviews):
             if (not stack_sel=='-' ) and (not allstacks is None):   
                  stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        
                  # stack = stack_sel          
-            
-            
+
             if not stacklist == []:
                 stackparams = stacklist[0]
                                                
@@ -76,7 +75,6 @@ for idx in range(params.max_tileviews):
                                 
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
-
 
                 if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) and lead_tile != {} :
 
