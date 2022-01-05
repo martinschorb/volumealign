@@ -72,7 +72,10 @@ for idx in range(params.max_tileviews):
                                                
                 if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                     return dash.no_update
-                                
+
+                if not 'stats' in stackparams.keys():
+                    return dash.no_update
+
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
 

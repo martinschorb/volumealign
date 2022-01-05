@@ -37,6 +37,9 @@ def stacktoparams(stack_sel,allstacks):
             
             if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
                 return dash.no_update
+
+            if not 'stats' in stackparams.keys():
+                return dash.no_update
             
             thisstore['stack'] = stackparams['stackId']['stack']
             thisstore['stackparams'] = stackparams
