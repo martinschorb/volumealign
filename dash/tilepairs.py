@@ -171,7 +171,7 @@ def tilepairs_execute_gobutton(click,pairmode,stack,slicedepth,comp_sel,startsec
         run_params_generate['excludeSameLayerNeighbors'] = 'True'
 
         if owner == 'SBEM':
-            run_params_generate["xyNeighborFactor"] = 0.3
+            run_params_generate["xyNeighborFactor"] = 0.2
 
     param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + pairmode + '.json' 
 

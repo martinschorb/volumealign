@@ -93,7 +93,6 @@ for idx in range(params.max_tileviews):
                     o_val = orig_sec
 
                 if o_min == o_max: slicestyle = {'display':'none'}
-
                 
                 url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack_sel
                 url1 = url + '/tileIds'
@@ -102,7 +101,6 @@ for idx in range(params.max_tileviews):
                 
                 url2 = url +'/tile/' + tile                 
                 url2 +=  '/render-parameters'
-
                 
                 tilespec = requests.get(url2).json()
                                 
@@ -173,20 +171,18 @@ for idx in range(params.max_tileviews):
             tp_jsonfiles = hf.jsonfiles(tilepairdir)
             if 'tile' in lead_tile.keys():
                 tiles,slices,positions = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
-                t_labels = tiles
+                t_labels = tiles.copy()
 
                 if tiles==[]:
                     return dash.no_update
 
                 tile = tiles[-1]
 
-                
-
-            if owner in params.tile_display.keys():
+            if owner in params.tile_display.keys() and len(slices)==len(t_labels):
                 t_labels, tile0 = params.tile_display[owner](tiles, prev_tile, slicenum)
 
                 for t_idx,label in enumerate(t_labels):
-                    if len(slices)>1:
+                    if len(slices)>1 :
                         slicestr = 'Slice '+str(slices[t_idx])+' - '
                     else:
                         slicestr = ''
