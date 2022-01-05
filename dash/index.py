@@ -33,9 +33,9 @@ menu_items=['convert',
             # 'mipmaps',
             'tilepairs',
             'pointmatch',
-            'solve',
-            'export',
-            'finalize'
+            # 'solve',
+            # 'export',
+            # 'finalize'
             ]
 
 menu_text=['Convert & upload',

@@ -42,7 +42,7 @@ for idx in range(params.max_tileviews):
                 State({'component': 'lead_tile', 'module': MATCH},'data')
                 ])
         else:
-            inputs.append([Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
+            inputs.extend([Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
             states.extend([State({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
 
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
