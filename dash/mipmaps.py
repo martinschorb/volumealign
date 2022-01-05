@@ -357,7 +357,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
             
             
             
-            mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_mipmaps.py',
+            mipmap_generate_p = launch_jobs.run(target=comp_sel,pyscript=params.rendermodules_dir+'/rendermodules/dataimport/generate_mipmaps.py',
                             json=param_file,run_args=None,target_args=target_args,logfile=log_file,errfile=err_file)
             
         
@@ -411,7 +411,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 err_file = log_file + '.err'
                 log_file += '.log'
                 
-                mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript='$rendermodules/rendermodules/dataimport/apply_mipmaps_to_render.py',
+                mipmap_apply_p = launch_jobs.run(target=comp_sel,pyscript=params.rendermodules_dir+'/rendermodules/dataimport/apply_mipmaps_to_render.py',
                               jsonfile=param_file,run_args=None,logfile=log_file,errfile=err_file)
                 
                 launch_store=dict()

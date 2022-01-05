@@ -193,7 +193,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         #launch
         # -----------------------
         
-        sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript='$rendermodules/rendermodules/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
+        sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript=params.rendermodules_dir+'/rendermodules/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
                         jsonfile=param_file,run_args=None,logfile=log_file,errfile=err_file)
         
         run_state['status'] = 'running'     
