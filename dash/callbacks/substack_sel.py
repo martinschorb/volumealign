@@ -24,7 +24,10 @@ from app import app
 def stacktoparams(stack_sel,allstacks):    
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-    
+
+    if allstacks in (None,'',[])
+        raise PreventUpdate
+
     thisstore=dict()
     
     if not(stack_sel=='-' ):   
