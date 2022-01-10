@@ -72,7 +72,7 @@ fi
 
 # CLEAN LOGDIR
 shopt -s globstar
-rm -f $LOGDIR/**/worker/**/*.jar 2> /dev/null
+rm -f $LOGDIR/../**/worker/**/*.jar 2> /dev/null
 
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
 export MASTER_URL="spark://$(hostname):7077"
