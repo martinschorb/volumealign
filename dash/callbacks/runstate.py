@@ -80,8 +80,14 @@ def update_status(n,click,run_state,logfile,module,thispage):
              (r_status['status'], link) = launch_jobs.status(run_state)   
            
         if not link == '':
-            status_href = link.split('__')[-1]
-            status_style = {}
+            r_status['status'],status_href = link.split('__')
+            if not 'Problem' in r_status['status']:
+                if 'Startup' in r_status['status']:
+                    status_href += ':' + params.spark_port
+                else:
+                    status_href += ':' + spark_job_port
+
+                status_style = {}
 
 
         if 'Error' in r_status['status']:
@@ -125,23 +131,16 @@ def get_status(run_state,module,thispage):
     # procs=params.processes[module.strip('_')] 
     
     c_button_style = {'display': 'none'}    
-    if run_state['status'] == 'running':  
-        
-        # if procs == []:
-        #     status = 'not running'
-        # else:
-            status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
-            # if not type(procs) is subprocess.Popen:
-            #     if  type(procs) is str:
-            #         c_button_style = {}                    
-            #     elif not type(procs[0]) is subprocess.Popen:
-            #         c_button_style = {}
-                    
+    if 'running' in run_state['status']:
+        status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
+        if run_state['type'] not in ['standalone']:
+            c_button_style = {}
+        status_style = {'color': '#04D'}
     elif run_state['status'] == 'input':
         status='process will start on click.'
     elif run_state['status'] == 'done':
         status='DONE'
-        status_style = {'color':'#0E0'}
+        status_style = {'color':'#0C0'}
     elif run_state['status'] == 'pending':
         c_button_style = {} 
         status = ['Waiting for cluster resources to be allocated.']

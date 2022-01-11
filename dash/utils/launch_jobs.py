@@ -188,7 +188,7 @@ def cluster_status(run_state):
 
             with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
 
-            link = '__http://' + sp_master + ':' + params.spark_job_port
+            link = '__' + sp_master
             url = 'http://' + sp_master + ':' + params.spark_port + '/json/'
 
             try:
@@ -214,13 +214,10 @@ def cluster_status(run_state):
                             out_stat.append('Error in Spark setup!')
                         else:
                             if 'FINISHED' in sp_query['completedapps'][0]['state']:
-
-                                drop = canceljobs('sparkslurm__'+str(j_id))
-                                out_stat.append('done')
+                                out_stat.append(canceljobs(run_state,'done'))
 
                             elif 'KILLED' in sp_query['completedapps'][0]['state']:
-
-                                drop = canceljobs('sparkslurm__'+str(j_id))
+                                drop = canceljobs(run_state)
                                 out_stat.append('Spark app was killed.')
                             else:
                                 out_stat.append('running' + link)
@@ -241,8 +238,7 @@ def cluster_status(run_state):
     return out_stat[0],link
 
 
-def canceljobs(run_state):
-    out_status=list()
+def canceljobs(run_state, out_status='cancelled'):
 
     j_id = run_state['id']
     
@@ -252,8 +248,6 @@ def canceljobs(run_state):
         command = 'scancel '+str(j_id)
         os.system(command)
 
-
-    out_status = 'cancelled'
 
     return out_status
 
@@ -292,7 +286,7 @@ def run(target='standalone',
     if target=='standalone':
         command = 'bash ' + runscriptfile
 
-        runscript.replace('#launch message','"Launching Render standalone processing script on " `hostname`')
+        runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
         runscript += ' || echo $? > ' + logfile + '_exit'
 
         with open(runscriptfile, 'a') as f:
