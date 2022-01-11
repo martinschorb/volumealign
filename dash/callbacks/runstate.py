@@ -124,9 +124,10 @@ def get_status(run_state,module,thispage):
         
     thispage = thispage.lstrip('/')        
     
-    # if not hf.trigger(key='module') == thispage:
-    #     return dash.no_update
-        
+    if not thispage in hf.trigger(key='module'):
+        print(hf.trigger(key='module'))
+        return dash.no_update
+
     status_style = {"font-family":"Courier New",'color':'#000'} 
     # procs=params.processes[module.strip('_')] 
     
@@ -135,12 +136,12 @@ def get_status(run_state,module,thispage):
         status = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running'])
         if run_state['type'] not in ['standalone']:
             c_button_style = {}
-        status_style = {'color': '#04D'}
+        status_style = {'color': '#07E'}
     elif run_state['status'] == 'input':
         status='process will start on click.'
     elif run_state['status'] == 'done':
         status='DONE'
-        status_style = {'color':'#0C0'}
+        status_style = {'color':'#0D0'}
     elif run_state['status'] == 'pending':
         c_button_style = {} 
         status = ['Waiting for cluster resources to be allocated.']

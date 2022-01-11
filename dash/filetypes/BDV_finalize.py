@@ -29,7 +29,7 @@ from utils import helper_functions as hf
 
 
 # element prefix
-label = "BDV_finalize"
+label = "finalize_BDV"
 parent = "finalize"
 
 
@@ -172,7 +172,7 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     
     run_params['path'] = n5file
     # run_params["scale_factors"] = 3 * [[2, 2, 2]],
-    run_params["resolution"] = res
+    run_params["resolution"] = str(res)
     run_params["unit"] = 'nanometer'
 
 
@@ -193,7 +193,8 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     launch_store['status'] = 'running'
     launch_store['id'] = mkxml_p
     launch_store['type'] = 'standalone'
-        
+    launch_store['logfile'] = log_file
+
     return True, '', launch_store
     
     
