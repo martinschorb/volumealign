@@ -235,7 +235,10 @@ def cluster_status(run_state):
         elif 'PENDING' in slurm_stat:
             out_stat.append('pending')
         elif 'CANCELLED' in slurm_stat:
-            out_stat.append('cancelled')
+            if run_state['status'] == 'done':
+                out_stat.append('done')
+            else:
+                out_stat.append('cancelled')
         else:
             out_stat.append('launch')
 
