@@ -83,7 +83,7 @@ def finalize_volume_dd(dd_in,thispage):
 
     thispage = thispage.lstrip('/')
 
-    if thispage == '' or not thispage in hf.trigger(key='module'):
+    if not thispage in label:
         raise PreventUpdate
 
     # if not dash.callback_context.triggered: 
