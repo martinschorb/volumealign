@@ -4,16 +4,16 @@
 
 The Basic installation requires the following software:
 
-- the [Render web services](https://github.com/saalfeldlab/render) including the underlying [MongoDB](https://www.mongodb.com/) database.
+- the [Render web services](https://github.com/saalfeldlab/render) including the underlying [MongoDB](https://www.mongodb.com/) database. For full functionality, it is necessary to use the current `geometric-descriptor` branch.
 
-- render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): These need to be accessible for all machines that run clients.
+- render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): These need to be accessible for all machines that run clients.  For full functionality, it is necessary to use the current `geometric-descriptor` branch.
 
-- render-python-apps `renderapi` from [Allen Institute](https://github.com/AllenInstitute/render-python-apps)
+- render-python `renderapi` forked from [Allen Institute](https://github.com/martinschorb/render-python). This is consistent with the original `develop` branch.
 
 - the EMBL custom Render-Python module (based on `render-modules` development at the Allen Institute). This includes the `BigFeta` global solver.
 Repo: [https://github.com/martinschorb/render-modules](https://github.com/martinschorb/render-modules)
 
-- in addition, an additional step to create proper BDV-N5 metadata context (last step  `finalize`) is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
+- an additional step to create proper BDV-N5 metadata context (last step  `finalize`) is necessary using [PyBDV](https://github.com/constantinpape/pybdv).
 
 ## Frontend
 

@@ -1,8 +1,18 @@
 # Volume image alignment with Render
 
+This document explains the usage of the Web UI to rund volume EM alignment workflows using the ["Render"](https://github.com/saalfeldlab/render) infrastructure.
+
 The design of the main window, where you control and run the alignment workflow is inspired by [IMOD's](https://bio3d.colorado.edu/imod/) [`etomo`](https://bio3d.colorado.edu/imod/doc/etomoTutorial.html) main window showing the sequential main steps of the procedure in the menu column on the left and all important parameter settings belonging to the current active steps in the main page.
 
+
+### caution ###
+    Do not use spaces or hash signs in the directory name
+
 ![startpage](img/webui_start.png "VolumeAlign WebUI startpage")
+
+At the bottom of each page, you will find a button to start the current task (that is disabled if information is missing). Below this button, you can select which compute resource you want to use (clicking the triangle expands the selection) and the status of the current run. Below is an expandable text box which displays the log file of the current processing run.
+
+![status](img/webui_status.png "VolumeAlign WebUI processing status")
 
 ## Data import - convert
 
@@ -16,13 +26,18 @@ This page contains the following elements:
 
 - The type-dependent import content (see below)
 
-- **select Render Project** and **select Render stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances.
+- **select target Stack:** select **Project** and **Stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances.
 
 ### SBEMImage
 
 - **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` subfolders.
 - **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
 
+### SerialEM Montage
+
+- **dataset metadata file:** the path of the `idoc` file for the SerialEM (Super)Montage.
+
+- **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
 ## Generate Tile Pairs
 
 This step will tell Render which of the tiles are neighbours in `x` and `y` and also in `z`. It will then have a collection of pairs that it can try to match with each other all in parallel.

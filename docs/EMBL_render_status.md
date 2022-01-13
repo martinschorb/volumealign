@@ -3,8 +3,8 @@
 
 
 - render server up and running [EMBL Render server](http://render.embl.de)
-- render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): `/g/emcf/software/render/render-ws-java-client/src/main/scripts`
-- render-python-apps `renderapi` from [Allen Institute](https://github.com/AllenInstitute/render-python-apps)
+- render client scripts (`geometric-descriptor`) from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): `/g/emcf/software/render/render-ws-java-client/src/main/scripts`
+- render-python `renderapi` (`develop`) from [Allen Institute](https://github.com/AllenInstitute/render-python-apps)
 
 
 # EMBL custom Render-Python module:
@@ -43,9 +43,3 @@ Need an additional step to create proper BDV-N5 metadata context using [PyBDV](h
 # Naming conventions:
 
 I would suggest to user the `owner` field for project types (FIB-SEM, SBEM, ...) and the `project` to describe the individual datasets. Check [this](https://github.com/saalfeldlab/render/issues/106) for how they do it at Janelia.
-
-# Problems:
-
-Mac: scripts:
-- brew install coreutils (for greadlines)
-- install JDK with install script
