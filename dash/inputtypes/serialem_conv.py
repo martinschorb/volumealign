@@ -9,6 +9,7 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
 
 import os
 #for file browsing dialogs
@@ -23,13 +24,14 @@ from app import app
 import params
 
 from utils import launch_jobs, pages, checks
+from utils import helper_functions as hf
 
 from callbacks import filebrowse,render_selector
 
 
 # element prefix
-
 parent = "convert"
+
 label = parent+"_SerialEM"
 
 # SELECT input directory
@@ -68,7 +70,13 @@ us_out,us_in,us_state = render_selector.init_update_store(label,parent,comp_in='
 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
-def tilepairs_update_store(*args): 
+def tilepairs_update_store(*args):
+    thispage = args[-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     return render_selector.update_store(*args)
 
 

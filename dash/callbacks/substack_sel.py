@@ -15,17 +15,23 @@ from dash.exceptions import PreventUpdate
 
 
 from app import app
-
+from utils import helper_functions as hf
 
 @app.callback(Output({'component': 'store_stackparams', 'module': MATCH}, 'data'),
               Input({'component':'stack_dd','module' : MATCH},'value'),
-              State({'component': 'store_allstacks', 'module': MATCH},'data')
-              )
-def stacktoparams(stack_sel,allstacks):    
+              [State({'component': 'store_allstacks', 'module': MATCH},'data'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
+def stacktoparams(stack_sel,allstacks,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
 
     if allstacks in (None,'',[]):
+        raise PreventUpdate
+
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
 
     thisstore=dict()
@@ -36,10 +42,10 @@ def stacktoparams(stack_sel,allstacks):
             stackparams = stacklist[0]
             
             if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
-                return dash.no_update
+                raise PreventUpdate
 
             if not 'stats' in stackparams.keys():
-                return dash.no_update
+                raise PreventUpdate
             
             thisstore['stack'] = stackparams['stackId']['stack']
             thisstore['stackparams'] = stackparams
@@ -57,14 +63,20 @@ def stacktoparams(stack_sel,allstacks):
                 Output({'component':'endsection','module' : MATCH},'value'),
                 Output({'component':'endsection','module' : MATCH},'max')],
               Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
-             )
-def paramstosections(thisstore):    
+              State('url','pathname')
+             ,prevent_initial_call=True)
+def paramstosections(thisstore,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
 
     if not 'zmin' in thisstore.keys():
-        return dash.no_update
-    
+        raise PreventUpdate
+
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     sec_start = int(thisstore['zmin'])
     sec_end = int(thisstore['zmax'])
 
@@ -78,7 +90,7 @@ def paramstosections(thisstore):
               [Input({'component':'startsection','module' : MATCH}, 'value'),
                 Input({'component':'endsection','module' : MATCH},'value'),
                 Input({'component':'sec_input1','module' : MATCH},'value')]
-              )
+              ,prevent_initial_call=True)
 def sectionlimits(start_sec,end_sec,sec_range=0):
     
     if not sec_range is None and not start_sec is None and not end_sec is None:

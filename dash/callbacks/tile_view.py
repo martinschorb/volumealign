@@ -45,6 +45,8 @@ for idx in range(params.max_tileviews):
             inputs.extend([Input({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
             states.extend([State({'component': 'dummystore', 'module': MATCH}, 'modified_timestamp')]*2)
 
+        states.append(State('url', 'pathname'))
+
         @app.callback([Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'value'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'min'),
                        Output({'component':imtype+'_section_in'+idx_str,'module': MATCH},'max'),
@@ -52,10 +54,17 @@ for idx in range(params.max_tileviews):
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'max'),
                        Output({'component':imtype+'_contrastslider'+idx_str, 'module': MATCH},'value')],
                       inputs,
-                      states)
-        def stacktoslice(stack_sel,lead_trigger,tilepairdir,allstacks,owner,project,orig_sec,neighbours,lead_tile):
+                      states,
+                      prevent_initial_call=True)
+        def stacktoslice(stack_sel,lead_trigger,tilepairdir,allstacks,owner,project,orig_sec,neighbours,lead_tile,thispage):
             stacklist=[]            
             slicestyle = {}
+
+            thispage = thispage.lstrip('/')
+
+            if thispage=='' or not thispage in hf.trigger(key='module'):
+                print(hf.trigger(key='module'))
+                raise PreventUpdate
 
             trigger = hf.trigger()
 
@@ -71,10 +80,10 @@ for idx in range(params.max_tileviews):
                 stackparams = stacklist[0]
                                                
                 if 'None' in (stackparams['stackId']['owner'],stackparams['stackId']['project']):
-                    return dash.no_update
+                    raise PreventUpdate
 
                 if not 'stats' in stackparams.keys():
-                    return dash.no_update
+                    raise PreventUpdate
 
                 o_min = stackparams['stats']['stackBounds']['minZ']
                 o_max = stackparams['stats']['stackBounds']['maxZ']
@@ -88,7 +97,7 @@ for idx in range(params.max_tileviews):
 
                     tiles,slices,positions = hf.neighbours_from_json(tp_jsonfiles,lead_tile['tile'])
 
-                    if tiles in (None,[]): return dash.no_update
+                    if tiles in (None,[]): raise PreventUpdate
 
                     slices = list(map(int,slices))
 
@@ -118,7 +127,7 @@ for idx in range(params.max_tileviews):
                 return o_val,o_min,o_max,slicestyle,max_int,[0,max_int]
             
             else:
-                return dash.no_update
+                raise PreventUpdate
             
                 
                 
@@ -134,16 +143,22 @@ for idx in range(params.max_tileviews):
                    State({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
                    State({'component': 'tp_dd', 'module': MATCH},'value'),
                    State({'component': 'neighbours', 'module': MATCH},'children'),
-                   State({'component': 'lead_tile', 'module': MATCH},'data')
-                   ]
-                  )
-    def slicetotiles(slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile):
+                   State({'component': 'lead_tile', 'module': MATCH},'data'),
+                   State('url', 'pathname')]
+                  ,prevent_initial_call=True)
+    def slicetotiles(slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile,thispage):
 
         if None in (slicenum,owner,project,stack,neighbours,lead_tile):
-            return dash.no_update
+            raise PreventUpdate
         
         if 'None' in (owner,project,stack):
-            return dash.no_update
+            raise PreventUpdate
+
+        thispage = thispage.lstrip('/')
+
+        if not thispage in hf.trigger(key='module'):
+            raise PreventUpdate
+
         trigger = hf.trigger()
         tileim_index = trigger.split('_')[-1]
 
@@ -156,7 +171,7 @@ for idx in range(params.max_tileviews):
         tiles = requests.get(url).json()
 
         if tiles == []:
-            return dash.no_update        
+            raise PreventUpdate
         
         t_labels = tiles.copy()
         tile = tiles[int(len(tiles)/2)]
@@ -180,7 +195,7 @@ for idx in range(params.max_tileviews):
                 t_labels = tiles.copy()
 
                 if tiles==[]:
-                    return dash.no_update
+                    raise PreventUpdate
 
                 tile = tiles[-1]
 
@@ -202,7 +217,7 @@ for idx in range(params.max_tileviews):
             t_labels, tile = params.tile_display[owner](tiles, prev_tile, slicenum)
 
         if None in (t_labels, tile):
-            return dash.no_update
+            raise PreventUpdate
 
         # assemble dropdown
         dd_options = list(dict())
@@ -225,23 +240,23 @@ for idx in range(params.max_tileviews):
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
                    State('url', 'pathname')
-                   ])           
+                   ],prevent_initial_call=True)
     def im_view_url(tile,runstore,owner,project,stack,section,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
         # print('tile is now: '+ tile)
         # print('stack is now: '+ stack)
 
-        thispage = thispage.lstrip('/')        
-                
-        if not hf.trigger(key='module') == thispage:
-            return dash.no_update
+        thispage = thispage.lstrip('/')
+
+        if not thispage in hf.trigger(key='module'):
+            raise PreventUpdate
             
         if None in (tile,runstore,owner,project,stack):
-            return dash.no_update
+            raise PreventUpdate
         
         if 'None' in (owner,project,stack):
-            return dash.no_update
+            raise PreventUpdate
         
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
@@ -252,7 +267,7 @@ for idx in range(params.max_tileviews):
         try:
             tilespec = requests.get(url1).json()
         except:
-            return dash.no_update
+            raise PreventUpdate
         
         scale = float(params.im_width) / float(tilespec['width'])  
         
@@ -276,17 +291,23 @@ for idx in range(params.max_tileviews):
     # init tile image display
     @app.callback(Output({'component': 'tileim_image'+idx_str, 'module': MATCH},'src'),
                   [Input({'component': 'tileim_contrastslider'+idx_str, 'module': MATCH},'value'),
-                   Input({'component': 'tileim_imurl'+idx_str, 'module': MATCH},'children')]
+                   Input({'component': 'tileim_imurl'+idx_str, 'module': MATCH},'children')],
+                  State('url','pathname')
                   )
-    def im_view(c_limits,imurl):
+    def im_view(c_limits,imurl,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate     
-            
+
+        thispage = thispage.lstrip('/')
+
+        if not thispage in hf.trigger(key='module'):
+            raise PreventUpdate
+
         if None in (c_limits,imurl):
-            return dash.no_update
+            raise PreventUpdate
         
         if 'None' in (c_limits,imurl):
-            return dash.no_update
+            raise PreventUpdate
         
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
         
@@ -302,7 +323,7 @@ for idx in range(params.max_tileviews):
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State('url', 'pathname')
-                   ])           
+                   ],prevent_initial_call=True)
     def slice_view(section,runstore,c_limits,owner,project,stack,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
@@ -310,13 +331,13 @@ for idx in range(params.max_tileviews):
         thispage = thispage.lstrip('/')        
         
         if not hf.trigger(key='module') == thispage:
-            return dash.no_update
+            raise PreventUpdate
 
         if None in (section,runstore,owner,project,stack):
-            return dash.no_update
+            raise PreventUpdate
         
         if 'None' in (owner,project,stack):
-            return dash.no_update
+            raise PreventUpdate
         
         
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack

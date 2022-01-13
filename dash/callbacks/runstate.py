@@ -34,7 +34,7 @@ from utils import helper_functions as hf
                State({'component': 'outfile', 'module': MATCH},'children'),
                State({'component': 'name', 'module': MATCH},'data'),
                State('url', 'pathname')]
-              )
+              ,prevent_initial_call=True)
 def update_status(n,click,run_state,logfile,module,thispage):
     
     if not dash.callback_context.triggered: 
@@ -48,13 +48,10 @@ def update_status(n,click,run_state,logfile,module,thispage):
     status_style={'display':'none'}
     
     
-    thispage = thispage.lstrip('/')        
-    #
-    # print(hf.trigger(key='module'))
-    # print(thispage in hf.trigger(key='module'))
+    thispage = thispage.lstrip('/')
 
-    if not thispage in hf.trigger(key='module'):
-        return dash.no_update
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
         
     trigger = hf.trigger()
 
@@ -116,17 +113,19 @@ def update_status(n,click,run_state,logfile,module,thispage):
                ],
               Input({'component': 'store_run_status', 'module': MATCH},'data'),
               [State({'component': 'name', 'module': MATCH},'data'),
-               State('url', 'pathname')])
+               State('url', 'pathname')]
+              ,prevent_initial_call=True)
 def get_status(run_state,module,thispage):
 
     if not dash.callback_context.triggered: 
         raise PreventUpdate
         
-    thispage = thispage.lstrip('/')        
-    
-    if not thispage in hf.trigger(key='module'):
-        print(hf.trigger(key='module'))
-        return dash.no_update
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    print('we go on!')
 
     status_style = {"font-family":"Courier New",'color':'#000'} 
     # procs=params.processes[module.strip('_')] 
@@ -171,8 +170,8 @@ def update_output(n,outfile,thispage):
     
     thispage = thispage.lstrip('/')        
 
-    if not thispage in hf.trigger(key='module'):
-        return dash.no_update
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
      
     data=''
 
@@ -201,7 +200,7 @@ def update_output(n,outfile,thispage):
                Input({'component': 'store_r_status', 'module': MATCH},'modified_timestamp')],
               [State({'component': 'store_launch_status', 'module': MATCH},'data'),
                State({'component': 'store_r_status', 'module': MATCH},'data')]
-              )
+              ,prevent_initial_call=True)
 def run_state(launch_trigger,status_trigger,launch_in,status_in):
     if not dash.callback_context.triggered: 
         raise PreventUpdate

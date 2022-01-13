@@ -11,6 +11,7 @@ import dash
 
 from app import app
 
+from dash.exceptions import PreventUpdate
 
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from utils import helper_functions as hf
@@ -24,7 +25,7 @@ show_hidden = False
 @app.callback(Output({'component': 'path_input', 'module': MATCH},'value'),              
               [Input({'component': 'path_store', 'module': MATCH},'data'),
                Input({'component': 'path_ext', 'module': MATCH},'data')]
-              )
+              ,prevent_initial_call=True)
 def update_store(inpath,extpath):
     trigger=hf.trigger()
     # print('pathstore -- ')
@@ -48,14 +49,19 @@ def update_store(inpath,extpath):
               [State({'component': 'path_input', 'module': MATCH},'value'),
                State({'component': 'path_store', 'module': MATCH},'data'),
                State({'component': 'path_showfiles', 'module': MATCH},'data'),
-               State({'component': 'path_filetypes', 'module': MATCH},'data')]
-              )
-def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes):
+               State({'component': 'path_filetypes', 'module': MATCH},'data'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
+def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
     if dash.callback_context.triggered: 
         trigger = hf.trigger()
     else:
         trigger='-'
-    
+
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
     
     if os.path.isdir(str(inpath)):
         inpath = inpath

@@ -32,7 +32,8 @@ from utils import helper_functions as hf
                 ],
               [Input({'component': 'store_init_render', 'module': MATCH},'data'), 
                Input({'component': 'mcown_input', 'module': MATCH}, 'value')],
-              State({'component': 'mc_owner_dd', 'module': MATCH},'options'))
+              State({'component': 'mc_owner_dd', 'module': MATCH},'options')
+              ,prevent_initial_call=True)
 def update_mc_owner_dd(init_in, new_owner, dd_own_in):
     if not dash.callback_context.triggered: 
         trigger =  'init'
@@ -83,15 +84,23 @@ def update_mc_owner_dd(init_in, new_owner, dd_own_in):
                Input({'component': 'mc_input', 'module': MATCH}, 'value')],
               [State({'component':'matchcoll_dd','module': MATCH},'options'),
                State({'component': 'store_init_render', 'module': MATCH},'data'),
+               State('url','pathname'),
                State({'component':'mc_new_enabled','module':MATCH},'data')]
-              )
-def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,new_enabled='False'):
+              ,prevent_initial_call=True)
+def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,thispage,new_enabled='False'):
     trigger = hf.trigger()
-    all_mcs = dash.no_update  
+    all_mcs = dash.no_update
+
+    thispage = thispage.lstrip('/')
+
+    trigger = hf.trigger()
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
 
     if 'mc_owner_dd'in trigger:
         if mc_own_sel == '':
-            return dash.no_update
+            raise PreventUpdate
         
         if mc_own_sel=='new_mc_owner' and new_enabled == 'True':
     
@@ -151,7 +160,8 @@ def pointmatch_mcown_dd_sel(mc_own_sel,new_mc,mc_dd_opt,init_match,new_enabled='
                State({'component':'store_owner','module' : MATCH},'data'),
                State({'component':'store_project','module' : MATCH},'data'),
                State({'component':'stack_dd','module' : MATCH},'value'),
-               State({'component':'store_all_matchcolls','module': MATCH},'data')])
+               State({'component':'store_all_matchcolls','module': MATCH},'data')]
+              ,prevent_initial_call=True)
 def new_matchcoll(mc_sel,mc_owner,owner,project,stack,all_mcs):
     if not dash.callback_context.triggered: 
         raise PreventUpdate 

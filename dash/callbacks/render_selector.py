@@ -31,11 +31,12 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 
     dash_out = Output({'component': comp_out, 'module': thismodule},'data')
     dash_in =  Input({'component': comp_in, 'module': prevmodule},'data')
-    dash_state = State({'component': 'store_init_render', 'module': thismodule},'data')
+    dash_state = [State({'component': 'store_init_render', 'module': thismodule},'data'),
+                  State('url','pathname')]
                    
     return dash_out,dash_in,dash_state
 
-def update_store(prevstore,thisstore):
+def update_store(prevstore,thisstore,thispage):
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
     
@@ -58,21 +59,21 @@ def update_store(prevstore,thisstore):
               [Input({'component': 'store_init_render', 'module': MATCH},'data'),
                Input('url', 'pathname')],
                State({'component': 'owner_dd', 'module': MATCH},'options')
-              )
+              ,prevent_initial_call=True)
 def update_owner_dd(init_in,thispage,dd_options_in):
         
     if not dash.callback_context.triggered: 
         raise PreventUpdate
         
-    if thispage is None:
-        return dash.no_update
+    if thispage in (None,''):
+        raise PreventUpdate
     
     thispage = thispage.lstrip('/')        
     
     trigger = hf.trigger()        
     
-    if trigger == 'url' and not hf.trigger(key='module') == thispage and not dd_options_in is None:
-        return dash.no_update
+    if thispage=='' or not thispage in hf.trigger(key='module') and not dd_options_in is None:
+        raise PreventUpdate
     
     dd_options = list(dict())
     
@@ -114,18 +115,18 @@ def update_proj_dd(owner_sel,init_store,newproj_in,thispage,store_proj,dd_option
     if not dash.callback_context.triggered: 
         raise PreventUpdate
         
-    if thispage is None:
-        return dash.no_update
+    if thispage in (None,''):
+        raise PreventUpdate
     
     thispage = thispage.lstrip('/')        
 
     trigger = hf.trigger() 
      
-    if trigger == 'url' and not hf.trigger(key='module') == thispage and not dd_options_in is None :
-        return dash.no_update
+    if not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
 
     if owner_sel == '' or owner_sel is None:
-        return dash.no_update
+        raise PreventUpdate
 
     out_project = ''
     
@@ -194,15 +195,15 @@ def update_stack_dd(init_store,own_sel,proj_sel,newstack_in,store_stack,dd_optio
     
     stackdiv_style = fullitem_style
     
-    if thispage is None:
-        return dash.no_update
+    if thispage in (None,''):
+        raise PreventUpdate
     
     thispage = thispage.lstrip('/') 
        
     trigger = hf.trigger()        
      
-    if trigger == 'url' and not hf.trigger(key='module') == thispage :
-        return dash.no_update
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
     
 
     if proj_sel is None or proj_sel == '':

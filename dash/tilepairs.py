@@ -9,6 +9,9 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
+
+
 import params
 import json
 import os
@@ -47,7 +50,13 @@ us_out,us_in,us_state = render_selector.init_update_store(module,'convert')
 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
-def tilepairs_update_store(*args): 
+def tilepairs_update_store(*args):
+    thispage = args[-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)
@@ -80,7 +89,8 @@ page.append(pages.substack_sel(module))
 
 @app.callback([Output({'component':'3Dslices','module' : module},'style'),
                 Output({'component':'sec_input1','module' : module},'value')],
-              Input({'component':'pairmode','module' : module},'value'))
+              Input({'component':'pairmode','module' : module},'value')
+              ,prevent_initial_call=True)
 def tilepairs_3D_status(pairmode):
 
     if pairmode == '2D':

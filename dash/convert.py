@@ -9,12 +9,15 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input,Output,State
+from dash.exceptions import PreventUpdate
 
 import importlib
 
 import params
 from app import app
 from utils import pages
+from utils import helper_functions as hf
+
 # from callbacks import runstate
 
 
@@ -88,9 +91,15 @@ switch_outputs.append(Output({'component': 'store_render_init', 'module': module
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
 @app.callback(switch_outputs,
-              Input({'component': 'import_type_dd', 'module': module}, 'value'))
-def convert_output(dd_value):
-    
+              Input({'component': 'import_type_dd', 'module': module}, 'value'),
+              State('url','pathname'))
+def convert_output(dd_value,thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     outputs = dash.callback_context.outputs_list
     outstyles = [{'display':'none'}]*(len(outputs)-1)
     
