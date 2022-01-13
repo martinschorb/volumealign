@@ -78,6 +78,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
            
         if not link == '':
             r_status['status'],status_href = link.split('__')
+            print(r_status)
             status_href = 'http://' + status_href
 
             if not 'Problem' in r_status['status']:
@@ -93,7 +94,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')]+'.err'
         
-        return r_status,status_style,status_href
+        return r_status,status_style, status_href
     
     elif 'cancel' in trigger:
 
