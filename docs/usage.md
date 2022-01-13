@@ -126,7 +126,7 @@ These parameters will then be used for the search of all the tiles.
 
 With the known number of tile pairs and the estimated run time for each pair from the trial, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
 
-![comp_set](img/comp_set.png)
+![comp_set](img/webui_comp_set.png "VolumeAlign WebUI pointmatch compute settings")
 
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
 You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
@@ -168,6 +168,8 @@ You can **explore slice** to determine the **volume region to consider**.
 At the moment, only `N5` is available as **output type**.
 
 Pick the desired **output path** and the result will appear in a sub-directory `aligned` with the date and a reference to the stack.
+
+Make sure that the contrast in the slice viewer fits your expectations of the final data. If not, adjust it. The ouptut data intensity will be scaled accordingly.
 
 With the known number of tiles and the estimated run time for exporting a tile, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
 
