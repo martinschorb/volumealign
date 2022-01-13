@@ -78,6 +78,8 @@ def update_status(n,click,run_state,logfile,module,thispage):
            
         if not link == '':
             r_status['status'],status_href = link.split('__')
+            status_href = 'http://' + status_href
+
             if not 'Problem' in r_status['status']:
                 if 'Startup' in r_status['status']:
                     status_href += ':' + params.spark_port

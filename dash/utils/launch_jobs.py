@@ -186,6 +186,8 @@ def cluster_status(run_state):
 
             sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_id),'master')
 
+            if not os.path.exists(sp_masterfile): return ['launch'],link
+
             with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
 
             link = '__' + sp_master
@@ -234,6 +236,8 @@ def cluster_status(run_state):
             out_stat.append('pending')
         elif 'CANCELLED' in slurm_stat:
             out_stat.append('cancelled')
+        else:
+            out_stat.append('launch')
 
     return out_stat[0],link
 
