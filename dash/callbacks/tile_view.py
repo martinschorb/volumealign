@@ -63,7 +63,6 @@ for idx in range(params.max_tileviews):
             thispage = thispage.lstrip('/')
 
             if thispage=='' or not thispage in hf.trigger(key='module'):
-                print(hf.trigger(key='module'))
                 raise PreventUpdate
 
             trigger = hf.trigger()
