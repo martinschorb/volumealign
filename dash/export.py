@@ -8,17 +8,14 @@ Created on Tue Nov  3 13:30:16 2020
 from dash import dcc
 from dash import html
 from dash.dependencies import Input,Output,State
-# import os
-# import glob
-# import numpy as np
-# import requests
+from dash.exceptions import PreventUpdate
 
 import params
 
 from app import app
 
 from utils import pages
-# from utils import helper_functions as hf
+from utils import helper_functions as hf
 
 from callbacks import runstate,render_selector,boundingbox,match_selector,tile_view
 
@@ -50,7 +47,14 @@ us_out,us_in,us_state = render_selector.init_update_store(module,'solve')
 
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
-def export_update_store(*args): 
+def export_update_store(*args):
+    thispage = args[-1]
+    args = args[:-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)

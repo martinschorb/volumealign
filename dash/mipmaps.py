@@ -9,6 +9,8 @@ import dash
 from dash import dcc
 from dash import html
 from dash.dependencies import Input,Output,State, MATCH, ALL
+from dash.exceptions import PreventUpdate
+
 
 import json
 import requests
@@ -61,7 +63,14 @@ page = [main]
 us_out,us_in,us_state = render_selector.init_update_store(module,'convert')
 
 @app.callback(us_out,us_in,us_state)
-def mipmaps_update_store(*args): 
+def mipmaps_update_store(*args):
+    thispage = args[-1]
+    args = args[:-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)
@@ -103,9 +112,17 @@ page.append(pages.substack_sel(module,hidden=True))
 
 @app.callback(Output({'component':'store_compset','module':module},'data'),                            
               [Input({'component': 'input_'+col, 'module': module},'value') for col in compute_table_cols],
+              State('url','pathname'),
               prevent_initial_call=True)
-def mipmaps_store_compute_settings(*inputs): 
-    
+def mipmaps_store_compute_settings(*inputs):
+
+    thispage = inputs[-1]
+    inputs = inputs[:-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     storage=dict()
         
     in_labels,in_values  = hf.input_components()
@@ -137,10 +154,16 @@ stackoutput.extend(compute_tablefields)
               [State({'component': 'store_owner', 'module': module}, 'data'),
                State({'component': 'store_project', 'module': module}, 'data'),
                State({'component': 'store_stack', 'module': module}, 'data'),
-               State({'component': 'store_allstacks', 'module': module}, 'data')]
-              )
-def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks):
-    
+               State({'component': 'store_allstacks', 'module': module}, 'data'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
+def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks,thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     dir_out=''
     out=dict()
     

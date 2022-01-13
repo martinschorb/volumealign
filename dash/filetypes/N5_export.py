@@ -70,9 +70,16 @@ page.append(compute_settings)
               [Output({'component': 'factors', 'module': label},'modified_timestamp')],
               [Input({'component': 'input_'+col, 'module': label},'value') for col in compute_table_cols],
               [Input({'component': 'factors', 'module': label},'modified_timestamp')],
-              State({'component': 'factors', 'module': label},'data')
-              )
+              [State({'component': 'factors', 'module': label},'data'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
 def n5export_update_compute_settings(*inputs):
+    thispage = inputs[-1]
+    inputs = inputs[:-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
 
     idx_offset = len(compute_table_cols)
 
@@ -147,13 +154,20 @@ stackoutput.extend(compute_tablefields)
                State({'component': 'store_project', 'module': parent}, 'data'),
                State({'component': 'store_stack', 'module': parent}, 'data'),
                State({'component': 'store_allstacks', 'module': parent}, 'data'),
-               State({'component': "path_input", 'module': label},'value')]
-              )
+               State({'component': "path_input", 'module': label},'value'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
 def n5export_stacktodir(stack_sel,
                        xmin,xmax,ymin,ymax,zmin,zmax,
                        browsetrig,
                        owner,project,stack,allstacks,
-                       browsedir):
+                       browsedir,
+                       thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
 
     dir_out=''
     out=dict()

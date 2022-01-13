@@ -90,8 +90,14 @@ page.append(gobutton)
 @app.callback([Output(label+'organism_dd','options'),
                Output(label+'picks','data')],              
               [Input({'component': 'tp_dd', 'module': parent},'value')],
-              )
-def sift_pointmatch_organisms(tilepairdir):
+              State('url','pathname')
+              , prevent_initial_call=True)
+def sift_pointmatch_organisms(tilepairdir,thispage):
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     mT_jsonfiles = glob.glob(os.path.join(params.json_match_dir,'*.json'))
     
     organisms=list()
@@ -142,9 +148,9 @@ def sift_pointmatch_IDs(organism,picks):
 
 @app.callback([Output(label+'mt_link','href'),
                Output(label+'mtselect','value')],              
-              Input(label+'matchID_dd','value'),
+              Input(label+'matchID_dd','value')
                # State(label+'picks','data'),              
-              )
+              , prevent_initial_call=True)
 def sift_browse_matchTrial(matchID):
     if matchID is None:
         return dash.no_update
@@ -179,9 +185,15 @@ def sift_browse_matchTrial(matchID):
                 State({'component':'store_project','module' : parent},'data'),
                 State({'component':'stack_dd','module' : parent},'value'),
                 State({'component': 'input_Num_CPUs', 'module': parent},'value'),
-                State({'component': 'input_runtime_minutes', 'module': parent},'value')]
+                State({'component': 'input_runtime_minutes', 'module': parent},'value'),
+                State('url','pathname')]
               ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim):
+def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim,thispage):
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     ctx = dash.callback_context
     
     trigger = ctx.triggered[0]['prop_id']

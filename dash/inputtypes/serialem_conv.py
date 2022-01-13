@@ -72,6 +72,8 @@ us_out,us_in,us_state = render_selector.init_update_store(label,parent,comp_in='
               prevent_initial_call=True)
 def tilepairs_update_store(*args):
     thispage = args[-1]
+    args = args[:-1]
+
     thispage = thispage.lstrip('/')
 
     if thispage=='' or not thispage in hf.trigger(key='module'):

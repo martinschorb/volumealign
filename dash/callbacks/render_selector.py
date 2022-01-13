@@ -36,7 +36,7 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
                    
     return dash_out,dash_in,dash_state
 
-def update_store(prevstore,thisstore,thispage):
+def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
     
@@ -64,15 +64,12 @@ def update_owner_dd(init_in,thispage,dd_options_in):
         
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-        
-    if thispage in (None,''):
-        raise PreventUpdate
-    
+
     thispage = thispage.lstrip('/')        
     
     trigger = hf.trigger()        
     
-    if thispage=='' or not thispage in hf.trigger(key='module') and not dd_options_in is None:
+    if thispage in (None,'') or not thispage in hf.trigger(key='module') and not dd_options_in is None:
         raise PreventUpdate
     
     dd_options = list(dict())

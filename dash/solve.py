@@ -59,6 +59,13 @@ us_out,us_in,us_state = render_selector.init_update_store(module,'pointmatch')
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
 def solve_update_store(*args):
+    thispage = args[-1]
+    args = args[:-1]
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     return render_selector.update_store(*args)
 
 page1 = pages.render_selector(module)
@@ -134,8 +141,16 @@ page.append(stack_div)
               [Input({'component': 'stack_dd', 'module': module}, 'options'),
                Input(module+'stack_input', 'value')],
               [State({'component': 'owner_dd', 'module': module}, 'value'),
-                State({'component': 'project_dd', 'module': module}, 'value')])
-def solve_stacks(dd_options_in,newstack_name,owner,project_sel):
+               State({'component': 'project_dd', 'module': module}, 'value'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
+def solve_stacks(dd_options_in,newstack_name,owner,project_sel,thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage in (None, '') or not thispage in hf.trigger(key='module') and not dd_options_in is None:
+        raise PreventUpdate
+
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(module)[2]
     stack = 'newstack'
@@ -165,10 +180,18 @@ def solve_stacks(dd_options_in,newstack_name,owner,project_sel):
                Output(module+'browse_stackdiv','style')],
               Input({'component':'outstack_dd','module' : module},'value'),
               [State({'component': 'project_dd', 'module': module}, 'value'),
-               State({'component': 'owner_dd', 'module': module}, 'value')])
-def solve_update_stack_browse(stack_state,project_sel,owner):
+               State({'component': 'owner_dd', 'module': module}, 'value'),
+               State('url','pathname')]
+              ,prevent_initial_call=True)
+def solve_update_stack_browse(stack_state,project_sel,owner,thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage in (None, '') or not thispage in hf.trigger(key='module') and not dd_options_in is None:
+        raise PreventUpdate
+
     if project_sel is None or owner is None or stack_state is None:
-        return dash.no_update
+        raise PreventUpdate
 
     if stack_state == 'newstack':
         return params.render_base_url, {'display':'none'}
@@ -179,7 +202,8 @@ def solve_update_stack_browse(stack_state,project_sel,owner):
 # Create a new Stack
 
 @app.callback(Output(module+'newstack','style'),
-              Input({'component':'outstack_dd','module' : module},'value'))
+              Input({'component':'outstack_dd','module' : module},'value')
+              ,prevent_initial_call=True)
 def solve_new_stack_input(stack_value):
     if stack_value=='newstack':
         style={'display':'block'}
@@ -254,7 +278,7 @@ page.append(gobutton)
                 State({'component':'store_project','module' : module},'data'),
                 State({'component':'stack_dd','module' : module},'value'),
                 State({'component':'mc_owner_dd','module':module},'value')]
-              )
+              ,prevent_initial_call=True)
 def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startsection,endsection,owner,project,stack,mc_own):
     if not dash.callback_context.triggered:
         raise PreventUpdate

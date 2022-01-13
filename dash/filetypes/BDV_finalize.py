@@ -77,10 +77,15 @@ page.append(gobutton)
 @app.callback([Output(label+'_input_dd', 'options'),
                 Output(label+'_input_dd', 'value')],
               [Input(parent+'_format_dd', 'value'),
-               Input('url', 'pathname')
-                ])
-def finalize_volume_dd(dd_in,url):
-    
+               Input('url', 'pathname')]
+              ,prevent_initial_call=True)
+def finalize_volume_dd(dd_in,thispage):
+
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
     # if not dash.callback_context.triggered: 
     #     raise PreventUpdate
         
