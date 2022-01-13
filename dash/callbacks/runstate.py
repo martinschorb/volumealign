@@ -103,7 +103,6 @@ def update_status(n,click,run_state,logfile,module,thispage):
         return dash.no_update
 
 
-
 #  =================================================
 
 
@@ -124,8 +123,6 @@ def get_status(run_state,module,thispage):
 
     if thispage=='' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
-
-    print('we go on!')
 
     status_style = {"font-family":"Courier New",'color':'#000'} 
     # procs=params.processes[module.strip('_')] 
