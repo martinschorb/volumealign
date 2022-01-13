@@ -78,7 +78,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
            
         if not link == '':
             status_href = link.split('__')[-1]
-            print(r_status)
+            r_status['status'] = r_status['status'].split('__')[0]
             status_href = 'http://' + status_href
 
             if not 'Problem' in r_status['status']:
