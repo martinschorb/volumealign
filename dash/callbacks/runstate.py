@@ -77,7 +77,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
              (r_status['status'], link) = launch_jobs.status(run_state)   
            
         if not link == '':
-            r_status['status'],status_href = link.split('__')
+            status_href = link.split('__')[-1]
             print(r_status)
             status_href = 'http://' + status_href
 
