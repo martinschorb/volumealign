@@ -37,14 +37,10 @@ inputmodules = [
                 'inputtypes.serialem_conv'
                 ]
 
-defaulttype = 'SBEM'
-
-
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:",id='conv_head'),dcc.Dropdown(
         id={'component': 'import_type_dd', 'module': module},persistence=True,
-        options=inputtypes,
-        value=defaulttype
+        options=inputtypes
         )
     ])
 

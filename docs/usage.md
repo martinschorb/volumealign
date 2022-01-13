@@ -93,7 +93,7 @@ Click **Create New Trial** at the top of the page. This will open the Parameter 
 
 ![matchtrial_params](img/match_trial_params.png "Render WebUI matchTrial Parameters")
 
-To make the tiles from the current stack available to this interface, you need to copy and paste the link that is shown above each tile view in the main UI into the two big text boxes at the bottom of the parameter interface.
+To make the tiles from the current stack available to this interface, you need to ***copy and paste the link that is shown above each tile view*** in the main UI into the two big text boxes at the bottom of the parameter interface.
 
 Make sure that their relative position (`2D`) is correct in the `Clip Parameters` section.
 
@@ -105,7 +105,7 @@ On the next page, you will see the results. At the bottom, the two tiles are sho
 
 You want to make sure that the Standard Deviation of the matches is within your expectations. This depends on the pixel size and section spacing. Something close to 1 pixel is acceptable.
 
-If the combined time of deriving features and matches is significantly higher than a few hundred ms (`2D`) or 2 seconds (`3D`), it might be worth working with lower resolution images. This decreases the accuracy of the matching but makes it faster.
+If the combined time of deriving features and matches is significantly higher than a few hundred ms (`2D`) or a few seconds (`3D`), it might be worth working with lower resolution images. This decreases the accuracy of the matching but makes it faster.
 
 To change the scaling, modify the last part of the two image URLs in the large text boxes (`scale`) and run the trial again.
 
@@ -125,6 +125,8 @@ There, paste it into the text box after **Use this Match Trial as compute parame
 These parameters will then be used for the search of all the tiles.
 
 With the known number of tile pairs and the estimated run time for each pair from the trial, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+
+![comp_set](img/comp_set.png)
 
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
 You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
@@ -163,7 +165,7 @@ You can export a Render stack at any time to disk ("materialize").
 
 You can **explore slice** to determine the **volume region to consider**.
 
-At the moment only `N5` is available as **output type**.
+At the moment, only `N5` is available as **output type**.
 
 Pick the desired **output path** and the result will appear in a sub-directory `aligned` with the date and a reference to the stack.
 
