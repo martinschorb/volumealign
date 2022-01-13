@@ -76,8 +76,7 @@ page1 = [directory_sel,pathbrowse,html.Div(store)]
 
 us_out,us_in,us_state = render_selector.init_update_store(label,parent,comp_in='store_render_init')
 
-@app.callback(us_out,us_in,us_state,
-              prevent_initial_call=True)
+@app.callback(us_out,us_in,us_state)
 def sbem_conv_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
