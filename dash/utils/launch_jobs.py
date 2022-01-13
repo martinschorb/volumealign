@@ -113,7 +113,7 @@ def cluster_status(run_state):
     j_id = run_state['id']
 
     if j_id=='':
-        return 'wait'
+        return 'wait',link
 
     cl_type = run_state['type']
     logfile = run_state['logfile']
@@ -196,7 +196,7 @@ def cluster_status(run_state):
             except:
                 print('Problem connecting to Spark: ' + url)
                 out_stat.append('Problem connecting to Spark!')
-                return out_stat
+                return out_stat, link
 
 
             if sp_query['activeapps'] == []:

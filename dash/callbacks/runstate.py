@@ -82,7 +82,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
                 if 'Startup' in r_status['status']:
                     status_href += ':' + params.spark_port
                 else:
-                    status_href += ':' + spark_job_port
+                    status_href += ':' + params.spark_job_port
 
                 status_style = {}
 
