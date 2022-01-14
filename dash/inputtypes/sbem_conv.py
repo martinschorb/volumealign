@@ -248,9 +248,6 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                 # params.processes[parent.strip('_')] = []
                 popup = 'Directory not accessible.'
                 # pop_display = True
-    
-    out['logfile'] = log_file
-    out['status'] = run_state['status']
 
     return but_disabled, popup, out, outstore
 

@@ -39,16 +39,34 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
 def update_store(prevstore,thisstore):
     if not dash.callback_context.triggered: 
         raise PreventUpdate  
-    
+    if None in (prevstore,thisstore):
+        raise PreventUpdate
     # print(thisstore,prevstore)
-    # for key in thisstore.keys():
-        # if not (not key in prevstore.keys() or prevstore[key] == '' or prevstore[key] == None):                  
-        #     thisstore[key] = prevstore[key]
+
     thisstore.update(prevstore)
 
     return thisstore
 
 
+def subpage_launch(module, subpages):
+    # subpages can be list of strings or list of dicts (dcc.Dropdown)
+
+    if type(subpages) is not list: raise TypeError('subpages need to be list')
+
+    c_in = list()
+    c_out = Output({'component': 'store_render_launch', 'module': module}, 'data')
+    sbstrings = list()
+
+    if type(subpages[0]) is dict:
+        for item in subpages: sbstrings.append(item['value'])
+    elif type(subpages[0]) is str:
+        sbstrings = subpages
+
+    for subpage in sbstrings:
+        sublabel = module + '_' + subpage
+        c_in.append(Input({'component': 'store_render_launch', 'module': sublabel}, 'data'))
+
+    return c_in,c_out
 
 # Update owner dropdown:
  
@@ -61,7 +79,7 @@ def update_store(prevstore,thisstore):
                State({'component': 'owner_dd', 'module': MATCH},'options')
               ,prevent_initial_call=True)
 def update_owner_dd(init_in,thispage,dd_options_in):
-        
+
     if not dash.callback_context.triggered: 
         raise PreventUpdate
 
@@ -71,7 +89,7 @@ def update_owner_dd(init_in,thispage,dd_options_in):
     
     if thispage in (None,'') or not thispage in hf.trigger(key='module') and not dd_options_in is None:
         raise PreventUpdate
-    
+
     dd_options = list(dict())
     
     allowners = params.render_owners
@@ -83,6 +101,7 @@ def update_owner_dd(init_in,thispage,dd_options_in):
     
     if init_owner == '':
         init_owner = allowners[0]
+
     return dd_options, init_owner
 
 
@@ -137,7 +156,7 @@ def update_proj_dd(owner_sel,init_store,newproj_in,thispage,store_proj,dd_option
     store = {}
     store['allprojects'] = projects
 
-    if 'store_init_render' in trigger:
+    if 'store_init_render' in trigger or init_store['owner'] == owner_sel:
         if 'project' in init_store.keys() and  init_store['project'] not in (None,''):
             out_project=init_store['project']
       

@@ -48,6 +48,11 @@ def trigger(key=None,debug=False):
     
     return trigger
 
+def trigger_value():
+    ctx = dash.callback_context
+    return ctx.triggered[0]['value']
+
+
 # def trigger_module():
 #     ctx = dash.callback_context 
     
@@ -83,7 +88,6 @@ def input_components():
     return incomp, inval
 
 
-
 def output_components():
     
     ol = dash.callback_context.outputs_list 
@@ -94,7 +98,6 @@ def output_components():
     return outcomp, outprop
 
 
-
 def compset_radiobutton(c_options):
     outopt = list()   
     
@@ -102,8 +105,6 @@ def compset_radiobutton(c_options):
         if opt['value'] in c_options: outopt.append(opt)
     
     return outopt
-
-
 
 
 def tilepair_numfromlog(tilepairdir,stack):
@@ -127,6 +128,7 @@ def tilepair_numfromlog(tilepairdir,stack):
         return 'no tilepairs'
     else:
         return int(tpairs)
+
 
 def neighbours_from_json(infiles,target_id):
 
@@ -161,6 +163,7 @@ def neighbours_from_json(infiles,target_id):
 
     return neighbours,slices,positions
 
+
 def jsonfiles(dirname):
     tp_dir = os.path.join(params.json_run_dir, dirname)
     tp_json = os.listdir(tp_dir)
@@ -174,3 +177,8 @@ def spark_nodes(n_cpu):
     nodes_out = nodes + (cores1>0)
 
     return nodes_out
+
+
+
+
+
