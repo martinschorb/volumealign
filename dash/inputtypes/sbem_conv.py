@@ -103,10 +103,10 @@ page2.append(html.Div(pages.render_selector(label,create=True,show=['stack','pro
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion',id=label+"go",disabled=True),
                               html.Div([],id=label+'directory-popup',style = {'color':'#E00'}),
-                              dcc.ConfirmDialog(
-                                  id=label+'danger-novaliddir',displayed=False,
-                                  message='The selected directory does not exist or is not readable!'
-                                  ),
+                              # dcc.ConfirmDialog(
+                              #     id=label+'danger-novaliddir',displayed=False,
+                              #     message='The selected directory does not exist or is not readable!'
+                              #     ),
                               html.Br(),
                               html.Details([html.Summary('Compute location:'),
                                             dcc.RadioItems(
@@ -154,7 +154,7 @@ page2.append(collapse_stdout)
 
 @app.callback([Output(label+'go', 'disabled'),
                Output(label+'directory-popup','children'),
-               Output(label+'danger-novaliddir','displayed'),
+               # Output(label+'danger-novaliddir','displayed'),
                Output({'component': 'store_launch_status', 'module': label},'data'),
                Output({'component': 'store_render_launch', 'module': label},'data')
                ],             
@@ -247,12 +247,12 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                 run_state['status'] = 'wait'
                 # params.processes[parent.strip('_')] = []
                 popup = 'Directory not accessible.'
-                pop_display = True
+                # pop_display = True
     
     out['logfile'] = log_file
     out['status'] = run_state['status']
 
-    return but_disabled, popup, pop_display, out, outstore
+    return but_disabled, popup, out, outstore
 
         
         

@@ -50,14 +50,8 @@ menu_text=['Convert & upload',
 
 
 
-intervals = html.Div([dcc.Interval(id='interval1', interval=params.idle_interval,
-                                       n_intervals=0),
-                      dcc.Interval(id='interval2', interval=params.idle_interval,
-                                       n_intervals=0)
-                      ])
-
-
-
+intervals = html.Div(dcc.Interval(id='interval1', interval=params.refresh_interval,
+                                       n_intervals=0))
 
 
 consolefile = params.render_log_dir+'/out.txt'

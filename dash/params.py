@@ -190,7 +190,6 @@ default_tile_scale = 0.5
 refresh_interval = 1000   # ms
 disp_lines = 50          # output lines to display
 
-idle_interval = 5000   # ms
 
 
 #=============================================================

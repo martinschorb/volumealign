@@ -21,13 +21,15 @@ from utils import launch_jobs
 from utils import helper_functions as hf
 
 
+static_states = ['done','cancelled','error','input', 'wait','timeout']
+
 #  =================================================
 
 
 @app.callback([Output({'component': 'store_r_status', 'module': MATCH},'data'),
                Output({'component': 'statuspage_div', 'module': MATCH},'style'),
                Output({'component': 'statuspage_link', 'module': MATCH},'href')],
-              [Input('interval2','n_intervals'),
+              [Input('interval1','n_intervals'),
                Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')
                ],
               [State({'component': 'store_run_status', 'module': MATCH},'data'),
@@ -42,6 +44,9 @@ def update_status(n,click,run_state,logfile,module,thispage):
         
     
     if None in [n,run_state,logfile,module,thispage]:
+        raise PreventUpdate
+
+    if run_state['status'] in static_states:
         raise PreventUpdate
     
     status_href=''
@@ -63,7 +68,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
     r_status['logfile']  = logfile
     
     
-    if 'interval2' in trigger:        
+    if 'interval1' in trigger:
         link = ''
         
         if run_state['id'] is None:
