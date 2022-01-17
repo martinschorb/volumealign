@@ -32,6 +32,8 @@ from sift import sift_pointmatch
 
 module='pointmatch'
 
+matchtypes = [{'label': 'SIFT', 'value': 'SIFT'}]
+
 
 status_table_cols = ['stack',
               'slices',
@@ -66,7 +68,6 @@ page = [main]
 # Pre-fill render stack selection from previous module
 
 us_out,us_in,us_state = render_selector.init_update_store(module,'tilepairs')
-
 @app.callback(us_out,us_in,us_state,
               prevent_initial_call=True)
 def pointmatch_update_store(*args):
@@ -94,7 +95,7 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                             ]),
                   html.H4("Choose type of PointMatch determination:"),
                   dcc.Dropdown(id=module+'dropdown1',persistence=True,
-                               options=[{'label': 'SIFT', 'value': 'SIFT'}],
+                               options=matchtypes,
                                value='SIFT')   
               ])
 
@@ -321,6 +322,17 @@ def pointmatch_output(value):
 
 
 
+# collect Render selections from sub pages and make them available to following pages
+
+# c_in, c_out = render_selector.subpage_launch(module, matchtypes)
+#
+# @app.callback(c_out,c_in)
+# def pointmatch_merge_launch_stores(*inputs):
+#     return hf.trigger_value()
+#
+
+
+
 # =============================================
 # Processing status
 
@@ -328,7 +340,6 @@ def pointmatch_output(value):
 # embedded from callbacks import runstate
 
 page.append(compute_settings)
-
 
 # # =============================================
 # # PROGRESS OUTPUT

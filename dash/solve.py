@@ -33,13 +33,11 @@ from callbacks import runstate,render_selector,substack_sel,match_selector,tile_
 module='solve'
 
 
-
 storeinit = {}
 store = pages.init_store(storeinit, module)
 
 for storeitem in params.match_store.keys():
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=params.match_store[storeitem]))
-
 
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Solve tile Positions from PointMatchCollection"))

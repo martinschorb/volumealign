@@ -27,7 +27,7 @@ from utils import helper_functions as hf
 
 
 # element prefix
-label = "sift_pointmatch"
+label = "pointmatch_sift"
 parent = "pointmatch"
 
 
@@ -202,7 +202,9 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
             mt_params = matchTrial.mt_parameters(matchID)
     except json.JSONDecodeError:
         return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update,dash.no_update
-    
+    except ValueError:
+        return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update,dash.no_update
+
     if mt_params == {}:
         return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
 

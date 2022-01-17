@@ -31,18 +31,29 @@ from utils import helper_functions as hf
                 Output({'component': 'mc_owner_dd', 'module': MATCH},'value')
                 ],
               [Input({'component': 'store_init_render', 'module': MATCH},'data'), 
-               Input({'component': 'mcown_input', 'module': MATCH}, 'value')],
+               Input({'component': 'mcown_input', 'module': MATCH}, 'value'),
+               Input('url','pathname')],
               State({'component': 'mc_owner_dd', 'module': MATCH},'options')
               ,prevent_initial_call=True)
-def update_mc_owner_dd(init_in, new_owner, dd_own_in):
+def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
     if not dash.callback_context.triggered: 
         trigger =  'init'
     else:    
-        trigger = hf.trigger()        
-    
-    dd_options = list()    
-    if 'init' in trigger:
-        
+        trigger = hf.trigger()
+
+    if thispage in (None, ''):
+        raise PreventUpdate
+
+    thispage = thispage.lstrip('/')
+
+    trigger = hf.trigger()
+
+    if not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    print(trigger)
+    dd_options = list()
+    if 'init' in trigger or 'url' in trigger:
         if len(dd_own_in)>0:
             if dd_own_in[0]['value']== 'new_mc_owner':
                 dd_options.extend(dd_own_in)       
