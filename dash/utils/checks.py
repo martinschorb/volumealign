@@ -22,3 +22,6 @@ def makeinput(component,prop='value'):
 
 def clean_render_name(instr):
     return re.sub('[^a-zA-Z0-9_]','_',instr)
+
+def is_bad_filename(instr):
+    return len(re.findall('[^a-zA-Z0-9_./-]',instr))>0

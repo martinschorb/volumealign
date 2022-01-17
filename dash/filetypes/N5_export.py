@@ -25,6 +25,7 @@ import params
 
 from utils import pages,launch_jobs
 from utils import helper_functions as hf
+from utils.checks import is_bad_filename
 
 from callbacks import substack_sel, filebrowse
 
@@ -493,7 +494,10 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
     else:
         if outdir == '':
             return True,'No output directory selected!',dash.no_update,outstore
-    
+
+        elif is_bad_filename(outdir):
+            return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, outstore
+
         if not os.access(outdir,os.W_OK | os.X_OK):
             return True,'Output directory not writable!',dash.no_update,outstore
 

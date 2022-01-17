@@ -25,6 +25,7 @@ import params
 
 from utils import launch_jobs, pages, checks
 from utils import helper_functions as hf
+from utils.checks import is_bad_filename
 
 from callbacks import filebrowse,render_selector
 
@@ -145,7 +146,8 @@ page2.append(collapse_stdout)
 # =============================================
 
 
-@app.callback([Output(label+'go', 'disabled'),               
+@app.callback([Output(label+'go', 'disabled'),
+               Output(label+'directory-popup','children'),
                Output({'component': 'store_launch_status', 'module': label},'data'),
                Output({'component': 'store_render_launch', 'module': label},'data')
                ],             
@@ -163,7 +165,6 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
     popup = ''
-    pop_display = False
     out=run_state
     log_file = run_state['logfile']
     
@@ -217,6 +218,11 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
             if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'wait'
                     popup = 'No input file chosen.'
+
+        elif is_bad_filename(in_dir):
+            run_state['status'] = 'wait'
+            popup = 'Wrong characters in input directory path. Please fix!'
+
                     
         elif os.path.isfile(in_dir): 
             # print(in_dir)
@@ -227,16 +233,14 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
             else:
                 if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'input'
-                    but_disabled = False
-            
+
         else:
             if not (run_state['status'] == 'running'): 
                 run_state['status'] = 'wait'
                 popup = 'Input  Data not accessible.'
-                pop_display = True
-    
+
     out['logfile'] = log_file
     out['status'] = run_state['status']
     
-    return but_disabled, out, outstore
+    return but_disabled, popup, out, outstore
         

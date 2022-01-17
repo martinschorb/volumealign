@@ -23,8 +23,10 @@ import importlib
 from app import app
 import params
 
+
 from utils import launch_jobs, pages, checks
 from utils import helper_functions as hf
+from utils.checks import is_bad_filename
 
 from callbacks import filebrowse,render_selector
 
@@ -172,7 +174,6 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
     popup = ''
-    pop_display = False
     out=run_state
     log_file = run_state['logfile']
     
@@ -226,26 +227,26 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         if any([in_dir=='',in_dir==None]):
             if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'wait'
-                    # params.processes[parent.strip('_')] = []
                     popup = 'No input directory chosen.'
-                    
+
+        elif is_bad_filename(in_dir):
+            run_state['status'] = 'wait'
+            popup = 'Wrong characters in input directory path. Please fix!'
+
         elif os.path.isdir(in_dir): 
             
             if any([stack_sel=='newstack', proj_dd_sel=='newproj']):
                 if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'wait'
-                    # params.processes[parent.strip('_')] = []
 
             else:
                 if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'input'
-                    # params.processes[parent.strip('_')] = []
                     but_disabled = False
             
         else:
             if not (run_state['status'] == 'running'): 
                 run_state['status'] = 'wait'
-                # params.processes[parent.strip('_')] = []
                 popup = 'Directory not accessible.'
                 # pop_display = True
 
