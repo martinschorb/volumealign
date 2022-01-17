@@ -58,8 +58,6 @@ consolefile = params.render_log_dir+'/out.txt'
 menu=list()
 store=list()
 
-store.append(dcc.Store(id='processlist'))
-
 allpages = [html.Div([html.H3('Welcome to the Render-based alignment suite.'),
                          startpage.content],id={'component': 'page', 'module': 'start'})]
 
