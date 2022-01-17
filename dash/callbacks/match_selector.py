@@ -51,7 +51,6 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
     if not thispage in hf.trigger(key='module'):
         raise PreventUpdate
 
-    print(trigger)
     dd_options = list()
     if 'init' in trigger or 'url' in trigger:
         if len(dd_own_in)>0:
