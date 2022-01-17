@@ -10,6 +10,8 @@ import params
 from dash import dcc
 from dash import html
 
+import plotly.express as px
+
 from utils import checks
 from utils import helper_functions as hf
 
@@ -26,7 +28,6 @@ def init_store(storeinit,module):
         store.append(dcc.Store(id={'component':'store_'+storeitem,'module':module}, storage_type='session',data=newstore[storeitem]))
 
     return store
-
 
 
 def render_selector(module,header='Active stack:',owner=False,create=False,show=True):
@@ -153,7 +154,6 @@ def render_selector(module,header='Active stack:',owner=False,create=False,show=
     return out
 
 
-
 def match_selector(module,newcoll=False):
     mc_owner_dd_options = list(dict())
     mc_dd_options = list(dict())
@@ -207,7 +207,6 @@ def match_selector(module,newcoll=False):
     return out
 
 
-
 def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.comp_default):
     if len(c_options)<2:
         dispstyle={'display':'none'}
@@ -225,7 +224,6 @@ def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.com
                       id={'component':'compute','module':module}),
                    style=dispstyle)
     return out
-
 
 
 def log_output(module):
@@ -259,7 +257,6 @@ def log_output(module):
     return out
 
 
-
 def substack_sel(module,hidden=False):   
     dispstyle = {}
     if hidden:
@@ -280,7 +277,6 @@ def substack_sel(module,hidden=False):
                    
     
     return out
-
 
 
 def boundingbox(module,hidden=False):   
@@ -306,7 +302,6 @@ def boundingbox(module,hidden=False):
                    
     
     return out
-
 
 
 def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
@@ -365,6 +360,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
                                       ]),
                                   html.Br(),
                                   html.Img(id={'component': 'tileim_image'+idx_str, 'module': module},width=params.im_width),
+                                  # dcc.Graph(id={'component': 'tileim_image'+idx_str, 'module': module}),
                                   dcc.Store(data=dict(),id={'component': 'lead_tile'+idx_str, 'module': module}),
                                   html.Br()])
                     ]
@@ -392,6 +388,11 @@ def section_view(module,numpanel=1,contrast=True):
         else:
             idx_title=''
 
+        fig = px.imshow([[255,255],[255,255]])
+        fig.update_layout(coloraxis_showscale=False)
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+
         out.append(html.Div([html.Details([html.Summary('Explore slice'+idx_title),
                                   html.Div(
                                       html.Table([html.Tr([html.Td('Slice:'),
@@ -413,8 +414,12 @@ def section_view(module,numpanel=1,contrast=True):
                                       ]),
                                   dcc.Store(id={'component': 'sliceim_urlset'+idx_str, 'module': module}, data = {}),
                                   html.Div(style={'display':'none'},id={'component': 'sliceim_imurl'+idx_str, 'module': module}),
-                                  html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},width=params.im_width),
-                                  html.Br()])
+                                  # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},width=params.im_width),
+                                  dcc.Graph(id={'component': 'sliceim_image'+idx_str, 'module': module},figure=fig),
+                                  html.Br(),
+                                  # html.Div([html.Button('Zoom in',id={'component': 'slice_zoom', 'module': module}),' ',html.Button('Reset Zoom',id={'component': 'slice_reset', 'module': module})],
+                                  #          style={'text-align':'left-inline'})
+                                ])
                     ]
                    )
                    )

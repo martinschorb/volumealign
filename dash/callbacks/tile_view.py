@@ -15,6 +15,8 @@ from dash.exceptions import PreventUpdate
 import requests
 import os
 import json
+import plotly.express as px
+from skimage import io
 
 from app import app
 
@@ -272,7 +274,7 @@ for idx in range(params.max_tileviews):
         
         out_scale = '%0.2f' %scale
         
-        imurl = url +'/jpeg-image?scale=' + out_scale      
+        imurl = url +'/jpeg-image?scale=' + out_scale
         
         if runstore is None or not 'mt_params' in runstore.keys():
             scale1 = params.default_tile_scale
@@ -309,12 +311,13 @@ for idx in range(params.max_tileviews):
             raise PreventUpdate
         
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
-        
+
         return imurl
     
 
     # init slice image display
-    @app.callback(Output({'component': 'sliceim_image'+idx_str, 'module': MATCH},'src'),
+    @app.callback([Output({'component': 'sliceim_image'+idx_str, 'module': MATCH},'figure'),
+                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config')],
                   [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
                    Input({'component': 'store_render_launch', 'module': MATCH},'data'),
                    Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value')],
@@ -356,8 +359,23 @@ for idx in range(params.max_tileviews):
         imurl = url +'/jpeg-image?scale=' + out_scale   
         
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
-        
-        return imurl
+        img = io.imread(imurl)
+        fig = px.imshow(img,binary_string=True)
+        fig.update_layout(dragmode="drawrect")
+        fig.update_layout(coloraxis_showscale=False)
+        fig.update_layout(height=params.im_width,margin=dict(l=0, r=10, b=10, t=10))
+        fig.update_xaxes(showticklabels=False)
+        fig.update_yaxes(showticklabels=False)
+
+
+        config = {'responsive':True,
+                  'displaylogo':False,
+                  'modeBarButtons':[['drawrect','eraseshape']],
+                  'showAxisDragHandles':False
+
+
+        }
+        return fig, config
 
 
 @app.callback(Output({'component': 'lead_tile', 'module': MATCH},'data'),
