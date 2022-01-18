@@ -10,7 +10,7 @@ import params
 from dash import dcc
 from dash import html
 
-import plotly.express as px
+import plotly.graph_objects as go
 
 from utils import checks
 from utils import helper_functions as hf
@@ -388,7 +388,15 @@ def section_view(module,numpanel=1,contrast=True):
         else:
             idx_title=''
 
-        fig = px.imshow([[255,255],[255,255]])
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=[1],
+            y=[1],
+            mode="text",
+            name="Text",
+            text=["Waiting for slice image generation..."],
+            textposition="bottom center"
+        ))
         fig.update_layout(coloraxis_showscale=False)
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
@@ -415,13 +423,16 @@ def section_view(module,numpanel=1,contrast=True):
                                   dcc.Store(id={'component': 'sliceim_urlset'+idx_str, 'module': module}, data = {}),
                                   html.Div(style={'display':'none'},id={'component': 'sliceim_imurl'+idx_str, 'module': module}),
                                   # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},width=params.im_width),
-                                  dcc.Graph(id={'component': 'sliceim_image'+idx_str, 'module': module},figure=fig),
+                                  dcc.Graph(id={'component': 'sliceim_image'+idx_str, 'module': module},figure=fig,
+                                            style={'text-align':'flushleft'}),
+                                  dcc.Store(id={'component': 'sliceim_params'+idx_str, 'module': module}, data = {'scale':1}),
+                                  dcc.Store(id={'component': 'sliceim_rectsel' + idx_str, 'module': module},data={}),
+                                  dcc.Store(id={'component': 'sliceim_bboxparams' + idx_str, 'module': module}, data={}),
                                   html.Br(),
-                                  # html.Div([html.Button('Zoom in',id={'component': 'slice_zoom', 'module': module}),' ',html.Button('Reset Zoom',id={'component': 'slice_reset', 'module': module})],
-                                  #          style={'text-align':'left-inline'})
+                                  html.Div([html.Button('Zoom in',id={'component': 'slice_zoom', 'module': module}),' ',html.Button('Reset Zoom',id={'component': 'slice_reset', 'module': module})],
+                                           style={'text-align':'left-inline'})
                                 ])
-                    ]
-                   )
+                    ])
                    )
 
     out.append(dcc.Store(data='', id={'component': 'dummystore', 'module': module}))

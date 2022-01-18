@@ -317,18 +317,27 @@ for idx in range(params.max_tileviews):
 
     # init slice image display
     @app.callback([Output({'component': 'sliceim_image'+idx_str, 'module': MATCH},'figure'),
-                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config')],
-                  [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
-                   # Input({'component': 'store_render_launch', 'module': MATCH},'data'),
-                   Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value')],
+                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config'),
+                   Output({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData")],
+                  [Input({'component': 'sliceim_section_in'+idx_str,'module': MATCH},'value'),
+                   Input({'component': 'slice_zoom', 'module': MATCH},'n_clicks'),
+                   Input({'component': 'slice_reset', 'module': MATCH}, 'n_clicks'),
+                   Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value'),
+                   Input({'component': 'store_stackparams', 'module': MATCH}, 'data')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
+                   State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+                   State({'component': 'sliceim_bboxparams' + idx_str, 'module': MATCH}, 'data'),
+                   State({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
                    State('url', 'pathname')
                    ],prevent_initial_call=True)
-    def slice_view(section,c_limits,owner,project,stack,thispage):
+    def slice_view(section,zoomclick,resetclick,c_limits,thisstore,owner,project,stack,imparams,bboxparams,rectsel,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
+
+        trigger = hf.trigger()
 
         thispage = thispage.lstrip('/')
 
@@ -340,43 +349,119 @@ for idx in range(params.max_tileviews):
         
         if 'None' in (owner,project,stack):
             raise PreventUpdate
-        
-        
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
-        
-        url += '/z/'+ str(section)
-        
-        url1 = url + '/bounds'
-                
-        bounds = requests.get(url1).json()
-        
+
+        if bboxparams == {}:
+            bboxparams.update(imparams)
+
+        print('-rectsel-')
+        print(rectsel)
+        print('-bbox-')
+        print(bboxparams)
+
+
+
+        bounds = thisstore['stackparams']['stats']['stackBounds']
+
+        imparams.update(bounds)
+
         imwidth = bounds['maxX'] - bounds['minX']
+
         
         scale = float(params.im_width) / float(imwidth)
-        
-        out_scale = '%0.2f' %scale
-        
-        imurl = url +'/jpeg-image?scale=' + out_scale   
-        
+
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+
+        url += '/z/' + str(section)
+
+        if 'zoom' in trigger:
+            if rectsel == {}:
+                raise PreventUpdate
+
+            print('zoom')
+            width = rectsel['X'][1]-rectsel['X'][0]
+            height = rectsel['Y'][1]-rectsel['Y'][0]
+            scale = float(params.im_width) / float(width)
+            scale = round(scale, 4)
+
+            imurl = url + '/box/' + ','.join([rectsel['X'][0],rectsel['Y'][0],width,height,scale]) + '/jpeg-image'
+
+        else:
+
+            scale = round(scale,4)
+
+            out_scale = '%0.4f' %scale
+
+            imurl = url +'/jpeg-image?scale=' + out_scale
+
+        imparams['scale'] = scale
+
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
         img = io.imread(imurl)
         fig = px.imshow(img,binary_string=True)
         fig.update_layout(dragmode="drawrect")
         fig.update_layout(coloraxis_showscale=False)
-        fig.update_layout(height=params.im_width,margin=dict(l=0, r=10, b=10, t=10))
+        fig.update_layout(newshape = dict(opacity=0.3, fillcolor='#EB9',line=dict(color='#053')))
+        fig.update_layout(height=params.im_width,margin=dict(l=0, r=0, b=0, t=0))
         fig.update_xaxes(showticklabels=False)
         fig.update_yaxes(showticklabels=False)
 
 
-        config = {'responsive':True,
+        config = {'responsive':False,
                   'displaylogo':False,
                   'modeBarButtons':[['drawrect','eraseshape']],
                   'showAxisDragHandles':False
 
 
         }
-        return fig, config
+        return fig, config, imparams, None
 
+
+    @app.callback(Output({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
+                  Input({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData") ,
+                  State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+                  )
+    def paramstoouterlimits(annotations, imparams):
+        if not dash.callback_context.triggered:
+            raise PreventUpdate
+
+        if not 'minX' in imparams.keys():
+            raise PreventUpdate
+
+        outdims = dict()
+        scale = imparams['scale']
+
+        for dim in ['X', 'Y']:
+
+            minval = imparams['min'+dim]
+            maxval = imparams['max'+dim]
+
+            if not annotations in ([], None):
+
+                if "shapes" in annotations:
+                    if annotations["shapes"]==[]:
+                        minv = 0
+                        maxv = maxval - minval
+                    else:
+                        last_shape = annotations["shapes"][-1]
+                        minv = int(last_shape[dim.lower() + '0'])
+                        maxv = int(last_shape[dim.lower() + '1'])
+
+                elif any(["shapes" in key for key in annotations]):
+                    minv = int([annotations[key] for key in annotations if dim.lower() + '0' in key][0])
+                    maxv = int([annotations[key] for key in annotations if dim.lower() + '1' in key][0])
+
+                else:
+                    minv = 0
+                    maxv = maxval - minval
+
+                if minv > maxv:
+                    minv, maxv = maxv, minv
+
+                minval, maxval = minv / scale + minval, maxv / scale + minval
+
+            outdims[dim] = [minval, maxval]
+
+        return (outdims)
 
 @app.callback(Output({'component': 'lead_tile', 'module': MATCH},'data'),
               Input({'component': 'lead_tile_0', 'module': MATCH},'data'))
