@@ -319,23 +319,23 @@ for idx in range(params.max_tileviews):
     @app.callback([Output({'component': 'sliceim_image'+idx_str, 'module': MATCH},'figure'),
                    Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config')],
                   [Input({'component':'sliceim_section_in'+idx_str,'module': MATCH},'value'),
-                   Input({'component': 'store_render_launch', 'module': MATCH},'data'),
+                   # Input({'component': 'store_render_launch', 'module': MATCH},'data'),
                    Input({'component': 'sliceim_contrastslider'+idx_str, 'module': MATCH},'value')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State('url', 'pathname')
                    ],prevent_initial_call=True)
-    def slice_view(section,runstore,c_limits,owner,project,stack,thispage):
+    def slice_view(section,c_limits,owner,project,stack,thispage):
         if not dash.callback_context.triggered: 
             raise PreventUpdate
-        
-        thispage = thispage.lstrip('/')        
-        
-        if not hf.trigger(key='module') == thispage:
+
+        thispage = thispage.lstrip('/')
+
+        if thispage == '' or not thispage in hf.trigger(key='module'):
             raise PreventUpdate
 
-        if None in (section,runstore,owner,project,stack):
+        if None in (section,owner,project,stack):
             raise PreventUpdate
         
         if 'None' in (owner,project,stack):
