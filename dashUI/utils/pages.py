@@ -371,8 +371,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
     return html.Div(out)
 
 
-
-def section_view(module,numpanel=1,contrast=True):
+def section_view(module,numpanel=1,contrast=True,bbox=False):
     
     out = list()    
 
@@ -398,8 +397,8 @@ def section_view(module,numpanel=1,contrast=True):
             textposition="bottom center"
         ))
         fig.update_layout(coloraxis_showscale=False)
-        fig.update_xaxes(showticklabels=False)
-        fig.update_yaxes(showticklabels=False)
+        fig.update_xaxes(showticklabels=False,showgrid=False)
+        fig.update_yaxes(showticklabels=False,showgrid=False)
 
         out.append(html.Div([html.Details([html.Summary('Explore slice'+idx_title),
                                   html.Div(
@@ -436,6 +435,10 @@ def section_view(module,numpanel=1,contrast=True):
                    )
 
     out.append(dcc.Store(data='', id={'component': 'dummystore', 'module': module}))
+
+    if not bbox:
+        out.append(boundingbox(module,hidden=True))
+
 
     return html.Div(out)
 

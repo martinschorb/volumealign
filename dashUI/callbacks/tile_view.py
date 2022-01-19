@@ -17,6 +17,7 @@ import os
 import json
 import plotly.express as px
 from skimage import io
+import re
 
 from app import app
 
@@ -353,21 +354,7 @@ for idx in range(params.max_tileviews):
         if bboxparams == {}:
             bboxparams.update(imparams)
 
-        print('-rectsel-')
-        print(rectsel)
-        print('-bbox-')
-        print(bboxparams)
-
-
-
-        bounds = thisstore['stackparams']['stats']['stackBounds']
-
-        imparams.update(bounds)
-
-        imwidth = bounds['maxX'] - bounds['minX']
-
-        
-        scale = float(params.im_width) / float(imwidth)
+        scale = imparams['scale']
 
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
 
@@ -377,34 +364,68 @@ for idx in range(params.max_tileviews):
             if rectsel == {}:
                 raise PreventUpdate
 
-            print('zoom')
-            width = rectsel['X'][1]-rectsel['X'][0]
-            height = rectsel['Y'][1]-rectsel['Y'][0]
+            xmin = rectsel['X'][0]
+            ymin = rectsel['Y'][0]
+            width = int(rectsel['X'][1]-rectsel['X'][0])
+            height = int(rectsel['Y'][1]-rectsel['Y'][0])
+
+            bounds=dict()
+            bounds['minX'] = xmin
+            bounds['minY'] = ymin
+            bounds['maxX'] = rectsel['X'][1]
+            bounds['maxY'] = rectsel['Y'][1]
+            imparams.update(bounds)
+
             scale = float(params.im_width) / float(width)
             scale = round(scale, 4)
+            out_scale = '%0.4f' % scale
 
-            imurl = url + '/box/' + ','.join([rectsel['X'][0],rectsel['Y'][0],width,height,scale]) + '/jpeg-image'
+            url = url + '/box/' + ','.join(map(str,[xmin,ymin,width,height,scale]))
+            imurl = url + '/jpeg-image?scale=' + out_scale
+
+        elif 'contrast' in trigger:
+            imurl = imparams['imurl']
+
+        elif 'section' in trigger:
+            imurl = re.sub('/z/[0-9]*','/z/'+str(section),imparams['imurl'])
 
         else:
+            # bounds = thisstore['stackparams']['stats']['stackBounds']
+            url1 = url + '/bounds'
+            bounds = requests.get(url1).json()
 
+            imwidth = bounds['maxX'] - bounds['minX']
+
+            scale = float(params.im_width) / float(imwidth)
+            imparams.update(bounds)
+            imparams['fullbounds']=bounds
             scale = round(scale,4)
-
-            out_scale = '%0.4f' %scale
-
+            out_scale = '%0.4f' % scale
             imurl = url +'/jpeg-image?scale=' + out_scale
 
         imparams['scale'] = scale
 
+        imparams['imurl'] = imurl
+
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
-        img = io.imread(imurl)
+        try:
+            img = io.imread(imurl)
+        except:
+            fig = px.line()
+            fig.update_xaxes(showticklabels=False,showgrid=False)
+            fig.update_yaxes(showticklabels=False,showgrid=False)
+            fig.add_annotation(x=2, y=2,
+                text="Stack or slice cannot be found...")
+
+            return fig,{},imparams, None
+
         fig = px.imshow(img,binary_string=True)
         fig.update_layout(dragmode="drawrect")
         fig.update_layout(coloraxis_showscale=False)
         fig.update_layout(newshape = dict(opacity=0.3, fillcolor='#EB9',line=dict(color='#053')))
         fig.update_layout(height=params.im_width,margin=dict(l=0, r=0, b=0, t=0))
-        fig.update_xaxes(showticklabels=False)
-        fig.update_yaxes(showticklabels=False)
-
+        fig.update_xaxes(showticklabels=False,showgrid=False)
+        fig.update_yaxes(showticklabels=False,showgrid=False)
 
         config = {'responsive':False,
                   'displaylogo':False,
@@ -431,16 +452,17 @@ for idx in range(params.max_tileviews):
         scale = imparams['scale']
 
         for dim in ['X', 'Y']:
+            minval = imparams['min' + dim]
+            maxval = imparams['max' + dim]
 
-            minval = imparams['min'+dim]
-            maxval = imparams['max'+dim]
-
-            if not annotations in ([], None):
-
+            if annotations in ([], None):
+                outdims[dim] = [minval, maxval]
+            else:
                 if "shapes" in annotations:
                     if annotations["shapes"]==[]:
                         minv = 0
                         maxv = maxval - minval
+                        scale = 1
                     else:
                         last_shape = annotations["shapes"][-1]
                         minv = int(last_shape[dim.lower() + '0'])
@@ -453,13 +475,16 @@ for idx in range(params.max_tileviews):
                 else:
                     minv = 0
                     maxv = maxval - minval
+                    scale = 1
 
                 if minv > maxv:
                     minv, maxv = maxv, minv
 
-                minval, maxval = minv / scale + minval, maxv / scale + minval
+                offset = minval
 
-            outdims[dim] = [minval, maxval]
+                minval, maxval = int(minv / scale + offset), int(maxv / scale + offset)
+
+            outdims[dim] = [minval, maxval].copy()
 
         return (outdims)
 
