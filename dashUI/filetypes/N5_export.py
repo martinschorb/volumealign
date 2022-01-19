@@ -136,7 +136,7 @@ for dim in ['X','Y','Z']:
     bbox0.append(Input({'component': 'end'+dim,'module' : parent},'value'))
 
 
-stackinput = [Input({'component': 'stack_dd', 'module': parent},'value')]
+stackinput = []#Input({'component': 'stack_dd', 'module': parent},'value')]
 stackinput.extend(bbox0)
 stackinput.append(Input({'component': "path_input", 'module': label},'n_blur'))
 stackoutput = [Output({'component': 'path_ext', 'module': label},'data'),
@@ -153,15 +153,15 @@ stackoutput.extend(compute_tablefields)
               stackinput,
               [State({'component': 'store_owner', 'module': parent}, 'data'),
                State({'component': 'store_project', 'module': parent}, 'data'),
-               State({'component': 'store_stack', 'module': parent}, 'data'),
+               State({'component': 'stack_dd', 'module': parent}, 'value'),
                State({'component': 'store_allstacks', 'module': parent}, 'data'),
                State({'component': "path_input", 'module': label},'value'),
                State('url','pathname')]
               ,prevent_initial_call=True)
-def n5export_stacktodir(stack_sel,
+def n5export_stacktodir(#stack_sel,
                        xmin,xmax,ymin,ymax,zmin,zmax,
                        browsetrig,
-                       owner,project,stack,allstacks,
+                       owner,project,stack_sel,allstacks,
                        browsedir,
                        thispage):
 
@@ -192,6 +192,7 @@ def n5export_stacktodir(stack_sel,
             out['numsections'] = zmax-zmin + 1
                      
             url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/'+ str(out['zmin']) +'/render-parameters'
+            print(url)
             tiles0 = requests.get(url).json()
             
             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
