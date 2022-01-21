@@ -278,7 +278,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
             
             target_args = None
             run_args = None
-            script = params.rendermodules_dir+'/rendermodules/pointmatch/generate_point_matches_opencv.py'
+            script = params.asap_dir+'/pointmatch/generate_point_matches_opencv.py'
             
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
