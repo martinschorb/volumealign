@@ -192,7 +192,7 @@ def n5export_stacktodir(#stack_sel,
             out['numsections'] = zmax-zmin + 1
                      
             url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/'+ str(out['zmin']) +'/render-parameters'
-            print(url)
+
             tiles0 = requests.get(url).json()
             
             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
