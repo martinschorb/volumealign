@@ -173,12 +173,8 @@ def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2sel,tile2options
         if tile2sel in item['value']:
             tile2label = item['label']
 
-
-    print(tile2label)
-
     if 'button' in trigger:
         tile_clip = matchTrial.invert_neighbour(tile2label)
-        print(tile_clip)
 
         matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2],clippos=tile_clip)
 
