@@ -35,12 +35,14 @@ parent = "pointmatch"
 page=[]
 
 
-matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT search"),
-                       html.Div(['Organism: ',
+matchtrial = html.Div([pages.tile_view(parent,numpanel=2,showlink=True),
+                       html.Br(),
+                       html.H4("Select appropriate Parameters for the SIFT search"),
+                       html.Div(['Organism template: ',
                        dcc.Dropdown(id=label+'organism_dd',persistence=True,
                                     clearable=False),
                        html.Br(),
-                       html.Div(["Select existing Match Trial parameters."
+                       html.Div(["Select template Match Trial parameters."
                                  ],
                                 id=label+'mt_sel'),
                        dcc.Store(id=label+'picks'),
@@ -48,12 +50,10 @@ matchtrial = html.Div([html.H4("Select appropriate Parameters for the SIFT searc
                                     clearable=False),
                        html.Br(),
                        html.Div(id=label+'mtbrowse',
-                             children=[html.A('Explore MatchTrial',
-                                              id=label+'mt_link',
-                                              target="_blank"),                                      
+                             children=[html.Button('Explore MatchTrial',id=label+'mt_linkbutton'),
                                        ]),
                        html.Br(),
-                       pages.tile_view(parent,numpanel=2,showlink=True),
+
                        html.Br(),
                        html.Div(["Use this Match Trial as compute parameters:",
                                  dcc.Input(id=label+'mtselect', type="text",
@@ -146,20 +146,38 @@ def sift_pointmatch_IDs(organism,picks):
     return [dd_options]
     
 
-@app.callback([Output(label+'mt_link','href'),
-               Output(label+'mtselect','value')],              
-              Input(label+'matchID_dd','value')
-               # State(label+'picks','data'),              
-              , prevent_initial_call=True)
-def sift_browse_matchTrial(matchID):
-    if matchID is None:
-        return dash.no_update
-    
-    mc_url = params.render_base_url + 'view/match-trial.html?'
-    mc_url += 'matchTrialId=' + matchID
+@app.callback([Output(label+'mtselect','value'),
+               ]
+              [Input(label+'matchID_dd','value'),
+               Input(label+'mt_linkbutton','n_clicks')],
+              [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
+               State({'component': 'tileim_link_1', 'module': parent}, 'children')]
+              )
+def sift_browse_matchTrial(matchID,buttonclick,link1,link2):
 
-            
-    return mc_url, matchID
+    if None in (matchID,link1,link2):
+        return dash.no_update
+
+    trigger = hf.trigger()
+
+    if 'button' in trigger:
+        matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2])
+        return matchID,buttonclick
+
+    return matchID,dash.no_update
+
+
+app.clientside_callback(
+    """
+    function(largeValue1, largeValue2) {
+        return someTransform(largeValue1, largeValue2);
+    }
+    """,
+    Output('out-component', 'value'),
+    Input('in-component1', 'value'),
+    Input('in-component2', 'value')
+)
+
 
 
 # =============================================

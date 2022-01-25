@@ -176,6 +176,9 @@ match_store = {#'init_match':{},
                'all_matchcolls':None
                }
 
+# match trial owner default ('flyTEM' in built)
+
+mt_owner = 'flyTEM'
 
 #=============================================================
 ## UI parameters
