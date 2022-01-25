@@ -51,6 +51,10 @@ matchtrial = html.Div([pages.tile_view(parent,numpanel=2,showlink=True),
                        html.Br(),
                        html.Div(id=label+'mtbrowse',
                              children=[html.Button('Explore MatchTrial',id=label+'mt_linkbutton'),
+                                       html.A('  - ',
+                                              id=label + 'mt_link',
+                                              target="_blank"),
+                                       html.Div('',id=label+'mt_jscaller',style={'display':'none'})
                                        ]),
                        html.Br(),
 
@@ -147,35 +151,46 @@ def sift_pointmatch_IDs(organism,picks):
     
 
 @app.callback([Output(label+'mtselect','value'),
-               ]
+               Output(label + 'mt_link','href'),
+               Output(label+'mt_jscaller','children')],
               [Input(label+'matchID_dd','value'),
                Input(label+'mt_linkbutton','n_clicks')],
               [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
-               State({'component': 'tileim_link_1', 'module': parent}, 'children')]
+               State({'component': 'tileim_link_1', 'module': parent}, 'children'),
+               State({'component': 'tile_dd_1', 'module': parent}, 'label')]
               )
-def sift_browse_matchTrial(matchID,buttonclick,link1,link2):
+def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2label):
 
     if None in (matchID,link1,link2):
         return dash.no_update
 
     trigger = hf.trigger()
 
+    mc_url = params.render_base_url + 'view/match-trial.html?'
+    print(tile2label)
+
     if 'button' in trigger:
         matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2])
-        return matchID,buttonclick
 
-    return matchID,dash.no_update
+        mc_url += 'matchTrialId=' + matchID
+
+        return matchID,mc_url,str(buttonclick)
+
+    mc_url += 'matchTrialId=' + matchID
+
+    return matchID,mc_url,dash.no_update
 
 
 app.clientside_callback(
     """
-    function(largeValue1, largeValue2) {
-        return someTransform(largeValue1, largeValue2);
+    function(trigger, url) {
+        window.open(arguments[1]);
+        return {}
     }
     """,
-    Output('out-component', 'value'),
-    Input('in-component1', 'value'),
-    Input('in-component2', 'value')
+    Output(label+'mt_linkbutton','style'),
+    Input(label+'mt_jscaller','children'),
+    State(label + 'mt_link','href')
 )
 
 

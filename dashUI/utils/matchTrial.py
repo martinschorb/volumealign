@@ -65,7 +65,7 @@ def new_matchtrial(matchID,urls,clippos='LEFT',owner=params.mt_owner,):
 
     res={}
 
-    try: res = requests.post(url, json=mt['parameters']).json()
+    try: res = requests.post(url, json=matchtrial['parameters']).json()
     except: json.decoder.JSONDecodeError
 
     if 'id' in res.keys():
