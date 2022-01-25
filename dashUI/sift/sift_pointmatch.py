@@ -157,9 +157,10 @@ def sift_pointmatch_IDs(organism,picks):
                Input(label+'mt_linkbutton','n_clicks')],
               [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
                State({'component': 'tileim_link_1', 'module': parent}, 'children'),
-               State({'component': 'tile_dd_1', 'module': parent}, 'label')]
+               State({'component': 'tile_dd_1', 'module': parent}, 'value'),
+               State({'component': 'tile_dd_1', 'module': parent}, 'options')]
               )
-def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2label):
+def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2sel,tile2options):
 
     if None in (matchID,link1,link2):
         return dash.no_update
@@ -167,10 +168,19 @@ def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2label):
     trigger = hf.trigger()
 
     mc_url = params.render_base_url + 'view/match-trial.html?'
+
+    for item in tile2options:
+        if tile2sel in item['value']:
+            tile2label = item['label']
+
+
     print(tile2label)
 
     if 'button' in trigger:
-        matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2])
+        tile_clip = matchTrial.invert_neighbour(tile2label)
+        print(tile_clip)
+
+        matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2],clippos=tile_clip)
 
         mc_url += 'matchTrialId=' + matchID
 

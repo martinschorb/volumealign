@@ -73,3 +73,15 @@ def new_matchtrial(matchID,urls,clippos='LEFT',owner=params.mt_owner,):
         matchID = res['id']
 
     return matchtrial, matchID
+
+
+def invert_neighbour(tilelabel):
+    o_loc = ['LEFT','RIGHT','TOP','BOTTOM']
+    inv_loc = ['RIGHT','LEFT','BOTTOM','TOP']
+
+    for p_loc,q_loc in zip(o_loc,inv_loc):
+        if p_loc in tilelabel:
+            return q_loc
+
+    return 'NO CLIP'
+
