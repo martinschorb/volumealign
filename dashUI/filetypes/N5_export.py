@@ -447,7 +447,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             spark_p['--worker_mempercpu'] = params.mem_per_cpu
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
 
-            spark_args = dict('--jarfile' : params.render_sparkjar)
+            spark_args = {'--jarfile':params.render_sparkjar}
             
             run_params_generate = spsl_p.copy()
                        
