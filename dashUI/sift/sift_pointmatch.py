@@ -359,7 +359,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
             spark_p['--worker_cpu'] = params.cpu_pernode_spark
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
 
-            spark_p['--jarfile'] = params.render_sparkjar
+            spark_args = dict('--jarfile' : params.render_sparkjar)
             
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)
@@ -386,8 +386,13 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
         
         
         
-        sift_pointmatch_p = launch_jobs.run(target=comp_sel,pyscript=script,
-                            jsonfile=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
+        sift_pointmatch_p = launch_jobs.run(target=comp_sel,
+                                            pyscript=script,
+                                            jsonfile=param_file,
+                                            run_args=run_args,
+                                            target_args=target_args,
+                                            special_args=spark_args,
+                                            logfile=log_file,errfile=err_file)
                     
                 
         launch_store=dict()

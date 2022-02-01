@@ -380,7 +380,7 @@ for idx in range(params.max_tileviews):
             scale = round(scale, 4)
             out_scale = '%0.4f' % scale
 
-            url = url + '/box/' + ','.join(map(str,[xmin,ymin,width,height,scale]))
+            url += '/box/' + ','.join(map(str,[xmin,ymin,width,height,scale]))
             imurl = url + '/jpeg-image?scale=' + out_scale
 
         elif 'contrast' in trigger:
@@ -390,15 +390,19 @@ for idx in range(params.max_tileviews):
             imurl = re.sub('/z/[0-9]*','/z/'+str(section),imparams['imurl'])
 
         else:
-            # bounds = thisstore['stackparams']['stats']['stackBounds']
+            fullbounds = thisstore['stackparams']['stats']['stackBounds']
             url1 = url + '/bounds'
+            print(url1)
             bounds = requests.get(url1).json()
 
             imwidth = bounds['maxX'] - bounds['minX']
 
             scale = float(params.im_width) / float(imwidth)
             imparams.update(bounds)
-            imparams['fullbounds']=bounds
+            imparams['fullbounds']=fullbounds
+            imparams['maxZ'] = fullbounds['maxZ']
+            imparams['minZ'] = fullbounds['minZ']
+
             scale = round(scale,4)
             out_scale = '%0.4f' % scale
             imurl = url +'/jpeg-image?scale=' + out_scale
@@ -450,6 +454,8 @@ for idx in range(params.max_tileviews):
 
         outdims = dict()
         scale = imparams['scale']
+
+        print(imparams)
 
         for dim in ['X', 'Y']:
             minval = imparams['min' + dim]

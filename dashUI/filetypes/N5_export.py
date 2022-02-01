@@ -447,7 +447,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             spark_p['--worker_mempercpu'] = params.mem_per_cpu
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
 
-            spark_p['--jarfile'] = params.render_sparkjar
+            spark_args = dict('--jarfile' : params.render_sparkjar)
             
             run_params_generate = spsl_p.copy()
                        
@@ -480,10 +480,13 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
         log_file += '.log'
 
         
-        n5export_p = launch_jobs.run(target=comp_sel,pyscript=script,
-                            jsonfile=param_file,run_args=run_args,target_args=target_args,logfile=log_file,errfile=err_file)
-            # ['sparkslurm__12539018']
-            
+        n5export_p = launch_jobs.run(target=comp_sel,
+                                     pyscript=script,
+                                     jsonfile=param_file,
+                                     run_args=run_args,
+                                     target_args=target_args,
+                                     special_args=spark_args,
+                                     logfile=log_file,errfile=err_file)
         
         launch_store=dict()
         launch_store['logfile'] = log_file
