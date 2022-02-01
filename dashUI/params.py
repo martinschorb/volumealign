@@ -5,6 +5,7 @@
 
 import json
 import os
+import glob
 import subprocess
 import requests
 import socket
@@ -22,8 +23,6 @@ render_log_dir = '/g/emcf/software/render-logs'
 
 rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rendermodules_addons'
 asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
-
-gc3_conffile = os.path.join(base_dir,'launchers/gc3conf/template_gc3pie.conf')
 
 spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 
@@ -227,7 +226,7 @@ render_base_url = render_json['render']['host']
 render_base_url += ':' + str(render_json['render']['port'])
 render_base_url += v_base_url
 
-
+render_sparkjar = glob.glob(render_dir+'/render-ws-spark-client/target/render-ws-spark-client-*-standalone.jar')[0]
 
 # get initial list of owners in Render:
 
