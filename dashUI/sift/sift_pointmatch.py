@@ -359,7 +359,7 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
             spark_p['--worker_cpu'] = params.cpu_pernode_spark
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
 
-            spark_args = dict('--jarfile' : params.render_sparkjar)
+            spark_args = {'--jarfile':params.render_sparkjar}
             
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)
