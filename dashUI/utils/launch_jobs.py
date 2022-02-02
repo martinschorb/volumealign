@@ -217,6 +217,9 @@ def cluster_status(run_state):
                         else:
                             if 'FINISHED' in sp_query['completedapps'][0]['state']:
                                 out_stat.append(canceljobs(run_state,'done'))
+                                donefile = run_state['logfile']+'.done'
+                                with open(donefile,'w') as f:
+                                    f.write('spark job: '+j_id + ' is done.')
 
                             elif 'KILLED' in sp_query['completedapps'][0]['state']:
                                 drop = canceljobs(run_state)

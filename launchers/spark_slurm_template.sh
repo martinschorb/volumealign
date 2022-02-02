@@ -128,4 +128,11 @@ sparksubmitcall="$SPARK_HOME/bin/spark-submit --master $MASTER_URL --driver-memo
 echo $sparksubmitcall
 $sparksubmitcall
 
-sleep infinity
+while [ ! -f $LOGDIR.log.done ]
+do
+  sleep 2
+done
+
+rm $LOGDIR.log.done
+
+#sleep infinity
