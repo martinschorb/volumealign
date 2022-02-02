@@ -392,7 +392,7 @@ for idx in range(params.max_tileviews):
         else:
             fullbounds = thisstore['stackparams']['stats']['stackBounds']
             url1 = url + '/bounds'
-            print(url1)
+
             bounds = requests.get(url1).json()
 
             imwidth = bounds['maxX'] - bounds['minX']
@@ -454,8 +454,6 @@ for idx in range(params.max_tileviews):
 
         outdims = dict()
         scale = imparams['scale']
-
-        print(imparams)
 
         for dim in ['X', 'Y']:
             minval = imparams['min' + dim]
