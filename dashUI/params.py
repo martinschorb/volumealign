@@ -21,7 +21,7 @@ conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = '/g/emcf/software/render-logs'
 
-rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rendermodules_addons'
+rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rmaddons'
 asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
 
 spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
