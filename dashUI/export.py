@@ -65,7 +65,7 @@ page.append(page1)
 
 # ===============================================
 
-slice_view = pages.section_view(module)
+slice_view = pages.section_view(module,bbox=True)
 
 page.append(slice_view)
 
