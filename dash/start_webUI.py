@@ -12,7 +12,7 @@ import json
 import subprocess
 
 import params
-
+from utils.launch_jobs import run_prefix
 
 target_machines = list(params.remote_machines.keys())
 
@@ -58,7 +58,7 @@ if params.user not in users_exist.keys():
 else:
     port = users_exist[params.user]
 
-logfile = os.path.join(params.render_log_dir,'webUI_'+ params.run_prefix + '.log')
+logfile = os.path.join(params.render_log_dir,'webUI_'+ run_prefix() + '.log')
 
 print('Starting Render WebUI.\n')
 print('As long as this window is open, you can access Render through:\n\n')
