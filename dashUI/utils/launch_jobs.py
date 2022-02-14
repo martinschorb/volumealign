@@ -217,6 +217,9 @@ def cluster_status(run_state):
                         else:
                             if 'FINISHED' in sp_query['completedapps'][0]['state']:
                                 out_stat.append(canceljobs(run_state,'done'))
+                                donefile = run_state['logfile']+'.done'
+                                with open(donefile,'w') as f:
+                                    f.write('spark job: '+j_id + ' is done.')
 
                             elif 'KILLED' in sp_query['completedapps'][0]['state']:
                                 drop = canceljobs(run_state)
@@ -264,6 +267,7 @@ def run(target='standalone',
         jsonfile='',
         run_args='',
         target_args=None,
+        special_args=None,
         logfile=os.path.join(params.render_log_dir,'render.out'),
         errfile=os.path.join(params.render_log_dir,'render.err')):
     
@@ -375,9 +379,12 @@ def run(target='standalone',
         # spsl_args += args2string({'--logfile':logfile})
         # spsl_args += args2string({'--errfile':errfile})
         spsl_args += args2string({'--logdir':logbase})
- 
-        
+
         spark_args = dict()
+        if type(special_args) is dict:
+            spark_args.update(special_args)
+
+
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
         spark_args['--spark_home'] = params.spark_dir

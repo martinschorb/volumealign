@@ -138,17 +138,17 @@ for idx in range(params.max_tileviews):
     # init tile selector
     @app.callback([Output({'component':'tile_dd'+idx_str,'module': MATCH},'options'),
                    Output({'component':'tile_dd'+idx_str,'module': MATCH},'value')],
-                  Input({'component':'tileim_section_in'+idx_str,'module': MATCH},'value'),
+                  [Input({'component':'tileim_section_in'+idx_str,'module': MATCH},'value'),
+                   Input({'component': 'tp_dd', 'module': MATCH},'value')],
                   [State({'component': 'owner_dd','module': MATCH},'value'),
                    State({'component': 'project_dd','module': MATCH},'value'),
                    State({'component': 'stack_dd','module': MATCH},'value'),
                    State({'component':'tile_dd'+idx_str,'module': MATCH},'value'),
-                   State({'component': 'tp_dd', 'module': MATCH},'value'),
                    State({'component': 'neighbours', 'module': MATCH},'children'),
                    State({'component': 'lead_tile', 'module': MATCH},'data'),
                    State('url', 'pathname')]
                   ,prevent_initial_call=True)
-    def slicetotiles(slicenum,owner,project,stack,prev_tile,tilepairdir,neighbours,lead_tile,thispage):
+    def slicetotiles(slicenum,tilepairdir,owner,project,stack,prev_tile,neighbours,lead_tile,thispage):
 
         if None in (slicenum,owner,project,stack,neighbours,lead_tile):
             raise PreventUpdate
@@ -380,7 +380,7 @@ for idx in range(params.max_tileviews):
             scale = round(scale, 4)
             out_scale = '%0.4f' % scale
 
-            url = url + '/box/' + ','.join(map(str,[xmin,ymin,width,height,scale]))
+            url += '/box/' + ','.join(map(str,[xmin,ymin,width,height,scale]))
             imurl = url + '/jpeg-image?scale=' + out_scale
 
         elif 'contrast' in trigger:
@@ -390,15 +390,19 @@ for idx in range(params.max_tileviews):
             imurl = re.sub('/z/[0-9]*','/z/'+str(section),imparams['imurl'])
 
         else:
-            # bounds = thisstore['stackparams']['stats']['stackBounds']
+            fullbounds = thisstore['stackparams']['stats']['stackBounds']
             url1 = url + '/bounds'
+
             bounds = requests.get(url1).json()
 
             imwidth = bounds['maxX'] - bounds['minX']
 
             scale = float(params.im_width) / float(imwidth)
             imparams.update(bounds)
-            imparams['fullbounds']=bounds
+            imparams['fullbounds']=fullbounds
+            imparams['maxZ'] = fullbounds['maxZ']
+            imparams['minZ'] = fullbounds['minZ']
+
             scale = round(scale,4)
             out_scale = '%0.4f' % scale
             imurl = url +'/jpeg-image?scale=' + out_scale

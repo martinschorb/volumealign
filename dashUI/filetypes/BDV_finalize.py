@@ -177,7 +177,7 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     
     run_params['path'] = n5file
     # run_params["scale_factors"] = 3 * [[2, 2, 2]],
-    run_params["resolution"] = str(res)
+    run_params["resolution"] = res
     run_params["unit"] = 'nanometer'
 
 
@@ -191,7 +191,7 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     log_file += '.log'
     
     
-    mkxml_p = launch_jobs.run(target='standalone',pyscript=params.rendermodules_dir+'rendermodules/materialize/make_xml.py',jsonfile = param_file,
+    mkxml_p = launch_jobs.run(target='standalone',pyscript=params.rendermodules_dir+'/materialize/make_xml.py',jsonfile = param_file,
                               logfile=log_file,errfile=err_file)
                             
     

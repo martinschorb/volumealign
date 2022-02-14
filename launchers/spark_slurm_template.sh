@@ -80,7 +80,7 @@ export MASTER_HOST=`hostname`
 export MASTER_IP=`host $MASTER_HOST | sed 's/^.*address //'`
 export MASTER_WEB="http://$MASTER_IP:8080"
 
-JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
+#JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-3.0.0-SNAPSHOT-standalone.jar"
 
 mkdir $LOGDIR
 mkdir $LOGDIR/$JOB
@@ -128,4 +128,11 @@ sparksubmitcall="$SPARK_HOME/bin/spark-submit --master $MASTER_URL --driver-memo
 echo $sparksubmitcall
 $sparksubmitcall
 
-sleep infinity
+while [ ! -f $LOGDIR.log.done ]
+do
+  sleep 2
+done
+
+rm $LOGDIR.log.done
+
+#sleep infinity

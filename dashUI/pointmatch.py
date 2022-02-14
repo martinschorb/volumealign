@@ -251,13 +251,13 @@ def pointmatch_comp_set(tilepairdir,matchtime,n_cpu,stack_sel,allstacks,thispage
     if thispage == '' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
 
-    n_cpu = int(n_cpu)
+    # n_cpu = int(n_cpu)
 
     out=dict()
     factors=dict()
     t_fields = ['']*len(status_table_cols)
 
-    numtp = 1
+    # numtp = 1
     
     if (not stack_sel=='-' ) and (not allstacks is None):   
         stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]        

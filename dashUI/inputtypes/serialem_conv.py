@@ -203,7 +203,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         #launch
         # -----------------------
         
-        sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript=params.rendermodules_dir+'/rendermodules/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
+        sbem_conv_p = launch_jobs.run(target=compute_sel,pyscript=params.rendermodules_dir+'/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
                         jsonfile=param_file,run_args=None,logfile=log_file,errfile=err_file)
         
         run_state['status'] = 'running'     
@@ -212,6 +212,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         run_state['logfile'] = log_file
         
     else:
+
         # outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
@@ -233,6 +234,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
             else:
                 if not (run_state['status'] == 'running'): 
                     run_state['status'] = 'input'
+                    but_disabled = False
 
         else:
             if not (run_state['status'] == 'running'): 

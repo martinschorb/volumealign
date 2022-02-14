@@ -195,7 +195,7 @@ def tilepairs_execute_gobutton(click,pairmode,stack,slicedepth,comp_sel,startsec
     err_file = log_file + '.err'
     log_file += '.log'
     
-    tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript=params.rendermodules_dir+'rendermodules/pointmatch/create_tilepairs.py',
+    tilepairs_generate_p = launch_jobs.run(target=comp_sel,pyscript=params.asap_dir+'/pointmatch/create_tilepairs.py',
                         jsonfile=param_file,run_args=None,target_args=None,logfile=log_file,errfile=err_file)
 
     
