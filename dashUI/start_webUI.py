@@ -14,7 +14,7 @@ import subprocess
 import params
 from utils.launch_jobs import run_prefix
 
-target_machines = list(params.remote_machines.keys())
+target_machines = params.remote_machines
 
 
 user_file = './web_users.json'
@@ -37,15 +37,15 @@ if params.user not in users_exist.keys():
     # create new user...
    
     if ssh_key_login:
-        if not os.path.exists(home+'/.ssh'):
-            os.mkdirs(home+'/.ssh')
+        if not os.path.exists(os.path.join(home,'.ssh')):
+            os.mkdirs(os.path.join(home,'.ssh'))
 
 
-        if not os.path.exists(home+'/.ssh/id_rsa_render'):
-            os.system("ssh-keygen -t rsa -b 4096 -q -f '+home+'/.ssh/id_rsa_render -N ''")
+        if not os.path.exists(os.path.join('.ssh/id_rsa_render')):
+            os.system("ssh-keygen -t rsa -b 4096 -q -f $HOME/.ssh/id_rsa_render -N ''")
         
-        for target in target_machines:
-            os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa_render ' + target_machines[target] +'@' + target)
+        for target in target_machines.keys():
+            os.system("ssh-copy-id -i $HOME/.ssh/id_rsa_render " + target_machines[target] +"@" + target)
         
     
     port = max(users_exist.values()) + 1
