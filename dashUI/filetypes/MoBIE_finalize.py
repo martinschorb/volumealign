@@ -29,7 +29,7 @@ from utils import helper_functions as hf
 
 
 # element prefix
-label = "finalize_BDV"
+label = "finalize_MoBIE"
 parent = "finalize"
 
 store = pages.init_store({}, label)
