@@ -22,7 +22,8 @@ startpath = os.getcwd()
 show_hidden = False
 
 
-@app.callback(Output({'component': 'path_input', 'module': MATCH},'value'),              
+@app.callback([Output({'component': 'path_input', 'module': MATCH},'value'),
+               Output({'component': 'path_dummy', 'module': MATCH},'data')],
               [Input({'component': 'path_store', 'module': MATCH},'data'),
                Input({'component': 'path_ext', 'module': MATCH},'data')]
               ,prevent_initial_call=True)
@@ -30,6 +31,7 @@ def update_store(inpath,extpath):
     trigger=hf.trigger()
     # print('pathstore -- ')
     # print(trigger)
+    outtrigger=dash.no_update
     if trigger=='path_store':
         if os.path.exists(str(inpath)):
             path = inpath
@@ -38,21 +40,26 @@ def update_store(inpath,extpath):
     else:
         # print(extpath)
         path=extpath
+        outtrigger = extpath
         
-    return path
+    return path,outtrigger
+
 
 
 @app.callback([Output({'component': 'browse_dd', 'module': MATCH},'options'),
-               Output({'component': 'path_store', 'module': MATCH},'data')],
+               Output({'component': 'path_store', 'module': MATCH},'data'),
+               Output({'component': 'browse_dd', 'module': MATCH},'value')],
               [Input({'component': 'browse_dd', 'module': MATCH},'value'),
-               Input({'component': 'path_input', 'module': MATCH},'n_blur')],
+               Input({'component': 'path_input', 'module': MATCH},'n_blur'),
+               Input({'component': 'path_dummy', 'module': MATCH},'modified_timestamp')],
               [State({'component': 'path_input', 'module': MATCH},'value'),
                State({'component': 'path_store', 'module': MATCH},'data'),
                State({'component': 'path_showfiles', 'module': MATCH},'data'),
                State({'component': 'path_filetypes', 'module': MATCH},'data'),
+               State({'component': 'path_dummy', 'module': MATCH},'data'),
                State('url','pathname')]
               ,prevent_initial_call=True)
-def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
+def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummydata,thispage):
     if dash.callback_context.triggered: 
         trigger = hf.trigger()
     else:
@@ -60,9 +67,12 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
 
     thispage = thispage.lstrip('/')
 
-    if thispage=='' or not thispage in hf.trigger(key='module'):
+    if thispage=='' or not thispage in hf.trigger(key='module') or inpath is None:
         raise PreventUpdate
-    
+
+    if 'dummy' in trigger:
+        path = dummydata
+
     if os.path.isdir(str(inpath)):
         inpath = inpath
     elif os.path.exists(str(inpath)):
@@ -77,11 +87,15 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
             path = startpath
                 
     if trigger == 'path_input':
-            
         if os.path.isdir(str(inpath)):
             path = inpath
             filesel = None    
-    
+
+    outselect = dash.no_update
+
+    if filesel == '..':
+        outselect = ''
+
     if type(filetypes) is str:
         filetypes = [filetypes]
 
@@ -91,8 +105,7 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
         filetypes[idx] = filetype.lower()
         if not filetype.startswith(os.path.extsep):
             filetypes[idx] = os.path.extsep + filetypes[idx]
-        
-    
+
     if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
         
         if not filesel is None:
@@ -125,10 +138,10 @@ def update_path_dd(filesel,intrig,inpath,path,show_files,filetypes,thispage):
                         
         if show_files:
             dd_options.extend(f_list)
-                
-        return dd_options,path
+
+        return dd_options,path,outselect
     
     else:
         path = os.path.join(path,filesel)
 
-        return dash.no_update,path
+        return dash.no_update,path,outselect

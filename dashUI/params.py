@@ -114,9 +114,9 @@ section_split = 500 #split stack into processing chunks for certain operations (
 
 # directory structure
 
-datasubdirs = {
-    'SBEM':'/tiles',
-    'SerialEM':'.'}
+datadirdepth = {
+    'SBEM':3,
+    'SerialEM':1}   # levels how deep inside the root directory the actual tile images are stored
 
 mipmapdir = 'mipmaps'
 

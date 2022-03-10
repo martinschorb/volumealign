@@ -27,7 +27,7 @@ from utils import pages,launch_jobs
 from utils import helper_functions as hf
 from utils.checks import is_bad_filename
 
-from callbacks import substack_sel, filebrowse
+
 
 
 
@@ -138,8 +138,8 @@ for dim in ['X','Y','Z']:
 
 stackinput = []#Input({'component': 'stack_dd', 'module': parent},'value')]
 stackinput.extend(bbox0)
-stackinput.append(Input({'component': "path_input", 'module': label},'n_blur'))
-stackoutput = [Output({'component': 'path_ext', 'module': label},'data'),
+stackinput.append(Input({'component': "path_input", 'module': parent},'n_blur'))
+stackoutput = [#Output({'component': 'path_ext', 'module': parent},'data'),
                # Output({'component': 'store_stackparams', 'module': module}, 'data')
                ]
 tablefields = [Output({'component': 't_'+col, 'module': label},'children') for col in status_table_cols]
@@ -155,10 +155,10 @@ stackoutput.extend(compute_tablefields)
                State({'component': 'store_project', 'module': parent}, 'data'),
                State({'component': 'stack_dd', 'module': parent}, 'value'),
                State({'component': 'store_allstacks', 'module': parent}, 'data'),
-               State({'component': "path_input", 'module': label},'value'),
+               State({'component': "path_input", 'module': parent},'value'),
                State('url','pathname')]
               ,prevent_initial_call=True)
-def n5export_stacktodir(#stack_sel,
+def n5export_stacktoparams(#stack_sel,
                        xmin,xmax,ymin,ymax,zmin,zmax,
                        browsetrig,
                        owner,project,stack_sel,allstacks,
@@ -170,7 +170,6 @@ def n5export_stacktodir(#stack_sel,
     if thispage == '' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
 
-    dir_out=''
     out=dict()
     factors=dict()
     
@@ -196,9 +195,9 @@ def n5export_stacktodir(#stack_sel,
             tiles0 = requests.get(url).json()
             
             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
-            
-            basedirsep = params.datasubdirs[owner]
-            dir_out = tilefile0[:tilefile0.find(basedirsep)]
+            #
+            # basedirsep = params.datasubdirs[owner]
+            # dir_out = tilefile0[:tilefile0.find(basedirsep)]
             
             out['Gigapixels'] = out['numsections'] * (xmax-xmin) * (ymax-ymin)/(10**9)
             
@@ -207,13 +206,8 @@ def n5export_stacktodir(#stack_sel,
             timelim = np.ceil(out['Gigapixels'] * params.export['min/GPix/CPU_N5'])
 
             factors = {'runtime_minutes': timelim}
-            
-    trigger = hf.trigger()  
-    
-    if trigger == 'path_input':
-        dir_out = browsedir
-    
-    outlist=[dir_out] #,out]   
+
+    outlist=[]#dir_out] #,out]
     outlist.extend(t_fields)
     outlist.append(factors)
 
@@ -230,22 +224,6 @@ def n5export_stacktodir(#stack_sel,
 
 # =============================================
 
-
-
-
-page2 = html.Div(id={'component': 'page2', 'module': label},children=[html.H4('Output path'),
-                                             dcc.Input(id={'component': "path_input", 'module': label}, type="text",debounce=True,persistence=True,className='dir_textinput'),
-                                             # dcc.Input(id={'component': "path_input", 'module': label}, type="text",style={'display': 'none'})
-                                             # html.Button('Browse',id={'component': "browse1", 'module': label}),
-                                             # 'graphical browsing works on cluster login node ONLY!',
-                                             # html.Br()
-                                             ])
-
-page.append(page2)
-                                            
-pathbrowse = pages.path_browse(label)
-
-page.append(pathbrowse)
 
 
 
@@ -295,7 +273,7 @@ states.append(State({'component':'sliceim_contrastslider_0','module': parent},'v
                 Output({'component': 'store_launch_status', 'module': parent},'data'),
                 Output({'component': 'store_render_launch', 'module': parent},'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input({'component': "path_input", 'module': label},'value'),
+               Input({'component': "path_input", 'module': parent},'value'),
                Input({'component':'stack_dd','module' : parent},'value'),
                Input({'component': 'input_Num_CPUs', 'module': label},'value'),
                Input({'component': 'input_runtime_minutes', 'module': label},'value')],

@@ -459,8 +459,9 @@ def path_browse(module,tf_in = None,show_files=False,file_types=[]):
                         dcc.Store(id={'component': 'path_ext', 'module': module})])
     showfiles = dcc.Store(data=show_files,id={'component': 'path_showfiles', 'module': module})
     filetypes = dcc.Store(data=file_types,id={'component': 'path_filetypes', 'module': module})
-    
-    return html.Div([fbrowse,fbstore,showfiles,filetypes])
+    triggerdummy = dcc.Store(data=file_types,id={'component': 'path_dummy', 'module': module})
+
+    return html.Div([fbrowse,fbstore,showfiles,filetypes,triggerdummy])
 
 # if __name__ == '__main__':
     
