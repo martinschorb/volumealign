@@ -13,6 +13,7 @@ from dash.exceptions import PreventUpdate
 
 import os
 import requests
+import importlib
 
 import params
 
@@ -25,27 +26,23 @@ from callbacks import (render_selector,
                        boundingbox,tile_view,
                        substack_sel,filebrowse)
 
-
-from filetypes import N5_export
-
-
 module='export'
 
-subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'},
-            {'label': 'Add to MoBIE project', 'value': 'MoBIE'}]
+subpages = [{'label': 'N5 (MoBIE/BDV', 'value': 'N5'},
+            {'label': 'slice images', 'value': 'slices'}
+            ]
 
 submodules = [
-    'filetypes.MoBIE_finalize',
-    'filetypes.BDV_finalize'
+    'filetypes.N5_export',
+    'filetypes.slice_export'
 ]
 
 
-storeinit = {}            
+storeinit = {}
 store = pages.init_store(storeinit, module)
 
 
-main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Export Render stack to volume"))
-
+main = html.Div(id={'component': 'main', 'module': module},children=html.H3("Export Render stack to volume"))
 
 page = [main]
 
@@ -70,11 +67,7 @@ def export_update_store(*args):
 
     return render_selector.update_store(*args)
 
-page1 = pages.render_selector(module)
-
-
-page.append(page1)
-
+page.append(pages.render_selector(module))
 
 # ===============================================
 
@@ -91,14 +84,15 @@ page.append(pages.boundingbox(module))
 
 # ===============================================
        
-page2 = html.Div([html.H4("Choose output type."),
-                  dcc.Dropdown(id=module+'dropdown1',persistence=True,
-                               options=[{'label': 'N5', 'value': 'N5'}],
+page0 = html.Div([html.H4("Choose output type."),
+                  dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},
+                               persistence=True,
+                               options=subpages,
                                value='N5'),
                   html.Br()
                   ])                                
 
-page.append(page2)
+page.append(page0)
 
 page3 = html.Div(id={'component': 'page2', 'module': module}, children=[html.H4('Output path'),
                                                                        dcc.Input(id={'component': "path_input",
@@ -159,38 +153,74 @@ def export_stacktodir(dir_trigger,trig2,stack_sel,owner,project,allstacks,browse
 # # Page content for specific export call
 
 
-page3 = html.Div(id=module+'page1')
-
-page.append(page3)
-
-
-@app.callback([Output(module+'page1', 'children')],
-                Input(module+'dropdown1', 'value'))
-def export_output(value):
-    
-    if value=='N5':
-        return [N5_export.page]
-    
-    else:
-        return [[html.Br(),'No output type selected.']]
-
-
-
-# =============================================
-# Processing status
-
-# initialized with store
-# embedded from callbacks import runstate
+page1 = [pages.log_output(module,hidden=True)]
 
 # # =============================================
-# # PROGRESS OUTPUT
+# # # Page content
+
+page1.append(html.Div([html.Br(), 'No data type selected.'],
+                      id=module+'_nullpage'))
+
+switch_outputs = [Output(module+'_nullpage', 'style')]
+
+status_inputs = []
+
+page2 = []
 
 
-collapse_stdout = pages.log_output(module)
+for subsel, impmod in zip(subpages, submodules):
+    thismodule = importlib.import_module(impmod)
 
-# ----------------
+    page1.append(html.Div(getattr(thismodule, 'page1'),
+                          id={'component': 'page1', 'module': subsel['value']},
+                          style={'display': 'none'}))
+    switch_outputs.append(Output({'component': 'page1', 'module': subsel['value']}, 'style'))
 
-# Full page layout:
-    
+    page2.append(html.Div(getattr(thismodule, 'page2'),
+                          id={'component': 'page2', 'module': subsel['value']},
+                          style={'display': 'none'}))
+    switch_outputs.append(Output({'component': 'page2', 'module': subsel['value']}, 'style'))
 
-page.append(collapse_stdout)
+    status_inputs.append(Input({'component': 'status', 'module': subsel['value']}, 'data'))
+
+
+# Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
+
+@app.callback(switch_outputs,
+              Input({'component': 'subpage_dd', 'module': module}, 'value'),
+              State('url', 'pathname'))
+def convert_output(dd_value, thispage):
+    thispage = thispage.lstrip('/')
+    print(dd_value)
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
+
+
+    outputs = dash.callback_context.outputs_list
+    outstyles = [{'display': 'none'}] * len(outputs)
+
+    modules = [m['id']['module'] for m in outputs[1:]]
+
+    for ix, mod in enumerate(modules):
+
+        if mod == dd_value:
+            outstyles[ix + 1] = {}
+
+    if dd_value not in modules:
+        outstyles[0] = {}
+
+    return outstyles
+
+# collect variables from sub pages and make them available to following pages
+
+c_in, c_out = render_selector.subpage_launch(module, subpages)
+
+if not c_in==[]:
+    @app.callback(c_out,c_in)
+    def convert_merge_launch_stores(*inputs):
+        return hf.trigger_value()
+
+page.append(html.Div(page1))
+page.append(html.Div(page2))
+

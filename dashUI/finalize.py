@@ -39,8 +39,7 @@ submodules = [
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Finalize output format."))
 
 
-stores = [dcc.Store(id={'component': 'store_render_init', 'module': module}, storage_type='session',data=''),
-          dcc.Store(id={'component': 'store_init_render', 'module': module}, storage_type='session',data=''),
+stores = [dcc.Store(id={'component': 'store_init_render', 'module': module}, storage_type='session',data=''),
           dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session',data='')]
 
 
@@ -94,8 +93,6 @@ for subsel, impmod in zip(subpages, submodules):
 
     status_inputs.append(Input({'component': 'status', 'module': subsel['value']}, 'data'))
 
-switch_outputs.append(Output({'component': 'store_render_init', 'module': module}, 'data'))
-
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
@@ -109,7 +106,7 @@ def convert_output(dd_value, thispage):
         raise PreventUpdate
 
     outputs = dash.callback_context.outputs_list
-    outstyles = [{'display': 'none'}] * (len(outputs) - 1)
+    outstyles = [{'display': 'none'}] * len(outputs)
 
     modules = [m['id']['module'] for m in outputs[1:]]
 
@@ -121,15 +118,8 @@ def convert_output(dd_value, thispage):
     if dd_value not in modules:
         outstyles[0] = {}
 
-    # if dd_value in (None,''):
-    #     dd_value = 'SBEM'
-    outstore = dict()
-    outstore['owner'] = dd_value
+    return outstyles
 
-    out = outstyles
-    out.append(outstore)
-
-    return out
 
 # collect variables from sub pages and make them available to following pages
 

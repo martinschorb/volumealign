@@ -31,9 +31,12 @@ from utils.checks import is_bad_filename
 
 
 
+
 # element prefix
 label = "export_N5"
 parent = "export"
+
+store = pages.init_store({}, label)
 
 
 
@@ -46,7 +49,7 @@ compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
 
-page=[html.Br()]
+page1=[html.Br(),pages.render_selector(label,show=False),html.Div(children=store)]
 
 # # ===============================================
 # Compute Settings
@@ -62,7 +65,7 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                              dcc.Store(id={'component': 'factors', 'module': label},data={}),
                                              dcc.Store(id={'component':'store_compset','module':label})
                                              ])
-page.append(compute_settings)
+page1.append(compute_settings)
 
 
 # callbacks
@@ -237,10 +240,10 @@ gobutton = html.Div(children=[html.Br(),
                               html.Br(),
                               pages.compute_loc(label,c_options=['sparkslurm'],c_default='sparkslurm'),
                               html.Br(),
-                              html.Div(id={'component': 'run_state', 'module': parent}, style={'display': 'none'},children='wait')])
+                              html.Div(id={'component': 'run_state', 'module': label}, style={'display': 'none'},children='wait')])
 
 
-page.append(gobutton)
+page1.append(gobutton)
 
 
 # =============================================
@@ -270,8 +273,8 @@ states.append(State({'component':'sliceim_contrastslider_0','module': parent},'v
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                 Output({'component': 'buttondiv', 'module': label},'children'),
-                Output({'component': 'store_launch_status', 'module': parent},'data'),
-                Output({'component': 'store_render_launch', 'module': parent},'data')],
+                Output({'component': 'store_launch_status', 'module': label},'data'),
+                Output({'component': 'store_render_launch', 'module': label},'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': parent},'value'),
                Input({'component':'stack_dd','module' : parent},'value'),
@@ -486,5 +489,23 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
 
         else:
             return False,'',dash.no_update,outstore
-    
-    
+
+
+# =============================================
+# Processing status
+
+# initialized with store
+# embedded from callbacks import runstate
+
+# # =============================================
+# # PROGRESS OUTPUT
+page2=[]
+
+collapse_stdout = pages.log_output(label)
+
+# ----------------
+
+# Full page layout:
+
+
+page2.append(collapse_stdout)
