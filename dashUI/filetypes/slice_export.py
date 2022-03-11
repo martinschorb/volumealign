@@ -43,6 +43,17 @@ compute_table_cols = ['Num_CPUs',
 page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(children=store)]
 
 # =============================================
+# select file type
+
+filetypesel = html.Div([html.H4("Choose output file type."),
+                  dcc.Dropdown(id={'component': 'filetype_dd', 'module': label},
+                               persistence=True,
+                               options=['jpg','png','tif'],
+                               value='jpg'),
+                  html.Br()
+                  ])
+
+page1.append(filetypesel)
 
 
 # =============================================
@@ -90,18 +101,16 @@ states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent},
                Output({'component': 'store_render_launch', 'module': label}, 'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': parent}, 'value'),
-               Input({'component': 'stack_dd', 'module': parent}, 'value'),
-               Input({'component': 'input_Num_CPUs', 'module': label}, 'value'),
-               Input({'component': 'input_runtime_minutes', 'module': label}, 'value')],
+               Input({'component': 'stack_dd', 'module': parent}, 'value')],
               states
     , prevent_initial_call=True)
-def sliceexport_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, owner, project,
+def sliceexport_execute_gobutton(click, outdir, stack, comp_sel, owner, project,
                               Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
                               sp_store, slice_in, c_limits):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    if None in [outdir, stack, n_cpu, timelim, comp_sel, owner, project, Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
+    if None in [outdir, stack, comp_sel, owner, project, Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
                 sp_store, slice_in]:
         raise PreventUpdate
 

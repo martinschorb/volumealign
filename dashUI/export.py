@@ -191,11 +191,9 @@ for subsel, impmod in zip(subpages, submodules):
               State('url', 'pathname'))
 def convert_output(dd_value, thispage):
     thispage = thispage.lstrip('/')
-    print(dd_value)
+
     if thispage == '' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
-
-
 
     outputs = dash.callback_context.outputs_list
     outstyles = [{'display': 'none'}] * len(outputs)
