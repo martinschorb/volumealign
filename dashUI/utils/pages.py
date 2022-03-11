@@ -226,7 +226,11 @@ def compute_loc(module,c_options=params.comp_defaultoptions,c_default=params.com
     return out
 
 
-def log_output(module):
+def log_output(module,hidden=False):
+    style={}
+    if hidden:
+        style={'display':'none'}
+
     out = html.Div(children=[
                 html.Br(),
                 html.Div(id={'component': 'job-status', 'module': module},children=['Status of current processing run: ',
@@ -252,7 +256,8 @@ def log_output(module):
                                       style={'width': '100%','height':200,"color":"#000"},disabled='True')                         
                           ])
                 ])
-            ],id={'component': 'consolebox', 'module': module})
+            ],id={'component': 'consolebox', 'module': module},
+    style=style)
     
     return out
 
@@ -348,6 +353,7 @@ def tile_view(module,numpanel=1,showlink=False,contrast=True,neighbours=True):
                                             min=0,
                                             max=500,
                                             value=[0, 255],
+                                            marks=None,
                                             allowCross=False,
                                             tooltip={"placement": "bottom"}
                                         )
@@ -415,6 +421,7 @@ def section_view(module,numpanel=1,contrast=True,bbox=False):
                                             min=0,
                                             max=500,
                                             value=[0, 255],
+                                            marks=None,
                                             allowCross=False,
                                             tooltip={"placement": "bottom", "always_visible": True}
                                         )
