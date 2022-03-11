@@ -16,6 +16,13 @@ import requests
 
 
 def args2string(args,separator='='):
+    """
+    Converts arguments as list or dict into a tring to be issued on CLI
+
+    :param args: list, dict or str of command line arguments
+    :param str separator: char to separate/link arguments
+    :return: string of arguments
+    """
     if args==None:
         argstring=''
     elif type(args)==list:
@@ -38,6 +45,13 @@ def args2string(args,separator='='):
 
 
 def status(run_state):
+    """
+    Top level function to return a string description of the processing status of a run_state dictionary.
+
+    :param dict run_state: run state dictionary defining job ID, job type and logfile
+    :return: string describing the processing status and link to status page if available
+    """
+
     res_status,link = checkstatus(run_state)
     # print(run_state)
     # print('res_status:')
@@ -75,7 +89,13 @@ def status(run_state):
 
 
 def checkstatus(run_state):
+    """
+    check the status of a single processing job. Contains process monitoring for local jobs.
+    returns a status string and a link to status page if available
 
+    :param dict run_state: single run state dict
+    :return: status string and link
+    """
     runvar = run_state['id']
     
     if run_state['type'] == 'standalone':
@@ -106,6 +126,12 @@ def checkstatus(run_state):
 
             
 def cluster_status(run_state):
+    """
+    Check a single cluster job for its run state
+
+    :param dict run_state: run_state dictionary
+    :return: status string and link to status page if available
+    """
     my_env = os.environ.copy()
     out_stat=list()
     link=''
@@ -249,7 +275,13 @@ def cluster_status(run_state):
 
 
 def canceljobs(run_state, out_status='cancelled'):
+    """
+    cancel a cluster processing job
 
+    :param dict run_state: single run_state dictionary
+    :param str out_status: status string to keep when canceling
+    :return: status string
+    """
     j_id = run_state['id']
     
     cl_type = run_state['type']
@@ -270,7 +302,19 @@ def run(target='standalone',
         special_args=None,
         logfile=os.path.join(params.render_log_dir,'render.out'),
         errfile=os.path.join(params.render_log_dir,'render.err')):
-    
+    """
+    Launcher of a processing task.
+
+    :param str target: target for processing. Currently supports ['standalone','generic','slurm','sparkslurm']
+    :param str pyscript: script to execute
+    :param str jsonfile: JSON file with the script parameters
+    :param run_args: str, dict or list with run-time arguments for the specific launcher
+    :param target_args: str, dict or list with setup arguments for the specific launcher
+    :param special_args: str, dict or list with additional arguments
+    :param str logfile: path to log file
+    :param str errfile: path to error log
+    :return: Job ID (str)
+    """
     my_env = os.environ.copy()
 
     logbase = os.path.basename(logfile).rstrip('.log')
@@ -412,6 +456,13 @@ def run(target='standalone',
 
         
 def run_prefix(nouser=False,dateonly=False):
+    """
+    Creates a specific prefix for outputs (logfiles, directories)
+
+    :param bool nouser: do not include the user name
+    :param bool dateonly: only use the date, not the time
+    :return: string prefix that can be incorporated in file/path names
+    """
     timestamp = time.localtime()
     user=''
     if not nouser:
@@ -426,13 +477,16 @@ def run_prefix(nouser=False,dateonly=False):
 
 def activate_conda(conda_dir=params.conda_dir,
                    env_name=params.render_envname):
+    """
+    activates a conda environment to run a processing script
+
+    :param str conda_dir: directory of the *conda installation
+    :param str env_name: environment name
+    :return: multi-line string to be issued as a shell command
+    """
     script = ''
     script += 'source '+os.path.join(conda_dir,"etc/profile.d/conda.sh")+'\n'
     script += '\n'
     script += 'conda activate ' + env_name + '\n'
 
     return script
-
-     
-if __name__ == '__main__':
-    run()    
