@@ -213,7 +213,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         
     else:
 
-        # outstore = dash.no_update
+        outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
             if not (run_state['status'] == 'running'): 
