@@ -53,7 +53,9 @@ store = pages.init_store({}, label)
 
 directory_sel = html.Div(children=[html.H4("Select dataset metadata file (*.idoc):"),
                                    # html.Script(type="text/javascript",children="alert('test')"),                                   
-                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,value="/g/"+group,persistence=True,className='dir_textinput')
+                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,
+                                             value=params.default_dir,
+                                             persistence=True,className='dir_textinput')
                                    ])
         
 pathbrowse = pages.path_browse(label,show_files=True,file_types='idoc')

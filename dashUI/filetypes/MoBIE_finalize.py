@@ -41,15 +41,22 @@ page2=[]
 # select output volume
 
 
-page3 = html.Div([html.H4("Choose exported volume"),
+outputsel = html.Div([html.H4("Choose exported volume"),
                   dcc.Dropdown(id=label+'_input_dd',persistence=True)
                   ])                                
 
-page1.append(page3)
+page1.append(outputsel)
 
+directory_sel = html.Div(children=[html.H4("Select MoBIE project directory:"),
+                                   # html.Script(type="text/javascript",children="alert('test')"),
+                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,
+                                             value=params.default_dir,
+                                             persistence=True,className='dir_textinput')
+                                   ])
 
+pathbrowse = pages.path_browse(label)
 
-
+page1.extend([directory_sel,pathbrowse])
 
 # =============================================
 # Start Button

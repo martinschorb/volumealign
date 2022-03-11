@@ -31,9 +31,9 @@ subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'},
             {'label': 'Add to MoBIE project', 'value': 'MoBIE'}]
 
 submodules = [
-    'filetypes.MoBIE_finalize',
-    'filetypes.BDV_finalize'
-]
+    'filetypes.BDV_finalize',
+    'filetypes.MoBIE_finalize'
+    ]
 
 
 main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Finalize output format."))

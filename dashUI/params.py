@@ -39,6 +39,8 @@ json_run_dir = os.path.join(base_dir,'JSON_parameters','runs')
 
 json_match_dir = os.path.join(base_dir,'JSON_parameters','MatchTrials')
 
+#default_dir = "/g/"+group
+#defined at the end!
 
 # notification and documentation
 user = os.getlogin()
@@ -234,3 +236,4 @@ url = render_base_url + render_version + 'owners'
 
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
+default_dir = "/g/"+group
