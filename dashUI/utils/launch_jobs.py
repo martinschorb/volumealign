@@ -10,7 +10,6 @@ import os
 import subprocess
 import params
 import time
-import datetime
 import psutil
 import requests
 
@@ -77,9 +76,7 @@ def status(run_state):
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         else:
             out_stat=res_status
-    
-    # ONLY single processes/jobs for now!
-    
+
     elif type(res_status) is list:
         if 'error' in res_status:
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
@@ -107,8 +104,9 @@ def checkstatus(run_state):
     returns a status string and a link to status page if available
 
     :param dict run_state: single or multi-task run_state dict
-    :return: status string and link
+    :return: status string/list of strings and link
     """
+
     outstat=[]
     runvars = [run_state['id']]
     j_id = run_state['id']
@@ -116,8 +114,33 @@ def checkstatus(run_state):
     if type(j_id) == dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
+
         elif 'seq' in j_id.keys():
-            runvars = [job for job in j_id['seq']]
+            runjob,idx = find_activejob(run_state)
+            newrunstate = run_state.copy()
+            if runjob is None:
+                # all tasks are completed/failed
+                newrunstate['id'] = j_id['seq']
+                return checkstatus(newrunstate)
+
+            elif type(runjob) is dict:
+                lastjob = j_id['seq'][idx-1]
+                newrunstate['id'] = lastjob
+                if checkstatus(newrunstate) == 'done':
+                    # start next job with these parameters
+                    nextjob = run(*runjob)
+                    run_state['id']['seq'][idx] = nextjob
+                    return checkstatus(nextjob)
+                else:
+                    return checkstatus(newrunstate)
+
+            else:
+                newrunstate['id'] = runjob
+                return checkstatus(newrunstate)
+
+
+
+
     
     if run_state['type'] == 'standalone':
 
@@ -158,9 +181,15 @@ def cluster_status(run_state):
     out_stat=list()
     link=''
 
-    j_ids = [run_state['id']]
+    j_ids = run_state['id']
 
-    if j_ids==['']:
+    if type(j_ids) is dict:
+        if 'par' in j_ids:
+            j_ids = j_ids['par']
+        if 'seq' in j_ids:
+            j_ids,idx = find_activejob(run_state)
+
+    if j_ids=='':
         return 'wait',link
 
     cl_type = run_state['type']
@@ -296,9 +325,11 @@ def cluster_status(run_state):
 
     return out_stat,link
 
-def find_runningjob(run_state):
+
+
+def find_activejob(run_state):
     """
-    Identifies which job is curently running from a set of sequential tasks
+    Identifies which job is currently running or the next one to run from a set of sequential tasks
 
     :param dict run_state: multi-task run_state dictionary with sequential tasks
     :return: single JobID, path to associated log file
@@ -308,9 +339,14 @@ def find_runningjob(run_state):
         thisstate = run_state.copy()
         thisstate['id'] = job
         if cluster_status(thisstate) in ['pending','running']:
-            return job,run_state['id']['logfiles'][idx]
+            return job,idx
+
+        if type(job) is dict:
+         # launch instructions for next job
+            return job,idx
+
     #no job found
-    return None,run_state['logfile']
+    return None,-1
 
 def canceljobs(run_state, out_status='cancelled'):
     """
@@ -353,7 +389,8 @@ def run(target='standalone',
         target_args=None,
         special_args=None,
         logfile=os.path.join(params.render_log_dir,'render.out'),
-        errfile=os.path.join(params.render_log_dir,'render.err')):
+        errfile=os.path.join(params.render_log_dir,'render.err'),
+        inputs={}):
     """
     Launcher of a processing task.
 
@@ -365,16 +402,38 @@ def run(target='standalone',
     :param special_args: str, dict or list with additional arguments
     :param str logfile: path to log file
     :param str errfile: path to error log
+    :param inputs: dict or ist of dicts containing the parameters.
     :return: Job ID (str)
     """
+
+    if type(inputs) is list:
+        # multiple sequential tasks to be initiated
+        if any([type(inp) is not dict for inp in inputs]):
+            raise TypeError('List of input parameters need to consist of dicts for sequential tasks!')
+
+        outids = []
+
+        # launch first task
+        outids.append(run(*inputs[0]))
+
+        # add the other tasks' parameters to the status list
+        for seq_input in inputs[1:]:
+            outids.append(seq_input)
+
+        return {'seq':outids}
+
+    elif inputs != {}:
+        return run(*inputs)
 
     if type(jsonfile) is list:
         # multiple parallel tasks to be initiated
 
         outids = []
         for curr_json in jsonfile:
+            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.log'
+            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.err'
             outids.append(run(target=target,pyscript=pyscript,run_args=run_args,target_args=target_args,
-                              special_args=special_args,logfile=logfile,errfile=errfile,
+                              special_args=special_args,logfile=curr_logfile,errfile=curr_errfile,
                               jsonfile=curr_json)
                           )
 
@@ -529,8 +588,8 @@ def run_prefix(nouser=False,dateonly=False):
     return user + t
 
 
-def activate_conda(conda_dir=params.conda_dir,
-                   env_name=params.render_envname):
+def activate_conda(conda_dir='/Users/schorb/miniconda3',#params.conda_dir,
+                   env_name='render-python'):#params.render_envname):
     """
     activates a conda environment to run a processing script
 

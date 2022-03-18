@@ -1,0 +1,6 @@
+{
+    "path": "~/code/rendermodules-addons/tests/test_files/rmaddons_test.n5",
+    "scale_factors": [[1,1,1]],
+    "resolution": [0.05, 0.015, 0.015],
+    "unit": "nanometer"
+}
