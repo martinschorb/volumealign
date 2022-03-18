@@ -251,20 +251,20 @@ def cluster_status(run_state):
             if jobstat[0] in j_ids:
                 slurm_stat = jobstat[1]
 
-        if 'RUNNING' in slurm_stat:
-            out_stat.append('running')
-        elif slurm_stat=='COMPLETED':
-            out_stat.append('done')
-        elif 'FAILED' in slurm_stat:
-            out_stat.append('error')
-        elif 'TIMEOUT' in slurm_stat:
-            out_stat.append('timeout')
-        elif 'PENDING' in slurm_stat:
-            out_stat.append('pending')
-        elif 'CANCELLED' in slurm_stat:
-            out_stat.append('cancelled')
-        else:
-            out_stat.append('launch')
+                if 'RUNNING' in slurm_stat:
+                    out_stat.append('running')
+                elif slurm_stat=='COMPLETED':
+                    out_stat.append('done')
+                elif 'FAILED' in slurm_stat:
+                    out_stat.append('error')
+                elif 'TIMEOUT' in slurm_stat:
+                    out_stat.append('timeout')
+                elif 'PENDING' in slurm_stat:
+                    out_stat.append('pending')
+                elif 'CANCELLED' in slurm_stat:
+                    out_stat.append('cancelled')
+                else:
+                    out_stat.append('launch')
 
     elif cl_type == 'sparkslurm':
         slurm_stat = []
