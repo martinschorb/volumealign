@@ -1,0 +1,6 @@
+{
+    "path": "../rendermodules-addons/tests/test_files/rmaddons_test.n5",
+    "scale_factors": [[1,1,1]],
+    "resolution": [0.2, 0.2, 0.2],
+    "unit": "bus"
+}
