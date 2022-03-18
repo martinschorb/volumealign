@@ -128,7 +128,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = lastjob
                 if checkstatus(newrunstate) == 'done':
                     # start next job with these parameters
-                    nextjob = run(*runjob)
+                    nextjob = run(**runjob)
                     run_state['id']['seq'][idx] = nextjob
                     return checkstatus(nextjob)
                 else:
@@ -338,7 +338,7 @@ def find_activejob(run_state):
     for idx,job in enumerate(run_state['id']['seq']):
         thisstate = run_state.copy()
         thisstate['id'] = job
-        if cluster_status(thisstate) in ['pending','running']:
+        if checkstatus(thisstate) in ['pending','running']:
             return job,idx
 
         if type(job) is dict:
@@ -414,7 +414,7 @@ def run(target='standalone',
         outids = []
 
         # launch first task
-        outids.append(run(*inputs[0]))
+        outids.append(run(**inputs[0]))
 
         # add the other tasks' parameters to the status list
         for seq_input in inputs[1:]:
@@ -459,7 +459,7 @@ def run(target='standalone',
     runscript += args2string(run_args)
 
     print('launching - ')
-
+    print(target)
     if target=='standalone':
         command = 'bash ' + runscriptfile
 
