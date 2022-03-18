@@ -138,6 +138,10 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
+        else:
+    #         parameter list for next sequential job
+            return 'pending',''
+
 
 
 
