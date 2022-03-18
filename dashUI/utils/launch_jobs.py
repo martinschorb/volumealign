@@ -10,6 +10,7 @@ import os
 import subprocess
 import params
 import time
+import datetime
 import psutil
 import requests
 
@@ -61,7 +62,7 @@ def status(run_state):
     :return: string describing the global processing status and link to status page if available
     """
 
-    res_status,link = checkstatus(run_state)
+    (res_status,link),logfile,jobs = checkstatus(run_state)
     # print(run_state)
     # print('res_status:')
     # print(res_status)
@@ -73,21 +74,21 @@ def status(run_state):
 
     if type(res_status) is str:
         if res_status=='error':
-            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
+            out_stat = 'Error while excecuting '+str(jobs)+'.'
         else:
             out_stat=res_status
 
     elif type(res_status) is list:
         if 'error' in res_status:
-            out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
+            out_stat = 'Error while excecuting '+str(jobs)+'.'
         elif 'running' in res_status:
             out_stat = 'running'
         elif 'pending' in res_status:
             out_stat = 'pending'
         elif 'cancelled' in res_status:
-            out_stat = 'Cluster Job '+run_state['id']+' was cancelled.'
+            out_stat = 'Cluster Job(s) '+str(jobs)+' cancelled.'
         elif 'timeout' in res_status:
-            out_stat = 'Cluster Job '+run_state['id']+' was cancelled due to a timeout. Try again with longer time constraint.'
+            out_stat = 'Cluster Job(s) '+str(jobs)+' cancelled due to a timeout. Try again with longer time constraint.'
         elif 'Problem connecting to Spark!' in res_status:
             out_stat = res_status
         elif 'Spark app was killed.' in res_status:
@@ -95,7 +96,10 @@ def status(run_state):
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
 
-    return out_stat, link
+    run_state['status'] = out_stat
+    run_state['logfile'] = logfile
+
+    return out_stat, link, run_state
 
 
 def checkstatus(run_state):
@@ -110,42 +114,54 @@ def checkstatus(run_state):
     outstat=[]
     runvars = [run_state['id']]
     j_id = run_state['id']
+    logfile = run_state['logfile']
+
+    jobs = j_id
+
 
     if type(j_id) == dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
-
+            jobs = runvars
         elif 'seq' in j_id.keys():
             runjob,idx = find_activejob(run_state)
             newrunstate = run_state.copy()
+            jobs = runjob
             if runjob is None:
                 # all tasks are completed/failed
                 newrunstate['id'] = j_id['seq']
+                jobs=j_id['seq']
                 return checkstatus(newrunstate)
 
             elif type(runjob) is dict:
                 lastjob = j_id['seq'][idx-1]
                 newrunstate['id'] = lastjob
-                if checkstatus(newrunstate) == 'done':
+                if 'done' in checkstatus(newrunstate)[0][0]:
+                    if not 'logfile' in runjob.keys():
+                        runjob['logfile'] = os.path.splitext(logfile)[0]+'_'+str(idx)+os.path.splitext(logfile)[-1]
                     # start next job with these parameters
-                    nextjob = run(**runjob)
-                    run_state['id']['seq'][idx] = nextjob
+                    nextjobid = run(**runjob)
+                    nextjob = newrunstate.copy()
+                    nextjob['id'] = nextjobid
+                    jobs = nextjobid
+                    run_state['id']['seq'][idx] = nextjobid
                     return checkstatus(nextjob)
                 else:
+                    jobs = lastjob
                     return checkstatus(newrunstate)
 
             else:
+                jobs=runjob
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
         else:
     #         parameter list for next sequential job
-            return 'pending',''
+            return 'pending','',logfile,jobs
 
+    if type(j_id) is list:
+        runvars=j_id
 
-
-
-    
     if run_state['type'] == 'standalone':
 
         if run_state['status'] in ['running','launch']:
@@ -156,19 +172,20 @@ def checkstatus(run_state):
                     if p.is_running():
                         if not p.status() == 'zombie':
                             outstat.append('running')
+                            continue
 
                 if os.path.exists(run_state['logfile']+'_exit'):
                     outstat.append('error')
                 else:
                     outstat.append('done')
 
-            return outstat,''
+            return (outstat,''),logfile,jobs
 
         else:
-            return run_state['status'],''
+            return (run_state['status'],''),logfile,jobs
 
     else:
-        return cluster_status(run_state)
+        return cluster_status(run_state),logfile,jobs
 
 
 
@@ -192,6 +209,9 @@ def cluster_status(run_state):
             j_ids = j_ids['par']
         if 'seq' in j_ids:
             j_ids,idx = find_activejob(run_state)
+
+    if type(j_ids) is str:
+        j_ids=[j_ids]
 
     if j_ids=='':
         return 'wait',link
@@ -266,7 +286,7 @@ def cluster_status(run_state):
 
         if 'RUNNING' in slurm_stat:
 
-            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_id),'master')
+            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_ids[0]),'master')
 
             if not os.path.exists(sp_masterfile): return ['launch'],link
 
@@ -301,7 +321,7 @@ def cluster_status(run_state):
                                 out_stat.append(canceljobs(run_state,'done'))
                                 donefile = run_state['logfile']+'.done'
                                 with open(donefile,'w') as f:
-                                    f.write('spark job: '+j_id + ' is done.')
+                                    f.write('spark job: '+str(j_ids[0]) + ' is done.')
 
                             elif 'KILLED' in sp_query['completedapps'][0]['state']:
                                 drop = canceljobs(run_state)
@@ -372,7 +392,7 @@ def canceljobs(run_state, out_status='cancelled'):
             return out_status
 
         elif 'seq' in j_id.keys():
-            j_id,logfile = find_runningjob(run_state)
+            j_id,logfile = find_activejob(run_state)
 
     cl_type = run_state['type']
 
@@ -470,12 +490,12 @@ def run(target='standalone',
         runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
         runscript += ' || echo $? > ' + logfile + '_exit'
 
-        with open(runscriptfile, 'a') as f:
+        with open(runscriptfile, 'w') as f:
             f.write(runscript)
 
         print(command)
 
-        with open(logfile,"wb") as out, open(errfile,"wb") as err:
+        with open(logfile,"w") as out, open(errfile,"w") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
 
             return p.pid
@@ -494,7 +514,7 @@ def run(target='standalone',
     elif target == 'slurm':
         runscript.replace('#launch message','"Launching Render processing script on " `hostname`". Slurm job ID: " $SLURM_JOBID"."')
 
-        with open(runscriptfile, 'a') as f:
+        with open(runscriptfile, 'w') as f:
             f.write(runscript)
 
         command = runscriptfile
