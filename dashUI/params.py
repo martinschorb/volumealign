@@ -39,6 +39,8 @@ json_run_dir = os.path.join(base_dir,'JSON_parameters','runs')
 
 json_match_dir = os.path.join(base_dir,'JSON_parameters','MatchTrials')
 
+#default_dir = "/g/"+group
+#defined at the end!
 
 # notification and documentation
 user = os.getlogin()
@@ -114,9 +116,9 @@ section_split = 500 #split stack into processing chunks for certain operations (
 
 # directory structure
 
-datasubdirs = {
-    'SBEM':'/tiles',
-    'SerialEM':'.'}
+datadirdepth = {
+    'SBEM':3,
+    'SerialEM':1}   # levels how deep inside the root directory the actual tile images are stored
 
 mipmapdir = 'mipmaps'
 
@@ -234,3 +236,4 @@ url = render_base_url + render_version + 'owners'
 
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
+default_dir = "/g/"+group

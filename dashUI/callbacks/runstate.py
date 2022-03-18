@@ -59,14 +59,10 @@ def update_status(n,click,run_state,logfile,module,thispage):
         raise PreventUpdate
         
     trigger = hf.trigger()
-
     
     r_status=run_state.copy()
     
-
-    
     r_status['logfile']  = logfile
-    
     
     if 'interval1' in trigger:
         link = ''
@@ -75,7 +71,6 @@ def update_status(n,click,run_state,logfile,module,thispage):
             if run_state['status'] not in ['input','wait']:
                 r_status['status'] = 'input'
             return r_status,status_style,status_href
-
 
         if run_state['type'] is not None :
 
@@ -93,7 +88,6 @@ def update_status(n,click,run_state,logfile,module,thispage):
                     status_href += ':' + params.spark_job_port
 
                 status_style = {}
-
 
         if 'Error' in r_status['status']:
             if logfile.endswith('.log'):

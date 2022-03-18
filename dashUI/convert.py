@@ -52,9 +52,9 @@ page1 = []
 # # # Page content
 
 page1.append(html.Div([html.Br(), 'No data type selected.'],
-                      id='nullpage'))
+                      id=module+'_nullpage'))
 
-switch_outputs = [Output('nullpage', 'style')]
+switch_outputs = [Output(module+'_nullpage', 'style')]
 
 status_inputs = []
 

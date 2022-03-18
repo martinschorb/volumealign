@@ -10,12 +10,19 @@ import os
 import subprocess
 import params
 import time
-import datetime
 import psutil
 import requests
 
 
 def args2string(args,separator='='):
+    """
+    Converts arguments as list or dict into a tring to be issued on CLI
+
+    :param args: list, dict or str of command line arguments
+    :param str separator: char to separate/link arguments
+    :return: string of arguments
+    """
+
     if args==None:
         argstring=''
     elif type(args)==list:
@@ -38,6 +45,22 @@ def args2string(args,separator='='):
 
 
 def status(run_state):
+    """
+    Top level function to return a string description of the processing status of a (multi-task) run_state dictionary.
+
+    A run_state dict contains:
+        - 'status': string describing the processing status of ALL tasks
+        - 'type': string describing the type of compute infrastructure to be used. Currently supports ['standalone','generic','slurm','sparkslurm']
+        - 'logfile': string path pointing to the/a log file of the processing run.
+        - 'id':  ID of the processing task. Can be a single string to describe one task or a dict containing a list of task IDs:
+            allowed keys: - 'par' for parallel tasks or 'seq' for sequential tasks. These are exclusive and contain lists of job IDs
+                          - 'logfiles': list of individual log files for the tasks.
+
+
+    :param dict run_state: run state dictionary defining job ID(s), job type and logfile(s)
+    :return: string describing the global processing status and link to status page if available
+    """
+
     res_status,link = checkstatus(run_state)
     # print(run_state)
     # print('res_status:')
@@ -53,11 +76,8 @@ def status(run_state):
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         else:
             out_stat=res_status
-    
-    # ONLY single processes/jobs for now!
-    
-    elif type(res_status) is list:
 
+    elif type(res_status) is list:
         if 'error' in res_status:
             out_stat = 'Error while excecuting '+str(run_state['id'])+'.'
         elif 'running' in res_status:
@@ -68,6 +88,10 @@ def status(run_state):
             out_stat = 'Cluster Job '+run_state['id']+' was cancelled.'
         elif 'timeout' in res_status:
             out_stat = 'Cluster Job '+run_state['id']+' was cancelled due to a timeout. Try again with longer time constraint.'
+        elif 'Problem connecting to Spark!' in res_status:
+            out_stat = res_status
+        elif 'Spark app was killed.' in res_status:
+            out_stat = res_status
         elif all(item=='done' for item in res_status):
             out_stat = 'done'
 
@@ -75,27 +99,67 @@ def status(run_state):
 
 
 def checkstatus(run_state):
+    """
+    check the status of one or multiple processing job(s). Contains process monitoring for local jobs.
+    returns a status string and a link to status page if available
 
-    runvar = run_state['id']
+    :param dict run_state: single or multi-task run_state dict
+    :return: status string/list of strings and link
+    """
+
+    outstat=[]
+    runvars = [run_state['id']]
+    j_id = run_state['id']
+
+    if type(j_id) == dict:
+        if 'par' in j_id.keys():
+            runvars = [job for job in j_id['par']]
+
+        elif 'seq' in j_id.keys():
+            runjob,idx = find_activejob(run_state)
+            newrunstate = run_state.copy()
+            if runjob is None:
+                # all tasks are completed/failed
+                newrunstate['id'] = j_id['seq']
+                return checkstatus(newrunstate)
+
+            elif type(runjob) is dict:
+                lastjob = j_id['seq'][idx-1]
+                newrunstate['id'] = lastjob
+                if checkstatus(newrunstate) == 'done':
+                    # start next job with these parameters
+                    nextjob = run(*runjob)
+                    run_state['id']['seq'][idx] = nextjob
+                    return checkstatus(nextjob)
+                else:
+                    return checkstatus(newrunstate)
+
+            else:
+                newrunstate['id'] = runjob
+                return checkstatus(newrunstate)
+
+
+
+
     
     if run_state['type'] == 'standalone':
 
         if run_state['status'] in ['running','launch']:
+            for runvar in runvars:
+                if psutil.pid_exists(runvar):
+                    p = psutil.Process(runvar)
 
-            if psutil.pid_exists(runvar):
-                p = psutil.Process(runvar)
+                    if p.is_running():
+                        if not p.status() == 'zombie':
+                            outstat.append('running')
 
-                if p.is_running():
-                    if not p.status() == 'zombie':
-                        return 'running',''
+                if os.path.exists(run_state['logfile']+'_exit'):
+                    outstat.append('error')
+                else:
+                    outstat.append('done')
 
+            return outstat,''
 
-
-            if os.path.exists(run_state['logfile']+'_exit'):
-                return 'error',''
-
-            else:
-                return 'done',''
         else:
             return run_state['status'],''
 
@@ -106,26 +170,39 @@ def checkstatus(run_state):
 
             
 def cluster_status(run_state):
+    """
+    Check a single or multiple cluster job(s) run state
+
+    :param dict run_state: single- or multi-task run_state dictionary
+    :return: status string and link to status page if available
+    """
+
     my_env = os.environ.copy()
     out_stat=list()
     link=''
 
-    j_id = run_state['id']
+    j_ids = run_state['id']
 
-    if j_id=='':
+    if type(j_ids) is dict:
+        if 'par' in j_ids:
+            j_ids = j_ids['par']
+        if 'seq' in j_ids:
+            j_ids,idx = find_activejob(run_state)
+
+    if j_ids=='':
         return 'wait',link
 
     cl_type = run_state['type']
     logfile = run_state['logfile']
     if cl_type == 'slurm':
             command =  'sacct --jobs='
-            command += str(j_id)
+            command += ','.join(map(str,j_ids))
             command += ' --format=jobid,state --parsable'
             
     elif cl_type == 'sparkslurm':
             
             command =  'sacct --jobs='
-            command += str(j_id)
+            command += ','.join(map(str,j_ids))
             command += ' --format=jobid,state,node --parsable'
             
         # commands for other cluster types go HERE
@@ -134,7 +211,6 @@ def cluster_status(run_state):
     result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
         
     if cl_type == 'slurm':
-
 
         slurm_stat0 = result.decode()
 
@@ -148,7 +224,7 @@ def cluster_status(run_state):
             if len(jobstat)<2:
                 continue
 
-            if jobstat[0] == j_id:
+            if jobstat[0] in j_ids:
                 slurm_stat = jobstat[1]
 
         if 'RUNNING' in slurm_stat:
@@ -174,10 +250,12 @@ def cluster_status(run_state):
 
         #check for master job
 
+        masterjoblist = [job+'+0' for job in map(str,j_ids)]
+
         for job_item in stat_list[1:]:
             jobstat = job_item.split('|')
 
-            if jobstat[0] == str(j_id) + '+0':
+            if jobstat[0] in masterjoblist:
                 # master job
                 masterhost = jobstat[2]
                 slurm_stat = jobstat[1]
@@ -200,7 +278,6 @@ def cluster_status(run_state):
                 out_stat.append('Problem connecting to Spark!')
                 return out_stat, link
 
-
             if sp_query['activeapps'] == []:
                 if sp_query['workers'] ==[]:
                     out_stat.append('Startup Spark')
@@ -210,10 +287,11 @@ def cluster_status(run_state):
                     now = datetime.datetime.now().strftime(t_format)
 
                     if int(now) - int(e_starttime) < 45:
-                        out_stat.append('Startup Spark' + link)
+                        out_stat.append('Startup Spark')
                     else:
                         if sp_query['completedapps'] == []:
-                            out_stat.append('Error in Spark setup!')
+                            print('Error in Spark setup!')
+                            out_stat.append('error')
                         else:
                             if 'FINISHED' in sp_query['completedapps'][0]['state']:
                                 out_stat.append(canceljobs(run_state,'done'))
@@ -225,7 +303,7 @@ def cluster_status(run_state):
                                 drop = canceljobs(run_state)
                                 out_stat.append('Spark app was killed.')
                             else:
-                                out_stat.append('running' + link)
+                                out_stat.append('running')
             else:
                 out_stat.append(sp_query['activeapps'][0]['state'].lower() + link)
 
@@ -245,19 +323,61 @@ def cluster_status(run_state):
         else:
             out_stat.append('launch')
 
-    return out_stat[0],link
+    return out_stat,link
 
+
+
+def find_activejob(run_state):
+    """
+    Identifies which job is currently running or the next one to run from a set of sequential tasks
+
+    :param dict run_state: multi-task run_state dictionary with sequential tasks
+    :return: single JobID, path to associated log file
+    """
+
+    for idx,job in enumerate(run_state['id']['seq']):
+        thisstate = run_state.copy()
+        thisstate['id'] = job
+        if cluster_status(thisstate) in ['pending','running']:
+            return job,idx
+
+        if type(job) is dict:
+         # launch instructions for next job
+            return job,idx
+
+    #no job found
+    return None,-1
 
 def canceljobs(run_state, out_status='cancelled'):
+    """
+    cancel one/multiple cluster processing jobs
 
+    :param dict run_state: multi-task run_state dictionary
+    :param str out_status: status string to keep when canceling
+    :return: status string
+    """
     j_id = run_state['id']
-    
-    cl_type = run_state['type']
-        
-    if 'slurm' in cl_type:
-        command = 'scancel '+str(j_id)
-        os.system(command)
 
+    if type(j_id)==dict:
+        if 'par' in j_id.keys():
+            for job in j_id['par']:
+                thisstate = run_state.copy()
+                thisstate['id']=job
+                cstat = canceljobs(thisstate)
+
+            return out_status
+
+        elif 'seq' in j_id.keys():
+            j_id,logfile = find_runningjob(run_state)
+
+    cl_type = run_state['type']
+
+    if 'slurm' in cl_type:
+        command = 'scancel ' + str(j_id)
+        os.system(command)
+    elif 'standalone' in cl_type or 'generic' in cl_type:
+        command = 'kill ' + str(j_id)
+        os.system(command)
 
     return out_status
 
@@ -269,8 +389,56 @@ def run(target='standalone',
         target_args=None,
         special_args=None,
         logfile=os.path.join(params.render_log_dir,'render.out'),
-        errfile=os.path.join(params.render_log_dir,'render.err')):
-    
+        errfile=os.path.join(params.render_log_dir,'render.err'),
+        inputs={}):
+    """
+    Launcher of a processing task.
+
+    :param str target: target for processing. Currently supports ['standalone','generic','slurm','sparkslurm']
+    :param str pyscript: script to execute
+    :param jsonfile: string path of JSON file with the script parameters or list of those for multiple parallel tasks
+    :param run_args: str, dict or list with run-time arguments for the specific launcher
+    :param target_args: str, dict or list with setup arguments for the specific launcher
+    :param special_args: str, dict or list with additional arguments
+    :param str logfile: path to log file
+    :param str errfile: path to error log
+    :param inputs: dict or ist of dicts containing the parameters.
+    :return: Job ID (str)
+    """
+
+    if type(inputs) is list:
+        # multiple sequential tasks to be initiated
+        if any([type(inp) is not dict for inp in inputs]):
+            raise TypeError('List of input parameters need to consist of dicts for sequential tasks!')
+
+        outids = []
+
+        # launch first task
+        outids.append(run(*inputs[0]))
+
+        # add the other tasks' parameters to the status list
+        for seq_input in inputs[1:]:
+            outids.append(seq_input)
+
+        return {'seq':outids}
+
+    elif inputs != {}:
+        return run(*inputs)
+
+    if type(jsonfile) is list:
+        # multiple parallel tasks to be initiated
+
+        outids = []
+        for curr_json in jsonfile:
+            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.log'
+            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.err'
+            outids.append(run(target=target,pyscript=pyscript,run_args=run_args,target_args=target_args,
+                              special_args=special_args,logfile=curr_logfile,errfile=curr_errfile,
+                              jsonfile=curr_json)
+                          )
+
+        return {'par':outids}
+
     my_env = os.environ.copy()
 
     logbase = os.path.basename(logfile).rstrip('.log')
@@ -288,10 +456,6 @@ def run(target='standalone',
     runscript += ' --input_json ' + jsonfile
     runscript += args2string(run_args)
 
-
-    
-    # DEBUG function.......
-
     print('launching - ')
 
     if target=='standalone':
@@ -304,8 +468,6 @@ def run(target='standalone',
             f.write(runscript)
 
         print(command)
-
-
 
         with open(logfile,"wb") as out, open(errfile,"wb") as err:
             p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
@@ -335,8 +497,7 @@ def run(target='standalone',
             slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
         else:
             slurm_args = args2string(target_args)
-            
-        
+
         slurm_args += '-e ' + errfile + ' -o ' + logfile
         
         sl_command = 'sbatch '+ slurm_args + ' ' + command
@@ -344,8 +505,7 @@ def run(target='standalone',
         print(sl_command)
 
         p = subprocess.Popen(sl_command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
-        
-        
+
         with open(logfile,'w+') as f:
             f.write('waiting for cluster job to start\n\n')
             time.sleep(3)
@@ -356,7 +516,6 @@ def run(target='standalone',
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
             
             #jobid=['slurm__'+jobid]
-            
         
         return jobid
     
@@ -364,8 +523,6 @@ def run(target='standalone',
 
         command = params.launch_dir + '/launcher_' + target
         command += '.sh '
-
-
         
         target_args['--email'] = params.user + params.email
         target_args['--template'] = os.path.join(params.launch_dir,"spark_slurm_template.sh")
@@ -384,7 +541,6 @@ def run(target='standalone',
         if type(special_args) is dict:
             spark_args.update(special_args)
 
-
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
         spark_args['--spark_home'] = params.spark_dir
@@ -392,7 +548,6 @@ def run(target='standalone',
         
         spsl_args += '--scriptparams= ' + args2string(spark_args) 
         spsl_args += '--params= ' + args2string(run_args,' ')
-        
         
         command += spsl_args
         
@@ -412,6 +567,14 @@ def run(target='standalone',
 
         
 def run_prefix(nouser=False,dateonly=False):
+    """
+    Creates a specific prefix for outputs (logfiles, directories)
+
+    :param bool nouser: do not include the user name
+    :param bool dateonly: only use the date, not the time
+    :return: string prefix that can be incorporated in file/path names
+    """
+
     timestamp = time.localtime()
     user=''
     if not nouser:
@@ -424,15 +587,20 @@ def run_prefix(nouser=False,dateonly=False):
 
     return user + t
 
-def activate_conda(conda_dir=params.conda_dir,
-                   env_name=params.render_envname):
+
+def activate_conda(conda_dir='/Users/schorb/miniconda3',#params.conda_dir,
+                   env_name='render-python'):#params.render_envname):
+    """
+    activates a conda environment to run a processing script
+
+    :param str conda_dir: directory of the *conda installation
+    :param str env_name: environment name
+    :return: multi-line string to be issued as a shell command
+    """
+
     script = ''
     script += 'source '+os.path.join(conda_dir,"etc/profile.d/conda.sh")+'\n'
     script += '\n'
     script += 'conda activate ' + env_name + '\n'
 
     return script
-
-     
-if __name__ == '__main__':
-    run()    

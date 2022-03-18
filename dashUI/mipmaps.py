@@ -189,8 +189,7 @@ def mipmaps_stacktodir(stack_sel,owner,project,stack,allstacks,thispage):
             
             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
             
-            basedirsep = params.datasubdirs[owner]
-            dir_out = tilefile0[:tilefile0.find(basedirsep)]
+            dir_out = os.path.join(os.sep,*tilefile0.split(os.sep)[:-params.datadirdepth[owner]-1])
             
             out['gigapixels']=out['numtiles']*stackparams['stats']['maxTileWidth']*stackparams['stats']['maxTileHeight']/(10**9)
             

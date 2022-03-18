@@ -37,8 +37,8 @@ def init_update_store(thismodule,prevmodule,comp_in='store_render_launch',comp_o
     return dash_out,dash_in,dash_state
 
 def update_store(prevstore,thisstore):
-    if not dash.callback_context.triggered: 
-        raise PreventUpdate  
+    if not dash.callback_context.triggered:
+        raise PreventUpdate
     if None in (prevstore,thisstore):
         raise PreventUpdate
     # print(thisstore,prevstore)
@@ -50,6 +50,9 @@ def update_store(prevstore,thisstore):
 
 def subpage_launch(module, subpages):
     # subpages can be list of strings or list of dicts (dcc.Dropdown)
+
+    if subpages==[]:
+        return [],[]
 
     if type(subpages) is not list: raise TypeError('subpages need to be list')
 

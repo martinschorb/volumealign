@@ -12,17 +12,11 @@ from dash.dependencies import Input,Output,State
 from dash.exceptions import PreventUpdate
 
 import os
-#for file browsing dialogs
-import tkinter
-from tkinter import filedialog
-import json
-import requests
-import importlib
 
+import json
 
 from app import app
 import params
-
 
 from utils import launch_jobs, pages, checks
 from utils import helper_functions as hf
@@ -60,7 +54,9 @@ store = pages.init_store({}, label)
 
 directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
                                    # html.Script(type="text/javascript",children="alert('test')"),                                   
-                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,value="/g/"+group,persistence=True,className='dir_textinput')
+                                   dcc.Input(id={'component': 'path_input', 'module': label}, type="text", debounce=True,
+                                             value=params.default_dir,
+                                             persistence=True,className='dir_textinput')
                                    ])
         
 pathbrowse = pages.path_browse(label)
@@ -222,7 +218,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                 
     else:
         
-        # outstore = dash.no_update
+        outstore = dash.no_update
     # check launch conditions and enable/disable button    
         if any([in_dir=='',in_dir==None]):
             if not (run_state['status'] == 'running'): 
