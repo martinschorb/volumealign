@@ -423,15 +423,17 @@ def run(target='standalone',
         return {'seq':outids}
 
     elif inputs != {}:
-        return run(*inputs)
+        print('dict!')
+        print(inputs)
+        return run(**inputs)
 
     if type(jsonfile) is list:
         # multiple parallel tasks to be initiated
 
         outids = []
         for curr_json in jsonfile:
-            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.log'
-            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(jsonfile))[0]+'.err'
+            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0]+'.log'
+            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0]+'.err'
             outids.append(run(target=target,pyscript=pyscript,run_args=run_args,target_args=target_args,
                               special_args=special_args,logfile=curr_logfile,errfile=curr_errfile,
                               jsonfile=curr_json)
