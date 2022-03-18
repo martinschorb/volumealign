@@ -588,8 +588,8 @@ def run_prefix(nouser=False,dateonly=False):
     return user + t
 
 
-def activate_conda(conda_dir='/Users/schorb/miniconda3',#params.conda_dir,
-                   env_name='render-python'):#params.render_envname):
+def activate_conda(conda_dir=params.conda_dir,
+                   env_name=params.render_envname):
     """
     activates a conda environment to run a processing script
 
