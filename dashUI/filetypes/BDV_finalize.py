@@ -141,11 +141,12 @@ def bdv_finalize_volume_dd(dd_in,thispage):
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                Output({'component': 'buttondiv', 'module': label}, 'children'),
-               Output({'component': 'store_render_launch', 'module': label},'data'),
+               Output({'component': 'store_launch_status', 'module': label},'data')
+               # Output({'component': 'store_render_launch', 'module': label},'data'),
                ],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input(label+'_input_dd', 'value')],
-              State({'component': 'store_render_launch', 'module': parent},'data')
+              State({'component': 'store_launch_status', 'module': parent},'data')
               )
 def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     if not dash.callback_context.triggered: 
@@ -154,7 +155,7 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     if jsonfile is None:
         raise PreventUpdate
 
-    if launch_store is None:
+    if launch_store in [None,'']:
         launch_store = dict()
     
     run_prefix = launch_jobs.run_prefix()           

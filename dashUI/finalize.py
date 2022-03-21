@@ -40,7 +40,8 @@ main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Final
 
 
 stores = [dcc.Store(id={'component': 'store_init_render', 'module': module}, storage_type='session',data=''),
-          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session',data='')]
+          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session',data=''),
+          dcc.Store(id={'component': 'store_launch_status', 'module': module}, storage_type='session',data='')]
 
 
 page = [main]
@@ -50,7 +51,7 @@ page.extend(stores)
 # ===============================================
        
 page0 = html.Div([html.H4("Choose post-processing target format"),
-                  dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},persistence=True,
+                  dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},#persistence=True,
                                 options=subpages,
                                 value='')
                   ])                                
@@ -127,6 +128,9 @@ c_in, c_out = render_selector.subpage_launch(module, subpages)
 
 @app.callback(c_out,c_in)
 def convert_merge_launch_stores(*inputs):
+    print(*inputs)
+    print(hf.trigger())
+    print(hf.trigger_value())
     return hf.trigger_value()
 
 page.append(html.Div(page1))
