@@ -135,6 +135,8 @@ def checkstatus(run_state):
             elif type(runjob) is dict:
                 lastjob = j_id['seq'][idx-1]
                 newrunstate['id'] = lastjob
+                print('newrunstate')
+                print(newrunstate)
                 if 'done' in checkstatus(newrunstate)[0][0]:
                     if not 'logfile' in runjob.keys():
                         runjob['logfile'] = os.path.splitext(logfile)[0]+'_'+str(idx)+os.path.splitext(logfile)[-1]
