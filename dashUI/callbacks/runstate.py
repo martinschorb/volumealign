@@ -73,7 +73,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
 
         if run_state['type'] is not None :
 
-            (r_status['status'], link),run_state = launch_jobs.status(run_state)
+            (r_status['status'], link,run_state) = launch_jobs.status(run_state)
 
         if not link == '':
             status_href = link.split('__')[-1]
