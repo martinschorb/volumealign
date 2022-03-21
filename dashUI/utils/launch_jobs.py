@@ -167,6 +167,7 @@ def checkstatus(run_state):
 
         if run_state['status'] in ['running','launch']:
             for runvar in runvars:
+                print(runvar)
                 if psutil.pid_exists(runvar):
                     p = psutil.Process(runvar)
 
