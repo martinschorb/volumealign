@@ -61,12 +61,8 @@ def status(run_state):
     :param dict run_state: run state dictionary defining job ID(s), job type and logfile(s)
     :return: string describing the global processing status and link to status page if available
     """
-    print(run_state)
 
     (res_status,link),logfile,jobs = checkstatus(run_state)
-    # print(run_state)
-    # print('res_status:')
-    # print(res_status)
 
     if res_status is None:
         return 'input',link
@@ -112,6 +108,8 @@ def checkstatus(run_state):
     :return: status string/list of strings and link
     """
 
+    print('checkstatus ------------------------- \n\n')
+
     outstat=[]
     runvars = [run_state['id']]
     j_id = run_state['id']
@@ -144,7 +142,7 @@ def checkstatus(run_state):
                     nextjobid = run(**runjob)
                     nextjob = newrunstate.copy()
                     nextjob['id'] = nextjobid
-                    jobs = nextjobid
+                    print(nextjobid)
                     run_state['id']['seq'][idx] = nextjobid
                     return checkstatus(nextjob)
                 else:
@@ -167,8 +165,7 @@ def checkstatus(run_state):
 
         if run_state['status'] in ['running','launch']:
             for runvar in runvars:
-                print(run_state)
-                print(runvar)
+
                 if psutil.pid_exists(runvar):
                     p = psutil.Process(runvar)
 
@@ -221,6 +218,7 @@ def cluster_status(run_state):
 
     cl_type = run_state['type']
     logfile = run_state['logfile']
+
     if cl_type == 'slurm':
             command =  'sacct --jobs='
             command += ','.join(map(str,j_ids))
@@ -450,8 +448,6 @@ def run(target='standalone',
         return {'seq':outids}
 
     elif inputs != {}:
-        print('dict!')
-        print(inputs)
         return run(**inputs)
 
     if type(jsonfile) is list:
