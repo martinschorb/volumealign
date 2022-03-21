@@ -211,17 +211,17 @@ def run_state(launch_trigger,status_trigger,launch_in,status_in):
         raise PreventUpdate
     trigger = hf.trigger()
     
-    print('-- merge status --')
-    print(trigger)
+    # print('-- merge status --')
+    # print(trigger)
 
     if 'launch' in trigger:
-        print('launch triggered state:')
-        print(launch_in)
+        # print('launch triggered state:')
+        # print(launch_in)
         out = launch_in
         
     else:
-        print('status triggered state:')
-        print(status_in)
+        # print('status triggered state:')
+        # print(status_in)
         out = status_in.copy()        
     
     
