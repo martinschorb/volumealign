@@ -54,7 +54,7 @@ directory_sel = html.Div(children=[html.H4("Select MoBIE project directory:"),
                                              persistence=True,className='dir_textinput')
                                    ])
 
-pathbrowse = pages.path_browse(label)
+pathbrowse = pages.path_browse(label,create=True)
 
 page1.extend([directory_sel,pathbrowse])
 
@@ -94,11 +94,11 @@ page2.append(collapse_stdout)
 
 
 @app.callback([Output(label+'_input_dd', 'options'),
-                Output(label+'_input_dd', 'value')],
+               Output(label+'_input_dd', 'value')],
               [Input({'component': 'subpage_dd', 'module': parent}, 'value'),
                Input('url', 'pathname')]
               ,prevent_initial_call=True)
-def finalize_volume_dd(dd_in,thispage):
+def mobie_finalize_volume_dd(dd_in,thispage):
 
     thispage = thispage.lstrip('/')
 
@@ -151,10 +151,11 @@ def finalize_volume_dd(dd_in,thispage):
                Output({'component': 'store_render_launch', 'module': label},'data'),
                ],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input(label+'_input_dd', 'value')],
+               Input(label+'_input_dd', 'value'),
+               Input({'component': 'path_input', 'module': label},'value')],
               State({'component': 'store_render_launch', 'module': parent},'data')
               )
-def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
+def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     if not dash.callback_context.triggered: 
         raise PreventUpdate
             
@@ -171,13 +172,16 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
     project = export_json['--project']
     stack = export_json['--stack']
             
-    if not os.path.exists(n5file):    
-
+    if not os.path.exists(n5file):
         return True, 'Input data file does not exist.', dash.no_update
     
     if not os.access(n5file,os.W_OK | os.X_OK):
-        return True,'Output directory not writable!', dash.no_update
-    
+        return True,'Data directory not writable!', dash.no_update
+
+    if not hf.check_parentdirs(mobie_path):
+        return True, 'Output directory not acessible! Check permissions and path.', dash.no_update
+
+
     trigger = hf.trigger() 
         
     if 'input' in trigger:

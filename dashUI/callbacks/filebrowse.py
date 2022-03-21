@@ -72,9 +72,6 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
     thispage = thispage.lstrip('/')
     createdir = createdir_val == ['Create new directory']
 
-    print(createdir_val)
-    print(createdir)
-
     if thispage=='' or not thispage in hf.trigger(key='module') or inpath is None:
         raise PreventUpdate
 

@@ -91,7 +91,7 @@ page2.append(collapse_stdout)
               [Input({'component': 'subpage_dd', 'module': parent}, 'value'),
                Input('url', 'pathname')]
               ,prevent_initial_call=True)
-def finalize_volume_dd(dd_in,thispage):
+def bdv_finalize_volume_dd(dd_in,thispage):
 
     thispage = thispage.lstrip('/')
 
