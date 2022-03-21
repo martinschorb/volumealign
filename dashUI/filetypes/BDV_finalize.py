@@ -153,6 +153,9 @@ def bdv_finalize_execute_gobutton(click,jsonfile,launch_store):
             
     if jsonfile is None:
         raise PreventUpdate
+
+    if launch_store is None:
+        launch_store = dict()
     
     run_prefix = launch_jobs.run_prefix()           
     

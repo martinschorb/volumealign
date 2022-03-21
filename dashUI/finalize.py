@@ -52,7 +52,7 @@ page.extend(stores)
 page0 = html.Div([html.H4("Choose post-processing target format"),
                   dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},persistence=True,
                                 options=subpages,
-                                value='MoBIE')
+                                value='')
                   ])                                
 
 page.append(page0)

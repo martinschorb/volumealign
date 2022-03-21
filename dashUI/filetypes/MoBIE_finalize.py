@@ -161,6 +161,9 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
             
     if jsonfile is None:
         raise PreventUpdate
+
+    if launch_store is None:
+        launch_store = dict()
     
     run_prefix = launch_jobs.run_prefix()           
     
@@ -237,7 +240,7 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
                     }
 
     # sequential launch task
-    mobie_p = launch_jobs.run([params_xml,params_mobie])
+    mobie_p = launch_jobs.run(inputs=[params_xml,params_mobie])
     
     launch_store['status'] = 'running'
     launch_store['id'] = mobie_p

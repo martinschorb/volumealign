@@ -467,7 +467,7 @@ def run(target='standalone',
 
     my_env = os.environ.copy()
 
-    logbase = os.path.basename(logfile).rstrip('.log')
+    logbase = os.path.basename(logfile).split('.log')[0]
     logdir = os.path.dirname(logfile)
 
     runscriptfile = os.path.join(logdir, logbase + '.sh')
