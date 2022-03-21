@@ -59,7 +59,7 @@ gobutton = html.Div(children=[html.Br(),
                                           id={'component': 'go', 'module': label},disabled=True),
                               html.Div(id={'component': 'buttondiv', 'module': label}),
                               html.Br(),
-                              pages.compute_loc(label,c_default='standalone')
+                              pages.compute_loc(label,c_options=['standalone'], c_default='standalone')
                               ]
                     )
 

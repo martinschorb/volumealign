@@ -164,18 +164,11 @@ def neighbours_from_json(infiles,target_id):
     return neighbours,slices,positions
 
 
-def check_parentdirs(rootpath):
+def check_write_parentdirs(rootpath):
     while not os.access(rootpath, os.W_OK | os.X_OK) and rootpath != os.path.join(rootpath, os.path.pardir) and not os.path.exists(rootpath):
         rootpath = os.path.abspath(os.path.join(rootpath, os.path.pardir))
-        print(rootpath)
 
-    print(rootpath == os.path.join(rootpath, os.path.pardir))
-    print(os.access(rootpath, os.W_OK | os.X_OK))
-
-
-    return rootpath == os.path.join(rootpath, os.path.pardir) or os.access(rootpath, os.W_OK | os.X_OK)
-
-
+    return os.access(rootpath, os.W_OK | os.X_OK)
 
 def jsonfiles(dirname):
     tp_dir = os.path.join(params.json_run_dir, dirname)
