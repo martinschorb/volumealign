@@ -244,7 +244,7 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     mobie_p = launch_jobs.run(inputs=[params_xml,params_mobie])
     
     launch_store['status'] = 'running'
-    launch_store['id'] = {'seq':mobie_p}
+    launch_store['id'] = mobie_p
     launch_store['type'] = 'standalone'
     launch_store['logfile'] = log_file
 
