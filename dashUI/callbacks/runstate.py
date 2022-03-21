@@ -57,10 +57,6 @@ def update_status(n,click,run_state,logfile,module,thispage):
     if thispage=='' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
 
-    print(n)
-    print(run_state)
-    print(thispage)
-    print(hf.trigger(key='module'))
     trigger = hf.trigger()
     
     r_status=run_state.copy()
@@ -77,10 +73,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
 
         if run_state['type'] is not None :
 
-
             (r_status['status'], link) = launch_jobs.status(run_state)
-
-            print(r_status)
 
         if not link == '':
             status_href = link.split('__')[-1]
