@@ -216,6 +216,7 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
                   'logfile': log_file,'errfile':err_file,'target':'standalone'
                   }
 
+    # Add to MoBIE:
 
     run_params1 = {"xmlpath": os.path.splitext(n5file)[0]+'.xml',
                    "outpath": mobie_path
@@ -231,9 +232,9 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     log_file1 += '.log'
 
     params_mobie = {'pyscript': params.rendermodules_dir+'/materialize/addtomobie.py',
-                  'jsonfile': param_file1,
-                  'logfile': log_file1,'errfile':err_file1,'target':'standalone'
-                  }
+                    'jsonfile': param_file1,
+                    'logfile': log_file1,'errfile':err_file1,'target':'standalone'
+                    }
 
     # sequential launch task
     mobie_p = launch_jobs.run([params_xml,params_mobie])
