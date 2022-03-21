@@ -38,26 +38,29 @@ static_states = ['done','cancelled','error','input', 'wait','timeout']
                State('url', 'pathname')]
               ,prevent_initial_call=True)
 def update_status(n,click,run_state,logfile,module,thispage):
-    
+
     if not dash.callback_context.triggered: 
         raise PreventUpdate
-        
     
     if None in [n,run_state,logfile,module,thispage]:
         raise PreventUpdate
+    #
+    # if run_state['status'] in static_states:
+    #     raise PreventUpdate
 
-    if run_state['status'] in static_states:
-        raise PreventUpdate
-    
     status_href=''
     status_style={'display':'none'}
     
-    
     thispage = thispage.lstrip('/')
+
 
     if thispage=='' or not thispage in hf.trigger(key='module'):
         raise PreventUpdate
-        
+
+    print(n)
+    print(run_state)
+    print(thispage)
+    print(hf.trigger(key='module'))
     trigger = hf.trigger()
     
     r_status=run_state.copy()
@@ -66,7 +69,7 @@ def update_status(n,click,run_state,logfile,module,thispage):
     
     if 'interval1' in trigger:
         link = ''
-        
+
         if run_state['id'] is None:
             if run_state['status'] not in ['input','wait']:
                 r_status['status'] = 'input'
@@ -74,8 +77,11 @@ def update_status(n,click,run_state,logfile,module,thispage):
 
         if run_state['type'] is not None :
 
-             (r_status['status'], link) = launch_jobs.status(run_state)   
-           
+
+            (r_status['status'], link) = launch_jobs.status(run_state)
+
+            print(r_status)
+
         if not link == '':
             status_href = link.split('__')[-1]
             r_status['status'] = r_status['status'].split('__')[0]

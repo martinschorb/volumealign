@@ -61,6 +61,7 @@ def status(run_state):
     :param dict run_state: run state dictionary defining job ID(s), job type and logfile(s)
     :return: string describing the global processing status and link to status page if available
     """
+    print(run_state)
 
     (res_status,link),logfile,jobs = checkstatus(run_state)
     # print(run_state)
