@@ -25,15 +25,18 @@ show_hidden = False
 @app.callback([Output({'component': 'path_input', 'module': MATCH},'value'),
                Output({'component': 'path_dummy', 'module': MATCH},'data')],
               [Input({'component': 'path_store', 'module': MATCH},'data'),
-               Input({'component': 'path_ext', 'module': MATCH},'data')]
+               Input({'component': 'path_ext', 'module': MATCH},'data')],
+               State({'component': 'newdir_sel', 'module': MATCH},'value')
               ,prevent_initial_call=True)
-def update_store(inpath,extpath):
+def update_store(inpath,extpath,createdir_val):
     trigger=hf.trigger()
+    createdir = createdir_val == ['Create new directory']
+
     # print('pathstore -- ')
     # print(trigger)
     outtrigger=dash.no_update
     if trigger=='path_store':
-        if os.path.exists(str(inpath)):
+        if os.path.exists(str(inpath)) or createdir:
             path = inpath
         else:
             path = startpath
@@ -41,7 +44,7 @@ def update_store(inpath,extpath):
         # print(extpath)
         path=extpath
         outtrigger = extpath
-        
+
     return path,outtrigger
 
 
@@ -57,15 +60,20 @@ def update_store(inpath,extpath):
                State({'component': 'path_showfiles', 'module': MATCH},'data'),
                State({'component': 'path_filetypes', 'module': MATCH},'data'),
                State({'component': 'path_dummy', 'module': MATCH},'data'),
+               State({'component': 'newdir_sel', 'module': MATCH},'value'),
                State('url','pathname')]
               ,prevent_initial_call=True)
-def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummydata,thispage):
+def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummydata,createdir_val,thispage):
     if dash.callback_context.triggered: 
         trigger = hf.trigger()
     else:
         trigger='-'
 
     thispage = thispage.lstrip('/')
+    createdir = createdir_val == ['Create new directory']
+
+    print(createdir_val)
+    print(createdir)
 
     if thispage=='' or not thispage in hf.trigger(key='module') or inpath is None:
         raise PreventUpdate
@@ -73,15 +81,19 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
     if 'dummy' in trigger:
         path = dummydata
 
+    path=inpath
+
     if os.path.isdir(str(inpath)):
         inpath = inpath
     elif os.path.exists(str(inpath)):
         inpath = os.path.dirname(inpath)
     else:
-        path = startpath
+        if not createdir:
+            path = startpath
+
     
     if not os.path.isdir(str(path)):        
-        if os.path.isdir(str(inpath)):
+        if os.path.isdir(str(inpath)) or createdir:
             path = inpath
         else:
             path = startpath
@@ -110,11 +122,15 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
         
         if not filesel is None:
             if filesel[0:2] ==  '> ':
-                path = os.path.join(path,filesel[2:])
+                if not createdir:
+                    path = os.path.join(path,filesel[2:])
             elif filesel == '..':
                 path = os.path.abspath(os.path.join(path,filesel))
 
-        files = os.listdir(path)        
+        if createdir or not os.path.isdir(str(path)):
+            files=[]
+        else:
+            files = os.listdir(path)
         
         dd_options = list(dict())
     
