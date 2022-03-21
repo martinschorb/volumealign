@@ -451,8 +451,9 @@ def section_view(module,numpanel=1,contrast=True,bbox=False):
 
 
 
-def path_browse(module,tf_in = None,show_files=False,file_types=[]):
-    
+def path_browse(module,tf_in = None,create=False,show_files=False,file_types=[]):
+    creatediv_style = dict(display='none')
+
     if tf_in is None:
         tf_in = {'component': 'path_input', 'module': module} 
     
@@ -460,8 +461,17 @@ def path_browse(module,tf_in = None,show_files=False,file_types=[]):
 
     fbdd = dcc.Dropdown(id={'component': 'browse_dd', 'module': module} ,searchable=True,className='dropdown_inline')
 
+    sel=[]
+
+    if create:
+        creatediv_style = {}
+        sel = ['Create new directory']
+
+    creatediv = html.Div(dcc.Checklist(['Create new directory'],sel,id={'component': 'newdir_sel', 'module': module}),
+                         id={'component': 'newdir_div', 'module': module},
+                         style=creatediv_style)
         
-    fbrowse = html.Details([html.Summary('Browse'),fbdd])
+    fbrowse = html.Details([html.Summary('Browse'),fbdd,creatediv])
     fbstore = html.Div([dcc.Store(id={'component': 'path_store', 'module': module}),
                         dcc.Store(id={'component': 'path_ext', 'module': module})])
     showfiles = dcc.Store(data=show_files,id={'component': 'path_showfiles', 'module': module})
