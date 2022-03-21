@@ -110,6 +110,8 @@ def checkstatus(run_state):
 
     print('checkstatus ------------------------- \n\n')
 
+    print(run_state)
+
     outstat=[]
     runvars = [run_state['id']]
     j_id = run_state['id']
@@ -166,6 +168,7 @@ def checkstatus(run_state):
     if run_state['type'] == 'standalone':
 
         if run_state['status'] in ['running','launch']:
+            print(runvars)
             for runvar in runvars:
 
                 if psutil.pid_exists(runvar):
