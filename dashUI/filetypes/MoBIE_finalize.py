@@ -205,12 +205,12 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     run_params["resolution"] = res
     run_params["unit"] = 'nanometer'
 
-    param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '_xml.json'
+    param_file = params.json_run_dir + '/' + label + '_' + run_prefix + '_xml.json'
 
     with open(param_file,'w') as f:
             json.dump(run_params,f,indent=4)
     
-    log_file = params.render_log_dir + '/' + parent + '_' + run_prefix + '_xml'
+    log_file = params.render_log_dir + '/' + label + '_' + run_prefix + '_xml'
     err_file = log_file + '.err'
     log_file += '.log'
 
@@ -225,12 +225,12 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
                    "outpath": mobie_path
                    }
 
-    param_file1 = params.json_run_dir + '/' + parent + '_' + run_prefix + '_mobie.json'
+    param_file1 = params.json_run_dir + '/' + label + '_' + run_prefix + '_mobie.json'
 
     with open(param_file1,'w') as f:
             json.dump(run_params1,f,indent=4)
 
-    log_file1 = params.render_log_dir + '/' + parent + '_' + run_prefix + '_mobie'
+    log_file1 = params.render_log_dir + '/' + label + '_' + run_prefix + '_mobie'
     err_file1 = log_file1 + '.err'
     log_file1 += '.log'
 
@@ -243,7 +243,7 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     mobie_p = launch_jobs.run(inputs=[params_xml,params_mobie])
     
     launch_store['status'] = 'running'
-    launch_store['id'] = mobie_p
+    launch_store['id'] = {'seq':mobie_p}
     launch_store['type'] = 'standalone'
     launch_store['logfile'] = log_file
 
