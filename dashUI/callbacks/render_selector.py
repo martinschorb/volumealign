@@ -88,7 +88,7 @@ def update_owner_dd(init_in,thispage,dd_options_in):
 
     thispage = thispage.lstrip('/')        
     
-    trigger = hf.trigger()        
+    trigger = hf.trigger()
     
     if thispage in (None,'') or not thispage in hf.trigger(key='module') and not dd_options_in is None:
         raise PreventUpdate
@@ -137,7 +137,10 @@ def update_proj_dd(owner_sel,init_store,newproj_in,thispage,store_proj,dd_option
     if thispage in (None,''):
         raise PreventUpdate
     
-    thispage = thispage.lstrip('/')        
+    thispage = thispage.lstrip('/')
+
+    if thispage=='' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
 
     trigger = hf.trigger() 
      

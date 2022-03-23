@@ -108,10 +108,6 @@ def checkstatus(run_state):
     :return: status string/list of strings and link
     """
 
-    print('checkstatus ------------------------- \n\n')
-
-    print(run_state)
-
     outstat=[]
     runvars = [run_state['id']]
     j_id = run_state['id']
@@ -137,8 +133,7 @@ def checkstatus(run_state):
             elif type(runjob) is dict:
                 lastjob = j_id['seq'][idx-1]
                 newrunstate['id'] = lastjob
-                print('newrunstate')
-                print(newrunstate)
+
                 if 'done' in checkstatus(newrunstate)[0][0]:
                     if not 'logfile' in runjob.keys():
                         runjob['logfile'] = os.path.splitext(logfile)[0]+'_'+str(idx)+os.path.splitext(logfile)[-1]
@@ -146,7 +141,7 @@ def checkstatus(run_state):
                     nextjobid = run(**runjob)
                     nextjob = newrunstate.copy()
                     nextjob['id'] = nextjobid
-                    print(nextjobid)
+
                     run_state['id']['seq'][idx] = nextjobid
                     return checkstatus(nextjob)
                 else:
@@ -168,7 +163,7 @@ def checkstatus(run_state):
     if run_state['type'] == 'standalone':
 
         if run_state['status'] in ['running','launch']:
-            print(runvars)
+
             for runvar in runvars:
 
                 if psutil.pid_exists(runvar):

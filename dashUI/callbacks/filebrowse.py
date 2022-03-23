@@ -88,7 +88,6 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
         if not createdir:
             path = startpath
 
-    
     if not os.path.isdir(str(path)):        
         if os.path.isdir(str(inpath)) or createdir:
             path = inpath
@@ -116,15 +115,15 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
             filetypes[idx] = os.path.extsep + filetypes[idx]
 
     if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
-        
+        print(filesel)
         if not filesel is None:
             if filesel[0:2] ==  '> ':
-                if not createdir:
+                if os.path.exists(os.path.join(path,filesel[2:])):
                     path = os.path.join(path,filesel[2:])
             elif filesel == '..':
                 path = os.path.abspath(os.path.join(path,filesel))
 
-        if createdir or not os.path.isdir(str(path)):
+        if not os.path.isdir(str(path)):
             files=[]
         else:
             files = os.listdir(path)
