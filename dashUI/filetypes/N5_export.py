@@ -106,7 +106,7 @@ def n5export_update_compute_settings(*inputs):
         if None in inputs[-1].values():
             out[1] = dash.no_update
         else:
-            out[1] = np.ceil(inputs [-1][compute_table_cols[-1]] / out[0] * (1 + params.time_add_buffer)) + 1
+            out[1] = np.ceil(inputs [-1][compute_table_cols[-1]] / out[0])
 
     return out
 
@@ -206,7 +206,7 @@ def n5export_stacktoparams(#stack_sel,
             
             t_fields = [stack,str(out['numsections']),'%0.2f' % int(out['Gigapixels'])]
             
-            timelim = np.ceil(out['Gigapixels'] * params.export['min/GPix/CPU_N5'])
+            timelim = np.ceil(out['Gigapixels'] * params.export['min/GPix/CPU_N5'] * (1 + params.time_add_buffer)) + 1
 
             factors = {'runtime_minutes': timelim}
 
@@ -215,18 +215,6 @@ def n5export_stacktoparams(#stack_sel,
     outlist.append(factors)
 
     return outlist
-
-# @app.callback(Output({'component': 'input1', 'module': label},'value'),
-#               Input({'component': 'path_input', 'module': label},'value'))
-# def input2browsestate(inpath):
-#     print(inpath)
-#     return inpath
-
-
-
-
-# =============================================
-
 
 
 
@@ -284,7 +272,7 @@ states.append(State({'component':'sliceim_contrastslider_0','module': parent},'v
               ,prevent_initial_call=True)                 
 def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,project,
                                      Xmin,Xmax,Ymin,Ymax,Zmin,Zmax,
-                                     sp_store,slice_in,c_limits): 
+                                     sp_store,slice_in,c_limits):
     
     if not dash.callback_context.triggered: 
             raise PreventUpdate

@@ -28,7 +28,7 @@ from callbacks import (render_selector,
 
 module='export'
 
-subpages = [{'label': 'N5 (MoBIE/BDV', 'value': 'N5'},
+subpages = [{'label': 'N5 (MoBIE/BDV)', 'value': 'N5'},
             {'label': 'slice images', 'value': 'slices'}
             ]
 
@@ -88,6 +88,7 @@ page0 = html.Div([html.H4("Choose output type."),
                   dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},
                                persistence=True,
                                options=subpages,
+                               className='dropdown_inline',
                                value='N5'),
                   html.Br()
                   ])                                

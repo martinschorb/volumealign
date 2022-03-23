@@ -128,9 +128,6 @@ c_in, c_out = render_selector.subpage_launch(module, subpages)
 
 @app.callback(c_out,c_in)
 def convert_merge_launch_stores(*inputs):
-    print(*inputs)
-    print(hf.trigger())
-    print(hf.trigger_value())
     return hf.trigger_value()
 
 page.append(html.Div(page1))

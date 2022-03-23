@@ -81,8 +81,10 @@ min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 
 time_add_buffer = 0.2 # time buffer for job submission (relative)
 
-n_cpu_script = 24
+n_cpu_script = 4
 mem_per_cpu = 2     # GB
+n_jobs_default = 8
+
 
 # standalone
 
@@ -105,7 +107,7 @@ mipmaps['min/Gpix/CPU'] = 6
 
 export=dict()
 export['min/GPix/CPU_N5'] = 5
-
+export['min/GPix/CPU_slice'] = 20
 
 section_split = 500 #split stack into processing chunks for certain operations (mipmaps,...)
 

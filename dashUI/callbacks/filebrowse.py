@@ -115,7 +115,7 @@ def update_path_dd(filesel,intrig,trig2,inpath,path,show_files,filetypes,dummyda
             filetypes[idx] = os.path.extsep + filetypes[idx]
 
     if filesel is None or filesel[0:2] ==  '> ' or filesel == '..' :
-        print(filesel)
+
         if not filesel is None:
             if filesel[0:2] ==  '> ':
                 if os.path.exists(os.path.join(path,filesel[2:])):

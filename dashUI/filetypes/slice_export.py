@@ -36,8 +36,8 @@ status_table_cols = ['stack',
                      'slices',
                      'Gigapixels']
 
-compute_table_cols = ['Num_CPUs',
-                      # 'MemGB_perCPU',
+compute_table_cols = [#'Num_CPUs',
+                      'Num_parallel_jobs',
                       'runtime_minutes']
 
 page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(children=store)]
@@ -48,12 +48,212 @@ page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(children=
 filetypesel = html.Div([html.H4("Choose output file type."),
                   dcc.Dropdown(id={'component': 'filetype_dd', 'module': label},
                                persistence=True,
+                               className='dropdown_inline',
                                options=['jpg','png','tif'],
                                value='jpg'),
                   html.Br()
                   ])
 
 page1.append(filetypesel)
+
+# =============================================
+# select file type
+
+scalesel = html.Div([html.H4("Choose output scale."),
+                  dcc.Input(id={'component': 'scale_input', 'module': label},
+                            persistence=True,
+                            className='dropdown_inline',
+                            type='number',
+                            step=0.001,
+                            min=0,max=1,
+                            value='0.5'),
+                  html.Br(),
+                  html.Br()
+                  ])
+
+page1.append(scalesel)
+
+
+
+
+
+# # ===============================================
+# Compute Settings
+
+compute_settings = html.Details(children=[html.Summary('Compute settings:'),
+                                             html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                  html.Tr([html.Td('',id={'component': 't_'+col, 'module': label}) for col in status_table_cols])
+                                             ],className='table'),
+                                             html.Br(),
+                                             html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                  html.Tr([html.Td(dcc.Input(id={'component': 'input_'+col, 'module': label},type='number',min=1)) for col in compute_table_cols])
+                                             ],className='table'),
+                                             dcc.Store(id={'component': 'factors', 'module': label},data={}),
+                                             dcc.Store(id={'component':'store_compset','module':label})
+                                             ],id={'component':'computesettings','module':label})
+page1.append(compute_settings)
+
+
+# callbacks
+
+@app.callback([Output({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+              [Output({'component': 'factors', 'module': label}, 'modified_timestamp'),
+               Output({'component': 'computesettings', 'module': label}, 'style')],
+              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+              [Input({'component': 'factors', 'module': label}, 'modified_timestamp'),
+               Input({'component': 'compute_sel', 'module': label}, 'value')],
+              [State({'component': 'factors', 'module': label}, 'data'),
+               State('url', 'pathname')]
+    , prevent_initial_call=True)
+def slice_export_update_compute_settings(*inputs):
+    thispage = inputs[-1]
+    inputs = inputs[:-1]
+    compsel = inputs[-2]
+
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    idx_offset = len(compute_table_cols)
+
+    trigger = hf.trigger()
+
+
+
+    out = list(inputs[:idx_offset])
+    out.append(dash.no_update)
+    out.append({})
+
+    if compsel=='standalone':
+        out[0] = 1
+        out[-1] = {'display':'none'}
+        return out
+
+    if not trigger in ('factors', 'input_' + compute_table_cols[0]):
+        out[0] = params.n_jobs_default
+        return out
+
+    if inputs[0] is None:
+        out[0] = params.n_jobs_default
+    else:
+        out[0] = inputs[0]
+
+
+
+    if type(inputs[1]) in (str, type(None)) or inputs[1] == {}:
+        out[1] = 120
+    else:
+        if None in inputs[-1].values():
+            out[1] = dash.no_update
+        else:
+            out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / out[0] * (1 + params.time_add_buffer)) + 1
+
+    return out
+
+
+@app.callback(Output({'component': 'store_compset', 'module': label}, 'data'),
+              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+              prevent_initial_call=True)
+def slice_export_store_compute_settings(*inputs):
+    storage = dict()
+
+    in_labels, in_values = hf.input_components()
+
+    for input_idx, label in enumerate(in_labels):
+        storage[label] = in_values[input_idx]
+
+    return storage
+
+
+# Update directory and compute settings from stack selection
+
+
+bbox0 = []
+
+for dim in ['X', 'Y', 'Z']:
+    bbox0.append(Input({'component': 'start' + dim, 'module': parent}, 'value'))
+    bbox0.append(Input({'component': 'end' + dim, 'module': parent}, 'value'))
+
+stackinput = []  # Input({'component': 'stack_dd', 'module': parent},'value')]
+stackinput.extend(bbox0)
+stackinput.append(Input({'component': "path_input", 'module': parent}, 'n_blur'))
+stackinput.append(Input({'component': "scale_input", 'module': label}, 'value'))
+stackoutput = [  # Output({'component': 'path_ext', 'module': parent},'data'),
+    # Output({'component': 'store_stackparams', 'module': module}, 'data')
+]
+tablefields = [Output({'component': 't_' + col, 'module': label}, 'children') for col in status_table_cols]
+compute_tablefields = [Output({'component': 'factors', 'module': label}, 'data')]
+
+stackoutput.extend(tablefields)
+
+stackoutput.extend(compute_tablefields)
+
+
+@app.callback(stackoutput,
+              stackinput,
+              [State({'component': 'store_owner', 'module': parent}, 'data'),
+               State({'component': 'store_project', 'module': parent}, 'data'),
+               State({'component': 'stack_dd', 'module': parent}, 'value'),
+               State({'component': 'store_allstacks', 'module': parent}, 'data'),
+               State({'component': "path_input", 'module': parent}, 'value'),
+               State('url', 'pathname')]
+    , prevent_initial_call=True)
+def slice_export_stacktoparams(  # stack_sel,
+        xmin, xmax, ymin, ymax, zmin, zmax,
+        browsetrig,
+        scale,
+        owner, project, stack_sel, allstacks,
+        browsedir,
+        thispage):
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or not thispage in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    out = dict()
+    factors = dict()
+
+    t_fields = [''] * len(status_table_cols)
+    # ct_fields = [1]*len(compute_table_cols)
+
+    if (not stack_sel == '-') and (not allstacks is None):
+        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]
+        stack = stack_sel
+
+        if not stacklist == []:
+            stackparams = stacklist[0]
+
+            if 'None' in (stackparams['stackId']['owner'], stackparams['stackId']['project']):
+                return dash.no_update
+
+            out['zmin'] = zmin
+            out['zmax'] = zmax
+            out['numsections'] = zmax - zmin + 1
+
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/' + str(
+                out['zmin']) + '/render-parameters'
+
+            tiles0 = requests.get(url).json()
+
+            tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+            #
+            # basedirsep = params.datasubdirs[owner]
+            # dir_out = tilefile0[:tilefile0.find(basedirsep)]
+
+            out['Gigapixels'] = out['numsections'] * (xmax - xmin) * (ymax - ymin) / (10 ** 9)
+
+            t_fields = [stack, str(out['numsections']), '%0.2f' % int(out['Gigapixels'])]
+
+            timelim = np.ceil(out['Gigapixels'] * scale * params.export['min/GPix/CPU_slice'] / params.n_cpu_script * (1 + params.time_add_buffer)) + 1
+
+            factors = {'runtime_minutes': timelim}
+
+    outlist = []  # dir_out] #,out]
+    outlist.extend(t_fields)
+    outlist.append(factors)
+
+    return outlist
 
 
 # =============================================
@@ -64,7 +264,7 @@ gobutton = html.Div(children=[html.Br(),
                                           id={'component': 'go', 'module': label}, disabled=True),
                               html.Div(id={'component': 'buttondiv', 'module': label}),
                               html.Br(),
-                              pages.compute_loc(label, c_options=['sparkslurm'], c_default='sparkslurm'),
+                              pages.compute_loc(label, c_default='slurm'),
                               html.Br(),
                               html.Div(id={'component': 'run_state', 'module': label}, style={'display': 'none'},
                                        children='wait')])
@@ -77,7 +277,6 @@ page1.append(gobutton)
 
 # =============================================
 
-# TODO! (#1) Fix store  outputs to enable additional modules
 
 bbox = []
 
@@ -93,7 +292,7 @@ states.extend(bbox)
 states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'))
 states.append(State({'component': 'sliceim_section_in_0', 'module': parent}, 'value'))
 states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent}, 'value'))
-
+states.append(State({'component': 'scale_input', 'module': label}, 'value'))
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                Output({'component': 'buttondiv', 'module': label}, 'children'),
@@ -101,12 +300,16 @@ states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent},
                Output({'component': 'store_render_launch', 'module': label}, 'data')],
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': parent}, 'value'),
-               Input({'component': 'stack_dd', 'module': parent}, 'value')],
+               Input({'component': 'stack_dd', 'module': parent}, 'value'),
+               Input({'component': 'input_Num_parallel_jobs', 'module': label},'value'),
+               Input({'component': 'input_runtime_minutes', 'module': label},'value')],
               states
     , prevent_initial_call=True)
-def sliceexport_execute_gobutton(click, outdir, stack, comp_sel, owner, project,
-                              Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
-                              sp_store, slice_in, c_limits):
+def sliceexport_execute_gobutton(click, outdir, stack,
+                                 numjobs,timelim,
+                                 comp_sel, owner, project,
+                                 Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
+                                 sp_store, slice_in, c_limits,scale):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -135,86 +338,77 @@ def sliceexport_execute_gobutton(click, outdir, stack, comp_sel, owner, project,
 
         run_params_generate = run_params.copy()
 
-        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json'
+        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix
+
+
+        # create output directory
+        aldir = os.path.join(outdir, params.outdirbase)
+
+        if not os.path.isdir(aldir):
+            os.makedirs(aldir)
+
+        slicerun_p = dict()
+
+        bounds = dict()
+
+        for dim in ['X', 'Y']:
+            bounds['min' + dim] = eval(dim + 'min')
+            bounds['max' + dim] = eval(dim + 'max') + 1
+
+        slicerun_p['minZ'] = Zmin
+        slicerun_p['maxZ'] = Zmax
+
+        # contrast limits
+
+        slicerun_p['minInt'] = c_limits[0]
+        slicerun_p['maxInt'] = c_limits[1]
+
+        slicerun_p['scale'] = scale
 
         if comp_sel == 'standalone':
+            run_params = slicerun_p.copy()
+            run_args = None
 
-            # create output directory
-            aldir = os.path.join(outdir, params.outdirbase)
+            pfile = param_file + '.json'
 
-            if not os.path.isdir(aldir):
-                os.makedirs(aldir)
+            with open(param_file, 'w') as f:
+                json.dump(run_params, f, indent=4)
 
-            slicedir = launch_jobs.run_prefix(nouser=True)
+        else:
+            run_args=dict()
+            slicerun_p['pool_size'] = params.n_cpu_script
 
-            slicedir = os.path.join(aldir, slicedir)
+            # compute memory req.
 
-            slices = ''
+            mem = np.ceil((bounds['maxX']-bounds['minX'])*(bounds['maxY']-bounds['minY']) * 3 / 1e9) # in GB
 
-            if Zmin == sp_store['zmin'] and Zmax == sp_store['zmax']:
-                slices = '_full'
-            else:
-                slices = '_Z' + str(Zmin) + '-' + str(Zmax)
+            # parallelize calls
 
+            steps = range(Zmin-1,Zmax,int(np.ceil((Zmax-Zmin)/numjobs+1)))
+            pfile=[]
 
-            slicerun_p = dict()
+            for idx,step in enumerate(steps[:-1]):
+                thisrun = slicerun_p.copy()
+                thisrun['minZ'] = step
+                thisrun['maxZ'] = steps[idx+1]
 
-            with open(os.path.join(params.json_template_dir, 'n5export.json'), 'r') as f:
-                slicerun_p.update(json.load(f))
+                thispfile = param_file + '_' + str(idx) + '.json'
 
-            # slicerun_p['--n5Path'] = n5dir
+                with open(thispfile, 'w') as f:
+                    json.dump(run_params, f, indent=4)
 
-            # get tile size from single tile
+                pfile.append(thispfile)
 
-            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
-            url += '/z/' + str(slice_in) + '/tile-specs'
+            if comp_sel =='slurm':
+                run_args['--mem'] = mem +'G'
+                run_args['--time'] = '00:' + str(timelim) + ':00'
+                run_args['--nodes'] = numjobs
+                run_args['--tasks-per-node'] = 1
+                run_args['--cpus-per-task'] = params.n_cpu_script
 
-            tilespecs = requests.get(url).json()
-
-            # tilesize = '{:.0f},{:.0f}'.format(tilespecs[0]['width'], tilespecs[0]['height'])
-
-            # slicerun_p['--tileSize'] = tilesize
-
-            slicerun_p['--tileWidth'] = '{:.0f}'.format(tilespecs[0]['width'])
-            slicerun_p['--tileHeight'] = '{:.0f}'.format(tilespecs[0]['height'])
-
-            blocksize = list(map(int, slicerun_p['--blockSize'].split(',')))
-            factors = list(map(int, slicerun_p['--factors'].split(',')))
-
-            for idx, dim in enumerate(['X', 'Y', 'Z']):
-                slicerun_p['--min' + dim] = eval(dim + 'min')
-                slicerun_p['--max' + dim] = eval(dim + 'max') + 1
-
-                # make sure blocksize and factors are not bigger than data
-
-                extent = slicerun_p['--max' + dim] - slicerun_p['--min' + dim]
-
-                blocksize[idx] = min(blocksize[idx], extent)
-                factors[idx] = min(blocksize[idx], factors[idx])
-
-            # contrast limits
-
-            slicerun_p['--minIntensity'] = c_limits[0]
-            slicerun_p['--maxIntensity'] = c_limits[1]
-
-            run_params_generate = {}
-
-            run_params_generate.update(slicerun_p)
-
-            target_args = {}
-            run_args = run_params_generate.copy()
-
-            script = '...'
-
-            # #   This is how to enforce custom jar files
-
-            # script = 'org.janelia.saalfeldlab.hotknife.SparkConvertRenderStackToN5'
-            # script  += " --jarfile=" + params.hotknife_dir + "/target/hot-knife-0.0.4-SNAPSHOT.jar"
 
         # generate script call...
 
-        with open(param_file, 'w') as f:
-            json.dump(run_params_generate, f, indent=4)
 
         run_prefix = launch_jobs.run_prefix()
 
@@ -223,10 +417,9 @@ def sliceexport_execute_gobutton(click, outdir, stack, comp_sel, owner, project,
         log_file += '.log'
 
         sliceexport_p = launch_jobs.run(target=comp_sel,
-                                     pyscript=script,
-                                     jsonfile=param_file,
+                                     pyscript=params.rendermodules_dir+'/materialize/render_export_sections.py',
+                                     jsonfile=pfile,
                                      run_args=run_args,
-                                     target_args=target_args,
                                      logfile=log_file, errfile=err_file)
 
         launch_store = dict()
@@ -249,6 +442,12 @@ def sliceexport_execute_gobutton(click, outdir, stack, comp_sel, owner, project,
 
         else:
             return False, '', dash.no_update, outstore
+
+
+
+
+
+
 
 
 # =============================================
