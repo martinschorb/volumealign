@@ -373,7 +373,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             pfile = param_file + '.json'
 
-            with open(param_file, 'w') as f:
+            with open(pfile, 'w') as f:
                 json.dump(run_params, f, indent=4)
 
         else:
