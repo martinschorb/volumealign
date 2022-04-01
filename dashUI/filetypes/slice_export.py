@@ -420,11 +420,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             pfile.append(lastpfile)
 
-            with open(thispfile, 'w') as f:
-                json.dump(thisrun, f, indent=4)
-
-            pfile.append(thispfile)
-
             if comp_sel =='slurm':
 
                 target_args['--mem'] = str(np.max((mem,5))) +'G'
