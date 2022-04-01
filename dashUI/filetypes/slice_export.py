@@ -364,6 +364,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         slicerun_p['maxInt'] = c_limits[1]
 
         slicerun_p['scale'] = scale
+        target_args = dict()
+        run_args = dict()
 
         if comp_sel == 'standalone':
             run_params = slicerun_p.copy()
@@ -375,8 +377,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                 json.dump(run_params, f, indent=4)
 
         else:
-            run_args=dict()
-            target_args = dict()
 
             slicerun_p['pool_size'] = params.n_cpu_script
 
