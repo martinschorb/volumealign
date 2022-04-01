@@ -376,6 +376,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         else:
             run_args=dict()
+            target_args = dict()
+
             slicerun_p['pool_size'] = params.n_cpu_script
 
             # compute memory req.
@@ -400,7 +402,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                 pfile.append(thispfile)
 
             if comp_sel =='slurm':
-                target_args = dict()
+
                 target_args['--mem'] = str(mem) +'G'
                 target_args['--time'] = '00:' + str(timelim) + ':00'
                 target_args['--nodes'] = 1
