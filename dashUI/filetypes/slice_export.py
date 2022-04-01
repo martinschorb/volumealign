@@ -301,11 +301,13 @@ states.append(State({'component': 'scale_input', 'module': label}, 'value'))
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': parent}, 'value'),
                Input({'component': 'stack_dd', 'module': parent}, 'value'),
+               Input({'component': 'filetype_dd', 'module': label}, 'value')
                Input({'component': 'input_Num_parallel_jobs', 'module': label},'value'),
                Input({'component': 'input_runtime_minutes', 'module': label},'value')],
               states
     , prevent_initial_call=True)
 def sliceexport_execute_gobutton(click, outdir, stack,
+                                 imgformat,
                                  numjobs,timelim,
                                  comp_sel, owner, project,
                                  Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
@@ -360,6 +362,9 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         slicerun_p['minZ'] = Zmin
         slicerun_p['maxZ'] = Zmax
+
+        slicerun_p['bounds'] = bounds
+        slicerun_p['imgformat'] = imgformat
 
         # contrast limits
 
@@ -434,6 +439,9 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         launch_store['status'] = 'running'
         launch_store['id'] = sliceexport_p
         launch_store['type'] = comp_sel
+
+        print(launch_store)
+
 
         return True, '', launch_store, outstore
 
