@@ -400,7 +400,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                 pfile.append(thispfile)
 
             if comp_sel =='slurm':
-                run_args['--mem'] = mem +'G'
+                run_args['--mem'] = str(mem) +'G'
                 run_args['--time'] = '00:' + str(timelim) + ':00'
                 run_args['--nodes'] = numjobs
                 run_args['--tasks-per-node'] = 1
