@@ -187,8 +187,6 @@ def checkstatus(run_state):
     else:
         return cluster_status(run_state),logfile,jobs
 
-
-
             
 def cluster_status(run_state):
     """
@@ -351,7 +349,6 @@ def cluster_status(run_state):
     return out_stat,link
 
 
-
 def find_activejob(run_state):
     """
     Identifies which job is currently running or the next one to run from a set of sequential tasks
@@ -372,6 +369,7 @@ def find_activejob(run_state):
 
     #no job found
     return None,-1
+
 
 def canceljobs(run_state, out_status='cancelled'):
     """
@@ -488,7 +486,7 @@ def run(target='standalone',
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
-        runscript += ' || echo $? > ' + logfile + '_exit'
+        runscript += ' >  '+ logfile + ' || echo $? > ' + logfile + '_exit'
 
         with open(runscriptfile, 'w') as f:
             f.write(runscript)

@@ -336,10 +336,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         run_params['render']['owner'] = owner
         run_params['render']['project'] = project
 
-        run_params_generate = run_params.copy()
-
         param_file = params.json_run_dir + '/' + parent + '_' + run_prefix
-
 
         # create output directory
         aldir = os.path.join(outdir, params.outdirbase)
@@ -364,12 +361,13 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         slicerun_p['maxInt'] = c_limits[1]
 
         slicerun_p['scale'] = scale
+
+        slicerun_p.update(run_params)
+
         target_args = dict()
-        run_args = dict()
 
         if comp_sel == 'standalone':
             run_params = slicerun_p.copy()
-            run_args = None
 
             pfile = param_file + '.json'
 
@@ -397,7 +395,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                 thispfile = param_file + '_' + str(idx) + '.json'
 
                 with open(thispfile, 'w') as f:
-                    json.dump(run_params, f, indent=4)
+                    json.dump(thisrun, f, indent=4)
 
                 pfile.append(thispfile)
 
