@@ -245,6 +245,9 @@ def slice_export_stacktoparams(  # stack_sel,
 
             t_fields = [stack, str(out['numsections']), '%0.2f' % int(out['Gigapixels'])]
 
+            print('gp - '+str(out['Gigapixels']))
+            print('scale - '+str(scale))
+
             timelim = np.ceil(out['Gigapixels'] * scale * params.export['min/GPix/CPU_slice'] / params.n_cpu_script * (1 + params.time_add_buffer)) + 1
 
             factors = {'runtime_minutes': timelim}
