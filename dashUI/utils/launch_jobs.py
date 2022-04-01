@@ -483,6 +483,7 @@ def run(target='standalone',
 
     print('launching - ')
     print(target)
+
     if target=='standalone':
         command = 'bash ' + runscriptfile
 
