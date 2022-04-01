@@ -301,7 +301,7 @@ states.append(State({'component': 'scale_input', 'module': label}, 'value'))
               [Input({'component': 'go', 'module': label}, 'n_clicks'),
                Input({'component': "path_input", 'module': parent}, 'value'),
                Input({'component': 'stack_dd', 'module': parent}, 'value'),
-               Input({'component': 'filetype_dd', 'module': label}, 'value')
+               Input({'component': 'filetype_dd', 'module': label}, 'value'),
                Input({'component': 'input_Num_parallel_jobs', 'module': label},'value'),
                Input({'component': 'input_runtime_minutes', 'module': label},'value')],
               states
