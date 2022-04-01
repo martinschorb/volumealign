@@ -336,6 +336,10 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         run_params['render']['owner'] = owner
         run_params['render']['project'] = project
 
+        run_params["input_stack"] = stack
+
+
+
         param_file = params.json_run_dir + '/' + parent + '_' + run_prefix
 
         # create output directory
@@ -343,6 +347,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         if not os.path.isdir(aldir):
             os.makedirs(aldir)
+
+        run_params["image_directory"] = aldir
 
         slicerun_p = dict()
 
