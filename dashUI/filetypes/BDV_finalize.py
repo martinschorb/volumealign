@@ -87,7 +87,7 @@ page2.append(collapse_stdout)
 
 
 @app.callback([Output(label+'_input_dd', 'options'),
-                Output(label+'_input_dd', 'value')],
+               Output(label+'_input_dd', 'value')],
               [Input({'component': 'subpage_dd', 'module': parent}, 'value'),
                Input('url', 'pathname')]
               ,prevent_initial_call=True)
@@ -102,7 +102,10 @@ def bdv_finalize_volume_dd(dd_in,thispage):
     #     raise PreventUpdate
         
     expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
-        
+
+    if expjson_list ==[]:
+        raise PreventUpdate
+
     dts = []
     
     dd_options=list(dict())
@@ -112,8 +115,10 @@ def bdv_finalize_volume_dd(dd_in,thispage):
             export_json = json.load(f)
         
         datetime = jsonfile.split(params.user+'_')[1].strip('.json')
+
+        if not '--n5Path' in export_json.keys():continue
+
         dts.append(datetime)
-        
         vfile = export_json['--n5Path']
         vdescr = ' - '.join([export_json['--project'],
                                   export_json['--stack'],
@@ -121,10 +126,12 @@ def bdv_finalize_volume_dd(dd_in,thispage):
                                   vfile.split('_')[-1].split('.')[0]])
         
         dd_options.append({'label':vdescr,'value':jsonfile})
-        
-    
+
+    if dts == []:
+        raise PreventUpdate
+
     latest = dd_options[np.argsort(dts)[-1]]['value']
-    
+
     return dd_options, latest
 
 

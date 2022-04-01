@@ -444,7 +444,7 @@ def n5export_execute_gobutton(click,outdir,stack,n_cpu,timelim,comp_sel,owner,pr
             
         run_prefix = launch_jobs.run_prefix()
     
-        log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
+        log_file = params.render_log_dir + '/' + label + '_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
 

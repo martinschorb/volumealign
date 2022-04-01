@@ -109,7 +109,10 @@ def mobie_finalize_volume_dd(dd_in,thispage):
     #     raise PreventUpdate
         
     expjson_list = glob.glob(os.path.join(params.json_run_dir,'*export_'+params.user+'*'))
-        
+
+    if expjson_list ==[]:
+        raise PreventUpdate
+
     dts = []
     
     dd_options=list(dict())
@@ -119,8 +122,10 @@ def mobie_finalize_volume_dd(dd_in,thispage):
             export_json = json.load(f)
         
         datetime = jsonfile.split(params.user+'_')[1].strip('.json')
+
+        if not '--n5Path' in export_json.keys(): continue
+
         dts.append(datetime)
-        
         vfile = export_json['--n5Path']
         vdescr = ' - '.join([export_json['--project'],
                                   export_json['--stack'],
@@ -129,7 +134,9 @@ def mobie_finalize_volume_dd(dd_in,thispage):
         
         dd_options.append({'label':vdescr,'value':jsonfile})
         
-    
+    if dd_options ==[]:
+        raise PreventUpdate
+
     latest = dd_options[np.argsort(dts)[-1]]['value']
     
     return dd_options, latest
@@ -170,7 +177,10 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     
     with open(jsonfile,'r') as f:
             export_json = json.load(f)
-    
+
+    if not '--n5Path' in export_json.keys():
+        raise PreventUpdate
+
     n5file = export_json['--n5Path']
     owner = export_json['--owner']
     project = export_json['--project']
@@ -247,8 +257,6 @@ def mobie_finalize_execute_gobutton(click,jsonfile,mobie_path,launch_store):
     launch_store['id'] = mobie_p
     launch_store['type'] = 'standalone'
     launch_store['logfile'] = log_file
-
-    print(launch_store)
 
     return True, '', launch_store
     
