@@ -412,7 +412,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             if comp_sel =='slurm':
 
-                target_args['--mem'] = str(int(np.min((np.ceil(mem),5))) +'G'
+                target_args['--mem'] = str(int(np.min((np.ceil(mem),5)))) +'G'
                 target_args['--time'] = '00:' + str(timelim) + ':00'
                 target_args['--nodes'] = 1
                 target_args['--tasks-per-node'] = 1
