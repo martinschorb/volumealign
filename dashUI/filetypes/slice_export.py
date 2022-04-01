@@ -342,7 +342,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
 
 
-        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix
+        param_file = params.json_run_dir + '/' + label + '_' + run_prefix
 
         # create output directory
         aldir = os.path.join(outdir, params.outdirbase)
@@ -391,7 +391,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             # compute memory req.
 
-            mem = np.ceil((bounds['maxX']-bounds['minX'])*(bounds['maxY']-bounds['minY']) * 3 / 1e9) # in GB
+            mem = int(np.ceil((bounds['maxX']-bounds['minX'])*(bounds['maxY']-bounds['minY']) * 3 / 1e9)) # in GB
 
             # parallelize calls
 
@@ -410,9 +410,24 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
                 pfile.append(thispfile)
 
+            lastrun = slicerun_p.copy()
+            lastrun['minZ'] = steps[-1]
+            lastrun['maxZ'] = Zmax
+
+            lastpfile = param_file + '_' + str(numjobs-1) + '.json'
+            with open(lastpfile, 'w') as f:
+                json.dump(lastrun, f, indent=4)
+
+            pfile.append(lastpfile)
+
+            with open(thispfile, 'w') as f:
+                json.dump(thisrun, f, indent=4)
+
+            pfile.append(thispfile)
+
             if comp_sel =='slurm':
 
-                target_args['--mem'] = str(int(np.min((np.ceil(mem),5)))) +'G'
+                target_args['--mem'] = str(np.max((mem,5))) +'G'
                 target_args['--time'] = '00:' + str(timelim) + ':00'
                 target_args['--nodes'] = 1
                 target_args['--tasks-per-node'] = 1
@@ -424,7 +439,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         run_prefix = launch_jobs.run_prefix()
 
-        log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
+        log_file = params.render_log_dir + '/' + label + '_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
 
