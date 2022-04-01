@@ -442,7 +442,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         print(launch_store)
 
-
         return True, '', launch_store, outstore
 
     else:
