@@ -401,10 +401,10 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             if comp_sel =='slurm':
                 target_args['--mem'] = str(mem) +'G'
-                target_args_args['--time'] = '00:' + str(timelim) + ':00'
-                target_args_args['--nodes'] = 1
-                target_args_args['--tasks-per-node'] = 1
-                target_args_args['--cpus-per-task'] = params.n_cpu_script
+                target_args['--time'] = '00:' + str(timelim) + ':00'
+                target_args['--nodes'] = 1
+                target_args['--tasks-per-node'] = 1
+                target_args['--cpus-per-task'] = params.n_cpu_script
 
 
         # generate script call...
@@ -419,7 +419,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         sliceexport_p = launch_jobs.run(target=comp_sel,
                                      pyscript=params.rendermodules_dir+'/materialize/render_export_sections.py',
                                      jsonfile=pfile,
-                                     target_args_args=target_args_args,
+                                     target_args_args=target_args,
                                      logfile=log_file, errfile=err_file)
 
         launch_store = dict()
