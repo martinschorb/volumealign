@@ -529,7 +529,7 @@ def run(target='standalone',
 
                 return p.pid
     
-    elif target == 'generic' or target.split('generic_')[1] in params.remote_machines.keys():
+    elif target == 'generic' or target.split('generic_')[-1] in params.remote_machines.keys():
         command = pyscript        
         command += ' '+run_args
         
@@ -578,13 +578,25 @@ def run(target='standalone',
         
         print(sl_command)
 
-        p = subprocess.Popen(sl_command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+        if target in params.remote_submission.keys():
+            remotehost = params.remote_submission[target]
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+            ssh.connect(remotehost)
+
+            stdin, stdout, stderr = ssh.exec_command(sl_command)
+            time.sleep(3)
+            jobid = stdout.readline()
+
+        else:
+            # submit locally
+            p = subprocess.Popen(sl_command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+            time.sleep(3)
+            jobid = p.stdout.readline().decode()
 
         with open(logfile,'w+') as f:
             f.write('waiting for cluster job to start\n\n')
-            time.sleep(3)
-            jobid = p.stdout.readline().decode()
-            
             f.write(jobid)
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
@@ -624,16 +636,26 @@ def run(target='standalone',
         spsl_args += '--params= ' + args2string(run_args,' ')
         
         command += spsl_args
-        
-        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
-        
+
+        if target in params.remote_submission.keys():
+            remotehost = params.remote_submission[target]
+
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+            ssh.connect(remotehost)
+
+            stdin, stdout, stderr = ssh.exec_command(command)
+            time.sleep(3)
+            jobid = stdout.readline()
+        else:
+            p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+            time.sleep(3)
+            jobid = p.stdout.readline().decode()
+
         print(command)
         
         with open(logfile,'w+') as f:
             f.write('waiting for cluster job to start\n\n')
-            time.sleep(3)
-            jobid = p.stdout.readline().decode()
-            
             f.write(jobid)
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
