@@ -161,7 +161,7 @@ def checkstatus(run_state):
     if type(j_id) is list:
         runvars=j_id
 
-    if run_state['type'] == 'standalone':
+    if run_state['type'] in ['standalone','generic']:
 
         if run_state['status'] in ['running','launch']:
 
@@ -499,32 +499,65 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target=='standalone':
+    if target=='standalone' or target in params.remote_machines.keys():
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
-        runscript += ' >  '+ logfile + ' || echo $? > ' + logfile + '_exit'
+        runscript += ' >  '+ logfile + ' 2> '+errfile+' || echo $? > ' + logfile + '_exit'
 
         with open(runscriptfile, 'w') as f:
             f.write(runscript)
 
         print(command)
 
-        with open(logfile,"w") as out, open(errfile,"w") as err:
-            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+        if target in params.remote_machines.keys():
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+            ssh.connect(target)
 
-            return p.pid
+            command = 'echo $$ && '+command
+
+            stdin, stdout, stderr = ssh.exec_command(command)
+
+            remote_pid = stdout.readline()
+
+            return {target:remote_pid}
+
+        else:
+            with open(logfile,"w") as out, open(errfile,"w") as err:
+                p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+
+                return p.pid
     
-    elif target == 'generic':
+    elif target == 'generic' or target.split('generic_')[1] in params.remote_machines.keys():
         command = pyscript        
         command += ' '+run_args
         
         print(command)
-        
-        with open(logfile,"wb") as out, open(errfile,"wb") as err:
-            p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
-           
-        return p
+
+        remotehost = target.split('generic_')[-1]
+
+        if remotehost in params.remote_machines.keys():
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+            ssh.connect(remotehost)
+
+            command = 'echo $$ && '+command
+
+            command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+
+            stdin, stdout, stderr = ssh.exec_command(command)
+
+            remote_pid = stdout.readline().split('\n')[0]
+            print(logfile)
+            return {remotehost:remote_pid}
+
+        else:
+
+            with open(logfile,"wb") as out, open(errfile,"wb") as err:
+                p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+
+            return p
     
     elif target == 'slurm':
         runscript.replace('#launch message','"Launching Render processing script on " `hostname`". Slurm job ID: " $SLURM_JOBID"."')
