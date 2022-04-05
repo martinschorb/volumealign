@@ -78,12 +78,15 @@ remote_submission = {'slurm':'login.cluster.embl.de',
 
 
 for resource in remote_compute:
-     comp_options.append({'label': resource, 'value': 'remote_'+resource})
+     comp_options.append({'label': 'Remote using '+resource, 'value': resource})
 
 
 comp_default = 'standalone'
 
 comp_defaultoptions = ['standalone','slurm']
+
+# add remote resources
+comp_defaultoptions.extend(remote_compute)
 
 min_chunksize = 5e5 # minimum chunk size for n5/zarr export (in bytes)
 

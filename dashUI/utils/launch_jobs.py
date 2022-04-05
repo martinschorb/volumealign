@@ -165,22 +165,29 @@ def checkstatus(run_state):
         runvars=j_id
 
     if run_state['type'] in ['standalone','generic']:
-
+        print(run_state)
         if run_state['status'] in ['running','launch']:
-
             for runvar in runvars:
                 if type(runvar) is dict:
+                    print('remote')
                     # remote check
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
                     remotehost = list(runvar.keys())[0]
                     ssh.connect(remotehost,username=remote_user(remotehost))
 
-                    command = 'ps aux | grep "'+params.user+' * '+ str(runvar[remotehost]) + ' "'
+                    command = 'ps aux | grep "'+params.user+' *'+ str(runvar[remotehost]) + ' "'
+                    print(command)
                     stdin, stdout, stderr = ssh.exec_command(command)
-
-                    if len(stdout.readlines())>0:
+                    time.sleep(2)
+                    res = stdout.readlines()
+                    print(res)
+                    if len(res)>0:
                         outstat.append('running')
+                        continue
+
+                    elif run_state['status']=='launch':
+                        outstat.append('launch')
                         continue
 
 
@@ -453,7 +460,7 @@ def canceljobs(run_state, out_status='cancelled'):
 
 
 def run(target='standalone',
-        pyscript='thispyscript',
+        pyscript=os.path.join(params.base_dir,'launchers/test.py'),
         jsonfile='',
         run_args='',
         target_args=None,
@@ -550,7 +557,9 @@ def run(target='standalone',
 
             stdin, stdout, stderr = ssh.exec_command(command)
 
-            remote_pid = stdout.readline()
+            remote_pid = stdout.readline().split('\n')[0]
+
+            print(remote_pid)
 
             return {target:remote_pid}
 
@@ -580,7 +589,7 @@ def run(target='standalone',
             stdin, stdout, stderr = ssh.exec_command(command)
 
             remote_pid = stdout.readline().split('\n')[0]
-            print(logfile)
+
             return {remotehost:remote_pid}
 
         else:
@@ -705,6 +714,21 @@ def remote_user(remotehost):
         return params.remote_logins[remotehost]
     else:
         return params.user
+
+
+def runtype(comp_sel):
+    """
+    sanitizes compute location for remote computation
+
+    :param str comp_sel: Compute selection from UI.
+    :return: sanitized compute location type (removed remote host and specify run type)
+    :rtype: str
+    """
+
+    if comp_sel in params.remote_compute:
+        return 'standalone'
+    else:
+        return comp_sel
 
         
 def run_prefix(nouser=False,dateonly=False):
