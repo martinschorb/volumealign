@@ -9,6 +9,7 @@ import glob
 import subprocess
 import requests
 import socket
+import numpy as np
 
 #=============================================================
 ## Directory presets
@@ -52,9 +53,6 @@ init_logfile = 'out.txt' #render_log_dir + 'fancylogfile.log'
 #==============================================================
 ## Compute resources presets
 
-# name of the conda environment that provides the gc3Pie runtime
-gc3_envname = 'gc3pie'
-
 # name of the conda environment that provides the render-modules and renderapi packages
 render_envname = 'render'
 
@@ -67,7 +65,13 @@ comp_options = [
                 ]
 
 # list remote workstations/login nodes and the remote user format
-remote_machines = {'login.cluster.embl.de':user}
+remote_machines = {'login.cluster.embl.de':user,
+                   'pc-emcf-16.embl.de':user}
+
+
+# dict. If empty, submission and status calls for cluster environments will be issued locally
+remote_submission = {'slurm':'login.cluster.embl.de'}
+
 
 for resource in remote_machines.keys():
      comp_options.append({'label': resource, 'value': 'remote_'+resource})
@@ -139,13 +143,19 @@ slicenumformat = { # string format in which the slice number appears in the tile
 def tile_display_SBEM(tiles,prev_tile,slicenum):
     t_labels = tiles.copy()
     tile = tiles[0]
+    gridids = []
+    gridlabels = tiles.copy()
 
     for t_idx,t_label in enumerate(tiles):
         t_labels[t_idx] = t_label.partition('.')[2].partition('.')[0]
+        gridlabels[t_idx] = 'grid'+t_label.partition('.')[0]+' - tile'+t_label.partition('.')[2].partition('.')[0]
+        gridids.append(t_label.partition('.')[0])
 
         if (not prev_tile is None) and t_labels[t_idx] in prev_tile:
             tile = t_label.partition('.')[0]+'.'+ t_labels[t_idx] + slicenumformat['SBEM'] %slicenum
 
+        if len(np.unique(gridids))>1:
+            t_labels = gridlabels
 
     return t_labels, tile
 

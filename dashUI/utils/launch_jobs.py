@@ -12,6 +12,7 @@ import params
 import time
 import datetime
 import psutil
+import paramiko
 import requests
 
 
@@ -153,7 +154,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        else:
+        elif not list(j_id.keys())[0] in params.remote_machines.keys():
     #         parameter list for next sequential job
             return 'pending','',logfile,jobs
 
@@ -165,14 +166,30 @@ def checkstatus(run_state):
         if run_state['status'] in ['running','launch']:
 
             for runvar in runvars:
+                if type(runvar) is dict:
+                    # remote check
+                    ssh = paramiko.SSHClient()
+                    ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+                    remotehost = list(runvar.keys())[0]
+                    ssh.connect(remotehost)
 
-                if psutil.pid_exists(runvar):
-                    p = psutil.Process(runvar)
+                    command = 'ps aux | grep "'+params.user+' * '+ str(runvar[remotehost]) + ' "'
+                    stdin, stdout, stderr = ssh.exec_command(command)
 
-                    if p.is_running():
-                        if not p.status() == 'zombie':
-                            outstat.append('running')
-                            continue
+                    if len(stdout.readlines())>0:
+                        outstat.append('running')
+                        continue
+
+
+                else:
+                    if psutil.pid_exists(runvar):
+
+                        p = psutil.Process(runvar)
+
+                        if p.is_running():
+                            if not p.status() == 'zombie':
+                                outstat.append('running')
+                                continue
 
                 if os.path.exists(run_state['logfile']+'_exit'):
                     outstat.append('error')
