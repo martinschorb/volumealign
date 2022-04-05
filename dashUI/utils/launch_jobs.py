@@ -171,7 +171,7 @@ def checkstatus(run_state):
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
                     remotehost = list(runvar.keys())[0]
-                    ssh.connect(remotehost)
+                    ssh.connect(remotehost,username=remote_user(remotehost))
 
                     command = 'ps aux | grep "'+params.user+' * '+ str(runvar[remotehost]) + ' "'
                     stdin, stdout, stderr = ssh.exec_command(command)
@@ -253,7 +253,7 @@ def cluster_status(run_state):
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-        ssh.connect(remotehost)
+        ssh.connect(remotehost,username=remote_user(remotehost))
 
         stdin, stdout, stderr = ssh.exec_command(command)
 
@@ -297,7 +297,7 @@ def cluster_status(run_state):
 
     elif cl_type == 'sparkslurm':
         slurm_stat = []
-        slurm_stat0 = result.decode()
+        slurm_stat0 = result
 
         stat_list = slurm_stat0.split('\n')
 
@@ -526,7 +526,7 @@ def run(target='standalone',
         if target in params.remote_machines.keys():
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target)
+            ssh.connect(target,username=remote_user(target))
 
             command = 'echo $$ && '+command
 
@@ -553,7 +553,7 @@ def run(target='standalone',
         if remotehost in params.remote_machines.keys():
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost)
+            ssh.connect(remotehost,username=remote_user(remotehost))
 
             command = 'echo $$ && '+command
 
@@ -596,7 +596,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost)
+            ssh.connect(remotehost,username=remote_user(remotehost))
 
             stdin, stdout, stderr = ssh.exec_command(sl_command)
             time.sleep(3)
@@ -655,7 +655,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost)
+            ssh.connect(remotehost,username=remote_user(remotehost))
 
             stdin, stdout, stderr = ssh.exec_command(command)
             time.sleep(3)
@@ -673,6 +673,20 @@ def run(target='standalone',
             
             jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
         return jobid
+
+
+def remote_user(remotehost):
+    """
+    Lookup for users on remote hosts. Fallback to local user if not present in params.
+
+    :param str remotehost: address or host name of remote machine
+    :return: user name
+    :rtype: str
+    """
+    if remotehost in params.remote_logins.keys():
+        return params.remote_logins[remotehost]
+    else:
+        return params.user
 
         
 def run_prefix(nouser=False,dateonly=False):

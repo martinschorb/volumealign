@@ -65,8 +65,11 @@ comp_options = [
                 ]
 
 # list remote workstations/login nodes and the remote user format
-remote_machines = {'login.cluster.embl.de':user,
-                   'pc-emcf-16.embl.de':user}
+remote_compute = ['pc-emcf-16.embl.de',
+                  'render.embl.de']
+
+remote_logins = {'login.cluster.embl.de':user,
+                 'pc-emcf-16.embl.de':'testuser'}
 
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
