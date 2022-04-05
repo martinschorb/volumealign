@@ -440,7 +440,7 @@ def mipmaps_gobutton(mipmapdir,click,click2,run_state,comp_sel,runstep_in,owner,
                 launch_store['logfile'] = log_file
                 launch_store['status'] = html.Div([html.Img(src='assets/gears.gif',height=72),html.Br(),'running apply mipmaps to stack'])
                 launch_store['id'] = mipmap_apply_p
-                launch_store['type'] = comp_sel
+                launch_store['type'] = launch_jobs.runtype(comp_sel)
                 
                 
         elif runstep == 'apply' and run_state['status'] == 'done' and mipmapdir is not None:

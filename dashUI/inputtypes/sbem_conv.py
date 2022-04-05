@@ -213,7 +213,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
                        
         run_state['status'] = 'running'     
         run_state['id'] = sbem_conv_p
-        run_state['type'] = compute_sel
+        run_state['type'] = launch_jobs.runtype(comp_sel)
         run_state['logfile'] = log_file
                 
     else:

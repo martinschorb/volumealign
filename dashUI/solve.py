@@ -375,7 +375,7 @@ def solve_execute_gobutton(click,matchcoll,outstack,tform,stype,comp_sel,startse
     launch_store['logfile'] = log_file
     launch_store['status'] = 'running'
     launch_store['id'] = solve_generate_p
-    launch_store['type'] = comp_sel
+    launch_store['type'] = launch_jobs.runtype(comp_sel)
     
     
     outstore = dict()
