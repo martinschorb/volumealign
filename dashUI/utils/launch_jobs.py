@@ -23,6 +23,7 @@ def args2string(args,separator='='):
     :param args: list, dict or str of command line arguments
     :param str separator: char to separate/link arguments
     :return: string of arguments
+    :rtype: str
     """
 
     if args==None:
@@ -61,6 +62,7 @@ def status(run_state):
 
     :param dict run_state: run state dictionary defining job ID(s), job type and logfile(s)
     :return: string describing the global processing status and link to status page if available
+    :rtype: (str, str)
     """
 
     (res_status,link),logfile,jobs = checkstatus(run_state)
@@ -106,7 +108,8 @@ def checkstatus(run_state):
     returns a status string and a link to status page if available
 
     :param dict run_state: single or multi-task run_state dict
-    :return: status string/list of strings and link
+    :return: status string/list of strings, link to job, current logfile, job list
+    :rtype: (str or list, str, str, list)
     """
 
     outstat=[]
@@ -154,7 +157,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        elif not list(j_id.keys())[0] in params.remote_machines.keys():
+        elif not list(j_id.keys())[0] in params.remote_compute:
     #         parameter list for next sequential job
             return 'pending','',logfile,jobs
 
@@ -211,6 +214,7 @@ def cluster_status(run_state):
 
     :param dict run_state: single- or multi-task run_state dictionary
     :return: status string and link to status page if available
+    :rtype: (str, str)
     """
 
     my_env = os.environ.copy()
@@ -427,9 +431,22 @@ def canceljobs(run_state, out_status='cancelled'):
 
     if 'slurm' in cl_type:
         command = 'scancel ' + str(j_id)
-        os.system(command)
+
+    #     add other cluster types here
+
     elif 'standalone' in cl_type or 'generic' in cl_type:
         command = 'kill ' + str(j_id)
+
+
+    if cl_type in params.remote_submission.keys():
+        remotehost = params.remote_submission[cl_type]
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost,username=remote_user(remotehost))
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+    else:
         os.system(command)
 
     return out_status
@@ -449,14 +466,15 @@ def run(target='standalone',
 
     :param str target: target for processing. Currently supports ['standalone','generic','slurm','sparkslurm']
     :param str pyscript: script to execute
-    :param jsonfile: string path of JSON file with the script parameters or list of those for multiple parallel tasks
-    :param run_args: str, dict or list with run-time arguments for the specific launcher
-    :param target_args: str, dict or list with setup arguments for the specific launcher
-    :param special_args: str, dict or list with additional arguments
+    :param str or list jsonfile: string path of JSON file with the script parameters or list of those for multiple parallel tasks
+    :param str or dict or list run_args: str, dict or list with run-time arguments for the specific launcher
+    :param str or dict or list target_args: str, dict or list with setup arguments for the specific launcher
+    :param str or dict or list special_args: str, dict or list with additional arguments
     :param str logfile: path to log file
     :param str errfile: path to error log
-    :param inputs: dict or ist of dicts containing the parameters.
-    :return: Job ID (str)
+    :param dict or list inputs: dict or list of dicts containing the parameters.
+    :return: Job ID (str or dict or list of Job IDs)
+    :rtype: str or dict or list
     """
 
     if type(inputs) is list:
@@ -512,7 +530,7 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target=='standalone' or target in params.remote_machines.keys():
+    if target=='standalone' or target in params.remote_compute:
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
@@ -523,7 +541,7 @@ def run(target='standalone',
 
         print(command)
 
-        if target in params.remote_machines.keys():
+        if target in params.remote_compute:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
             ssh.connect(target,username=remote_user(target))
@@ -542,7 +560,7 @@ def run(target='standalone',
 
                 return p.pid
     
-    elif target == 'generic' or target.split('generic_')[-1] in params.remote_machines.keys():
+    elif target == 'generic' or target.split('generic_')[-1] in params.remote_compute:
         command = pyscript        
         command += ' '+run_args
         
@@ -550,7 +568,7 @@ def run(target='standalone',
 
         remotehost = target.split('generic_')[-1]
 
-        if remotehost in params.remote_machines.keys():
+        if remotehost in params.remote_compute:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
             ssh.connect(remotehost,username=remote_user(remotehost))
@@ -696,6 +714,7 @@ def run_prefix(nouser=False,dateonly=False):
     :param bool nouser: do not include the user name
     :param bool dateonly: only use the date, not the time
     :return: string prefix that can be incorporated in file/path names
+    :rtype: str
     """
 
     timestamp = time.localtime()
@@ -719,6 +738,7 @@ def activate_conda(conda_dir=params.conda_dir,
     :param str conda_dir: directory of the *conda installation
     :param str env_name: environment name
     :return: multi-line string to be issued as a shell command
+    :rtype: str
     """
 
     script = ''

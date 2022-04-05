@@ -77,7 +77,7 @@ remote_submission = {'slurm':'login.cluster.embl.de',
                      'sparkslurm':'login.cluster.embl.de'}
 
 
-for resource in remote_machines.keys():
+for resource in remote_compute:
      comp_options.append({'label': resource, 'value': 'remote_'+resource})
 
 
