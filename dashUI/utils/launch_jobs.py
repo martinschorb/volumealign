@@ -246,13 +246,26 @@ def cluster_status(run_state):
             command += ' --format=jobid,state,node --parsable'
             
         # commands for other cluster types go HERE
-            
-            
-    result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT)
+
+    if cl_type in params.remote_submission.keys():
+
+        remotehost = params.remote_submission[cl_type]
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost)
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+
+        result = ''.join(stdout.readlines())
+
+    else:
+        # check cluster status locally
+        result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT).decode()
         
     if cl_type == 'slurm':
 
-        slurm_stat0 = result.decode()
+        slurm_stat0 = result
 
         stat_list = slurm_stat0.split('\n')
 
