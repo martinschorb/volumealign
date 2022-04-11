@@ -357,7 +357,7 @@ def cluster_status(run_state):
                             print('Error in Spark setup!')
                             out_stat.append('error')
                         else:
-                            if 'FINISHED' in sp_query['completedapps'][0]['state']:
+                            if 'FINISHED' in sp_query['completedapps'][-1]['state']:
                                 out_stat.append(canceljobs(run_state,'done'))
                                 donefile = run_state['logfile']+'.done'
                                 with open(donefile,'w') as f:
@@ -553,7 +553,7 @@ def run(target='standalone',
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
             ssh.connect(target,username=remote_user(target))
 
-            command = 'echo $$ && '+command
+            command = "'echo $$ && "+command+"'"
 
             stdin, stdout, stderr = ssh.exec_command(command)
 

@@ -42,7 +42,7 @@ page2=[]
 
 
 outputsel = html.Div([html.H4("Choose exported volume"),
-                  dcc.Dropdown(id=label+'_input_dd',persistence=True)
+                  dcc.Dropdown(id=label+'_input_dd')
                   ])                                
 
 page1.append(outputsel)
