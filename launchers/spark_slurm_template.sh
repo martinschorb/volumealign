@@ -67,7 +67,7 @@ while [ "$1" != "" ]; do
 done
 
 if [ -z $JAVA_HOME]; then
-  export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/jdk*`
+  export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/*jdk*`
 fi
 
 # CLEAN LOGDIR
