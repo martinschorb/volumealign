@@ -14,7 +14,7 @@ import numpy as np
 #=============================================================
 ## Directory presets
 
-base_dir = '/g/emcf/schorb/code/volumealign/'#'/g/emcf/software/volumealign/'
+base_dir = '/g/emcf/software/volumealign/'
 
 render_dir = '/g/emcf/software/render'
 
