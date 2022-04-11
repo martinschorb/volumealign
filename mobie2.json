@@ -1,6 +1,0 @@
-{
-    "xmlpath": "../rendermodules-addons/tests/test_files/rmaddons_test.xml",
-    "outpath": "../rendermodules-addons/tests/test_files/mobie2",
-    "resolution": [2, 2, 2],
-    "unit": "micorns"
-}
