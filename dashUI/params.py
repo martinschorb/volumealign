@@ -73,8 +73,7 @@ remote_logins = {'login.cluster.embl.de':user,
 
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
-remote_submission = {'slurm':'login.cluster.embl.de',
-                     'sparkslurm':'login.cluster.embl.de'}
+remote_submission = {}
 
 
 for resource in remote_compute:
