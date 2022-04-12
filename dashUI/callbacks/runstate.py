@@ -69,7 +69,8 @@ def update_status(n, click, run_state, logfile, module, thispage):
             return r_status, status_style, status_href
 
         if run_state['type'] is not None:
-            (r_status['status'], link, run_state) = launch_jobs.status(run_state)
+            (r_status['status'], link, run_state1) = launch_jobs.status(run_state)
+            r_status['logfile'] = run_state1['logfile']
 
         if not link == '':
 
@@ -197,17 +198,17 @@ def run_state(launch_trigger, status_trigger, launch_in, status_in):
         raise PreventUpdate
     trigger = hf.trigger()
 
-    print('-- merge status --')
-    print(trigger)
+    # print('-- merge status --')
+    # print(trigger)
 
     if 'launch' in trigger:
-        print('launch triggered state:')
-        print(launch_in)
+        # print('launch triggered state:')
+        # print(launch_in)
         out = launch_in
 
     else:
-        print('status triggered state:')
-        print(status_in)
+        # print('status triggered state:')
+        # print(status_in)
         out = status_in.copy()
 
     return out, out['logfile']

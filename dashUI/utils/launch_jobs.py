@@ -140,11 +140,13 @@ def checkstatus(run_state):
 
                 if 'done' in checkstatus(newrunstate)[0][0]:
                     if 'logfile' not in runjob.keys():
-                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) + os.path.splitext(logfile)[
-                            -1]
+                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) + os.path.splitext(logfile)[-1]
+
                     # start next job with these parameters
-                    nextjobid = run(**runjob)
+
+                    nextjobid = run(inputs=runjob)
                     nextjob = newrunstate.copy()
+                    nextjob['logfile'] = runjob['logfile']
                     nextjob['id'] = nextjobid
 
                     run_state['id']['seq'][idx] = nextjobid
