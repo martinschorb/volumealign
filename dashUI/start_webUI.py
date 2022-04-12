@@ -13,7 +13,7 @@ import subprocess
 import params
 from utils.launch_jobs import run_prefix
 
-target_machines = list(params.remote_compute.keys())
+target_machines = params.remote_compute
 
 user_file = './web_users.json'
 
