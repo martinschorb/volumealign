@@ -66,7 +66,8 @@ while [ "$1" != "" ]; do
     esac
 done
 
-if [ -z $JAVA_HOME]; then
+
+if [ -z $JAVA_HOME ] ; then
   export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/*jdk*`
 fi
 
@@ -130,9 +131,9 @@ $sparksubmitcall
 
 while [ ! -f $LOGDIR.log.done ]
 do
-  sleep 2
+  sleep 5s
 done
 
-rm $LOGDIR.log.done
+#rm $LOGDIR.log.done
 
 #sleep infinity
