@@ -66,6 +66,7 @@ while [ "$1" != "" ]; do
     esac
 done
 
+
 if [ -z $JAVA_HOME ] ; then
   export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/*jdk*`
 fi

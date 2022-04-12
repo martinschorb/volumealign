@@ -31,8 +31,8 @@ if params.user not in users_exist.keys():
     # create new user...
 
     if ssh_key_login:
-        if not os.path.exists(home + '/.ssh'):
-            os.mkdirs(home + '/.ssh')
+        if not os.path.exists(os.path.join(home, '.ssh')):
+            os.mkdirs(os.path.join(home, '.ssh'))
 
         if not os.path.exists(home + '/.ssh/id_rsa_render'):
             os.system("ssh-keygen -t rsa -b 4096 -q -f '+home+'/.ssh/id_rsa_render -N ''")
@@ -54,8 +54,10 @@ logfile = os.path.join(params.render_log_dir, 'webUI_' + run_prefix() + '.log')
 
 print('Starting Render WebUI.\n')
 print('As long as this window is open, you can access Render through:\n\n')
+
 print('http://' + params.hostname + ':' + str(port) + '\n\n')
-print('from any device in the network.\n')
+print('from any device in the network.\n Do not use CTRL+C to copy the address, this will close the process.')
+
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
 os.system('python index.py ' + str(port) + ' > ' + logfile)
