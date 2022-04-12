@@ -11,50 +11,47 @@ import requests
 
 import params
 
-def mt_parameters(matchID,owner=params.mt_owner,raw=False):
+
+def mt_parameters(matchID, owner=params.mt_owner, raw=False):
     out_params = dict()
-    if not matchID is None:
+    if matchID is not None:
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/matchTrial/' + matchID
-        
-        matchtrial = requests.get(url).json()        
+
+        matchtrial = requests.get(url).json()
 
         if raw:
             return matchtrial
 
         out_params = matchtrial['parameters']['featureAndMatchParameters']
-        
+
         out_params['scale'] = matchtrial['parameters']['pRenderParametersUrl'].partition('scale=')[2].partition('&')[0]
-        
-        
-        
+
         # get processing time for one pair 
-        
+
         timekeys = ['pFeatureDerivationMilliseconds',
                     'qFeatureDerivationMilliseconds',
                     'matchDerivationMilliseconds',
                     'matchQualityMilliseconds']
-         
+
         out_params['ptime'] = 0
-        
+
         for tk in timekeys:
             out_params['ptime'] += matchtrial['stats'][tk]
-        
-    
+
     return out_params
 
 
-def new_matchtrial(matchID,urls,clippos='LEFT',owner=params.mt_owner,):
+def new_matchtrial(matchID, urls, clippos='LEFT', owner=params.mt_owner, ):
     if not type(urls) is list:
         raise TypeError('URLs need to be provided as list.')
 
     if not len(urls) == 2:
         raise TypeError('URL list needs to be of length two.')
 
+    matchtrial = mt_parameters(matchID, raw=True)
 
-    matchtrial = mt_parameters(matchID,raw=True)
-
-    matchtrial['matches']=[]
-    matchtrial['stats']={}
+    matchtrial['matches'] = []
+    matchtrial['stats'] = {}
     matchtrial['parameters']['featureAndMatchParameters']['pClipPosition'] = clippos
     matchtrial['parameters']['pRenderParametersUrl'] = urls[0]
     matchtrial['parameters']['qRenderParametersUrl'] = urls[1]
@@ -63,10 +60,12 @@ def new_matchtrial(matchID,urls,clippos='LEFT',owner=params.mt_owner,):
 
     url = params.render_base_url + params.render_version + 'owner/' + owner + '/matchTrial/'
 
-    res={}
+    res = {}
 
-    try: res = requests.post(url, json=matchtrial['parameters']).json()
-    except: json.decoder.JSONDecodeError
+    try:
+        res = requests.post(url, json=matchtrial['parameters']).json()
+    except:
+        json.decoder.JSONDecodeError
 
     if 'id' in res.keys():
         matchtrial = res['parameters']
@@ -76,12 +75,11 @@ def new_matchtrial(matchID,urls,clippos='LEFT',owner=params.mt_owner,):
 
 
 def invert_neighbour(tilelabel):
-    o_loc = ['LEFT','RIGHT','TOP','BOTTOM']
-    inv_loc = ['RIGHT','LEFT','BOTTOM','TOP']
+    o_loc = ['LEFT', 'RIGHT', 'TOP', 'BOTTOM']
+    inv_loc = ['RIGHT', 'LEFT', 'BOTTOM', 'TOP']
 
-    for p_loc,q_loc in zip(o_loc,inv_loc):
+    for p_loc, q_loc in zip(o_loc, inv_loc):
         if p_loc in tilelabel:
             return q_loc
 
     return 'NO CLIP'
-

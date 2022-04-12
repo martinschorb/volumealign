@@ -35,12 +35,12 @@ inputmodules = [
 ]
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:", id='conv_head'),
-                          dcc.Dropdown(id={'component': 'import_type_dd', 'module': module}, persistence=True,
+                          dcc.Dropdown(id={'component': 'import_type_dd', 'module': module},
                                        options=inputtypes, value='')
                           ])
 
-stores = [dcc.Store(id={'component': 'store_render_init', 'module': module}, storage_type='session',data=''),
-          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session',data='')]
+stores = [dcc.Store(id={'component': 'store_render_init', 'module': module}, storage_type='session', data=''),
+          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session', data='')]
 # pages.init_store({}, module)
 
 page = [main]
@@ -52,14 +52,13 @@ page1 = []
 # # # Page content
 
 page1.append(html.Div([html.Br(), 'No data type selected.'],
-                      id=module+'_nullpage'))
+                      id=module + '_nullpage'))
 
-switch_outputs = [Output(module+'_nullpage', 'style')]
+switch_outputs = [Output(module + '_nullpage', 'style')]
 
 status_inputs = []
 
 page2 = []
-
 
 for inputsel, impmod in zip(inputtypes, inputmodules):
     thismodule = importlib.import_module(impmod)
@@ -87,7 +86,7 @@ switch_outputs.append(Output({'component': 'store_render_init', 'module': module
 def convert_output(dd_value, thispage):
     thispage = thispage.lstrip('/')
 
-    if thispage == '' or not thispage in hf.trigger(key='module'):
+    if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
     outputs = dash.callback_context.outputs_list
@@ -113,13 +112,16 @@ def convert_output(dd_value, thispage):
 
     return out
 
+
 # collect Render selections from sub pages and make them available to following pages
 
 c_in, c_out = render_selector.subpage_launch(module, inputtypes)
 
-@app.callback(c_out,c_in)
+
+@app.callback(c_out, c_in)
 def convert_merge_launch_stores(*inputs):
     return hf.trigger_value()
+
 
 page.append(html.Div(page1))
 page.append(html.Div(page2))

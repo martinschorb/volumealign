@@ -10,159 +10,146 @@ import dash
 from dash import dcc
 from dash import html
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input,Output,State
+from dash.dependencies import Input, Output, State
 
 import os
 import glob
 import json
 import importlib
 
-
 from app import app
 import params
 
-from utils import pages,matchTrial,launch_jobs
+from utils import pages, matchTrial, launch_jobs
 
 from utils import helper_functions as hf
-
 
 # element prefix
 label = "pointmatch_sift"
 parent = "pointmatch"
 
+page = []
 
-
-page=[]
-
-
-matchtrial = html.Div([pages.tile_view(parent,numpanel=2,showlink=True),
+matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
                        html.Br(),
                        html.H4("Select appropriate Parameters for the SIFT search"),
                        html.Div(['Organism template: ',
-                       dcc.Dropdown(id=label+'organism_dd',persistence=True,
-                                    clearable=False),
-                       html.Br(),
-                       html.Div(["Select template Match Trial parameters."
-                                 ],
-                                id=label+'mt_sel'),
-                       dcc.Store(id=label+'picks'),
-                       dcc.Dropdown(id=label+'matchID_dd',persistence=True,
-                                    clearable=False),
-                       html.Br(),
-                       html.Div(id=label+'mtbrowse',
-                             children=[html.Button('Explore MatchTrial',id=label+'mt_linkbutton'),
-                                       html.A('  - ',
-                                              id=label + 'mt_link',
-                                              target="_blank"),
-                                       html.Div('',id=label+'mt_jscaller',style={'display':'none'})
-                                       ]),
-                       html.Br(),
+                                 dcc.Dropdown(id=label + 'organism_dd', persistence=True,
+                                              clearable=False),
+                                 html.Br(),
+                                 html.Div(["Select template Match Trial parameters."
+                                           ],
+                                          id=label + 'mt_sel'),
+                                 dcc.Store(id=label + 'picks'),
+                                 dcc.Dropdown(id=label + 'matchID_dd', persistence=True,
+                                              clearable=False),
+                                 html.Br(),
+                                 html.Div(id=label + 'mtbrowse',
+                                          children=[html.Button('Explore MatchTrial', id=label + 'mt_linkbutton'),
+                                                    html.A('  - ',
+                                                           id=label + 'mt_link',
+                                                           target="_blank"),
+                                                    html.Div('', id=label + 'mt_jscaller', style={'display': 'none'})
+                                                    ]),
+                                 html.Br(),
 
-                       html.Br(),
-                       html.Div(["Use this Match Trial as compute parameters:",
-                                 dcc.Input(id=label+'mtselect', type="text",
-                                 style={'margin-right': '1em','margin-left': '3em'},
-                                 debounce=True,placeholder="MatchTrial ID",persistence=False)],style={'display':'flex'}),
-                       html.Br()
-                       ])
+                                 html.Br(),
+                                 html.Div(["Use this Match Trial as compute parameters:",
+                                           dcc.Input(id=label + 'mtselect', type="text",
+                                                     style={'margin-right': '1em', 'margin-left': '3em'},
+                                                     debounce=True, placeholder="MatchTrial ID", persistence=False)],
+                                          style={'display': 'flex'}),
+                                 html.Br()
                                  ])
+                       ])
 
 page.append(matchtrial)
 
-
-
 gobutton = html.Div(children=[html.Br(),
-                              html.Button('Start PointMatch Client',id=label+"go"),
-                              pages.compute_loc(parent,c_options = ['sparkslurm'],#'standalone'],
-                                                c_default = 'sparkslurm'),
-                              html.Div(id=label+'mtnotfound')
-                              ]
-                    ,style={'display': 'inline-block'})
+                              html.Button('Start PointMatch Client', id=label + "go"),
+                              pages.compute_loc(parent, c_options=['sparkslurm'],  # 'standalone'],
+                                                c_default='sparkslurm'),
+                              html.Div(id=label + 'mtnotfound')
+                              ],
+                    style={'display': 'inline-block'})
 
 page.append(gobutton)
 
 
-
-
-
-
-              
 #  =============================================
 # Start Button
-               
 
-@app.callback([Output(label+'organism_dd','options'),
-               Output(label+'picks','data')],              
-              [Input({'component': 'tp_dd', 'module': parent},'value')],
-              State('url','pathname')
-              , prevent_initial_call=True)
-def sift_pointmatch_organisms(tilepairdir,thispage):
+
+@app.callback([Output(label + 'organism_dd', 'options'),
+               Output(label + 'picks', 'data')],
+              [Input({'component': 'tp_dd', 'module': parent}, 'value')],
+              State('url', 'pathname'),
+              prevent_initial_call=True)
+def sift_pointmatch_organisms(tilepairdir, thispage):
     thispage = thispage.lstrip('/')
 
-    if thispage == '' or not thispage in hf.trigger(key='module'):
+    if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
-    mT_jsonfiles = glob.glob(os.path.join(params.json_match_dir,'*.json'))
-    
-    organisms=list()
-    
+    mT_jsonfiles = glob.glob(os.path.join(params.json_match_dir, '*.json'))
+
+    organisms = list()
+
     picks = dict()
-    
+
     for mT_file in mT_jsonfiles:
-        with open(os.path.join(params.json_match_dir,mT_file),'r') as f:
+        with open(os.path.join(params.json_match_dir, mT_file), 'r') as f:
             indict = json.load(f)
-            if not indict['organism'] in organisms:
+            if indict['organism'] not in organisms:
                 organisms.append(indict['organism'])
                 picks[indict['organism']] = [indict['render']]
-                picks[indict['organism']][0]['type']=indict['type']
-                picks[indict['organism']][0]['ID']=indict['MatchTrial']
+                picks[indict['organism']][0]['type'] = indict['type']
+                picks[indict['organism']][0]['ID'] = indict['MatchTrial']
             else:
                 picks[indict['organism']].append(indict['render'])
-                picks[indict['organism']][-1]['type']=indict['type']
-                picks[indict['organism']][-1]['ID']=indict['MatchTrial']
-    
+                picks[indict['organism']][-1]['type'] = indict['type']
+                picks[indict['organism']][-1]['ID'] = indict['MatchTrial']
+
     dd_options = list(dict())
-        
-    for item in organisms: 
-        dd_options.append({'label':item, 'value':item})
+
+    for item in organisms:
+        dd_options.append({'label': item, 'value': item})
 
     return dd_options, picks
 
 
-
-@app.callback([Output(label+'matchID_dd','options')],              
-              [Input(label+'organism_dd','value'),
-               Input(label+'picks','data')],              
+@app.callback([Output(label + 'matchID_dd', 'options')],
+              [Input(label + 'organism_dd', 'value'),
+               Input(label + 'picks', 'data')],
               prevent_initial_call=True)
-def sift_pointmatch_IDs(organism,picks):
-    if not dash.callback_context.triggered: 
-        raise PreventUpdate   
-        
-    dd_options = list(dict())
-    
-    if not organism is None:
-        matchtrials = picks[organism]
-       
-        for item in matchtrials: 
-            ilabel = item['project']+'-'+item['stack']+'-'+item['type']
-            dd_options.append({'label':ilabel, 'value':item['ID']})
-    
-    return [dd_options]
-    
+def sift_pointmatch_IDs(organism, picks):
+    if not dash.callback_context.triggered:
+        raise PreventUpdate
 
-@app.callback([Output(label+'mtselect','value'),
-               Output(label + 'mt_link','href'),
-               Output(label+'mt_jscaller','children')],
-              [Input(label+'matchID_dd','value'),
-               Input(label+'mt_linkbutton','n_clicks')],
+    dd_options = list(dict())
+
+    if organism is not None:
+        matchtrials = picks[organism]
+
+        for item in matchtrials:
+            ilabel = item['project'] + '-' + item['stack'] + '-' + item['type']
+            dd_options.append({'label': ilabel, 'value': item['ID']})
+
+    return [dd_options]
+
+
+@app.callback([Output(label + 'mtselect', 'value'),
+               Output(label + 'mt_link', 'href'),
+               Output(label + 'mt_jscaller', 'children')],
+              [Input(label + 'matchID_dd', 'value'),
+               Input(label + 'mt_linkbutton', 'n_clicks')],
               [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
                State({'component': 'tileim_link_1', 'module': parent}, 'children'),
                State({'component': 'tile_dd_1', 'module': parent}, 'value'),
                State({'component': 'tile_dd_1', 'module': parent}, 'options')]
               )
-def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2sel,tile2options):
-
-    if None in (matchID,link1,link2):
+def sift_browse_matchTrial(matchID, buttonclick, link1, link2, tile2sel, tile2options):
+    if None in (matchID, link1, link2):
         return dash.no_update
 
     trigger = hf.trigger()
@@ -176,15 +163,15 @@ def sift_browse_matchTrial(matchID,buttonclick,link1,link2,tile2sel,tile2options
     if 'button' in trigger:
         tile_clip = matchTrial.invert_neighbour(tile2label)
 
-        matchtrial, matchID = matchTrial.new_matchtrial(matchID,[link1,link2],clippos=tile_clip)
+        matchtrial, matchID = matchTrial.new_matchtrial(matchID, [link1, link2], clippos=tile_clip)
 
         mc_url += 'matchTrialId=' + matchID
 
-        return matchID,mc_url,str(buttonclick)
+        return matchID, mc_url, str(buttonclick)
 
     mc_url += 'matchTrialId=' + matchID
 
-    return matchID,mc_url,dash.no_update
+    return matchID, mc_url, dash.no_update
 
 
 app.clientside_callback(
@@ -194,58 +181,58 @@ app.clientside_callback(
         return {}
     }
     """,
-    Output(label+'mt_linkbutton','style'),
-    Input(label+'mt_jscaller','children'),
-    State(label + 'mt_link','href')
+    Output(label + 'mt_linkbutton', 'style'),
+    Input(label + 'mt_jscaller', 'children'),
+    State(label + 'mt_link', 'href')
 )
 
 
-
 # =============================================
-   
+
 #  LAUNCH CALLBACK FUNCTION
 
 # =============================================
-  
+
 # TODO! (#1) Fix store  outputs to enable additional modules
 
-@app.callback([Output(label+'go', 'disabled'),
-               Output(label+'mtnotfound','children'),
-               Output({'component': 'store_launch_status', 'module': parent},'data'),
-               Output({'component': 'store_render_launch', 'module': parent},'data'),
+@app.callback([Output(label + 'go', 'disabled'),
+               Output(label + 'mtnotfound', 'children'),
+               Output({'component': 'store_launch_status', 'module': parent}, 'data'),
+               Output({'component': 'store_render_launch', 'module': parent}, 'data'),
                Output({'component': 'store_tpmatchtime', 'module': parent}, 'data')],
-              [Input(label+'go', 'n_clicks'),
-                Input(label+'mtselect','value'),
-                Input({'component':'matchcoll_dd','module': parent},'value')],
-              [State({'component':'compute_sel','module' : parent},'value'),
-                State({'component': 'mc_owner_dd', 'module': parent},'value'),
-                State({'component': 'tp_dd', 'module': parent},'value'),
-                State({'component':'store_owner','module' : parent},'data'),
-                State({'component':'store_project','module' : parent},'data'),
-                State({'component':'stack_dd','module' : parent},'value'),
-                State({'component': 'input_Num_CPUs', 'module': parent},'value'),
-                State({'component': 'input_runtime_minutes', 'module': parent},'value'),
-                State('url','pathname')]
-              ,prevent_initial_call=True)                 
-def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,tilepairdir,owner,project,stack,n_cpu,timelim,thispage):
+              [Input(label + 'go', 'n_clicks'),
+               Input(label + 'mtselect', 'value'),
+               Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
+              [State({'component': 'compute_sel', 'module': parent}, 'value'),
+               State({'component': 'mc_owner_dd', 'module': parent}, 'value'),
+               State({'component': 'tp_dd', 'module': parent}, 'value'),
+               State({'component': 'store_owner', 'module': parent}, 'data'),
+               State({'component': 'store_project', 'module': parent}, 'data'),
+               State({'component': 'stack_dd', 'module': parent}, 'value'),
+               State({'component': 'input_Num_CPUs', 'module': parent}, 'value'),
+               State({'component': 'input_runtime_minutes', 'module': parent}, 'value'),
+               State('url', 'pathname')],
+              prevent_initial_call=True)
+def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_owner, tilepairdir, owner, project, stack,
+                                     n_cpu, timelim, thispage):
     thispage = thispage.lstrip('/')
 
-    if thispage == '' or not thispage in hf.trigger(key='module'):
+    if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
     ctx = dash.callback_context
-    
+
     trigger = ctx.triggered[0]['prop_id']
 
     try:
-            mt_params = matchTrial.mt_parameters(matchID)
+        mt_params = matchTrial.mt_parameters(matchID)
     except json.JSONDecodeError:
-        return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update,dash.no_update
+        return True, 'Could not find this MatchTrial ID!', dash.no_update, dash.no_update, dash.no_update
     except ValueError:
-        return True,'Could not find this MatchTrial ID!',dash.no_update,dash.no_update,dash.no_update
+        return True, 'Could not find this MatchTrial ID!', dash.no_update, dash.no_update, dash.no_update
 
     if mt_params == {}:
-        return True,'No MatchTrial selected!',dash.no_update,dash.no_update,dash.no_update
+        return True, 'No MatchTrial selected!', dash.no_update, dash.no_update, dash.no_update
 
     outstore = dict()
     outstore['owner'] = owner
@@ -256,151 +243,134 @@ def sift_pointmatch_execute_gobutton(click,matchID,matchcoll,comp_sel,mc_owner,t
     outstore['mc_owner'] = mc_owner
 
     if tilepairdir == '':
-        return True,'No tile pair directory selected!',dash.no_update,outstore,dash.no_update
+        return True, 'No tile pair directory selected!', dash.no_update, outstore, dash.no_update
 
-    if matchcoll in ('','new_mc','new_mcoll'):
-        return True,'No Match collection selected!',dash.no_update,outstore,dash.no_update
-
+    if matchcoll in ('', 'new_mc', 'new_mcoll'):
+        return True, 'No Match collection selected!', dash.no_update, outstore, dash.no_update
 
     if 'mtselect' in trigger:
-        return False,'',dash.no_update,outstore,mt_params['ptime']
+        return False, '', dash.no_update, outstore, mt_params['ptime']
     elif 'matchcoll_dd' in trigger:
-        return False,'',dash.no_update,outstore,mt_params['ptime']
+        return False, '', dash.no_update, outstore, mt_params['ptime']
 
     elif 'go' in trigger:
-        if click is None: return dash.no_update
-        
+        if click is None:
+            return dash.no_update
+
         # prepare parameters:
         run_prefix = launch_jobs.run_prefix()
-        
+
         run_params = params.render_json.copy()
         run_params['render']['owner'] = owner
         run_params['render']['project'] = project
-        
+
         run_params_generate = run_params.copy()
-          
+
         # tilepair files:
-        
+
         tp_dir = os.path.join(params.json_run_dir, tilepairdir)
-            
+
         tp_json = os.listdir(tp_dir)
-        
+
         tp_jsonfiles = [os.path.join(params.json_run_dir, tilepairdir, tpj) for tpj in tp_json]
-        
-        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json' 
-    
-        
-        
-        if comp_sel == 'standalone':    
-            # =============================
-            
-            # TODO - STANDALONE PROCEDURE NOT TESTED !!!!
-            
+
+        param_file = params.json_run_dir + '/' + parent + '_' + run_prefix + '.json'
+
+        if comp_sel == 'standalone':
             # =============================
 
-            
+            # TODO - STANDALONE PROCEDURE NOT TESTED !!!!
+
+            # =============================
+
             # TODO!  render-modules only supports single tilepair JSON!!!
-            
+
             cv_params = {
-            "ndiv": mt_params['siftFeatureParameters']['steps'],
-            "downsample_scale": mt_params['scale'],
-            
-            "pairJson": os.path.join(params.json_run_dir,tp_json[0]),
-            "input_stack": stack,
-            "match_collection": matchcoll,
-        
-            "ncpus": params.ncpu_standalone,
-            "output_json":params.render_log_dir + '/' + '_' + run_prefix + "_SIFT_openCV.json",
+                "ndiv": mt_params['siftFeatureParameters']['steps'],
+                "downsample_scale": mt_params['scale'],
+
+                "pairJson": os.path.join(params.json_run_dir, tp_json[0]),
+                "input_stack": stack,
+                "match_collection": matchcoll,
+
+                "ncpus": params.ncpu_standalone,
+                "output_json": params.render_log_dir + '/' + '_' + run_prefix + "_SIFT_openCV.json",
             }
-            
-            run_params_generate.update(cv_params)            
-            
+
+            run_params_generate.update(cv_params)
+
             target_args = None
             run_args = None
-            script = params.asap_dir+'/pointmatch/generate_point_matches_opencv.py'
-            
+            script = params.asap_dir + '/pointmatch/generate_point_matches_opencv.py'
+
         elif comp_sel == 'sparkslurm':
             spsl_p = dict()
-            
+
             spsl_p['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
             spsl_p['--owner'] = mc_owner
             spsl_p['--collection'] = matchcoll
             spsl_p['--pairJson'] = tp_jsonfiles
-            
+
             mtrun_p = dict()
-            
+
             # some default values...
-            
+
             mtrun_p['--matchMaxNumInliers'] = 200
             mtrun_p['--maxFeatureCacheGb'] = 6
             mtrun_p['--maxFeatureSourceCacheGb'] = 6
-            
-            
+
             # fill parameters
-            
+
             mtrun_p['--renderScale'] = mt_params['scale']
-            
+
             for item in mt_params['siftFeatureParameters'].items():
-                mtrun_p['--SIFT'+item[0]] = item[1]
-                
+                mtrun_p['--SIFT' + item[0]] = item[1]
+
             for item in mt_params['matchDerivationParameters'].items():
-                mtrun_p['--'+item[0]] = item[1]
-            
+                mtrun_p['--' + item[0]] = item[1]
+
             if 'clipPixels' in mt_params.keys():
                 mtrun_p['--clipHeight'] = mt_params['clipPixels']
                 mtrun_p['--clipWidth'] = mt_params['clipPixels']
-            
-            
-            
+
             spark_p = dict()
-            
-            spark_p['--time'] = '00:' + str(timelim)+':00'
-                        
+
+            spark_p['--time'] = '00:' + str(timelim) + ':00'
+
             spark_p['--worker_cpu'] = params.cpu_pernode_spark
             spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
 
-            spark_args = {'--jarfile':params.render_sparkjar}
-            
+            spark_args = {'--jarfile': params.render_sparkjar}
+
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)
-            
+
             target_args = spark_p.copy()
             run_args = run_params_generate.copy()
-            
+
             script = 'org.janelia.render.client.spark.SIFTPointMatchClient'
-            
-            
-            
-            
-        #generate script call...
-        
-        with open(param_file,'w') as f:
-            json.dump(run_params_generate,f,indent=4)
-            
-        
-    
+
+        # generate script call...
+
+        with open(param_file, 'w') as f:
+            json.dump(run_params_generate, f, indent=4)
+
         log_file = params.render_log_dir + '/' + parent + '_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
-        
-        
-        
-        
+
         sift_pointmatch_p = launch_jobs.run(target=comp_sel,
                                             pyscript=script,
                                             jsonfile=param_file,
                                             run_args=run_args,
                                             target_args=target_args,
                                             special_args=spark_args,
-                                            logfile=log_file,errfile=err_file)
-                    
-                
-        launch_store=dict()
+                                            logfile=log_file, errfile=err_file)
+
+        launch_store = dict()
         launch_store['logfile'] = log_file
         launch_store['status'] = 'running'
         launch_store['id'] = sift_pointmatch_p
         launch_store['type'] = comp_sel
-    
-        return True,'', launch_store, outstore, mt_params['ptime']
 
-    
+        return True, '', launch_store, outstore, mt_params['ptime']
