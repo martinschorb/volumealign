@@ -17,7 +17,7 @@ import glob
 import sys
 from unittest.mock import MagicMock as mock
 
-src_dir = 'dash'
+src_dir = 'dashUI'
 
 
 flist = glob.glob(src_dir+'/**/*.py',recursive=True)

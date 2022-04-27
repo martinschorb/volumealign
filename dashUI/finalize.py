@@ -9,7 +9,7 @@ import dash
 from dash import dcc
 from dash import html
 from dash.exceptions import PreventUpdate
-from dash.dependencies import Input,Output,State
+from dash.dependencies import Input, Output, State
 
 import importlib
 
@@ -18,14 +18,12 @@ from app import app
 from utils import pages
 from utils import helper_functions as hf
 
-from callbacks import render_selector
+from callbacks import runstate, render_selector
 
-from filetypes import BDV_finalize,MoBIE_finalize
+from filetypes import BDV_finalize, MoBIE_finalize
 
-
-module='finalize'
+module = 'finalize'
 previous = 'export'
-
 
 subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'},
             {'label': 'Add to MoBIE project', 'value': 'MoBIE'}]
@@ -33,35 +31,29 @@ subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'},
 submodules = [
     'filetypes.BDV_finalize',
     'filetypes.MoBIE_finalize'
-    ]
+]
 
+main = html.Div(id={'component': 'main', 'module': module}, children=html.H3("Finalize output format."))
 
-main=html.Div(id={'component': 'main', 'module': module},children=html.H3("Finalize output format."))
-
-
-stores = [dcc.Store(id={'component': 'store_init_render', 'module': module}, storage_type='session',data=''),
-          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session',data=''),
-          dcc.Store(id={'component': 'store_launch_status', 'module': module}, storage_type='session',data='')]
-
+stores = [dcc.Store(id={'component': 'store_init_render', 'module': module}, storage_type='session', data=''),
+          dcc.Store(id={'component': 'store_render_launch', 'module': module}, storage_type='session', data=''),
+          dcc.Store(id={'component': 'store_launch_status', 'module': module}, storage_type='session', data='')]
 
 page = [main]
 page.extend(stores)
 
-
 # ===============================================
-       
+
 page0 = html.Div([html.H4("Choose post-processing target format"),
-                  dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},#persistence=True,
-                                options=subpages,
-                                value='')
-                  ])                                
+                  dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},  # persistence=True,
+                               options=subpages,
+                               value='')
+                  ])
 
 page.append(page0)
 
-
 # =============================================
 # # Page content for specific export call
-
 
 
 page1 = []
@@ -70,14 +62,13 @@ page1 = []
 # # # Page content
 
 page1.append(html.Div([html.Br(), 'No data type selected.'],
-                      id=module+'_nullpage'))
+                      id=module + '_nullpage'))
 
-switch_outputs = [Output(module+'_nullpage', 'style')]
+switch_outputs = [Output(module + '_nullpage', 'style')]
 
 status_inputs = []
 
 page2 = []
-
 
 for subsel, impmod in zip(subpages, submodules):
     thismodule = importlib.import_module(impmod)
@@ -103,7 +94,7 @@ for subsel, impmod in zip(subpages, submodules):
 def convert_output(dd_value, thispage):
     thispage = thispage.lstrip('/')
 
-    if thispage == '' or not thispage in hf.trigger(key='module'):
+    if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
     outputs = dash.callback_context.outputs_list
@@ -126,9 +117,11 @@ def convert_output(dd_value, thispage):
 
 c_in, c_out = render_selector.subpage_launch(module, subpages)
 
-@app.callback(c_out,c_in)
+
+@app.callback(c_out, c_in)
 def convert_merge_launch_stores(*inputs):
     return hf.trigger_value()
+
 
 page.append(html.Div(page1))
 page.append(html.Div(page2))

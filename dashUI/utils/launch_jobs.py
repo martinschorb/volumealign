@@ -16,7 +16,7 @@ import paramiko
 import requests
 
 
-def args2string(args,separator='='):
+def args2string(args, separator='='):
     """
     Converts arguments as list or dict into a tring to be issued on CLI
 
@@ -26,24 +26,24 @@ def args2string(args,separator='='):
     :rtype: str
     """
 
-    if args==None:
-        argstring=''
-    elif type(args)==list:
-        argstring=" ".join(map(str,args))
-    elif type(args)==dict:
-        argstring=str()
+    if args is None:
+        argstring = ''
+    elif type(args) == list:
+        argstring = " ".join(map(str, args))
+    elif type(args) == dict:
+        argstring = str()
         for item in args.items():
             if type(item[1]) is list:
-                argstring+=' '+' '.join([str(item[0]) + separator + currit for currit in item[1]])
+                argstring += ' ' + ' '.join([str(item[0]) + separator + currit for currit in item[1]])
             else:
-                argstring+=' '+separator.join(map(str,item))
-    elif type(args)==str:
-        argstring=args
+                argstring += ' ' + separator.join(map(str, item))
+    elif type(args) == str:
+        argstring = args
     else:
         raise TypeError('ERROR! command line arguments need to be passed as string, list or dict.')
-    
-    argstring+=' '
-    
+
+    argstring += ' '
+
     return argstring
 
 
@@ -65,35 +65,36 @@ def status(run_state):
     :rtype: (str, str)
     """
 
-    (res_status,link),logfile,jobs = checkstatus(run_state)
+    (res_status, link), logfile, jobs = checkstatus(run_state)
 
     if res_status is None:
-        return 'input',link
+        return 'input', link
 
-    out_stat=''
+    out_stat = ''
 
     if type(res_status) is str:
-        if res_status=='error':
-            out_stat = 'Error while excecuting '+str(jobs)+'.'
+        if res_status == 'error':
+            out_stat = 'Error while excecuting ' + str(jobs) + '.'
         else:
-            out_stat=res_status
+            out_stat = res_status
 
     elif type(res_status) is list:
         if 'error' in res_status:
-            out_stat = 'Error while excecuting '+str(jobs)+'.'
+            out_stat = 'Error while excecuting ' + str(jobs) + '.'
         elif 'running' in res_status:
             out_stat = 'running'
         elif 'pending' in res_status:
             out_stat = 'pending'
         elif 'cancelled' in res_status:
-            out_stat = 'Cluster Job(s) '+str(jobs)+' cancelled.'
+            out_stat = 'Cluster Job(s) ' + str(jobs) + ' cancelled.'
         elif 'timeout' in res_status:
-            out_stat = 'Cluster Job(s) '+str(jobs)+' cancelled due to a timeout. Try again with longer time constraint.'
+            out_stat = 'Cluster Job(s) ' + str(
+                jobs) + ' cancelled due to a timeout. Try again with longer time constraint.'
         elif 'Problem connecting to Spark!' in res_status:
-            out_stat = res_status
+            out_stat = res_status[0]
         elif 'Spark app was killed.' in res_status:
-            out_stat = res_status
-        elif all(item=='done' for item in res_status):
+            out_stat = res_status[0]
+        elif all(item == 'done' for item in res_status):
             out_stat = 'done'
 
     run_state['status'] = out_stat
@@ -112,38 +113,40 @@ def checkstatus(run_state):
     :rtype: (str or list, str, str, list)
     """
 
-    outstat=[]
+    outstat = []
     runvars = [run_state['id']]
     j_id = run_state['id']
     logfile = run_state['logfile']
 
     jobs = j_id
 
-
     if type(j_id) == dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
             jobs = runvars
         elif 'seq' in j_id.keys():
-            runjob,idx = find_activejob(run_state)
+            runjob, idx = find_activejob(run_state)
             newrunstate = run_state.copy()
             jobs = runjob
             if runjob is None:
                 # all tasks are completed/failed
                 newrunstate['id'] = j_id['seq']
-                jobs=j_id['seq']
+                jobs = j_id['seq']
                 return checkstatus(newrunstate)
 
             elif type(runjob) is dict:
-                lastjob = j_id['seq'][idx-1]
+                lastjob = j_id['seq'][idx - 1]
                 newrunstate['id'] = lastjob
 
                 if 'done' in checkstatus(newrunstate)[0][0]:
-                    if not 'logfile' in runjob.keys():
-                        runjob['logfile'] = os.path.splitext(logfile)[0]+'_'+str(idx)+os.path.splitext(logfile)[-1]
+                    if 'logfile' not in runjob.keys():
+                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) + os.path.splitext(logfile)[-1]
+
                     # start next job with these parameters
-                    nextjobid = run(**runjob)
+
+                    nextjobid = run(inputs=runjob)
                     nextjob = newrunstate.copy()
+                    nextjob['logfile'] = runjob['logfile']
                     nextjob['id'] = nextjobid
 
                     run_state['id']['seq'][idx] = nextjobid
@@ -153,43 +156,41 @@ def checkstatus(run_state):
                     return checkstatus(newrunstate)
 
             else:
-                jobs=runjob
+                jobs = runjob
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
         elif not list(j_id.keys())[0] in params.remote_compute:
-    #         parameter list for next sequential job
-            return 'pending','',logfile,jobs
+            #         parameter list for next sequential job
+            return 'pending', '', logfile, jobs
 
     if type(j_id) is list:
-        runvars=j_id
+        runvars = j_id
 
-    if run_state['type'] in ['standalone','generic']:
-        print(run_state)
-        if run_state['status'] in ['running','launch']:
+    if run_state['type'] in ['standalone', 'generic']:
+        if run_state['status'] in ['running', 'launch']:
             for runvar in runvars:
                 if type(runvar) is dict:
-                    print('remote')
+
                     # remote check
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
                     remotehost = list(runvar.keys())[0]
-                    ssh.connect(remotehost,username=remote_user(remotehost))
+                    ssh.connect(remotehost, username=remote_user(remotehost))
 
-                    command = 'ps aux | grep "'+params.user+' *'+ str(runvar[remotehost]) + ' "'
-                    print(command)
+                    command = 'ps aux | grep "' + params.user + ' *' + str(runvar[remotehost]) + ' "'
+
                     stdin, stdout, stderr = ssh.exec_command(command)
                     time.sleep(2)
                     res = stdout.readlines()
-                    print(res)
-                    if len(res)>0:
+
+                    if len(res) > 0:
                         outstat.append('running')
                         continue
 
-                    elif run_state['status']=='launch':
+                    elif run_state['status'] == 'launch':
                         outstat.append('launch')
                         continue
-
 
                 else:
                     if psutil.pid_exists(runvar):
@@ -201,20 +202,20 @@ def checkstatus(run_state):
                                 outstat.append('running')
                                 continue
 
-                if os.path.exists(run_state['logfile']+'_exit'):
+                if os.path.exists(run_state['logfile'] + '_exit'):
                     outstat.append('error')
                 else:
                     outstat.append('done')
 
-            return (outstat,''),logfile,jobs
+            return (outstat, ''), logfile, jobs
 
         else:
-            return (run_state['status'],''),logfile,jobs
+            return (run_state['status'], ''), logfile, jobs
 
     else:
-        return cluster_status(run_state),logfile,jobs
+        return cluster_status(run_state), logfile, jobs
 
-            
+
 def cluster_status(run_state):
     """
     Check a single or multiple cluster job(s) run state
@@ -225,8 +226,8 @@ def cluster_status(run_state):
     """
 
     my_env = os.environ.copy()
-    out_stat=list()
-    link=''
+    out_stat = list()
+    link = ''
 
     j_ids = run_state['id']
 
@@ -234,28 +235,27 @@ def cluster_status(run_state):
         if 'par' in j_ids:
             j_ids = j_ids['par']
         if 'seq' in j_ids:
-            j_ids,idx = find_activejob(run_state)
+            j_ids, idx = find_activejob(run_state)
 
     if type(j_ids) is str:
-        j_ids=[j_ids]
+        j_ids = [j_ids]
 
-    if j_ids=='':
-        return 'wait',link
+    if j_ids == '':
+        return 'wait', link
 
     cl_type = run_state['type']
     logfile = run_state['logfile']
 
     if cl_type == 'slurm':
-            command =  'sacct --jobs='
-            command += ','.join(map(str,j_ids))
-            command += ' --format=jobid,state --parsable'
-            
+        command = 'sacct --jobs='
+        command += ','.join(map(str, j_ids))
+        command += ' --format=jobid,state --parsable'
+
     elif cl_type == 'sparkslurm':
-            
-            command =  'sacct --jobs='
-            command += ','.join(map(str,j_ids))
-            command += ' --format=jobid,state,node --parsable'
-            
+        command = 'sacct --jobs='
+        command += ','.join(map(str, j_ids))
+        command += ' --format=jobid,state,node --parsable'
+
         # commands for other cluster types go HERE
 
     if cl_type in params.remote_submission.keys():
@@ -264,7 +264,7 @@ def cluster_status(run_state):
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-        ssh.connect(remotehost,username=remote_user(remotehost))
+        ssh.connect(remotehost, username=remote_user(remotehost))
 
         stdin, stdout, stderr = ssh.exec_command(command)
 
@@ -273,19 +273,19 @@ def cluster_status(run_state):
     else:
         # check cluster status locally
         result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT).decode()
-        
+
     if cl_type == 'slurm':
 
         slurm_stat0 = result
 
         stat_list = slurm_stat0.split('\n')
 
-        #check for master job
-        slurm_stat=''
+        # check for master job
+        slurm_stat = ''
 
         for job_item in stat_list[1:]:
             jobstat = job_item.split('|')
-            if len(jobstat)<2:
+            if len(jobstat) < 2:
                 continue
 
             if jobstat[0] in j_ids:
@@ -293,7 +293,7 @@ def cluster_status(run_state):
 
                 if 'RUNNING' in slurm_stat:
                     out_stat.append('running')
-                elif slurm_stat=='COMPLETED':
+                elif slurm_stat == 'COMPLETED':
                     out_stat.append('done')
                 elif 'FAILED' in slurm_stat:
                     out_stat.append('error')
@@ -312,9 +312,9 @@ def cluster_status(run_state):
 
         stat_list = slurm_stat0.split('\n')
 
-        #check for master job
+        # check for master job
 
-        masterjoblist = [job+'+0' for job in map(str,j_ids)]
+        masterjoblist = [job + '+0' for job in map(str, j_ids)]
 
         for job_item in stat_list[1:]:
             jobstat = job_item.split('|')
@@ -326,11 +326,13 @@ def cluster_status(run_state):
 
         if 'RUNNING' in slurm_stat:
 
-            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0],'spark-master-' + str(j_ids[0]),'master')
+            sp_masterfile = os.path.join(logfile.rsplit(os.extsep)[0], 'spark-master-' + str(j_ids[0]), 'master')
 
-            if not os.path.exists(sp_masterfile): return ['launch'],link
+            if not os.path.exists(sp_masterfile):
+                return ['launch'], link
 
-            with open(sp_masterfile) as f: sp_master=f.read().strip('\n')
+            with open(sp_masterfile) as f:
+                sp_master = f.read().strip('\n')
 
             link = '__' + sp_master
             url = 'http://' + sp_master + ':' + params.spark_port + '/json/'
@@ -343,35 +345,39 @@ def cluster_status(run_state):
                 return out_stat, link
 
             if sp_query['activeapps'] == []:
-                if sp_query['workers'] ==[]:
+                if sp_query['workers'] == []:
                     out_stat.append('Startup Spark')
                 else:
-                    t_format = "%Y%m%d%H%M%S"
-                    e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
-                    now = datetime.datetime.now().strftime(t_format)
-
-                    if int(now) - int(e_starttime) < 45:
-                        out_stat.append('Startup Spark')
-                    else:
-                        if sp_query['completedapps'] == []:
-                            print('Error in Spark setup!')
-                            out_stat.append('error')
+                    time.sleep(10)
+                    if sp_query['activeapps'] == []:
+                        t_format = "%Y%m%d%H%M%S"
+                        e_starttime = sp_query['workers'][0]['id'].strip('worker-').split('-1')[0]
+                        now = datetime.datetime.now().strftime(t_format)
+                        if int(now) - int(e_starttime) < 45:
+                            out_stat.append('Startup Spark')
                         else:
-                            if 'FINISHED' in sp_query['completedapps'][-1]['state']:
-                                out_stat.append(canceljobs(run_state,'done'))
-                                donefile = run_state['logfile']+'.done'
-                                with open(donefile,'w') as f:
-                                    f.write('spark job: '+str(j_ids[0]) + ' is done.')
-
-                            elif 'KILLED' in sp_query['completedapps'][0]['state']:
-                                drop = canceljobs(run_state)
-                                out_stat.append('Spark app was killed.')
+                            if sp_query['completedapps'] == []:
+                                print('Error in Spark setup!')
+                                out_stat.append('error')
                             else:
-                                out_stat.append('running')
-            else:
-                out_stat.append(sp_query['activeapps'][0]['state'].lower() + link)
+                                if 'FINISHED' in sp_query['completedapps'][-1]['state']:
+                                    out_stat.append('done')
+                                    donefile = run_state['logfile'] + '.done'
+                                    with open(donefile, 'w') as f:
+                                        f.write('spark job: ' + str(j_ids[0]) + ' is done.')
 
-        elif slurm_stat=='COMPLETED':
+                                elif 'KILLED' in sp_query['completedapps'][0]['state']:
+                                    drop = canceljobs(run_state)
+                                    out_stat.append('Spark app was killed.')
+                                else:
+                                    out_stat.append('running')
+                    else:
+                        out_stat.append(sp_query['activeapps'][0]['state'].lower())
+
+            else:
+                out_stat.append(sp_query['activeapps'][0]['state'].lower())
+
+        elif slurm_stat == 'COMPLETED':
             out_stat.append('done')
         elif 'FAILED' in slurm_stat:
             out_stat.append('error')
@@ -387,7 +393,7 @@ def cluster_status(run_state):
         else:
             out_stat.append('launch')
 
-    return out_stat,link
+    return out_stat, link
 
 
 def find_activejob(run_state):
@@ -398,18 +404,18 @@ def find_activejob(run_state):
     :return: single JobID, path to associated log file
     """
 
-    for idx,job in enumerate(run_state['id']['seq']):
+    for idx, job in enumerate(run_state['id']['seq']):
         thisstate = run_state.copy()
         thisstate['id'] = job
-        if checkstatus(thisstate) in ['pending','running']:
-            return job,idx
+        if checkstatus(thisstate) in ['pending', 'running']:
+            return job, idx
 
         if type(job) is dict:
-         # launch instructions for next job
-            return job,idx
+            # launch instructions for next job
+            return job, idx
 
-    #no job found
-    return None,-1
+    # no job found
+    return None, -1
 
 
 def canceljobs(run_state, out_status='cancelled'):
@@ -422,17 +428,17 @@ def canceljobs(run_state, out_status='cancelled'):
     """
     j_id = run_state['id']
 
-    if type(j_id)==dict:
+    if type(j_id) == dict:
         if 'par' in j_id.keys():
             for job in j_id['par']:
                 thisstate = run_state.copy()
-                thisstate['id']=job
+                thisstate['id'] = job
                 cstat = canceljobs(thisstate)
 
             return out_status
 
         elif 'seq' in j_id.keys():
-            j_id,logfile = find_activejob(run_state)
+            j_id, logfile = find_activejob(run_state)
 
     cl_type = run_state['type']
 
@@ -444,13 +450,12 @@ def canceljobs(run_state, out_status='cancelled'):
     elif 'standalone' in cl_type or 'generic' in cl_type:
         command = 'kill ' + str(j_id)
 
-
     if cl_type in params.remote_submission.keys():
         remotehost = params.remote_submission[cl_type]
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-        ssh.connect(remotehost,username=remote_user(remotehost))
+        ssh.connect(remotehost, username=remote_user(remotehost))
 
         stdin, stdout, stderr = ssh.exec_command(command)
     else:
@@ -460,13 +465,13 @@ def canceljobs(run_state, out_status='cancelled'):
 
 
 def run(target='standalone',
-        pyscript=os.path.join(params.base_dir,'launchers/test.py'),
+        pyscript=os.path.join(params.base_dir, 'launchers/test.py'),
         jsonfile='',
         run_args='',
         target_args=None,
         special_args=None,
-        logfile=os.path.join(params.render_log_dir,'render.out'),
-        errfile=os.path.join(params.render_log_dir,'render.err'),
+        logfile=os.path.join(params.render_log_dir, 'render.out'),
+        errfile=os.path.join(params.render_log_dir, 'render.err'),
         inputs={}):
     """
     Launcher of a processing task.
@@ -498,7 +503,7 @@ def run(target='standalone',
         for seq_input in inputs[1:]:
             outids.append(seq_input)
 
-        return {'seq':outids}
+        return {'seq': outids}
 
     elif inputs != {}:
         return run(**inputs)
@@ -508,14 +513,14 @@ def run(target='standalone',
 
         outids = []
         for curr_json in jsonfile:
-            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0]+'.log'
-            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0]+'.err'
-            outids.append(run(target=target,pyscript=pyscript,run_args=run_args,target_args=target_args,
-                              special_args=special_args,logfile=curr_logfile,errfile=curr_errfile,
+            curr_logfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0] + '.log'
+            curr_errfile = params.render_log_dir + '/' + os.path.splitext(os.path.basename(curr_json))[0] + '.err'
+            outids.append(run(target=target, pyscript=pyscript, run_args=run_args, target_args=target_args,
+                              special_args=special_args, logfile=curr_logfile, errfile=curr_errfile,
                               jsonfile=curr_json)
                           )
 
-        return {'par':outids}
+        return {'par': outids}
 
     my_env = os.environ.copy()
 
@@ -524,7 +529,8 @@ def run(target='standalone',
 
     runscriptfile = os.path.join(logdir, logbase + '.sh')
 
-    if run_args is None: run_args = ''
+    if run_args is None:
+        run_args = ''
 
     runscript = '#!/bin/bash \n'
     runscript += activate_conda()
@@ -537,11 +543,11 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target=='standalone' or target in params.remote_compute:
+    if target == 'standalone' or target in params.remote_compute:
         command = 'bash ' + runscriptfile
 
-        runscript.replace('#launch message','echo "Launching Render standalone processing script on " `hostname`')
-        runscript += ' >  '+ logfile + ' 2> '+errfile+' || echo $? > ' + logfile + '_exit'
+        runscript.replace('#launch message', 'echo "Launching Render standalone processing script on " `hostname`')
+        runscript += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
 
         with open(runscriptfile, 'w') as f:
             f.write(runscript)
@@ -551,9 +557,9 @@ def run(target='standalone',
         if target in params.remote_compute:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target,username=remote_user(target))
+            ssh.connect(target, username=remote_user(target))
 
-            command = "'echo $$ && "+command+"'"
+            command = "'echo $$ && " + command + "'"
 
             stdin, stdout, stderr = ssh.exec_command(command)
 
@@ -561,18 +567,18 @@ def run(target='standalone',
 
             print(remote_pid)
 
-            return {target:remote_pid}
+            return {target: remote_pid}
 
         else:
-            with open(logfile,"w") as out, open(errfile,"w") as err:
-                p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+            with open(logfile, "w") as out, open(errfile, "w") as err:
+                p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
 
                 return p.pid
-    
+
     elif target == 'generic' or target.split('generic_')[-1] in params.remote_compute:
-        command = pyscript        
-        command += ' '+run_args
-        
+        command = pyscript
+        command += ' ' + run_args
+
         print(command)
 
         remotehost = target.split('generic_')[-1]
@@ -580,9 +586,9 @@ def run(target='standalone',
         if remotehost in params.remote_compute:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost,username=remote_user(remotehost))
+            ssh.connect(remotehost, username=remote_user(remotehost))
 
-            command = 'echo $$ && '+command
+            command = 'echo $$ && ' + command
 
             command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
 
@@ -590,32 +596,33 @@ def run(target='standalone',
 
             remote_pid = stdout.readline().split('\n')[0]
 
-            return {remotehost:remote_pid}
+            return {remotehost: remote_pid}
 
         else:
 
-            with open(logfile,"wb") as out, open(errfile,"wb") as err:
-                p = subprocess.Popen(command, stdout=out,stderr=err, shell=True, env=my_env, executable='bash')
+            with open(logfile, "wb") as out, open(errfile, "wb") as err:
+                p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
 
             return p
-    
+
     elif target == 'slurm':
-        runscript.replace('#launch message','"Launching Render processing script on " `hostname`". Slurm job ID: " $SLURM_JOBID"."')
+        runscript.replace('#launch message',
+                          '"Launching Render processing script on " `hostname`". Slurm job ID: " $SLURM_JOBID"."')
 
         with open(runscriptfile, 'w') as f:
             f.write(runscript)
 
         command = runscriptfile
 
-        if target_args==None:
+        if target_args is None:
             slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
         else:
             slurm_args = args2string(target_args)
 
         slurm_args += '-e ' + errfile + ' -o ' + logfile
-        
-        sl_command = 'sbatch '+ slurm_args + ' ' + command
-        
+
+        sl_command = 'sbatch ' + slurm_args + ' ' + command
+
         print(sl_command)
 
         if target in params.remote_submission.keys():
@@ -623,7 +630,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost,username=remote_user(remotehost))
+            ssh.connect(remotehost, username=remote_user(remotehost))
 
             stdin, stdout, stderr = ssh.exec_command(sl_command)
             time.sleep(3)
@@ -635,33 +642,33 @@ def run(target='standalone',
             time.sleep(3)
             jobid = p.stdout.readline().decode()
 
-        with open(logfile,'w+') as f:
+        with open(logfile, 'w+') as f:
             f.write('waiting for cluster job to start\n\n')
             f.write(jobid)
-            
-            jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
-            
-            #jobid=['slurm__'+jobid]
-        
+
+            jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
+
+            # jobid=['slurm__'+jobid]
+
         return jobid
-    
+
     elif target == 'sparkslurm':
 
         command = params.launch_dir + '/launcher_' + target
         command += '.sh '
-        
+
         target_args['--email'] = params.user + params.email
-        target_args['--template'] = os.path.join(params.launch_dir,"spark_slurm_template.sh")
+        target_args['--template'] = os.path.join(params.launch_dir, "spark_slurm_template.sh")
 
         logbase = logfile.partition('.log')[0]
-        
+
         target_args['--runscript'] = logbase + '.' + target + '.sh'
-                
-        spsl_args = args2string(target_args)  
-        
+
+        spsl_args = args2string(target_args)
+
         # spsl_args += args2string({'--logfile':logfile})
         # spsl_args += args2string({'--errfile':errfile})
-        spsl_args += args2string({'--logdir':logbase})
+        spsl_args += args2string({'--logdir': logbase})
 
         spark_args = dict()
         if type(special_args) is dict:
@@ -671,10 +678,10 @@ def run(target='standalone',
         spark_args['--logdir'] = logbase
         spark_args['--spark_home'] = params.spark_dir
         spark_args['--render_dir'] = params.render_dir
-        
-        spsl_args += '--scriptparams= ' + args2string(spark_args) 
-        spsl_args += '--params= ' + args2string(run_args,' ')
-        
+
+        spsl_args += '--scriptparams= ' + args2string(spark_args)
+        spsl_args += '--params= ' + args2string(run_args, ' ')
+
         command += spsl_args
 
         if target in params.remote_submission.keys():
@@ -682,7 +689,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost,username=remote_user(remotehost))
+            ssh.connect(remotehost, username=remote_user(remotehost))
 
             stdin, stdout, stderr = ssh.exec_command(command)
             time.sleep(3)
@@ -693,12 +700,12 @@ def run(target='standalone',
             jobid = p.stdout.readline().decode()
 
         print(command)
-        
-        with open(logfile,'w+') as f:
+
+        with open(logfile, 'w+') as f:
             f.write('waiting for cluster job to start\n\n')
             f.write(jobid)
-            
-            jobid=jobid.strip('\n')[jobid.rfind(' ')+1:]
+
+            jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
         return jobid
 
 
@@ -730,8 +737,8 @@ def runtype(comp_sel):
     else:
         return comp_sel
 
-        
-def run_prefix(nouser=False,dateonly=False):
+
+def run_prefix(nouser=False, dateonly=False):
     """
     Creates a specific prefix for outputs (logfiles, directories)
 
@@ -742,14 +749,15 @@ def run_prefix(nouser=False,dateonly=False):
     """
 
     timestamp = time.localtime()
-    user=''
+    user = ''
     if not nouser:
         user = params.user + '_'
 
     if dateonly:
-        t='{}{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday)
+        t = '{}{:02d}{:02d}'.format(timestamp.tm_year, timestamp.tm_mon, timestamp.tm_mday)
     else:
-        t='{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year,timestamp.tm_mon,timestamp.tm_mday,timestamp.tm_hour,timestamp.tm_min)
+        t = '{}{:02d}{:02d}-{:02d}{:02d}'.format(timestamp.tm_year, timestamp.tm_mon, timestamp.tm_mday,
+                                                 timestamp.tm_hour, timestamp.tm_min)
 
     return user + t
 
@@ -766,7 +774,7 @@ def activate_conda(conda_dir=params.conda_dir,
     """
 
     script = ''
-    script += 'source '+os.path.join(conda_dir,"etc/profile.d/conda.sh")+'\n'
+    script += 'source ' + os.path.join(conda_dir, "etc/profile.d/conda.sh") + '\n'
     script += '\n'
     script += 'conda activate ' + env_name + '\n'
 

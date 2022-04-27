@@ -3,7 +3,7 @@
 eval "$(/g/emcf/software/python/miniconda/bin/conda shell.bash hook)"
 conda activate dash
 
-dashpath=./dashUI
+dashpath=/g/emcf/software/volumealign/dashUI
 
 cd $dashpath
 
