@@ -17,7 +17,6 @@ import numpy as np
 import os
 import json
 import requests
-import importlib
 
 from app import app
 import params
@@ -229,11 +228,11 @@ def slice_export_stacktoparams(  # stack_sel,
             out['zmax'] = zmax
             out['numsections'] = zmax - zmin + 1
 
-            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/' + str(
-                out['zmin']) + '/render-parameters'
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                  + '/stack/' + stack + '/z/' + str(out['zmin']) + '/render-parameters'
 
-            tiles0 = requests.get(url).json()
-
+            # tiles0 = requests.get(url).json()
+            #
             # tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
             #
             # basedirsep = params.datasubdirs[owner]
@@ -246,7 +245,7 @@ def slice_export_stacktoparams(  # stack_sel,
             t_fields = [stack,
                         str(out['numsections']),
                         '%0.2f' % int(out['Gigapixels']),
-                        ' x '.join(map(str,out['output dimensions'])) + ' px']
+                        ' x '.join(map(str, out['output dimensions'])) + ' px']
 
             timelim = np.ceil(
                 out['Gigapixels'] * float(scale) * params.export['min/GPix/CPU_slice'] / params.n_cpu_script * (

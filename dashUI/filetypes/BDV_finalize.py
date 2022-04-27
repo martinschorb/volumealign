@@ -18,7 +18,6 @@ import numpy as np
 import os
 import json
 import requests
-import importlib
 
 from app import app
 import params

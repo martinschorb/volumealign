@@ -73,10 +73,10 @@ def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, 
     if thispage == '' or thispage not in hf.trigger(key='module') or inpath is None:
         raise PreventUpdate
 
+    path = inpath
+
     if 'dummy' in trigger:
         path = dummydata
-
-    path = inpath
 
     if os.path.isdir(str(inpath)):
         inpath = inpath

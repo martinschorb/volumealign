@@ -134,10 +134,10 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
                 if 'None' in (stackparams['stackId']['owner'], stackparams['stackId']['project']):
                     return dash.no_update
 
-                url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/' + str(
-                    int(
-                        (stacklist[0]['stats']['stackBounds']['maxZ'] - stacklist[0]['stats']['stackBounds'][
-                            'minZ']) / 2)) + '/render-parameters'
+                url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                      + '/stack/' + stack + '/z/' + str(int(
+                    (stacklist[0]['stats']['stackBounds']['maxZ'] - stacklist[0]['stats']['stackBounds']['minZ']) / 2))\
+                      + '/render-parameters'
 
                 tiles0 = requests.get(url).json()
 

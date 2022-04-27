@@ -186,12 +186,12 @@ def n5export_stacktoparams(  # stack_sel,
             out['zmax'] = zmax
             out['numsections'] = zmax - zmin + 1
 
-            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/' + str(
-                out['zmin']) + '/render-parameters'
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                  + '/stack/' + stack + '/z/' + str(out['zmin']) + '/render-parameters'
 
-            tiles0 = requests.get(url).json()
-
-            tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
+            # tiles0 = requests.get(url).json()
+            #
+            # tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
             #
             # basedirsep = params.datasubdirs[owner]
             # dir_out = tilefile0[:tilefile0.find(basedirsep)]
@@ -340,7 +340,8 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
             # get tile size from single tile
 
-            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                  + '/stack/' + stack
             url += '/z/' + str(slice_in) + '/tile-specs'
 
             tilespecs = requests.get(url).json()

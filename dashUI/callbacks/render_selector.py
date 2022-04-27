@@ -247,7 +247,8 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
 
     else:
 
-        href_out = params.render_base_url + 'view/stacks.html?renderStackOwner=' + own_sel + '&renderStackProject=' + proj_sel
+        href_out = params.render_base_url + 'view/stacks.html?renderStackOwner=' + own_sel \
+                   + '&renderStackProject=' + proj_sel
         # get list of projects on render server
         url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
 
