@@ -52,7 +52,16 @@ def new_matchtrial(matchID, urls, clippos='LEFT', owner=params.mt_owner, ):
 
     matchtrial['matches'] = []
     matchtrial['stats'] = {}
-    matchtrial['parameters']['featureAndMatchParameters']['pClipPosition'] = clippos
+
+    if clippos == 'NO CLIP':
+        matchtrial['parameters']['featureAndMatchParameters'].pop('pClipPosition')
+        matchtrial['parameters']['featureAndMatchParameters'].pop('clipPixels')
+
+    else:
+        matchtrial['parameters']['featureAndMatchParameters']['pClipPosition'] = clippos
+        if 'clipPixels' not in matchtrial['parameters']['featureAndMatchParameters'].keys():
+            matchtrial['parameters']['featureAndMatchParameters']['clipPixels'] = 400
+
     matchtrial['parameters']['pRenderParametersUrl'] = urls[0]
     matchtrial['parameters']['qRenderParametersUrl'] = urls[1]
 
@@ -62,10 +71,10 @@ def new_matchtrial(matchID, urls, clippos='LEFT', owner=params.mt_owner, ):
 
     res = {}
 
-    try:
-        res = requests.post(url, json=matchtrial['parameters']).json()
-    except:
-        json.decoder.JSONDecodeError
+    # try:
+    res = requests.post(url, json=matchtrial['parameters']).json()
+    # except json.decoder.JSONDecodeError:
+    #     print('Error while parsing MatchTrial')
 
     if 'id' in res.keys():
         matchtrial = res['parameters']

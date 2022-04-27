@@ -161,8 +161,8 @@ for idx in range(params.max_tileviews):
         if thispage not in hf.trigger(key='module'):
             raise PreventUpdate
 
-        trigger = hf.trigger()
-        tileim_index = trigger.split('_')[-1]
+        ol = dash.callback_context.outputs_list
+        tileim_index = ol[0]['id']['component'].split('_')[-1]
 
         url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
               + '/stack/' + stack
@@ -177,7 +177,7 @@ for idx in range(params.max_tileviews):
             raise PreventUpdate
 
         t_labels = tiles.copy()
-        tile = tiles[int(len(tiles) / 2)]
+        tile = tiles[int(len(tiles) / 2 + int(tileim_index))]
 
         if prev_tile is None:
             prev_tile = tile

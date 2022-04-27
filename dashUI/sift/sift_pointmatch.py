@@ -48,7 +48,11 @@ matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
                                                     html.A('  - ',
                                                            id=label + 'mt_link',
                                                            target="_blank"),
-                                                    html.Div('', id=label + 'mt_jscaller', style={'display': 'none'})
+                                                    dcc.Loading(
+                                                        id=label + "link_loading",
+                                                        type="dot",
+                                                        children=html.Div('', id=label + 'mt_jscaller', style={'display': 'none'})
+                                                    )
                                                     ]),
                                  html.Br(),
 
