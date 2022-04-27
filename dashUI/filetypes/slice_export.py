@@ -372,6 +372,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         slicerun_p['scale'] = scale
 
+        slicerun_p['output_json'] = param_file + '_output.json'
+
         slicerun_p.update(run_params)
 
         target_args = dict()
