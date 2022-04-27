@@ -12,8 +12,7 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
 import requests
-import os
-import json
+
 import plotly.express as px
 from skimage import io
 import re
@@ -118,7 +117,8 @@ for idx in range(params.max_tileviews):
                 if o_min == o_max:
                     slicestyle = {'display': 'none'}
 
-                url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack_sel
+                url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                      + '/stack/' + stack_sel
                 url1 = url + '/tileIds'
 
                 tile = requests.get(url1).json()[0]
@@ -134,7 +134,6 @@ for idx in range(params.max_tileviews):
 
             else:
                 raise PreventUpdate
-
 
     # init tile selector
     @app.callback([Output({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'options'),
@@ -165,7 +164,8 @@ for idx in range(params.max_tileviews):
         trigger = hf.trigger()
         tileim_index = trigger.split('_')[-1]
 
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+              + '/stack/' + stack
         url += '/tileIds?matchPattern='
 
         if owner in params.slicenumformat.keys():
@@ -261,7 +261,8 @@ for idx in range(params.max_tileviews):
         if 'None' in (owner, project, stack):
             raise PreventUpdate
 
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+              + '/stack/' + stack
         url += '/tile/' + tile
 
         url1 = url + '/render-parameters'
@@ -354,7 +355,8 @@ for idx in range(params.max_tileviews):
 
         scale = imparams['scale']
 
-        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack
+        url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+              + '/stack/' + stack
 
         url += '/z/' + str(section)
 

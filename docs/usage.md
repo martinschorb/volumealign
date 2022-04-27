@@ -1,6 +1,6 @@
 # Volume image alignment with Render
 
-This document explains the usage of the Web UI to rund volume EM alignment workflows using the ["Render"](https://github.com/saalfeldlab/render) infrastructure.
+This document explains the usage of the Web UI to run volume EM alignment workflows using the ["Render"](https://github.com/saalfeldlab/render) infrastructure.
 
 The design of the main window, where you control and run the alignment workflow is inspired by [IMOD's](https://bio3d.colorado.edu/imod/) [`etomo`](https://bio3d.colorado.edu/imod/doc/etomoTutorial.html) main window showing the sequential main steps of the procedure in the menu column on the left and all important parameter settings belonging to the current active steps in the main page.
 
@@ -26,11 +26,11 @@ This page contains the following elements:
 
 - The type-dependent import content (see below)
 
-- **select target Stack:** select **Project** and **Stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances.
+- **select target Stack:** select **Project** and **Stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances. If you use unsupported characters in your input, these will be automatically cleaned.
 
 ### SBEMImage
 
-- **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` subfolders.
+- **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` sub-folders.
 - **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
 
 ### SerialEM Montage
@@ -61,16 +61,16 @@ This page contains the following elements:
 
 - **Type selector:** choose the type of image analysis algorithm to use for determining the point matches. The rest of the page will adapt accordingly.
 
-At the moment, only the SIFT client developed in Janelia that makes use of [Spark](https://en.wikipedia.org/wiki/Apache_Spark) for resource parallelisation is implemented.
+At the moment, only the SIFT client developed in Janelia that makes use of [Spark](https://en.wikipedia.org/wiki/Apache_Spark) for resource parallelization is implemented.
 
-- **Select Match Collection:** The results of the analysis will be stored in a database (independent from the stack database). You can store as many runs into the same collection, even if they comprise the same pairs. If you want to add matches to an existing collection, select one. Otherwise create a new one. The `Owner` should describe the nature and project of your dataset while the collection name would specify the stack and potentially some hint about the method(s) and parameters used for determining the matches.
+- **Select Match Collection:** The results of the analysis will be stored in a database (independent of the stack database). You can store as many runs into the same collection, even if they comprise the same pairs. If you want to add matches to an existing collection, select one. Otherwise, create a new one. The `Owner` should describe the nature and project of your dataset while the collection name would specify the stack and potentially some hint about the method(s) and parameters used for determining the matches.
 
 
 ### SIFT point matches
 
 Each SIFT run requires several sets of parameters that control the information features that are extracted from each image as well as the criteria to match them.
 
-Render provides a web interface where these parameters can be set and the the quality of the matches as well as their compute time can be estimated for a single representative tile pair.
+Render provides a web interface where these parameters can be set and the quality of the matches as well as their compute time can be estimated for a single representative tile pair.
 
 There is a small library of parameter templates available for several specimens. You can pick them from:
 
@@ -93,7 +93,7 @@ Click **Create New Trial** at the top of the page. This will open the Parameter 
 
 ![matchtrial_params](img/match_trial_params.png "Render WebUI matchTrial Parameters")
 
-To make the tiles from the current stack available to this interface, you need to ***copy and paste the link that is shown above each tile view*** in the main UI into the two big text boxes at the bottom of the parameter interface.
+The tiles from the current stack should already be shown at the bottom of the page. If not, to make them available, you need to *copy and paste the link that is shown above each tile view* in the main UI into the two big text boxes at the bottom of the parameter interface.
 
 Make sure that their relative position (`2D`) is correct in the `Clip Parameters` section.
 
@@ -120,7 +120,7 @@ If you are happy with the parameters, copy the long ID at the very end of the we
 ...?matchTrialId=xxxxxxxxxxxxxxxxxxxx
 ```
 
-There, paste it into the text box after **Use this Match Trial as compute parameters:**.
+There, ***paste it into the text box*** after **Use this Match Trial as compute parameters:**.
 
 These parameters will then be used for the search of all the tiles.
 
@@ -165,22 +165,32 @@ You can export a Render stack at any time to disk ("materialize").
 
 You can **explore slice** to determine the **volume region to consider**.
 
-At the moment, only `N5` is available as **output type**.
+At the moment, `N5` or `slice images` are available as **output type**.
 
-Pick the desired **output path** and the result will appear in a sub-directory `aligned` with the date and a reference to the stack.
+It is highly recommended to use N5 (and BDV or MoBIE for visualization) for large volumes or 2D slices. The slice export option can be chosen to produce downscaled images for talks or movie visualizations.
 
-Make sure that the contrast in the slice viewer fits your expectations of the final data. If not, adjust it. The ouptut data intensity will be scaled accordingly.
+#### N5
 
-With the known number of tiles and the estimated run time for exporting a tile, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+Pick the desired **output path** and the result will appear in a subdirectory `aligned` with the date and a reference to the stack.
+
+Make sure that the contrast in the slice viewer fits your expectations of the final data. If not, adjust it. The output data intensity will be scaled accordingly.
+
+With the known number of tiles and the estimated run time for exporting a slice, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
 
 ![export](img/webui_export_computesettings.png "VolumeAlign WebUI export")
 
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
 You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
 
+#### slice images
+
+This will export your slice(s) into the desired **output file type** which can be either `jpg`,`png`or `tif`.
+
+You can use **Choose output scale** to select the downscaling factor you like your export to have. The dimensions of the output images are shown in the status table in **Compute Settings**. There you can also choose the number of CPUs to use for parallel export.
 ## Finalize output format
 
-Here you can finalize your data export and generate the necessary metadata file to view the volume in BigDataViewer or MoBIE.
-Currently only `BDV-XML` is supported as **post-processing target format**.
+Here you can finalize your data export (if `N5` was chosen for export) and generate the necessary metadata file to view the volume in BigDataViewer or MoBIE.
+- **BDV-XML:** This will create the `XML`file necessary to view the result in *BigDataViewer*
+- **MoBIE:** you can choose either an existing MoBIE project as output directory into which the aligned images will be added, or a new directory where the script will generate an entirely fresh MoBIE project.
 
 - **Choose exported volume:** This provides a list of already exported volumes. The files have to still reside in the original location on the storage system.

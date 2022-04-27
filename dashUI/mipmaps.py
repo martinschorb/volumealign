@@ -98,10 +98,11 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                                       ], className='table'),
                                           html.Br(),
                                           html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
-                                                      html.Tr([html.Td(
-                                                          dcc.Input(id={'component': 'input_' + col, 'module': module},
-                                                                    type='number', min=1)) for col in
-                                                          compute_table_cols])
+                                                      html.Tr([
+                                                          html.Td(
+                                                              dcc.Input(id={'component': 'input_' + col, 'module': module},
+                                                                        type='number', min=1))
+                                                          for col in compute_table_cols])
                                                       ], className='table'),
                                           dcc.Store(id={'component': 'store_compset', 'module': module})
                                           ])
@@ -180,8 +181,8 @@ def mipmaps_stacktodir(stack_sel, owner, project, stack, allstacks, thispage):
 
             num_blocks = int(np.max((np.floor(out['numsections'] / params.section_split), 1)))
 
-            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project + '/stack/' + stack + '/z/' + str(
-                out['zmin']) + '/render-parameters'
+            url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
+                  + '/stack/' + stack + '/z/' + str(out['zmin']) + '/render-parameters'
             tiles0 = requests.get(url).json()
 
             tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
@@ -326,6 +327,7 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
         sec_start = stackparams['zmin']
         sliceblock_idx = 0
         sec_end = sec_start
+        run_prefix = launch_jobs.run_prefix()
 
         while sec_end <= stackparams['zmax']:
             sec_end = int(np.min([sec_start + comp_set['input_section_split'], stackparams['zmax']]))
@@ -333,16 +335,16 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
             run_params_generate['zend'] = sec_end
 
             run_params_generate['output_json'] = os.path.join(params.json_run_dir,
-                                                              'output_' + module + '_' + params.run_prefix + '_' + str(
+                                                              'output_' + module + '_' + run_prefix + '_' + str(
                                                                   sliceblock_idx) + '.json')
 
-            param_file = params.json_run_dir + '/' + runstep + '_' + module + params.run_prefix + '_' + str(
+            param_file = params.json_run_dir + '/' + runstep + '_' + module + run_prefix + '_' + str(
                 sliceblock_idx) + '.json'
 
             with open(param_file, 'w') as f:
                 json.dump(run_params_generate, f, indent=4)
 
-            log_file = params.render_log_dir + '/' + runstep + '_' + module + '_' + params.run_prefix + '_' + str(
+            log_file = params.render_log_dir + '/' + runstep + '_' + module + '_' + run_prefix + '_' + str(
                 sliceblock_idx)
             err_file = log_file + '.err'
             log_file += '.log'
@@ -368,7 +370,7 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
 
             mipmap_generate_p = launch_jobs.run(target=comp_sel,
                                                 pyscript=params.asap_dir + '/dataimport/generate_mipmaps.py',
-                                                json=param_file, run_args=None, target_args=target_args,
+                                                jsonfile=param_file, run_args=[], target_args=target_args,
                                                 logfile=log_file, errfile=err_file)
 
         launch_store = dict()
@@ -403,12 +405,13 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
             with open(os.path.join(params.json_template_dir, 'apply_mipmaps.json'), 'r') as f:
                 run_params_generate.update(json.load(f))
 
-            # run_params_generate['output_json'] = os.path.join(params.json_run_dir,'output_' + module + params.run_prefix + '.json' )
+            # run_params_generate['output_json'] = os.path.join(params.json_run_dir, 'output_' + module
+            #                                                   + params.run_prefix + '.json')
             run_params_generate["input_stack"] = stack
             run_params_generate["output_stack"] = stack + "_mipmaps"
             run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
 
-            param_file = params.json_run_dir + '/' + runstep + '_' + module + '_' + params.run_prefix + '.json'
+            param_file = params.json_run_dir + '/' + runstep + '_' + module + '_' + run_prefix + '.json'
             run_params_generate["zstart"] = stackparams['zmin']
             run_params_generate["zend"] = stackparams['zmax']
             run_params_generate["pool_size"] = params.n_cpu_script
@@ -416,13 +419,13 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
             with open(param_file, 'w') as f:
                 json.dump(run_params_generate, f, indent=4)
 
-            log_file = params.render_log_dir + '/' + runstep + '_' + module + '_' + params.run_prefix
+            log_file = params.render_log_dir + '/' + runstep + '_' + module + '_' + run_prefix
             err_file = log_file + '.err'
             log_file += '.log'
 
             mipmap_apply_p = launch_jobs.run(target=comp_sel,
                                              pyscript=params.asap_dir + '/dataimport/apply_mipmaps_to_render.py',
-                                             jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
+                                             jsonfile=param_file, run_args=[], logfile=log_file, errfile=err_file)
 
             launch_store = dict()
             launch_store['logfile'] = log_file

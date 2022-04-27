@@ -12,7 +12,6 @@ from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
 import requests
-import json
 
 from app import app
 
@@ -76,6 +75,8 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
         new_owner = checks.clean_render_name(new_owner)
         dd_options.append({'label': new_owner, 'value': new_owner})
         mc_owner = new_owner
+    else:
+        raise PreventUpdate
 
     return dd_options, mc_owner
 
@@ -152,6 +153,8 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
         mc_dd_opt.append({'label': new_mc, 'value': new_mc})
         mc_dd_val = new_mc
         mc_style = {'display': 'flex'}
+    else:
+        raise PreventUpdate
 
     return div1style, mc_dd_opt, mc_dd_val, mc_style, all_mcs
 

@@ -16,6 +16,8 @@ import requests
 from app import app
 
 import params
+
+from utils import checks
 from utils import helper_functions as hf
 
 new_project_style = {'margin-left': '2em'}
@@ -175,6 +177,7 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
         dd_options.append({'label': item, 'value': item})
 
     if trigger == 'proj_input':
+        newproj_in = checks.clean_render_name(newproj_in)
         dd_options.append({'label': newproj_in, 'value': newproj_in})
         out_project = newproj_in
         store = dash.no_update
@@ -244,7 +247,8 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
 
     else:
 
-        href_out = params.render_base_url + 'view/stacks.html?renderStackOwner=' + own_sel + '&renderStackProject=' + proj_sel
+        href_out = params.render_base_url + 'view/stacks.html?renderStackOwner=' + own_sel \
+                   + '&renderStackProject=' + proj_sel
         # get list of projects on render server
         url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
 
@@ -270,6 +274,7 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
                 out_stack = init_store['stack']
 
         if trigger == 'stack_input':
+            newstack_in = checks.clean_render_name(newstack_in)
             dd_options.append({'label': newstack_in, 'value': newstack_in})
             out_stack = newstack_in
 
