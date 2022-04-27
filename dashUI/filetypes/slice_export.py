@@ -34,7 +34,8 @@ store = pages.init_store({}, label)
 
 status_table_cols = ['stack',
                      'slices',
-                     'Gigapixels']
+                     'Gigapixels',
+                     'output dimensions']
 
 compute_table_cols = [  # 'Num_CPUs',
     'Num_parallel_jobs',
@@ -240,7 +241,12 @@ def slice_export_stacktoparams(  # stack_sel,
 
             out['Gigapixels'] = out['numsections'] * (xmax - xmin) * (ymax - ymin) / (10 ** 9)
 
-            t_fields = [stack, str(out['numsections']), '%0.2f' % int(out['Gigapixels'])]
+            out['output dimensions'] = [int((xmax - xmin) * float(scale)),  int((ymax - ymin) * float(scale))]
+
+            t_fields = [stack,
+                        str(out['numsections']),
+                        '%0.2f' % int(out['Gigapixels']),
+                        ' x '.join(map(str,map(int,out['output dimensions']))) + ' px']
 
             timelim = np.ceil(
                 out['Gigapixels'] * float(scale) * params.export['min/GPix/CPU_slice'] / params.n_cpu_script * (
