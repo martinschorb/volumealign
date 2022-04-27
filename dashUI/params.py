@@ -64,8 +64,9 @@ comp_options = [
 ]
 
 # list remote workstations/login nodes and the remote user format
-remote_compute = ['pc-emcf-16.embl.de',
-                  'render.embl.de']
+remote_compute = []
+    # 'pc-emcf-16.embl.de',
+    # 'render.embl.de']
 
 remote_logins = {'login.cluster.embl.de': user,
                  'pc-emcf-16.embl.de': 'testuser'}
