@@ -240,40 +240,33 @@ def log_output(module, hidden=False):
 
     out = html.Div(children=[
         html.Br(),
-        html.Div(id={'component': 'job-status', 'module': module}, children=['Status of current processing run: ',
-                                                                             html.Div(id={'component': 'get-status',
-                                                                                          'module': module}, style={
-                                                                                 "font-family": "Courier New"},
-                                                                                      children=[
-                                                                                          'not running']),
-                                                                             html.Button('cancel cluster job(s)',
-                                                                                         id={'component': "cancel",
-                                                                                             'module': module},
-                                                                                         style={'display': 'none'}),
-                                                                             html.Div(id={'component': 'statuspage_div',
-                                                                                          'module': module},
-                                                                                      children=['Processing ',
-                                                                                                html.A('status page',
-                                                                                                       id={
-                                                                                                           'component': 'statuspage_link',
-                                                                                                           'module': module},
-                                                                                                       target="_blank")
-                                                                                                ],
-                                                                                      style={'display': 'none'})
-                                                                             ]),
+        html.Div(id={'component': 'job-status', 'module': module},
+                 children=['Status of current processing run: ',
+                           html.Div(id={'component': 'get-status', 'module': module},
+                                    style={"font-family": "Courier New"},
+                                    children=['not running']),
+                           html.Button('cancel cluster job(s)',
+                                       id={'component': "cancel", 'module': module},
+                                       style={'display': 'none'}),
+                           html.Div(id={'component': 'statuspage_div', 'module': module},
+                                    children=['Processing ',
+                                              html.A('status page',
+                                                     id={'component': 'statuspage_link', 'module': module},
+                                                     target="_blank")
+                                              ],
+                                    style={'display': 'none'})
+                           ]),
         html.Br(),
         html.Details([
             html.Summary('Console output:'),
             html.Div(id={'component': "collapse", 'module': module},
                      children=[
-                         html.Div(id={'component': 'div-out', 'module': module}, children=['Log file: ',
-                                                                                           html.Div(id={
-                                                                                               'component': 'outfile',
-                                                                                               'module': module},
-                                                                                                    style={
-                                                                                                        "font-family": "Courier New"},
-                                                                                                    children=params.init_logfile)
-                                                                                           ]),
+                         html.Div(id={'component': 'div-out', 'module': module},
+                                  children=['Log file: ',
+                                            html.Div(id={'component': 'outfile', 'module': module},
+                                                     style={"font-family": "Courier New"},
+                                                     children=params.init_logfile)
+                                            ]),
                          dcc.Textarea(id={'component': 'console-out', 'module': module}, className="console_out",
                                       style={'width': '100%', 'height': 200, "color": "#000"}, disabled='True')
                      ])
@@ -415,7 +408,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                             )
                    )
 
-    return html.Div(out)
+    return dcc.Loading(type='dot', children=html.Div(out))
 
 
 def section_view(module, numpanel=1, contrast=True, bbox=False):
@@ -476,7 +469,8 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                      data={}),
                                            html.Div(style={'display': 'none'},
                                                     id={'component': 'sliceim_imurl' + idx_str, 'module': module}),
-                                           # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},width=params.im_width),
+                                           # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},
+                                           #          width=params.im_width),
                                            dcc.Graph(id={'component': 'sliceim_image' + idx_str, 'module': module},
                                                      figure=fig,
                                                      style={'text-align': 'flushleft'}),
@@ -501,7 +495,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
     if not bbox:
         out.append(boundingbox(module, hidden=True))
 
-    return html.Div(out)
+    return dcc.Loading(type='dot', children=html.Div(out))
 
 
 def path_browse(module, tf_in=None, create=False, show_files=False, file_types=[]):
