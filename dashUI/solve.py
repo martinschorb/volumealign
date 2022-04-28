@@ -349,7 +349,16 @@ def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, s
 
     # populate new stack with the original resolution values
 
-    md = (renderapi.stack.get_stack_metadata(outstack, render=render, project=project, owner=owner))
+    try:
+        md = (renderapi.stack.get_stack_metadata(outstack, render=render, project=project, owner=owner))
+    except:
+        launch_store = dict()
+        launch_store['logfile'] = log_file
+        launch_store['status'] = 'error'
+        launch_store['id'] = '-'
+        launch_store['type'] = launch_jobs.runtype(comp_sel)
+
+        return False, launch_store, dash.no_update
 
     md.stackResolutionX = orig_meta.stackResolutionX
     md.stackResolutionY = orig_meta.stackResolutionY

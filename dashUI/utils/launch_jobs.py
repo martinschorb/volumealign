@@ -8,6 +8,8 @@ Created on Wed Nov 11 14:24:32 2020
 
 import os
 import subprocess
+
+import dash
 import params
 import time
 import datetime
@@ -257,6 +259,8 @@ def cluster_status(run_state):
         command += ' --format=jobid,state,node --parsable'
 
         # commands for other cluster types go HERE
+    if run_state['status'] in ['cancelled','error']:
+        return run_state['status'], link
 
     if cl_type in params.remote_submission.keys():
 
