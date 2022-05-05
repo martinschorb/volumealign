@@ -444,8 +444,6 @@ for idx in range(params.max_tileviews):
             imurl = imparams['imurl']
 
         elif 'section' in trigger:
-            print(trigger)
-            print(imparams)
             imurl = re.sub('/z/[0-9]*', '/z/' + str(section), imparams['imurl'])
 
         else:
