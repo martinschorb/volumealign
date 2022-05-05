@@ -101,6 +101,14 @@ page.append(page2)
               State('url', 'pathname'),
               prevent_initial_call=True)
 def pointmatch_tp_dd_fill(stack, thispage):
+    """
+    Fills the tilepair dropdown.
+
+    :param str stack:
+    :param str thispage: current page URL
+    :return: options and value of tilepair dropdown "tp_dd"
+    :rtype: (list of dict, str)
+    """
     if stack in (None, ''):
         raise PreventUpdate
 
@@ -160,6 +168,16 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                State('url', 'pathname')],
               prevent_initial_call=True)
 def pointmatch_update_compute_settings(*inputs):
+    """
+    Calculates the dynamic fields of `compute_table_cols` when changes of its input parameters occur.
+
+    :param (list, dict, str) inputs: [:-2] Input values from "compute_table_cols"<Br>
+                                     [-2] factors: factors to multiply the input values with.<b>&#8592; pointmatch_comp_set</b><Br>
+                                     [-1] thispage: current page URL
+    :return: factors that update compute_table_cols values when they are changed themselves.
+    :rtype: (list, int)
+    """
+
     thispage = inputs[-1]
     inputs = inputs[:-1]
     thispage = thispage.lstrip('/')
@@ -197,6 +215,13 @@ def pointmatch_update_compute_settings(*inputs):
               [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
               prevent_initial_call=True)
 def pointmatch_store_compute_settings(*inputs):
+    """
+    Updates the store of  `compute_table_cols` values when changes of input parameters occur.
+
+    :param list inputs: Input values from "compute_table_cols"
+    :return: Store of all values in "compute_table_cols"
+    :rtype: dict
+    """
     storage = dict()
 
     in_labels, in_values = hf.input_components()
