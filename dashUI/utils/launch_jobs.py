@@ -55,10 +55,13 @@ def status(run_state):
 
     A run_state dict contains:
         - 'status': string describing the processing status of ALL tasks
-        - 'type': string describing the type of compute infrastructure to be used. Currently supports ['standalone','generic','slurm','sparkslurm']
+        - 'type': string describing the type of compute infrastructure to be used.
+            Currently supports ['standalone','generic','slurm','sparkslurm']
         - 'logfile': string path pointing to the/a log file of the processing run.
-        - 'id':  ID of the processing task. Can be a single string to describe one task or a dict containing a list of task IDs:
-            allowed keys: - 'par' for parallel tasks or 'seq' for sequential tasks. These are exclusive and contain lists of job IDs
+        - 'id':  ID of the processing task. Can be a single string to describe one task
+            or a dict containing a list of task IDs:
+            allowed keys: - 'par' for parallel tasks or 'seq' for sequential tasks.
+                            These are exclusive and contain lists of job IDs
                           - 'logfiles': list of individual log files for the tasks.
 
 
@@ -259,7 +262,7 @@ def cluster_status(run_state):
         command += ' --format=jobid,state,node --parsable'
 
         # commands for other cluster types go HERE
-    if run_state['status'] in ['cancelled','error']:
+    if run_state['status'] in ['cancelled', 'error']:
         return run_state['status'], link
 
     if cl_type in params.remote_submission.keys():
@@ -482,7 +485,7 @@ def run(target='standalone',
 
     :param str target: target for processing. Currently supports ['standalone','generic','slurm','sparkslurm']
     :param str pyscript: script to execute
-    :param str or list jsonfile: string path of JSON file with the script parameters or list of those for multiple parallel tasks
+    :param str or list jsonfile: string path of JSON file with the script parameters or list for multiple parallel tasks
     :param str or dict or list run_args: str, dict or list with run-time arguments for the specific launcher
     :param str or dict or list target_args: str, dict or list with setup arguments for the specific launcher
     :param str or dict or list special_args: str, dict or list with additional arguments

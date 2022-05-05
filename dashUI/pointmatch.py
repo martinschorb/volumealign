@@ -106,7 +106,7 @@ def pointmatch_tp_dd_fill(stack, thispage):
 
     thispage = thispage.lstrip('/')
 
-    if thispage in (None, '') or thispage not in hf.trigger(key='module') and dd_options_in is not None:
+    if thispage in (None, '') or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
     tp_dirlist = [d_item for d_item in glob.glob(params.json_run_dir + '/tilepairs_' + params.user + '*' + stack + '*')
