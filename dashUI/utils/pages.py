@@ -362,7 +362,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                                                [html.Td('Slice:'),
                                                 html.Td(dcc.Input(
                                                     id={'component': 'tileim_section_in' + idx_str, 'module': module},
-                                                    type='number', min=0, value=0))],
+                                                    type='number', min=0, value=0, debounce=True))],
                                                id={'component': 'tileim_section_div' + idx_str, 'module': module},
                                                style={}),
                                                html.Td('Tile'),
@@ -445,7 +445,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                                     html.Td(dcc.Input(
                                                                         id={'component': 'sliceim_section_in' + idx_str,
                                                                             'module': module}, type='number', min=0,
-                                                                        value=0)),
+                                                                            debounce=True, value=0)),
                                                                     ])
                                                            ]),
                                                id={'component': 'sliceim_section_div' + idx_str, 'module': module},
