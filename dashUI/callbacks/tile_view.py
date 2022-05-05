@@ -149,6 +149,21 @@ for idx in range(params.max_tileviews):
                    State('url', 'pathname')],
                   prevent_initial_call=True)
     def slicetotiles(slicenum, tilepairdir, owner, project, stack, prev_tile, neighbours, lead_tile, thispage):
+        """
+        Fills the tile selection dropdown with the tiles found for the selected slice.
+
+        :param int slicenum: value of the slice selector "tileim_section_in"
+        :param str tilepairdir: value of the tilepair dropdown. "tp_dd"
+        :param str owner:
+        :param str project:
+        :param str stack:
+        :param str prev_tile: current value of the tile selector dropdown
+        :param list neighbours: neighbouring tiles if available "neighbours" <i>children</i>
+        :param dict lead_tile: data of the "lead_tile" Store
+        :param str thispage: current page URL
+        :return: options and value of tile dropdown "tile_dd"
+        :rtype: (list of dict, str)
+        """
 
         if None in (slicenum, owner, project, stack, neighbours, lead_tile):
             raise PreventUpdate
@@ -245,6 +260,22 @@ for idx in range(params.max_tileviews):
                    State('url', 'pathname')
                    ], prevent_initial_call=True)
     def im_view_url(tile, runstore, owner, project, stack, section, thispage):
+        """
+        Generates the link to the tile image to display.
+
+        :param str tile: value of tile dropdown "tile_dd"  <b>&#8592; slicetotiles</b>
+        :param dict runstore: data of "store_render_launch"
+        :param str owner:
+        :param str project:
+        :param str stack:
+        :param int section: value of the slice selector "tileim_section_in"
+        :param str thispage: current page URL
+        :return: "tileim_imurl" - str pointing to the tile image to fetch <Br>
+                 "tileim_link" - str link to the tile specs for further use (MatchTrial)<Br>
+                 "lead_tile" - dict Store data to determine lead tile (if index 0)
+        :rtype: (str,str,dict)
+        """
+
         if not dash.callback_context.triggered:
             raise PreventUpdate
         # print('tile is now: '+ tile)
@@ -296,6 +327,15 @@ for idx in range(params.max_tileviews):
                   State('url', 'pathname')
                   )
     def im_view(c_limits, imurl, thispage):
+        """
+        Generate the tile view.
+
+        :param list of int c_limits: Contrast slider values "tileim_contrastslider"
+        :param str imurl: initial tile image URL "tileim_imurl" <b>&#8592; im_view_url</b>
+        :param str thispage: current page URL
+        :return: Final URL to the Render image-API "tileim_image" <i>src</i>
+        :rtype: str
+        """
         if not dash.callback_context.triggered:
             raise PreventUpdate
 
@@ -328,12 +368,32 @@ for idx in range(params.max_tileviews):
                    State({'component': 'project_dd', 'module': MATCH}, 'value'),
                    State({'component': 'stack_dd', 'module': MATCH}, 'value'),
                    State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
-                   State({'component': 'sliceim_bboxparams' + idx_str, 'module': MATCH}, 'data'),
                    State({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
                    State('url', 'pathname')
                    ], prevent_initial_call=True)
-    def slice_view(section, zoomclick, resetclick, c_limits, thisstore, owner, project, stack, imparams, bboxparams,
+    def slice_view(section, zoomclick, resetclick, c_limits, thisstore, owner, project, stack, imparams,
                    rectsel, thispage):
+        """
+        Generates/populates the slice viewer.
+
+        :param int section: value of the slice selector "sliceim_section_in"
+        :param int zoomclick: "slice_zoom" button click trigger
+        :param int resetclick: "slice_reset" button click trigger
+        :param list of int c_limits: Contrast slider values "sliceim_contrastslider"
+        :param dict thisstore: data of "store_stackparams"
+        :param str owner:
+        :param str project:
+        :param str stack:
+        :param dict imparams: previous state of data "sliceim_params"
+        :param dict rectsel: rectangular selection from annotation <b>&#8592; paramstoouterlimits</b>
+        :param str thispage: current page URL
+        :return: "sliceim_image" <i>figure</i> figure element to draw <Br>
+                 "sliceim_image" <i>config</i> plotly figure config <Br>
+                 "sliceim_params" - parameters to describe the current slice image <Br>
+                 "sliceim_image" <i>relayoutData</i>  annotations on top of the figure
+
+        :rtype: (array, dict, dict, dict)
+        """
         if not dash.callback_context.triggered:
             raise PreventUpdate
 
@@ -349,9 +409,6 @@ for idx in range(params.max_tileviews):
 
         if 'None' in (owner, project, stack):
             raise PreventUpdate
-
-        if bboxparams == {}:
-            bboxparams.update(imparams)
 
         scale = imparams['scale']
 
@@ -387,6 +444,8 @@ for idx in range(params.max_tileviews):
             imurl = imparams['imurl']
 
         elif 'section' in trigger:
+            print(trigger)
+            print(imparams)
             imurl = re.sub('/z/[0-9]*', '/z/' + str(section), imparams['imurl'])
 
         else:
@@ -398,7 +457,8 @@ for idx in range(params.max_tileviews):
             imwidth = bounds['maxX'] - bounds['minX']
 
             scale = float(params.im_width) / float(imwidth)
-            imparams.update(bounds)
+            imparams.update(fullbounds)
+            imparams['slicebounds'] = bounds
             imparams['fullbounds'] = fullbounds
             imparams['maxZ'] = fullbounds['maxZ']
             imparams['minZ'] = fullbounds['minZ']
@@ -445,6 +505,14 @@ for idx in range(params.max_tileviews):
                   State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
                   )
     def paramstoouterlimits(annotations, imparams):
+        """
+        Generates the bounding box values from the image annotation rectangle(s).
+
+        :param dict annotations: <i>relayoutData</i> from "sliceim_image" containing the annotation regions
+        :param dict imparams: "sliceim_params" <b>&#8592; slice_view</b>
+        :return: "sliceim_rectsel" bounding box values
+        :rtype: dict
+        """
         if not dash.callback_context.triggered:
             raise PreventUpdate
 
@@ -453,10 +521,17 @@ for idx in range(params.max_tileviews):
 
         outdims = dict()
         scale = imparams['scale']
+        print('p2outerlims')
+        print(imparams)
 
         for dim in ['X', 'Y']:
-            minval = imparams['min' + dim]
-            maxval = imparams['max' + dim]
+            # adjust rectangle position in case slice does not cover full volume bounds
+            if imparams['min' + dim] == imparams['fullbounds']['min' + dim]:
+                minval = imparams['slicebounds']['min' + dim]
+                maxval = imparams['slicebounds']['max' + dim]
+            else:
+                minval = imparams['min' + dim]
+                maxval = imparams['max' + dim]
 
             if annotations in ([], None):
                 outdims[dim] = [minval, maxval]
