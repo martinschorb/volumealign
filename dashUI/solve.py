@@ -184,7 +184,7 @@ def solve_stacks(dd_options_in, newstack_name, owner, project_sel, thispage):
 def solve_update_stack_browse(stack_state, project_sel, owner, thispage):
     thispage = thispage.lstrip('/')
 
-    if thispage in (None, '') or thispage not in hf.trigger(key='module') and dd_options_in is not None:
+    if thispage in (None, '') or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
     if project_sel is None or owner is None or stack_state is None:
