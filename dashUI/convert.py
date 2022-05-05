@@ -84,6 +84,15 @@ switch_outputs.append(Output({'component': 'store_render_init', 'module': module
               Input({'component': 'import_type_dd', 'module': module}, 'value'),
               State('url', 'pathname'))
 def convert_output(dd_value, thispage):
+    """
+    Populates the page with subpages.
+
+    :param str dd_value: value of the "import_type_dd" dropdown.
+    :param str thispage: current page URL
+    :return: List of style dictionaries to determine which subpage content to display.<Br>
+             Additionally: the page's "store_render_init" store (setting owner).
+    :rtype: (list of dict, dict)
+    """
     thispage = thispage.lstrip('/')
 
     if thispage == '' or thispage not in hf.trigger(key='module'):

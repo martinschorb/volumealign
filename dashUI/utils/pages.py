@@ -17,6 +17,15 @@ from utils import helper_functions as hf
 
 
 def init_store(storeinit, module):
+    """
+    Creates an inital page store with default content.
+
+    :param dict storeinit: initial Store dict to include
+    :param str module: name of the module/page
+    :return: store containing all templates and the given initial store.
+    :rtype: dict
+    """
+
     store = list()
 
     # store.append(html.Div(id={'component':'outfile','module':module},style={'display':'none'}))
@@ -33,6 +42,18 @@ def init_store(storeinit, module):
 
 
 def render_selector(module, header='Active stack:', owner=False, create=False, show=True):
+    """
+    Generates selector dropdown panels for Render properties **owner, project and stack**.
+
+    :param str module: module/page name
+    :param str header: Text to describe the selector's purpose.
+    :param bool owner: Switch to display the owner selector.
+    :param bool create: Switch to enable generation of new entries (project and stack).
+    :param bool show: toggle display.
+    :return: HTML page element containing the selectors
+    :rtype: html.Div
+    """
+
     dst = dict(display='block')
 
     new_proj_style = dict(display='none')
@@ -162,6 +183,16 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
 
 
 def match_selector(module, newcoll=False):
+    """
+    Generates selector dropdown panels for Render properties **(match) owner and match collection**.
+
+
+    :param str module: module/page name
+    :param bool newcoll: Switch to enable generation of new entries (owner and collection).
+    :return: HTML page element containing the selectors
+    :rtype: html.Div
+    """
+
     mc_owner_dd_options = list(dict())
     mc_dd_options = list(dict())
 
@@ -215,6 +246,16 @@ def match_selector(module, newcoll=False):
 
 
 def compute_loc(module, c_options=params.comp_defaultoptions, c_default=params.comp_default):
+    """
+    Generates selector radio buttons for the available compute options.
+
+    :param str module: module/page name
+    :param list of str c_options: list of compute options to show
+    :param str c_default: default selection
+    :return: HTML page element containing the selectors
+    :rtype: html.Div
+    """
+
     if len(c_options) < 2:
         dispstyle = {'display': 'none'}
     else:
@@ -234,6 +275,15 @@ def compute_loc(module, c_options=params.comp_defaultoptions, c_default=params.c
 
 
 def log_output(module, hidden=False):
+    """
+    Generates the page elements to monitor/control the computation status and the log output.
+
+    :param str module: module/page name
+    :param bool hidden: toggle visibility
+    :return: HTML element showing compute status and logs
+    :rtype: html.Div
+    """
+
     style = {}
     if hidden:
         style = {'display': 'none'}
@@ -278,6 +328,15 @@ def log_output(module, hidden=False):
 
 
 def substack_sel(module, hidden=False):
+    """
+    Generates a selector of slices.
+
+    :param str module: module/page name
+    :param bool hidden: toggle visibility
+    :return: HTML element showing the selector
+    :rtype: html.Div
+    """
+
     dispstyle = {}
     if hidden:
         dispstyle = {'display': 'none'}
@@ -304,6 +363,15 @@ def substack_sel(module, hidden=False):
 
 
 def boundingbox(module, hidden=False):
+    """
+    Generates a selector of 3D Volume boundaries.
+
+    :param str module: module/page name
+    :param bool hidden: toggle visibility
+    :return: HTML element to select bounding boxes/ volume limits in 3D.
+    :rtype: html.Div
+    """
+
     dispstyle = {}
     if hidden:
         dispstyle = {'display': 'none'}
@@ -330,6 +398,19 @@ def boundingbox(module, hidden=False):
 
 
 def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True):
+    """
+    Generate tile viewer(s).
+
+    :param str module: module/page name
+    :param int numpanel: number of tile viewer panels.
+    :param bool showlink: toggle display of the link to Render's tile specs.
+    :param bool contrast: toggle display of contrast sliders.
+    :param bool neighbours: toggle limitation of secondary panels (idx>0) to only display neighbours of the tile
+                            shown in the first viewer.
+    :return: list of HTML elements containing the tile view(s) and necessary selectors.
+    :rtype: list of html.Div
+    """
+
     if numpanel < 2:
         neighbours = False
 
@@ -412,6 +493,17 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
 
 
 def section_view(module, numpanel=1, contrast=True, bbox=False):
+    """
+    Generate slice/secion viewer(s).
+
+    :param str module: module/page name
+    :param int numpanel: number of slice viewer panels.
+    :param bool contrast: toggle display of contrast sliders.
+    :param bool bbox: switch to provide whether a bounding box selector is already present on the page.
+    :return: list of HTML elements containing the tile view(s) and necessary selectors.
+    :rtype: list of html.Div
+    """
+
     out = list()
 
     contraststyle = {'display': 'none'}
@@ -445,7 +537,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                                     html.Td(dcc.Input(
                                                                         id={'component': 'sliceim_section_in' + idx_str,
                                                                             'module': module}, type='number', min=0,
-                                                                            debounce=True, value=0)),
+                                                                        debounce=True, value=0)),
                                                                     ])
                                                            ]),
                                                id={'component': 'sliceim_section_div' + idx_str, 'module': module},
@@ -499,6 +591,18 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
 
 
 def path_browse(module, tf_in=None, create=False, show_files=False, file_types=[]):
+    """
+    Generates a dropdown element for browsing the (server-side) file system.
+
+    :param str module: module/page name
+    :param tf_in: dash ID of the path input element that will be used for the directory/file browsing.
+    :param bool create: toggle the possibility to create a new entry (file/directory).
+    :param bool show_files: toggle display of files
+    :param list of str file_types: limit display of files to certain file type extensions.
+    :return: HTML element for browsing the (server-side) file system
+    :rtype: html.Div
+    """
+
     creatediv_style = dict(display='none')
 
     if tf_in is None:
@@ -526,5 +630,3 @@ def path_browse(module, tf_in=None, create=False, show_files=False, file_types=[
     triggerdummy = dcc.Store(data=file_types, id={'component': 'path_dummy', 'module': module})
 
     return html.Div([fbrowse, fbstore, showfiles, filetypes, triggerdummy])
-
-# if __name__ == '__main__':
