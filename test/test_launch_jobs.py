@@ -5,6 +5,7 @@ tests for functionality in dashUI.utils.launch_jobs
 
 import os
 import pytest
+import time
 from dashUI.utils.launch_jobs import *
 
 run_state0 = dict(status='',
@@ -32,16 +33,42 @@ def test_args2string():
     assert args2string(indict) == expectedargs
 
 
+# test launcher
+def test_run():
+    # run launcher test
+
+    rs1 = dict(run_state0)
+    rs1['id'] = run()
+    rs1['status'] = 'launch'
+
+    time.sleep(5)
+    assert status(rs1)[0] == 'running'
+
+    time.sleep(35)
+    assert status(rs1)[0] == 'done'
+
+    # check wrong script
+    rs1['status'] = 'launch'
+    rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
+    rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist',logfile=rs1['logfile'])
+    time.sleep(5)
+    assert status(rs1)[0] == 'error'
+
+
+
 # test status of local tasks
 def test_find_activejob():
 
     rs1 = dict(run_state0)
     rs1['id'] = {'par':[1,2,3,4]}
-    rs1['status'] = ['done','running','done','pending']
+    rs1['status'] = 'launch'
 
     # check for sequential jobs
     with pytest.raises(TypeError):
         find_activejob(rs1)
+
+    rs1['id'] = run()
+
 
 
 

@@ -484,8 +484,8 @@ def run(target='standalone',
         run_args='',
         target_args=None,
         special_args=None,
-        logfile=os.path.join(params.render_log_dir, 'render.out'),
-        errfile=os.path.join(params.render_log_dir, 'render.err'),
+        logfile=os.path.join(params.render_log_dir, 'render.log'),
+        errfile='',
         inputs={}):
     """
     Launcher of a processing task.
@@ -538,8 +538,10 @@ def run(target='standalone',
 
     my_env = os.environ.copy()
 
-    logbase = os.path.basename(logfile).split('.log')[0]
+    logbase = os.path.splitext(os.path.basename(logfile))[0]
     logdir = os.path.dirname(logfile)
+
+    if errfile == '': errfile = os.path.join(logdir,logbase + '.err')
 
     runscriptfile = os.path.join(logdir, logbase + '.sh')
 
