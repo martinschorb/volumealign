@@ -52,7 +52,7 @@ def test_run():
     rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
     rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist',logfile=rs1['logfile'])
     time.sleep(5)
-    assert status(rs1)[0] == 'error'
+    assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
 
 
 
