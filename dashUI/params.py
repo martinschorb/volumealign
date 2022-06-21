@@ -89,7 +89,7 @@ min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 time_add_buffer = 0.2  # time buffer for job submission (relative)
 
 n_cpu_script = 4
-mem_per_cpu = 2  # GB
+mem_per_cpu = 6  # GB
 n_jobs_default = 8
 
 # standalone
