@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 '''
+tests for the basic environment setup for running volumealign
 '''
 
 import os
