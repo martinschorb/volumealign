@@ -20,7 +20,11 @@ import requests
 
 def args2string(args, separator='='):
     """
-    Converts arguments as list or dict into a tring to be issued on CLI
+    Converts arguments as list or dict into a string to be issued on CLI.
+    If a keyword argument contains a list, it will be issued multiple times.
+    {'arg: [1,2,3]} -> ' arg=1 arg=2 arg=3 '
+    This is according to what some Render CL scripts expect when defining
+    multiple input files.
 
     :param args: list, dict or str of command line arguments
     :param str separator: char to separate/link arguments
@@ -31,12 +35,12 @@ def args2string(args, separator='='):
     if args is None:
         argstring = ''
     elif type(args) == list:
-        argstring = " ".join(map(str, args))
+        argstring = ' ' + " ".join(map(str, args))
     elif type(args) == dict:
         argstring = str()
         for item in args.items():
             if type(item[1]) is list:
-                argstring += ' ' + ' '.join([str(item[0]) + separator + currit for currit in item[1]])
+                argstring += ' ' + ' '.join([str(item[0]) + separator + str(currit) for currit in item[1]])
             else:
                 argstring += ' ' + separator.join(map(str, item))
     elif type(args) == str:
