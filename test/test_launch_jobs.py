@@ -26,3 +26,7 @@ def test_args2string():
     expectedargs = ' arg1=5 arg2=content arg3=1 arg3=2 arg3=3 '
 
     assert args2string(indict) == expectedargs
+
+
+# test status of local tasks
+def test_status():

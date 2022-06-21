@@ -61,6 +61,6 @@ def test_paths():
     ]
 
     for dir_var in dirlist:
-        exec('thisdir = params.' + dir_var)
+        thisdir = getattr(params,dir_var)
         print(thisdir)
         assert os.path.exists(thisdir)
