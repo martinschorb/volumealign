@@ -18,12 +18,14 @@ for target in params.remote_logins.keys():
     if target not in remote_targets:
         remote_targets.append(target)
 
+
 # test availability of remote hosts
 def test_remote():
     for target in remote_targets:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-        ssh.connect(target, username=remote_user(target),timeout=5)
+        ssh.connect(target, username=remote_user(target), timeout=5)
+
 
 # check existence of environment on desired targets
 def test_conda_envs():
@@ -36,10 +38,28 @@ def test_conda_envs():
         else:
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target, username=remote_user(target),timeout=5)
+            ssh.connect(target, username=remote_user(target), timeout=5)
 
             stdin, stdout, stderr = ssh.exec_command(command)
 
             result = ''.join(stdout.readlines())
 
-        assert '\n' + params.render_envname + ' '*4 in result
+        assert '\n' + params.render_envname + ' ' * 4 in result
+
+
+# check existence of relevant paths
+def test_paths():
+    dirlist = [
+        'base_dir',
+        'render_dir',
+        'conda_dir',
+        'render_log_dir',
+        'rendermodules_dir',
+        'asap_dir',
+        'spark_dir'
+    ]
+
+    for dir_var in dirlist:
+        exec('thisdir = params.' + dir_var)
+        print(thisdir)
+        assert os.path.exists(thisdir)

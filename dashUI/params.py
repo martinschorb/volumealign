@@ -23,14 +23,15 @@ conda_dir = '/g/emcf/software/python/miniconda'
 render_log_dir = '/g/emcf/software/render-logs'
 
 rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rmaddons'
+
 asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
 
 spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 
-# derived base directories for launchers etc...
+# derived directories for launchers etc...
 # you can point these to other targets if desired
 
-workdir = os.path.join(base_dir, 'dash')
+workdir = os.path.join(base_dir, 'dashUI')
 
 launch_dir = os.path.join(base_dir, 'launchers')
 
