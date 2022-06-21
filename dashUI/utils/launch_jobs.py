@@ -10,7 +10,7 @@ import os
 import subprocess
 
 import dash
-import params
+from dashUI import params
 import time
 import datetime
 import psutil
@@ -414,6 +414,9 @@ def find_activejob(run_state):
     :param dict run_state: multi-task run_state dictionary with sequential tasks
     :return: single JobID, path to associated log file
     """
+
+    if 'seq' not in run_state['id'].keys():
+        raise TypeError('Jobs need to be sequential!')
 
     for idx, job in enumerate(run_state['id']['seq']):
         thisstate = run_state.copy()

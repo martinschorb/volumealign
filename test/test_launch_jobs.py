@@ -7,6 +7,10 @@ import os
 import pytest
 from dashUI.utils.launch_jobs import *
 
+run_state0 = dict(status='',
+                  type='standalone',
+                  logfile='log.log',
+                  id=0)
 
 # test conversion of argstrings
 def test_args2string():
@@ -29,4 +33,16 @@ def test_args2string():
 
 
 # test status of local tasks
-def test_status():
+def test_find_activejob():
+
+    rs1 = dict(run_state0)
+    rs1['id'] = {'par':[1,2,3,4]}
+    rs1['status'] = ['done','running','done','pending']
+
+    # check for sequential jobs
+    with pytest.raises(TypeError):
+        find_activejob(rs1)
+
+
+
+
