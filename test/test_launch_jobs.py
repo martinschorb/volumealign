@@ -60,17 +60,27 @@ def test_run():
         if not 'spark' in target:
             # check wrong script
             rs1['status'] = 'launch'
-            rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
+            rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render_wrongscript.log')
             rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'], target=target)
             time.sleep(5)
+
+            while status(rs1)[0] == 'pending':
+                print('Wait for test job to start on ' + computeoption['label'] + '.')
+                time.sleep(10)
 
             assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
 
             # check successful run of test script
             rs1['status'] = 'launch'
-            rs1['id'] = run(target=target)
+            rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render_run.log')
+            rs1['id'] = run(logfile=rs1['logfile'], target=target)
 
             time.sleep(5)
+
+            while status(rs1)[0] == 'pending':
+                print('Wait for test job to start on ' + computeoption['label'] + '.')
+                time.sleep(10)
+
             assert status(rs1)[0] == 'running'
 
             time.sleep(35)
