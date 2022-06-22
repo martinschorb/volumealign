@@ -50,25 +50,27 @@ def test_run():
 
     # check all available target types
     for computeoption in params.comp_options:
+
         target = computeoption['value']
 
-        # check wrong script
-        rs1['status'] = 'launch'
-        rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
-        rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'], target=target)
-        time.sleep(5)
+        if not 'spark' in target:
+            # check wrong script
+            rs1['status'] = 'launch'
+            rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
+            rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'], target=target)
+            time.sleep(5)
 
-        assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
+            assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
 
-        # check successful run of test script
-        rs1['status'] = 'launch'
-        rs1['id'] = run(target=target)
+            # check successful run of test script
+            rs1['status'] = 'launch'
+            rs1['id'] = run(target=target)
 
-        time.sleep(5)
-        assert status(rs1)[0] == 'running'
+            time.sleep(5)
+            assert status(rs1)[0] == 'running'
 
-        time.sleep(35)
-        assert status(rs1)[0] == 'done'
+            time.sleep(35)
+            assert status(rs1)[0] == 'done'
 
 
 # test status of local tasks
