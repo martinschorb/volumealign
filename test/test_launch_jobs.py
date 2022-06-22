@@ -55,6 +55,8 @@ def test_run():
 
         print('Testing ' + computeoption['label'] + '.')
 
+        rs1['type'] = computeoption
+
         if not 'spark' in target:
             # check wrong script
             rs1['status'] = 'launch'
