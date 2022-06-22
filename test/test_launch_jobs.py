@@ -13,6 +13,7 @@ run_state0 = dict(status='',
                   logfile='log.log',
                   id=0)
 
+
 # test conversion of argstrings
 def test_args2string():
     # test Type Error
@@ -39,12 +40,6 @@ def test_run():
 
     rs1 = dict(run_state0)
 
-    # check wrong script
-    rs1['status'] = 'launch'
-    rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
-    rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'])
-    time.sleep(5)
-
     # check wrong compute target type
     with pytest.raises(TypeError):
         run(target=123)
@@ -53,31 +48,33 @@ def test_run():
     with pytest.raises(NotImplementedError):
         run(target='somefancycloud')
 
+    # check all available target types
+    for computeoption in params.comp_options:
+        target = computeoption['value']
 
-    # check successful run of test script
-    rs1['id'] = run()
-    rs1['status'] = 'launch'
+        # check wrong script
+        rs1['status'] = 'launch'
+        rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
+        rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'], target=target)
+        time.sleep(5)
 
-    time.sleep(5)
-    assert status(rs1)[0] == 'running'
+        assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
 
-    time.sleep(35)
-    assert status(rs1)[0] == 'done'
+        # check successful run of test script
+        rs1['status'] = 'launch'
+        rs1['id'] = run(target=target)
 
+        time.sleep(5)
+        assert status(rs1)[0] == 'running'
 
-
-    assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
-
-
-
-    # check wrong ID type
+        time.sleep(35)
+        assert status(rs1)[0] == 'done'
 
 
 # test status of local tasks
 def test_find_activejob():
-
     rs1 = dict(run_state0)
-    rs1['id'] = {'par':[1,2,3,4]}
+    rs1['id'] = {'par': [1, 2, 3, 4]}
     rs1['status'] = 'launch'
 
     # check for sequential jobs
@@ -85,8 +82,3 @@ def test_find_activejob():
         find_activejob(rs1)
 
     rs1['id'] = run()
-
-
-
-
-
