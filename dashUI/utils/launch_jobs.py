@@ -73,6 +73,7 @@ def status(run_state):
     :return: string describing the global processing status and link to status page if available
     :rtype: (str, str)
     """
+    run_state = dict(run_state)
 
     (res_status, link), logfile, jobs = checkstatus(run_state)
 
@@ -170,7 +171,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        elif not list(j_id.keys())[0] in params.remote_compute:
+        elif not 'localhost' in j_id.keys() and not list(j_id.keys())[0] in params.remote_compute:
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
@@ -183,7 +184,7 @@ def checkstatus(run_state):
     elif type(j_id) is str:
         runvars = [j_id]
 
-    if run_state['type'] in ['standalone', 'generic']:
+    if run_state['type'] in ['standalone', 'generic', 'localhost']:
         if run_state['status'] in ['running', 'launch']:
             for runvar in runvars:
                 if type(runvar) is dict:
@@ -192,7 +193,7 @@ def checkstatus(run_state):
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
                     remotehost = list(runvar.keys())[0]
-                    ssh.connect(remotehost, username=remote_user(remotehost))
+                    ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
 
                     command = 'ps aux | grep "' + params.user + ' *' + str(runvar[remotehost]) + ' "'
 
@@ -589,7 +590,7 @@ def run(target='standalone',
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
             ssh.connect(target, username=remote_user(target), timeout=10)
 
-            command = "'echo $$ && " + command + "'"
+            command = "echo $$ && " + command
 
             stdin, stdout, stderr = ssh.exec_command(command)
 
