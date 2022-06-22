@@ -55,7 +55,7 @@ def test_run():
 
         print('Testing ' + computeoption['label'] + '.')
 
-        rs1['type'] = computeoption
+        rs1['type'] = target
 
         if not 'spark' in target:
             # check wrong script
