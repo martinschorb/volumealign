@@ -38,6 +38,23 @@ def test_run():
     # run launcher test
 
     rs1 = dict(run_state0)
+
+    # check wrong script
+    rs1['status'] = 'launch'
+    rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
+    rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'])
+    time.sleep(5)
+
+    # check wrong compute target type
+    with pytest.raises(TypeError):
+        run(target=123)
+
+    # check target not implemented
+    with pytest.raises(NotImplementedError):
+        run(target='somefancycloud')
+
+
+    # check successful run of test script
     rs1['id'] = run()
     rs1['status'] = 'launch'
 
@@ -47,13 +64,13 @@ def test_run():
     time.sleep(35)
     assert status(rs1)[0] == 'done'
 
-    # check wrong script
-    rs1['status'] = 'launch'
-    rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render.log')
-    rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist',logfile=rs1['logfile'])
-    time.sleep(5)
+
+
     assert status(rs1)[0] == 'Error while excecuting ' + str(rs1['id']) + '.'
 
+
+
+    # check wrong ID type
 
 
 # test status of local tasks

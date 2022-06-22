@@ -129,7 +129,7 @@ def checkstatus(run_state):
 
     jobs = j_id
 
-    if type(j_id) == dict:
+    if type(j_id) is dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
             jobs = runvars
@@ -173,8 +173,17 @@ def checkstatus(run_state):
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
-    if type(j_id) is list:
+    elif type(j_id) is list:
         runvars = j_id
+
+    elif type(j_id) is int:
+        runvars = [j_id]
+
+    elif type(j_id) is str:
+        runvars = [j_id]
+
+
+
 
     if run_state['type'] in ['standalone', 'generic']:
         if run_state['status'] in ['running', 'launch']:
@@ -201,7 +210,7 @@ def checkstatus(run_state):
                         outstat.append('launch')
                         continue
 
-                else:
+                elif type(runvar) is int:
                     if psutil.pid_exists(runvar):
 
                         p = psutil.Process(runvar)
@@ -210,6 +219,8 @@ def checkstatus(run_state):
                             if not p.status() == 'zombie':
                                 outstat.append('running')
                                 continue
+                else:
+                    raise TypeError('JOB ID for standalone jobs needs to be dict (host:id) or int for local call.')
 
                 if os.path.exists(run_state['logfile'] + '_exit'):
                     outstat.append('error')
@@ -536,6 +547,9 @@ def run(target='standalone',
 
         return {'par': outids}
 
+    # check target format
+    if type(target) is not str: raise TypeError('Target needs to be string.')
+
     my_env = os.environ.copy()
 
     logbase = os.path.splitext(os.path.basename(logfile))[0]
@@ -559,7 +573,8 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target == 'standalone' or target in params.remote_compute:
+
+    if target in ['standalone','testremote'] or target in params.remote_compute:
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message', 'echo "Launching Render standalone processing script on " `hostname`')
@@ -723,6 +738,9 @@ def run(target='standalone',
 
             jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
         return jobid
+
+    else:
+        raise NotImplementedError('This compute format is not (yet) implemented.')
 
 
 def remote_user(remotehost):
