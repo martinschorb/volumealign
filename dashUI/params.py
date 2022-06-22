@@ -5,6 +5,7 @@
 
 import json
 import os
+import getpass
 import glob
 import subprocess
 import requests
@@ -45,7 +46,7 @@ json_match_dir = os.path.join(base_dir, 'JSON_parameters', 'MatchTrials')
 # defined at the end!
 
 # notification and documentation
-user = os.getlogin()
+user = getpass.getuser()
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
