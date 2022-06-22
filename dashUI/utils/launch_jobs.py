@@ -149,7 +149,8 @@ def checkstatus(run_state):
 
                 if 'done' in checkstatus(newrunstate)[0][0]:
                     if 'logfile' not in runjob.keys():
-                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) + os.path.splitext(logfile)[-1]
+                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) \
+                                            + os.path.splitext(logfile)[-1]
 
                     # start next job with these parameters
 
@@ -181,9 +182,6 @@ def checkstatus(run_state):
 
     elif type(j_id) is str:
         runvars = [j_id]
-
-
-
 
     if run_state['type'] in ['standalone', 'generic']:
         if run_state['status'] in ['running', 'launch']:
@@ -548,14 +546,16 @@ def run(target='standalone',
         return {'par': outids}
 
     # check target format
-    if type(target) is not str: raise TypeError('Target needs to be string.')
+    if type(target) is not str:
+        raise TypeError('Target needs to be string.')
 
     my_env = os.environ.copy()
 
     logbase = os.path.splitext(os.path.basename(logfile))[0]
     logdir = os.path.dirname(logfile)
 
-    if errfile == '': errfile = os.path.join(logdir,logbase + '.err')
+    if errfile == '':
+        errfile = os.path.join(logdir, logbase + '.err')
 
     runscriptfile = os.path.join(logdir, logbase + '.sh')
 
@@ -573,8 +573,7 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-
-    if target in ['standalone','testremote'] or target in params.remote_compute:
+    if target in ['standalone', 'localhost'] or target in params.remote_compute:
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message', 'echo "Launching Render standalone processing script on " `hostname`')
@@ -585,10 +584,10 @@ def run(target='standalone',
 
         print(command)
 
-        if target in params.remote_compute:
+        if target in params.remote_compute or target == 'localhost':
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target, username=remote_user(target))
+            ssh.connect(target, username=remote_user(target), timeout=10)
 
             command = "'echo $$ && " + command + "'"
 
@@ -720,7 +719,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost, username=remote_user(remotehost))
+            ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
 
             stdin, stdout, stderr = ssh.exec_command(command)
             time.sleep(3)

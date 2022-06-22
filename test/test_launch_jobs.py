@@ -48,8 +48,11 @@ def test_run():
     with pytest.raises(NotImplementedError):
         run(target='somefancycloud')
 
+    c_options = params.comp_options
+    c_options.append({'label':'Dummy remote launch and status.','value':'localhost'})
+
     # check all available target types
-    for computeoption in params.comp_options:
+    for computeoption in c_options:
 
         target = computeoption['value']
 
