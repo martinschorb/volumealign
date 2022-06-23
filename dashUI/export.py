@@ -120,6 +120,12 @@ page.append(pathbrowse)
                ]
               )
 def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, browsedir):
+    if not dash.callback_context.triggered:
+        raise PreventUpdate
+
+    if None in [stack_sel, owner, project, allstacks, browsedir]:
+        raise PreventUpdate
+
     dir_out = browsedir
     trigger = hf.trigger()
 

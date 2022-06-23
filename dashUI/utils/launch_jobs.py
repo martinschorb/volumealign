@@ -10,6 +10,7 @@ import os
 import subprocess
 
 import dash
+
 import params
 import time
 import datetime
@@ -20,7 +21,11 @@ import requests
 
 def args2string(args, separator='='):
     """
-    Converts arguments as list or dict into a tring to be issued on CLI
+    Converts arguments as list or dict into a string to be issued on CLI.
+    If a keyword argument contains a list, it will be issued multiple times.
+    {'arg: [1,2,3]} -> ' arg=1 arg=2 arg=3 '
+    This is according to what some Render CL scripts expect when defining
+    multiple input files.
 
     :param args: list, dict or str of command line arguments
     :param str separator: char to separate/link arguments
@@ -31,12 +36,12 @@ def args2string(args, separator='='):
     if args is None:
         argstring = ''
     elif type(args) == list:
-        argstring = " ".join(map(str, args))
+        argstring = ' ' + " ".join(map(str, args))
     elif type(args) == dict:
         argstring = str()
         for item in args.items():
             if type(item[1]) is list:
-                argstring += ' ' + ' '.join([str(item[0]) + separator + currit for currit in item[1]])
+                argstring += ' ' + ' '.join([str(item[0]) + separator + str(currit) for currit in item[1]])
             else:
                 argstring += ' ' + separator.join(map(str, item))
     elif type(args) == str:
@@ -69,6 +74,7 @@ def status(run_state):
     :return: string describing the global processing status and link to status page if available
     :rtype: (str, str)
     """
+    run_state = dict(run_state)
 
     (res_status, link), logfile, jobs = checkstatus(run_state)
 
@@ -125,7 +131,7 @@ def checkstatus(run_state):
 
     jobs = j_id
 
-    if type(j_id) == dict:
+    if type(j_id) is dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
             jobs = runvars
@@ -145,7 +151,8 @@ def checkstatus(run_state):
 
                 if 'done' in checkstatus(newrunstate)[0][0]:
                     if 'logfile' not in runjob.keys():
-                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) + os.path.splitext(logfile)[-1]
+                        runjob['logfile'] = os.path.splitext(logfile)[0] + '_' + str(idx) \
+                                            + os.path.splitext(logfile)[-1]
 
                     # start next job with these parameters
 
@@ -165,14 +172,20 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        elif not list(j_id.keys())[0] in params.remote_compute:
+        elif not 'localhost' in j_id.keys() and not list(j_id.keys())[0] in params.remote_compute:
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
-    if type(j_id) is list:
+    elif type(j_id) is list:
         runvars = j_id
 
-    if run_state['type'] in ['standalone', 'generic']:
+    elif type(j_id) is int:
+        runvars = [j_id]
+
+    elif type(j_id) is str:
+        runvars = [j_id]
+
+    if run_state['type'] in ['standalone', 'generic', 'localhost']:
         if run_state['status'] in ['running', 'launch']:
             for runvar in runvars:
                 if type(runvar) is dict:
@@ -181,7 +194,7 @@ def checkstatus(run_state):
                     ssh = paramiko.SSHClient()
                     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
                     remotehost = list(runvar.keys())[0]
-                    ssh.connect(remotehost, username=remote_user(remotehost))
+                    ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
 
                     command = 'ps aux | grep "' + params.user + ' *' + str(runvar[remotehost]) + ' "'
 
@@ -197,7 +210,7 @@ def checkstatus(run_state):
                         outstat.append('launch')
                         continue
 
-                else:
+                elif type(runvar) is int:
                     if psutil.pid_exists(runvar):
 
                         p = psutil.Process(runvar)
@@ -206,6 +219,8 @@ def checkstatus(run_state):
                             if not p.status() == 'zombie':
                                 outstat.append('running')
                                 continue
+                else:
+                    raise TypeError('JOB ID for standalone jobs needs to be dict (host:id) or int for local call.')
 
                 if os.path.exists(run_state['logfile'] + '_exit'):
                     outstat.append('error')
@@ -411,6 +426,9 @@ def find_activejob(run_state):
     :return: single JobID, path to associated log file
     """
 
+    if 'seq' not in run_state['id'].keys():
+        raise TypeError('Jobs need to be sequential!')
+
     for idx, job in enumerate(run_state['id']['seq']):
         thisstate = run_state.copy()
         thisstate['id'] = job
@@ -477,8 +495,8 @@ def run(target='standalone',
         run_args='',
         target_args=None,
         special_args=None,
-        logfile=os.path.join(params.render_log_dir, 'render.out'),
-        errfile=os.path.join(params.render_log_dir, 'render.err'),
+        logfile=os.path.join(params.render_log_dir, 'render.log'),
+        errfile='',
         inputs={}):
     """
     Launcher of a processing task.
@@ -529,10 +547,17 @@ def run(target='standalone',
 
         return {'par': outids}
 
+    # check target format
+    if type(target) is not str:
+        raise TypeError('Target needs to be string.')
+
     my_env = os.environ.copy()
 
-    logbase = os.path.basename(logfile).split('.log')[0]
+    logbase = os.path.splitext(os.path.basename(logfile))[0]
     logdir = os.path.dirname(logfile)
+
+    if errfile == '':
+        errfile = os.path.join(logdir, logbase + '.err')
 
     runscriptfile = os.path.join(logdir, logbase + '.sh')
 
@@ -550,7 +575,7 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target == 'standalone' or target in params.remote_compute:
+    if target in ['standalone', 'localhost'] or target in params.remote_compute:
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message', 'echo "Launching Render standalone processing script on " `hostname`')
@@ -561,12 +586,12 @@ def run(target='standalone',
 
         print(command)
 
-        if target in params.remote_compute:
+        if target in params.remote_compute or target == 'localhost':
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target, username=remote_user(target))
+            ssh.connect(target, username=remote_user(target), timeout=10)
 
-            command = "'echo $$ && " + command + "'"
+            command = "echo $$ && " + command
 
             stdin, stdout, stderr = ssh.exec_command(command)
 
@@ -696,7 +721,7 @@ def run(target='standalone',
 
             ssh = paramiko.SSHClient()
             ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost, username=remote_user(remotehost))
+            ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
 
             stdin, stdout, stderr = ssh.exec_command(command)
             time.sleep(3)
@@ -714,6 +739,9 @@ def run(target='standalone',
 
             jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
         return jobid
+
+    else:
+        raise NotImplementedError('This compute format is not (yet) implemented.')
 
 
 def remote_user(remotehost):

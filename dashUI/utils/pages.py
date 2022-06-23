@@ -236,9 +236,11 @@ def match_selector(module, newcoll=False):
                               html.Br()
                               ], style=dict(display='flex')),
                     html.Div(id={'component': 'browse_mc_div', 'module': module},
-                             children=[html.A('Explore Match Collection',
+                             children=[html.Br(),
+                                       html.A('Explore Match Collection',
                                               id={'component': 'browse_mc', 'module': module},
                                               target="_blank", style={'margin-left': '0.5em', 'margin-right': '1em'}),
+                                       html.Br(), html.Br()
                                        ], style={'display': 'none'})
                     ])
 
@@ -299,7 +301,8 @@ def log_output(module, hidden=False):
                                        id={'component': "cancel", 'module': module},
                                        style={'display': 'none'}),
                            html.Div(id={'component': 'statuspage_div', 'module': module},
-                                    children=['Processing ',
+                                    children=[html.Br(), html.Br(),
+                                              'Processing ',
                                               html.A('status page',
                                                      id={'component': 'statuspage_link', 'module': module},
                                                      target="_blank")

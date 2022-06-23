@@ -5,6 +5,7 @@
 
 import json
 import os
+import getpass
 import glob
 import subprocess
 import requests
@@ -23,14 +24,15 @@ conda_dir = '/g/emcf/software/python/miniconda'
 render_log_dir = '/g/emcf/software/render-logs'
 
 rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rmaddons'
+
 asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
 
 spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 
-# derived base directories for launchers etc...
+# derived directories for launchers etc...
 # you can point these to other targets if desired
 
-workdir = os.path.join(base_dir, 'dash')
+workdir = os.path.join(base_dir, 'dashUI')
 
 launch_dir = os.path.join(base_dir, 'launchers')
 
@@ -44,7 +46,7 @@ json_match_dir = os.path.join(base_dir, 'JSON_parameters', 'MatchTrials')
 # defined at the end!
 
 # notification and documentation
-user = os.getlogin()
+user = getpass.getuser()
 email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
@@ -89,7 +91,7 @@ min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 time_add_buffer = 0.2  # time buffer for job submission (relative)
 
 n_cpu_script = 4
-mem_per_cpu = 2  # GB
+mem_per_cpu = 4  # GB
 n_jobs_default = 8
 
 # standalone
@@ -99,7 +101,7 @@ n_cpu_standalone = 8
 # spark
 
 n_cpu_spark = 200
-cpu_pernode_spark = 15
+cpu_pernode_spark = 10
 
 spark_port = '8080'
 spark_job_port = '4040'

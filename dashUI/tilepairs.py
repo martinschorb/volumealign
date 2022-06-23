@@ -85,6 +85,13 @@ page.append(pages.substack_sel(module))
               Input({'component': 'pairmode', 'module': module}, 'value'),
               prevent_initial_call=True)
 def tilepairs_3D_status(pairmode):
+    """
+    Toggles visibility of the 3D parameter selectors.
+
+    :param str pairmode: The choice of mode dimensionality. "sec_input1"
+    :return: CSS display mode
+    :rtype: dict
+    """
     if pairmode == '2D':
         style = {'display': 'none'}
         val = 0

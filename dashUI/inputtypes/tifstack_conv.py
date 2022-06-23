@@ -29,7 +29,7 @@ from callbacks import filebrowse, render_selector
 # element prefix
 parent = "convert"
 
-label = parent + "_SerialEM"
+label = parent + "_tifstack"
 
 # SELECT input directory
 
@@ -44,16 +44,18 @@ store = pages.init_store({}, label)
 
 # Pick source directory
 
+# Pick source directory
 
-directory_sel = html.Div(children=[html.H4("Select dataset metadata file (*.idoc):"),
-                                   # html.Script(type="text/javascript",children="alert('test')"),                                   
+
+directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
+                                   # html.Script(type="text/javascript",children="alert('test')"),
                                    dcc.Input(id={'component': 'path_input', 'module': label}, type="text",
                                              debounce=True,
                                              value=params.default_dir,
                                              persistence=True, className='dir_textinput')
                                    ])
 
-pathbrowse = pages.path_browse(label, show_files=True, file_types='idoc')
+pathbrowse = pages.path_browse(label)
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
@@ -67,7 +69,7 @@ us_out, us_in, us_state = render_selector.init_update_store(label, parent, comp_
 
 
 @app.callback(us_out, us_in, us_state)
-def serialem_conv_update_store(*args):
+def tifstack_conv_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
 
@@ -153,7 +155,7 @@ page2.append(collapse_stdout)
                State({'component': 'store_run_status', 'module': label}, 'data'),
                State({'component': 'store_render_launch', 'module': label}, 'data')],
               prevent_initial_call=True)
-def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
+def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
@@ -163,7 +165,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
 
     # outstore = dash.no_update
     outstore = dict()
-    outstore['owner'] = 'SerialEM'
+    outstore['owner'] = 'FIBSEM'
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
 

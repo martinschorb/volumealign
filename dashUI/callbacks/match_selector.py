@@ -163,15 +163,18 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
 @app.callback([Output({'component': 'new_matchcoll', 'module': MATCH}, 'style'),
                Output({'component': 'browse_mc_div', 'module': MATCH}, 'style'),
                Output({'component': 'browse_mc', 'module': MATCH}, 'href')],
-              Input({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
+              [Input({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
+               Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
               [State({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
-               State({'component': 'store_owner', 'module': MATCH}, 'data'),
-               State({'component': 'store_project', 'module': MATCH}, 'data'),
-               State({'component': 'stack_dd', 'module': MATCH}, 'value'),
+               State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               State({'component': 'project_dd', 'module': MATCH}, 'value'),
                State({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
-def new_matchcoll(mc_sel, mc_owner, owner, project, stack, all_mcs):
+def new_matchcoll(mc_sel, stack, mc_owner, owner, project, all_mcs):
     if not dash.callback_context.triggered:
+        raise PreventUpdate
+
+    if None in [mc_sel, stack, mc_owner, owner, project, all_mcs]:
         raise PreventUpdate
 
     if stack is None:
