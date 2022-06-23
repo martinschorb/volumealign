@@ -91,7 +91,7 @@ min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 time_add_buffer = 0.2  # time buffer for job submission (relative)
 
 n_cpu_script = 4
-mem_per_cpu = 6  # GB
+mem_per_cpu = 4  # GB
 n_jobs_default = 8
 
 # standalone
@@ -101,7 +101,7 @@ n_cpu_standalone = 8
 # spark
 
 n_cpu_spark = 200
-cpu_pernode_spark = 15
+cpu_pernode_spark = 10
 
 spark_port = '8080'
 spark_job_port = '4040'
