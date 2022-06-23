@@ -417,6 +417,9 @@ for idx in range(params.max_tileviews):
 
         url += '/z/' + str(section)
 
+        if 'imurl' not in imparams.keys():
+            imurl = url + '/jpeg-image?scale=' + scale
+
         if 'zoom' in trigger:
             if rectsel == {}:
                 raise PreventUpdate
@@ -444,7 +447,7 @@ for idx in range(params.max_tileviews):
             imurl = imparams['imurl']
 
         elif 'section' in trigger:
-            imurl = re.sub('/z/[0-9]*', '/z/' + str(section), imparams['imurl'])
+            imurl = re.sub('/z/[0-9]*', '/z/' + str(section), imurl)
 
         else:
             fullbounds = thisstore['stackparams']['stats']['stackBounds']
