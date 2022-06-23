@@ -27,7 +27,7 @@ module = 'convert'
 inputtypes = [
     {'label': 'SBEMImage', 'value': 'SBEM'},
     {'label': 'SerialEM Montage', 'value': 'SerialEM'},
-    {'label': 'Image stack - FIB/SEM', 'value': 'FIBSEM'},
+    {'label': 'Image stack - FIB/SEM', 'value': 'tifstack'},
 ]
 
 inputmodules = [
