@@ -299,7 +299,7 @@ def log_output(module, hidden=False):
                                        id={'component': "cancel", 'module': module},
                                        style={'display': 'none'}),
                            html.Div(id={'component': 'statuspage_div', 'module': module},
-                                    children=[html.Br(),html.Br(),
+                                    children=[html.Br(), html.Br(),
                                               'Processing ',
                                               html.A('status page',
                                                      id={'component': 'statuspage_link', 'module': module},
