@@ -10,7 +10,8 @@ import os
 import subprocess
 
 import dash
-from dashUI import params
+
+import params
 import time
 import datetime
 import psutil
