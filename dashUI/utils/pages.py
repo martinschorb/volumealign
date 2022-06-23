@@ -236,9 +236,11 @@ def match_selector(module, newcoll=False):
                               html.Br()
                               ], style=dict(display='flex')),
                     html.Div(id={'component': 'browse_mc_div', 'module': module},
-                             children=[html.A('Explore Match Collection',
+                             children=[html.Br(),
+                                       html.A('Explore Match Collection',
                                               id={'component': 'browse_mc', 'module': module},
                                               target="_blank", style={'margin-left': '0.5em', 'margin-right': '1em'}),
+                                       html.Br()
                                        ], style={'display': 'none'})
                     ])
 
