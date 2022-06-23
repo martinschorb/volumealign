@@ -164,11 +164,10 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
                Output({'component': 'browse_mc_div', 'module': MATCH}, 'style'),
                Output({'component': 'browse_mc', 'module': MATCH}, 'href')],
               [Input({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'stack_dd', 'module': MATCH}, 'value')]
+               Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
               [State({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
                State({'component': 'owner_dd', 'module': MATCH}, 'value'),
                State({'component': 'project_dd', 'module': MATCH}, 'value'),
-
                State({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
 def new_matchcoll(mc_sel, stack, mc_owner, owner, project, all_mcs):
