@@ -54,8 +54,9 @@ def new_matchtrial(matchID, urls, clippos='LEFT', owner=params.mt_owner, ):
     matchtrial['stats'] = {}
 
     if clippos == 'NO CLIP':
-        matchtrial['parameters']['featureAndMatchParameters'].pop('pClipPosition')
-        matchtrial['parameters']['featureAndMatchParameters'].pop('clipPixels')
+        if 'pClipPosition' in matchtrial['parameters']['featureAndMatchParameters'].keys():
+            matchtrial['parameters']['featureAndMatchParameters'].pop('pClipPosition')
+            matchtrial['parameters']['featureAndMatchParameters'].pop('clipPixels')
 
     else:
         matchtrial['parameters']['featureAndMatchParameters']['pClipPosition'] = clippos
