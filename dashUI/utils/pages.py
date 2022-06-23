@@ -240,7 +240,7 @@ def match_selector(module, newcoll=False):
                                        html.A('Explore Match Collection',
                                               id={'component': 'browse_mc', 'module': module},
                                               target="_blank", style={'margin-left': '0.5em', 'margin-right': '1em'}),
-                                       html.Br()
+                                       html.Br(), html.Br()
                                        ], style={'display': 'none'})
                     ])
 

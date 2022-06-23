@@ -174,6 +174,9 @@ def new_matchcoll(mc_sel, stack, mc_owner, owner, project, all_mcs):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
+    if None in [mc_sel, stack, mc_owner, owner, project, all_mcs]:
+        raise PreventUpdate
+
     if stack is None:
         stack = ''
 
