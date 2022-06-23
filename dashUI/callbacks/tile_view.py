@@ -522,8 +522,6 @@ for idx in range(params.max_tileviews):
 
         outdims = dict()
         scale = imparams['scale']
-        print('p2outerlims')
-        print(imparams)
 
         for dim in ['X', 'Y']:
             # adjust rectangle position in case slice does not cover full volume bounds
