@@ -59,6 +59,27 @@ pathbrowse = pages.path_browse(label)
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
+
+voxsz = html.Div(children=[html.H4("Resolution values"),
+                           "x/y (isotropic): ",
+                           dcc.Input(id={'component': 'xy_px_input', 'module': label}, type="number",
+                                     debounce=True,
+                                     value=10.0,
+                                     persistence=True),
+                           " nm",
+                           html.Br(),html.Br(),
+                            "z (milling step): ",
+                           dcc.Input(id={'component': 'z_px_input', 'module': label}, type="number",
+                                     debounce=True,
+                                     value=10.0,
+                                     persistence=True),
+                           " nm",
+                           ]
+                 )
+
+page1.append(voxsz)
+
+
 # # ===============================================
 #  RENDER STACK SELECTOR
 
@@ -152,10 +173,12 @@ page2.append(collapse_stdout)
                ],
               [State({'component': 'project_dd', 'module': label}, 'value'),
                State(label + 'compute_sel', 'value'),
+               State({'component': 'xy_px_input', 'module': label}, 'value'),
+               State({'component': 'z_px_input', 'module': label}, 'value'),
                State({'component': 'store_run_status', 'module': label}, 'data'),
                State({'component': 'store_render_launch', 'module': label}, 'data')],
               prevent_initial_call=True)
-def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
+def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs, zwidth, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
@@ -186,6 +209,12 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
 
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
+
+        vox_sz = [pxs/1000] * 2
+        vox_sz.append(zwidth/1000)
+
+        run_params['pxs'] = vox_sz
+
 
         with open(param_file, 'w') as f:
             json.dump(run_params, f, indent=4)
