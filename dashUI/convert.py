@@ -27,13 +27,13 @@ module = 'convert'
 inputtypes = [
     {'label': 'SBEMImage', 'value': 'SBEM'},
     {'label': 'SerialEM Montage', 'value': 'SerialEM'},
-    # {'label': 'Image stack - FIB/SEM', 'value': 'FIBSEM'},
+    {'label': 'Image stack - FIB/SEM', 'value': 'FIBSEM'},
 ]
 
 inputmodules = [
     'inputtypes.sbem_conv',
     'inputtypes.serialem_conv',
-    # 'inputtypes.tifstack_conv'
+    'inputtypes.tifstack_conv'
 ]
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:", id='conv_head'),

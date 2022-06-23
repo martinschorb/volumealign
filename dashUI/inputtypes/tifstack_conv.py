@@ -184,27 +184,27 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         with open(os.path.join(params.json_template_dir, 'SBEMImage_importer.json'), 'r') as f:
             run_params.update(json.load(f))
 
-        run_params['image_file'] = in_dir
+        run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
 
         with open(param_file, 'w') as f:
             json.dump(run_params, f, indent=4)
 
-        log_file = params.render_log_dir + '/' + 'serialem_conv_' + run_prefix
+        log_file = params.render_log_dir + '/' + 'tifstack_conv_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
 
         # launch
         # -----------------------
 
-        sbem_conv_p = launch_jobs.run(target=compute_sel,
+        tif_conv_p = launch_jobs.run(target=compute_sel,
                                       pyscript=params.rendermodules_dir +
-                                               '/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
+                                               '/dataimport/generate_EM_tilespecs_from_TIFStack.py',
                                       jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
 
         run_state['status'] = 'running'
-        run_state['id'] = sbem_conv_p
-        run_state['type'] = launch_jobs.runtype(comp_sel)
+        run_state['id'] = tif_conv_p
+        run_state['type'] = launch_jobs.runtype(compute_sel)
         run_state['logfile'] = log_file
 
     else:
@@ -220,7 +220,7 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
             run_state['status'] = 'wait'
             popup = 'Wrong characters in input directory path. Please fix!'
 
-        elif os.path.isfile(in_dir):
+        elif os.path.isdir(in_dir):
             # print(in_dir)
             if any([stack_sel == 'newstack', proj_dd_sel == 'newproj']):
                 if not (run_state['status'] == 'running'):
