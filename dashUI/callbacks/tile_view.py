@@ -71,6 +71,8 @@ for idx in range(params.max_tileviews):
 
             ol = dash.callback_context.outputs_list
 
+            thisimtype = tileim_idx = ol[0]['id']['component'].split('_')[0]
+
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
 
             if (not stack_sel == '-') and (allstacks is not None):
@@ -115,6 +117,9 @@ for idx in range(params.max_tileviews):
                     o_val = orig_sec
 
                 if o_min == o_max:
+                    slicestyle = {'display': 'none'}
+
+                if owner == 'FIBSEM' and thisimtype == 'tileim':
                     slicestyle = {'display': 'none'}
 
                 url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
