@@ -210,8 +210,8 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
 
-        vox_sz = [pxs/1000] * 2
-        vox_sz.append(zwidth/1000)
+        vox_sz = [pxs] * 2
+        vox_sz.append(zwidth)
 
         run_params['pxs'] = vox_sz
 
