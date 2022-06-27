@@ -102,7 +102,7 @@ page3 = html.Div(id={'component': 'page2', 'module': module}, children=[html.H4(
 
 page.append(page3)
 
-pathbrowse = pages.path_browse(module)
+pathbrowse = pages.path_browse(module, create=True)
 
 page.append(pathbrowse)
 
