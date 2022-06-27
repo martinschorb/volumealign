@@ -297,7 +297,7 @@ states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'
 states.append(State({'component': 'sliceim_section_in_0', 'module': parent}, 'value'))
 states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent}, 'value'))
 states.append(State({'component': 'scale_input', 'module': label}, 'value'))
-
+states.append(State({'component': 'newdir_sel', 'module': parent}, 'value'))
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                Output({'component': 'buttondiv', 'module': label}, 'children'),
@@ -316,7 +316,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                                  numjobs, timelim,
                                  comp_sel, owner, project,
                                  Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
-                                 sp_store, slice_in, c_limits, scale):
+                                 sp_store, slice_in, c_limits, scale,
+                                 newdir):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -464,7 +465,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         elif is_bad_filename(outdir):
             return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, outstore
 
-        if not os.access(outdir, os.W_OK | os.X_OK):
+        if newdir == [] and not os.access(outdir, os.W_OK | os.X_OK):
             return True, 'Output directory not writable!', dash.no_update, outstore
 
         else:
