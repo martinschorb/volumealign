@@ -59,10 +59,6 @@ while [ "$1" != "" ]; do
             WORKER_MEMPERCPU=$VALUE
             shift
             ;;
-        --runscript)
-            runscript=$VALUE
-            shift
-            ;;
         --logdir)
 	          LOGDIR=$VALUE
             shift
