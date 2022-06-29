@@ -1,8 +1,18 @@
 # Volume image alignment with Render
 
+This document explains the usage of the Web UI to run volume EM alignment workflows using the ["Render"](https://github.com/saalfeldlab/render) infrastructure.
+
 The design of the main window, where you control and run the alignment workflow is inspired by [IMOD's](https://bio3d.colorado.edu/imod/) [`etomo`](https://bio3d.colorado.edu/imod/doc/etomoTutorial.html) main window showing the sequential main steps of the procedure in the menu column on the left and all important parameter settings belonging to the current active steps in the main page.
 
+
+### caution ###
+    Do not use spaces or hash signs in the directory name
+
 ![startpage](img/webui_start.png "VolumeAlign WebUI startpage")
+
+At the bottom of each page, you will find a button to start the current task (that is disabled if information is missing). Below this button, you can select which compute resource you want to use (clicking the triangle expands the selection) and the status of the current run. Below is an expandable text box which displays the log file of the current processing run.
+
+![status](img/webui_status.png "VolumeAlign WebUI processing status")
 
 ## Data import - convert
 
@@ -16,12 +26,23 @@ This page contains the following elements:
 
 - The type-dependent import content (see below)
 
-- **select Render Project** and **select Render stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances.
+- **select target Stack:** select **Project** and **Stack:** Provide a Render project and stack name into which the metadata will be imported. **Create new Project** and **Create new Stack** define the names of new instances. If you use unsupported characters in your input, these will be automatically cleaned.
 
 ### SBEMImage
 
-- **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` subfolders.
+- **dataset root directory:** the directory path of the SBEMImage root directory. This is the one that contains the `tiles`, `overviews`, `workspace` and `meta` sub-folders.
 - **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
+
+### SerialEM Montage
+
+- **dataset metadata file:** the path of the `idoc` file for the SerialEM (Super)Montage.
+
+- **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
+
+### Image stack - FIB-SEM
+
+- **dataset root directory:** the directory path where the images are stored. They should be in aplphabetical order according to the layers.
+- **Resolution values:** the pixel sizes in `x/y` and the section spacing in `z` in nm.
 
 ## Generate Tile Pairs
 
@@ -46,16 +67,16 @@ This page contains the following elements:
 
 - **Type selector:** choose the type of image analysis algorithm to use for determining the point matches. The rest of the page will adapt accordingly.
 
-At the moment, only the SIFT client developed in Janelia that makes use of [Spark](https://en.wikipedia.org/wiki/Apache_Spark) for resource parallelisation is implemented.
+At the moment, only the SIFT client developed in Janelia that makes use of [Spark](https://en.wikipedia.org/wiki/Apache_Spark) for resource parallelization is implemented.
 
-- **Select Match Collection:** The results of the analysis will be stored in a database (independent from the stack database). You can store as many runs into the same collection, even if they comprise the same pairs. If you want to add matches to an existing collection, select one. Otherwise create a new one. The `Owner` should describe the nature and project of your dataset while the collection name would specify the stack and potentially some hint about the method(s) and parameters used for determining the matches.
+- **Select Match Collection:** The results of the analysis will be stored in a database (independent of the stack database). You can store as many runs into the same collection, even if they comprise the same pairs. If you want to add matches to an existing collection, select one. Otherwise, create a new one. The `Owner` should describe the nature and project of your dataset while the collection name would specify the stack and potentially some hint about the method(s) and parameters used for determining the matches.
 
 
 ### SIFT point matches
 
 Each SIFT run requires several sets of parameters that control the information features that are extracted from each image as well as the criteria to match them.
 
-Render provides a web interface where these parameters can be set and the the quality of the matches as well as their compute time can be estimated for a single representative tile pair.
+Render provides a web interface where these parameters can be set and the quality of the matches as well as their compute time can be estimated for a single representative tile pair.
 
 There is a small library of parameter templates available for several specimens. You can pick them from:
 
@@ -69,16 +90,21 @@ and
 
 There are also two **Tile Viewers** where you can browse the stack and identify two neighbouring tiles to be used for the match trial.
 
-If you click **Explore MatchTrial**, you will get to the Match Trial web interface. It will show the results of the template trial (the images might not be available).
+If you click **Explore MatchTrial**, the parameters will be used to match the two example tiles and the Match Trial web interface will open in a new browser tab. It will show the results of the trial using the template parameters and the selected tiles.
+
+If you are happy with the result, you can continue launching the procedure for all tiles. The TrialID will be automatically filled from this trial.
+
+#### if you need to adjust parameters because the matches are not good:
+
+Click **Create New Trial** at the top of the page. 
 
 ![matchtrial_template](img/match_trial_create.png "Render WebUI matchTrial")
 
-
-Click **Create New Trial** at the top of the page. This will open the Parameter editor with the parameters defined in the template.
+This will open the Parameter editor with the parameters defined in the template.
 
 ![matchtrial_params](img/match_trial_params.png "Render WebUI matchTrial Parameters")
 
-To make the tiles from the current stack available to this interface, you need to copy and paste the link that is shown above each tile view in the main UI into the two big text boxes at the bottom of the parameter interface.
+The tiles from the current stack should already be shown at the bottom of the page. If not, to make them available, you need to *copy and paste the link that is shown above each tile view* in the main UI into the two big text boxes at the bottom of the parameter interface.
 
 Make sure that their relative position (`2D`) is correct in the `Clip Parameters` section.
 
@@ -90,7 +116,7 @@ On the next page, you will see the results. At the bottom, the two tiles are sho
 
 You want to make sure that the Standard Deviation of the matches is within your expectations. This depends on the pixel size and section spacing. Something close to 1 pixel is acceptable.
 
-If the combined time of deriving features and matches is significantly higher than a few hundred ms (`2D`) or 2 seconds (`3D`), it might be worth working with lower resolution images. This decreases the accuracy of the matching but makes it faster.
+If the combined time of deriving features and matches is significantly higher than a few hundred ms (`2D`) or a few seconds (`3D`), it might be worth working with lower resolution images. This decreases the accuracy of the matching but makes it faster.
 
 To change the scaling, modify the last part of the two image URLs in the large text boxes (`scale`) and run the trial again.
 
@@ -105,14 +131,18 @@ If you are happy with the parameters, copy the long ID at the very end of the we
 ...?matchTrialId=xxxxxxxxxxxxxxxxxxxx
 ```
 
-There, paste it into the text box after **Use this Match Trial as compute parameters:**.
+There, ***paste it into the text box*** after **Use this Match Trial as compute parameters:**.
 
-These parameters will then be used for the search of all the tiles.
+#### Compute the matches for all tilepairs
+
+The parameters you just defined for the template tile pair will be used for all the tiles in the stack.
 
 With the known number of tile pairs and the estimated run time for each pair from the trial, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
 
+![comp_set](img/webui_comp_set.png "VolumeAlign WebUI pointmatch compute settings")
+
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
-You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
+You will receive an email once the computation starts (after allocation of the resources) and when it is done. It will tell you that the computation was `COMPLETED` if successful and give you error descriptions otherwise. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
 
 ## Solve Positions
 
@@ -146,22 +176,37 @@ You can export a Render stack at any time to disk ("materialize").
 
 ![export](img/webui_export_slice.png "VolumeAlign WebUI export")
 
-You can **explore slice** to determine the **volume region to consider**.
+You can **explore slice** to determine the **volume region to consider**. Just drag the rectangle on top of the image. If you click **Zoom In**, the viewer and region boundary will adapt to the selection. **Reset Zoom** will bring the viewer back to displaying ther entrire setcion.
 
-At the moment only `N5` is available as **output type**.
+At the moment, `N5` or `slice images` are available as **output type**.
 
-Pick the desired **output path** and the result will appear in a sub-directory `aligned` with the date and a reference to the stack.
-
-With the known number of tiles and the estimated run time for exporting a tile, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+It is highly recommended to use N5 (and BDV or MoBIE for visualization) for large volumes or 2D slices. The slice export option can be chosen to produce downscaled images for talks or movie visualizations.
 
 ![export](img/webui_export_computesettings.png "VolumeAlign WebUI export")
+
+#### N5
+
+Pick the desired **output path** and the result will appear in a subdirectory `aligned` with the date and a reference to the stack.
+
+Make sure that the contrast in the slice viewer fits your expectations of the final data. If not, adjust it. The output data intensity will be scaled accordingly.
+
+With the known number of tiles and the estimated run time for exporting a slice, the necessary compute resources for the stack are predicted and can be checked in **Compute settings**.
+
+
 
 Launching the computation will request the selected resources on the cluster and then launch a Spark instance on the allocated compute nodes that distributes and manages the parallel computation of the point matches.
 You will receive an email once the computation is done. It will tell you that the computation was `CANCELLED` but this only means that the resource allocation has been ended after successful computation of the matches. If you get a message referring to a `TIMEOUT`, you have to re-run the computation with more generous resource settings.
 
+#### slice images
+
+This will export your slice(s) into the desired **output file type** which can be either `jpg`,`png`or `tif`.
+
+You can use **Choose output scale** to select the downscaling factor you like your export to have. The dimensions of the output images are shown in the status table in **Compute Settings**. There you can also choose the number of CPUs to use for parallel export.
+
 ## Finalize output format
 
-Here you can finalize your data export and generate the necessary metadata file to view the volume in BigDataViewer or MoBIE.
-Currently only `BDV-XML` is supported as **post-processing target format**.
+Here you can finalize your data export (if `N5` was chosen for export) and generate the necessary metadata file to view the volume in BigDataViewer or MoBIE.
+- **BDV-XML:** This will create the `XML`file necessary to view the result in *BigDataViewer*
+- **MoBIE:** you can choose either an existing MoBIE project as output directory into which the aligned images will be added, or a new directory where the script will generate an entirely fresh MoBIE project.
 
-- **Choose exported volume:** This provides a list of already exported volumes. The files have to still reside in the original location on the storage system.
+- **Choose exported volume:** This provides a list of already exported volumes (in N5 format). The files have to still reside in the original location on the storage system.

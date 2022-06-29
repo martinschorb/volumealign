@@ -15,8 +15,7 @@ At EMBL, this is the graphical cluster node. This means, you can access it throu
 [Here](x2go.md) you can find details on how to set up this procedure.
 
 
+## How to use it
 
+Find out how to use it [here](usage.md).
 
-
-!!! caution
-    Do not use spaces or hash signs in the directory name

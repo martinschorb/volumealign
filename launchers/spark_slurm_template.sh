@@ -66,29 +66,29 @@ while [ "$1" != "" ]; do
     esac
 done
 
-if [ -z $JAVA_HOME]; then
-  export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/jdk*`
+
+if [ -z $JAVA_HOME ] ; then
+  export JAVA_HOME=`readlink -m $RENDER_DIR/deploy/*jdk*`
 fi
 
 # CLEAN LOGDIR
 shopt -s globstar
-rm -f $LOGDIR/**/worker/**/*.jar 2> /dev/null
+rm -f $LOGDIR/../**/worker/**/*.jar 2> /dev/null
 
 JOB="$SLURM_JOB_NAME-$SLURM_JOB_ID"
 export MASTER_URL="spark://$(hostname):7077"
-export MASTER_WEB="http://$(hostname):8080"
+export MASTER_HOST=`hostname`
+export MASTER_IP=`host $MASTER_HOST | sed 's/^.*address //'`
+export MASTER_WEB="http://$MASTER_IP:8080"
 
-CLASS="org.janelia.render.client.spark.SIFTPointMatchClient"
-JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-2.3.1-SNAPSHOT-standalone.jar"
-PARAMS="--baseDataUrl http://render.embl.de:8080/render-ws/v1 --owner SBEM"
-
+#JARFILE=$RENDER_DIR"/render-ws-spark-client/target/render-ws-spark-client-3.0.0-SNAPSHOT-standalone.jar"
 
 mkdir $LOGDIR
 mkdir $LOGDIR/$JOB
 
 # SET UP ENV for the spark run
 
-echo $MASTER_WEB > $LOGDIR/$JOB/master
+echo $MASTER_IP > $LOGDIR/$JOB/master
 
 export SPARK_LOG_DIR="$LOGDIR/$JOB/logs"
 export SPARK_WORKER_DIR="$LOGDIR/$JOB/worker"
@@ -129,4 +129,11 @@ sparksubmitcall="$SPARK_HOME/bin/spark-submit --master $MASTER_URL --driver-memo
 echo $sparksubmitcall
 $sparksubmitcall
 
-sleep infinity
+while [ ! -f $LOGDIR.log.done ]
+do
+  sleep 5s
+done
+
+#rm $LOGDIR.log.done
+
+#sleep infinity
