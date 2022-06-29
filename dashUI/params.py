@@ -73,6 +73,9 @@ remote_compute = []
 remote_logins = {'login.cluster.embl.de': user,
                  'pc-emcf-16.embl.de': 'testuser'}
 
+n_cpu_remote = {'login.cluster.embl.de': 6,
+                 'pc-emcf-16.embl.de': 4}
+
 # dict. If empty, submission and status calls for cluster environments will be issued locally
 remote_submission = {}
 
@@ -97,6 +100,7 @@ n_jobs_default = 8
 # standalone
 
 n_cpu_standalone = 8
+
 
 # spark
 

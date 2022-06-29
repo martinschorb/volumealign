@@ -89,26 +89,26 @@ def run_command(remotehost, command, logfile, errfile):
 
     print(command)
 
-    if remotehost in params.remote_compute:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-        ssh.connect(remotehost, username=remote_user(remotehost))
-
-        command = 'echo $$ && ' + command
-
-        command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
-
-        stdin, stdout, stderr = ssh.exec_command(command)
-
-        remote_pid = stdout.readline().split('\n')[0]
-
-        return {remotehost: remote_pid}
-
-    else:
-        with open(logfile, "wb") as out, open(errfile, "wb") as err:
-            p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
-
-        return p
+    # if remotehost in params.remote_compute:
+    #     ssh = paramiko.SSHClient()
+    #     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+    #     ssh.connect(remotehost, username=remote_user(remotehost))
+    #
+    #     command = 'echo $$ && ' + command
+    #
+    #     command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+    #
+    #     stdin, stdout, stderr = ssh.exec_command(command)
+    #
+    #     remote_pid = stdout.readline().split('\n')[0]
+    #
+    #     return {remotehost: remote_pid}
+    #
+    # else:
+    #     with open(logfile, "wb") as out, open(errfile, "wb") as err:
+    #         p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
+    #
+    #     return p
 
 
 def submit_command(remotehost, command, logfile):
@@ -700,7 +700,8 @@ def run(target='standalone',
         spark_args['--spark_home'] = params.spark_dir
         spark_args['--render_dir'] = params.render_dir
 
-        command += ' ' + run_args
+        command += ' ' + args2string(spark_args)
+        command += '--params= ' + args2string(run_args, ' ')
 
         remotehost = target.split('spark::')[-1]
 
@@ -772,7 +773,7 @@ def run(target='standalone',
 
 def remote_user(remotehost):
     """
-    Lookup for users on remote hosts. Fallback to local user if not present in params.
+    Lookup for users on remote hosts. Fallback to local user if remote host not present in params.
 
     :param str remotehost: address or host name of remote machine
     :return: user name
@@ -783,6 +784,18 @@ def remote_user(remotehost):
     else:
         return params.user
 
+def remote_cpu(remotehost):
+    """
+    Lookup for number of CPUs on remote hosts. Fallback to local setting if remote host not present in params.
+
+    :param str remotehost: address or host name of remote machine
+    :return: number of CPUs to be used
+    :rtype: int
+    """
+    if remotehost in params.remote_logins.keys():
+        return params.n_cpu_remote[remotehost]
+    else:
+        return params.n_cpu_standalone
 
 def runtype(comp_sel):
     """

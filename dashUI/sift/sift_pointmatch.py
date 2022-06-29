@@ -70,7 +70,7 @@ page.append(matchtrial)
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client', id=label + "go"),
-                              pages.compute_loc(parent, c_options=['sparkslurm'],  # 'standalone'],
+                              pages.compute_loc(parent, c_options=['sparkslurm', 'localspark'],
                                                 c_default='sparkslurm'),
                               html.Div(id=label + 'mtnotfound')
                               ],
@@ -306,7 +306,7 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
             run_args = None
             script = params.asap_dir + '/pointmatch/generate_point_matches_opencv.py'
 
-        elif comp_sel == 'sparkslurm':
+        elif 'spark' in comp_sel:
             spsl_p = dict()
 
             spsl_p['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
@@ -336,14 +336,19 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
                 mtrun_p['--clipHeight'] = mt_params['clipPixels']
                 mtrun_p['--clipWidth'] = mt_params['clipPixels']
 
+            spark_args = {'--jarfile': params.render_sparkjar}
+
             spark_p = dict()
 
-            spark_p['--time'] = '00:' + str(timelim) + ':00'
+            if comp_sel == 'sparkslurm':
+                spark_p['--time'] = '00:' + str(timelim) + ':00'
 
-            spark_p['--worker_cpu'] = params.cpu_pernode_spark
-            spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
+                spark_p['--worker_cpu'] = params.cpu_pernode_spark
+                spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
+            else:
+                spark_args['--cpu'] = launch_jobs.remote_cpu(comp_sel.split('::')[-1])
 
-            spark_args = {'--jarfile': params.render_sparkjar}
+
 
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)
