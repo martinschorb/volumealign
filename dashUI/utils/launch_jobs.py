@@ -11,7 +11,7 @@ import subprocess
 
 import dash
 
-import params
+from dashUI import params
 import time
 import datetime
 import psutil

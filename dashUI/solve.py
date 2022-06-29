@@ -18,8 +18,7 @@ import time
 
 import renderapi
 
-import params
-
+from dashUI import params
 from app import app
 
 from utils import pages, launch_jobs, checks

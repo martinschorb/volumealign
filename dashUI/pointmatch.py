@@ -17,7 +17,7 @@ import glob
 import numpy as np
 import requests
 
-import params
+from dashUI import params
 
 from app import app
 

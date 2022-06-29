@@ -17,8 +17,7 @@ import sys
 
 from app import app
 
-import params
-
+from dashUI import params
 import startpage
 
 # Webapp Layout

@@ -15,7 +15,7 @@ import os
 import requests
 import importlib
 
-import params
+from dashUI import params
 
 from app import app
 
