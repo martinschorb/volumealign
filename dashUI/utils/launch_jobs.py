@@ -54,6 +54,100 @@ def args2string(args, separator='='):
     return argstring
 
 
+def activate_conda(conda_dir=params.conda_dir,
+                   env_name=params.render_envname):
+    """
+    activates a conda environment to run a processing script
+
+    :param str conda_dir: directory of the *conda installation
+    :param str env_name: environment name
+    :return: multi-line string to be issued as a shell command
+    :rtype: str
+    """
+
+    script = ''
+    script += 'source ' + os.path.join(conda_dir, "etc/profile.d/conda.sh") + '\n'
+    script += '\n'
+    script += 'conda activate ' + env_name + '\n'
+
+    return script
+
+
+def run_command(remotehost, command, logfile, errfile):
+    """
+    Launcher to run a shell command either locally or on a remote host.
+
+    :param str remotehost: The name of the remote host. If not specified in params, launch locally.
+    :param str command: The shell command to launch.
+    :param str logfile: The log file for the task.
+    :param str errfile: The error log file for the task.
+    :return: PID or remote PID of the launched task.
+    :rtype: str or dict
+    """
+
+    my_env = os.environ.copy()
+
+    print(command)
+
+    if remotehost in params.remote_compute:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost, username=remote_user(remotehost))
+
+        command = 'echo $$ && ' + command
+
+        command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+
+        remote_pid = stdout.readline().split('\n')[0]
+
+        return {remotehost: remote_pid}
+
+    else:
+        with open(logfile, "wb") as out, open(errfile, "wb") as err:
+            p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
+
+        return p
+
+
+def submit_command(remotehost, command, logfile):
+    """
+    Launcher to run a shell command that submits a/multiple HPC job(s) either locally or on a remote host.
+
+    :param str remotehost: The name of the remote host. If not specified in params, submit locally.
+    :param str command: The shell command to submit the task. (needs to be available on the target system)
+    :param str logfile: The log file for the submission.
+    :return: JOBID of the submitted task.
+    :rtype: str
+    """
+
+    my_env = os.environ.copy()
+
+    if remotehost in params.remote_submission.keys():
+        remotehost = params.remote_submission[remotehost]
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+        time.sleep(3)
+        jobid = stdout.readline()
+    else:
+        p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
+        time.sleep(3)
+        jobid = p.stdout.readline().decode()
+
+    print(command)
+
+    with open(logfile, 'w+') as f:
+        f.write('waiting for cluster job to start\n\n')
+        f.write(jobid)
+
+    return jobid
+
+
 def status(run_state):
     """
     Top level function to return a string description of the processing status of a (multi-task) run_state dictionary.
@@ -172,7 +266,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        elif not 'localhost' in j_id.keys() and not list(j_id.keys())[0] in params.remote_compute:
+        elif 'localhost' not in j_id.keys() and not list(j_id.keys())[0] in params.remote_compute:
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
@@ -501,7 +595,9 @@ def run(target='standalone',
     """
     Launcher of a processing task.
 
-    :param str target: target for processing. Currently supports ['standalone','generic','slurm','sparkslurm']
+    :param str target: target for processing. Currently supports:
+        ['standalone','generic','slurm','localspark','sparkslurm'].
+        Remote compute through ssh is also supported. Generic or spark runs on remote hosts syntax - $prefix::$host
     :param str pyscript: script to execute
     :param str or list jsonfile: string path of JSON file with the script parameters or list for multiple parallel tasks
     :param str or dict or list run_args: str, dict or list with run-time arguments for the specific launcher
@@ -551,8 +647,6 @@ def run(target='standalone',
     if type(target) is not str:
         raise TypeError('Target needs to be string.')
 
-    my_env = os.environ.copy()
-
     logbase = os.path.splitext(os.path.basename(logfile))[0]
     logdir = os.path.dirname(logfile)
 
@@ -584,58 +678,33 @@ def run(target='standalone',
         with open(runscriptfile, 'w') as f:
             f.write(runscript)
 
-        print(command)
+        return run_command(target, command, logfile, errfile)
 
-        if target in params.remote_compute or target == 'localhost':
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(target, username=remote_user(target), timeout=10)
-
-            command = "echo $$ && " + command
-
-            stdin, stdout, stderr = ssh.exec_command(command)
-
-            remote_pid = stdout.readline().split('\n')[0]
-
-            print(remote_pid)
-
-            return {target: remote_pid}
-
-        else:
-            with open(logfile, "w") as out, open(errfile, "w") as err:
-                p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
-
-                return p.pid
-
-    elif target == 'generic' or target.split('generic_')[-1] in params.remote_compute:
+    elif target == 'generic' or target.split('generic::')[-1] in params.remote_compute:
         command = pyscript
         command += ' ' + run_args
 
-        print(command)
+        remotehost = target.split('generic::')[-1]
 
-        remotehost = target.split('generic_')[-1]
+        return run_command(remotehost, command, logfile, errfile)
 
-        if remotehost in params.remote_compute:
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost, username=remote_user(remotehost))
+    elif target == 'localspark' or target.split('spark::')[-1] in params.remote_compute:
+        command = params.launch_dir + '/localspark.sh'
 
-            command = 'echo $$ && ' + command
+        spark_args = dict()
+        if type(special_args) is dict:
+            spark_args.update(special_args)
 
-            command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+        spark_args['--class'] = pyscript
+        spark_args['--logdir'] = logbase
+        spark_args['--spark_home'] = params.spark_dir
+        spark_args['--render_dir'] = params.render_dir
 
-            stdin, stdout, stderr = ssh.exec_command(command)
+        command += ' ' + run_args
 
-            remote_pid = stdout.readline().split('\n')[0]
+        remotehost = target.split('spark::')[-1]
 
-            return {remotehost: remote_pid}
-
-        else:
-
-            with open(logfile, "wb") as out, open(errfile, "wb") as err:
-                p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
-
-            return p
+        return run_command(remotehost, command, logfile, errfile)
 
     elif target == 'slurm':
         runscript.replace('#launch message',
@@ -655,32 +724,8 @@ def run(target='standalone',
 
         sl_command = 'sbatch ' + slurm_args + ' ' + command
 
-        print(sl_command)
-
-        if target in params.remote_submission.keys():
-            remotehost = params.remote_submission[target]
-
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost, username=remote_user(remotehost))
-
-            stdin, stdout, stderr = ssh.exec_command(sl_command)
-            time.sleep(3)
-            jobid = stdout.readline()
-
-        else:
-            # submit locally
-            p = subprocess.Popen(sl_command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
-            time.sleep(3)
-            jobid = p.stdout.readline().decode()
-
-        with open(logfile, 'w+') as f:
-            f.write('waiting for cluster job to start\n\n')
-            f.write(jobid)
-
-            jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
-
-            # jobid=['slurm__'+jobid]
+        jobid = submit_command(target, sl_command, logfile)
+        jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
 
         return jobid
 
@@ -716,28 +761,9 @@ def run(target='standalone',
 
         command += spsl_args
 
-        if target in params.remote_submission.keys():
-            remotehost = params.remote_submission[target]
+        jobid = submit_command(target, command, logfile)
+        jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
 
-            ssh = paramiko.SSHClient()
-            ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-            ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
-
-            stdin, stdout, stderr = ssh.exec_command(command)
-            time.sleep(3)
-            jobid = stdout.readline()
-        else:
-            p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
-            time.sleep(3)
-            jobid = p.stdout.readline().decode()
-
-        print(command)
-
-        with open(logfile, 'w+') as f:
-            f.write('waiting for cluster job to start\n\n')
-            f.write(jobid)
-
-            jobid = jobid.strip('\n')[jobid.rfind(' ') + 1:]
         return jobid
 
     else:
@@ -795,22 +821,3 @@ def run_prefix(nouser=False, dateonly=False):
                                                  timestamp.tm_hour, timestamp.tm_min)
 
     return user + t
-
-
-def activate_conda(conda_dir=params.conda_dir,
-                   env_name=params.render_envname):
-    """
-    activates a conda environment to run a processing script
-
-    :param str conda_dir: directory of the *conda installation
-    :param str env_name: environment name
-    :return: multi-line string to be issued as a shell command
-    :rtype: str
-    """
-
-    script = ''
-    script += 'source ' + os.path.join(conda_dir, "etc/profile.d/conda.sh") + '\n'
-    script += '\n'
-    script += 'conda activate ' + env_name + '\n'
-
-    return script
