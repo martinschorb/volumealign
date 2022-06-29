@@ -31,8 +31,6 @@ def update_store(inpath, extpath, createdir_val):
     trigger = hf.trigger()
     createdir = createdir_val == ['Create new directory']
 
-    # print('pathstore -- ')
-    # print(trigger)
     outtrigger = dash.no_update
     if trigger == 'path_store':
         if os.path.exists(str(inpath)) or createdir:
@@ -49,6 +47,7 @@ def update_store(inpath, extpath, createdir_val):
 
 @app.callback([Output({'component': 'browse_dd', 'module': MATCH}, 'options'),
                Output({'component': 'path_store', 'module': MATCH}, 'data'),
+               Output({'component': 'path_dd', 'module': MATCH}, 'data'),
                Output({'component': 'browse_dd', 'module': MATCH}, 'value')],
               [Input({'component': 'browse_dd', 'module': MATCH}, 'value'),
                Input({'component': 'path_input', 'module': MATCH}, 'n_blur'),
@@ -59,9 +58,11 @@ def update_store(inpath, extpath, createdir_val):
                State({'component': 'path_filetypes', 'module': MATCH}, 'data'),
                State({'component': 'path_dummy', 'module': MATCH}, 'data'),
                State({'component': 'newdir_sel', 'module': MATCH}, 'value'),
+               State({'component': 'path_dd', 'module': MATCH}, 'data'),
                State('url', 'pathname')],
               prevent_initial_call=True)
-def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, dummydata, createdir_val, thispage):
+def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, dummydata, createdir_val, ddpath,
+                   thispage):
     if dash.callback_context.triggered:
         trigger = hf.trigger()
     else:
@@ -96,11 +97,13 @@ def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, 
         if os.path.isdir(str(inpath)):
             path = inpath
             filesel = None
+    elif ddpath != path:
+        raise PreventUpdate
 
-    outselect = dash.no_update
-
-    if filesel == '..':
+    if type(filesel) is str:
         outselect = ''
+    else:
+        outselect = dash.no_update
 
     if type(filetypes) is str:
         filetypes = [filetypes]
@@ -150,9 +153,9 @@ def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, 
         if show_files:
             dd_options.extend(f_list)
 
-        return dd_options, path, outselect
+        return dd_options, path, path, outselect
 
     else:
         path = os.path.join(path, filesel)
 
-        return dash.no_update, path, outselect
+        return dash.no_update, path, path, outselect
