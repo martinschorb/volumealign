@@ -44,14 +44,11 @@ compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
 
-page1 = [pages.render_selector(label)]
-
-page1.append(html.Div(store))
+page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(store)]
 
 page2 = []
 
-matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
-                       html.Br(),
+matchtrial = html.Div([html.Br(),
                        html.H4("Select appropriate Parameters for the SIFT search"),
                        html.Div(['Organism template: ',
                                  dcc.Dropdown(id=label + 'organism_dd', persistence=True,
@@ -90,21 +87,12 @@ matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
 
 page2.append(matchtrial)
 
-
-# # ===============================================
-# Compute Settings
-
-page2.append(pages.compute_settings(label, status_table_cols, compute_table_cols))
-
-comp_settings.all_compset_callbacks(label, parent, compute_table_cols, status_table_cols)
-
-
 #  =============================================
 # Start Button
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client', id=label + "go"),
-                              pages.compute_loc(parent, c_options=['sparkslurm', 'localspark'],
+                              pages.compute_loc(label, c_options=['sparkslurm', 'localspark'],
                                                 c_default='sparkslurm'),
                               html.Div(id=label + 'mtnotfound')
                               ],
@@ -112,6 +100,79 @@ gobutton = html.Div(children=[html.Br(),
 
 page2.append(gobutton)
 
+
+
+# # ===============================================
+# Compute Settings
+
+page2.append(pages.compute_settings(label, status_table_cols, compute_table_cols))
+
+comp_settings.all_compset_callbacks(label, compute_table_cols)
+
+# comp_settings callbacks
+
+cs_params = comp_settings.compset_params(label, parent, status_table_cols)
+
+
+@app.callback(cs_params,
+              prevent_initial_call=True)
+def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, allstacks, status_table_cols, thispage):
+    hf.is_url_active(thispage)
+
+    if n_cpu is None:
+        n_cpu = params.n_cpu_spark
+
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or thispage not in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    # n_cpu = int(n_cpu)
+
+    out = dict()
+    factors = dict()
+    t_fields = [''] * len(status_table_cols)
+
+    # numtp = 1
+
+    if (not stack_sel == '-') and (allstacks is not None):
+        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]
+        stack = stack_sel
+
+        if not stacklist == []:
+            stackparams = stacklist[0]
+
+            if 'None' in (stackparams['stackId']['owner'], stackparams['stackId']['project']):
+                return dash.no_update
+
+            out['zmin'] = stackparams['stats']['stackBounds']['minZ']
+            out['zmax'] = stackparams['stats']['stackBounds']['maxZ']
+            out['numtiles'] = stackparams['stats']['tileCount']
+            out['numsections'] = stackparams['stats']['sectionCount']
+
+            if tilepairdir is None or tilepairdir == '':
+                numtp_out = 'no tilepairs'
+                totaltime = None
+            else:
+                numtp = hf.tilepair_numfromlog(tilepairdir, stack_sel)
+
+                if type(numtp) is int:
+                    numtp_out = str(numtp)
+                    totaltime = numtp * matchtime * params.n_cpu_standalone
+                else:
+                    numtp_out = 'no tilepairs'
+                    totaltime = None
+
+            t_fields = [stack, str(stackparams['stats']['sectionCount']), str(stackparams['stats']['tileCount']),
+                        numtp_out]
+
+            factors = {'runtime_minutes': totaltime}
+
+    outlist = []  # ,out]
+    outlist.extend(t_fields)
+    outlist.append(factors)
+
+    return outlist
 
 @app.callback([Output(label + 'organism_dd', 'options'),
                Output(label + 'picks', 'data')],
@@ -249,7 +310,7 @@ app.clientside_callback(
 def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_owner, tilepairdir, owner, project, stack,
                                      n_cpu, timelim, thispage):
     thispage = thispage.lstrip('/')
-
+    print(comp_sel)
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 

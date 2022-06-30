@@ -29,9 +29,9 @@ from callbacks import render_selector, substack_sel, match_selector, tile_view
 
 module = 'pointmatch'
 
-matchtypes = [{'label': 'SIFT', 'value': 'SIFT'}]
+subpages = [{'label': 'SIFT', 'value': 'SIFT'}]
 
-matchmodules = ['sift.sift_pointmatch']
+submodules = ['sift.sift_pointmatch']
 
 storeinit = {}
 store = pages.init_store(storeinit, module)
@@ -80,8 +80,10 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                             ]),
                   html.H4("Choose type of PointMatch determination:"),
                   dcc.Dropdown(id={'component': 'pm_type_dd', 'module': module}, persistence=True,
-                               options=matchtypes,
-                               value='SIFT')
+                               options=subpages,
+                               value='SIFT'),
+                  html.Br(),
+                  pages.tile_view(module, numpanel=2, showlink=True),
                   ])
 
 
@@ -141,7 +143,7 @@ switch_outputs = [Output(module + '_nullpage', 'style')]
 
 status_inputs = []
 
-for pmtypesel, impmod in zip(matchtypes, matchmodules):
+for pmtypesel, impmod in zip(subpages, submodules):
     thismodule = importlib.import_module(impmod)
 
     page1.append(html.Div(getattr(thismodule, 'page1'),
@@ -155,7 +157,6 @@ for pmtypesel, impmod in zip(matchtypes, matchmodules):
     switch_outputs.append(Output({'component': 'page2', 'module': pmtypesel['value']}, 'style'))
 
     status_inputs.append(Input({'component': 'status', 'module': pmtypesel['value']}, 'data'))
-
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
@@ -178,25 +179,25 @@ def convert_output(dd_value, thispage):
         raise PreventUpdate
 
     outputs = dash.callback_context.outputs_list
-    outstyles = [{'display': 'none'}] * (len(outputs) - 1)
+    outstyles = [{'display': 'none'}] * len(outputs)
 
     modules = [m['id']['module'] for m in outputs[1:]]
 
-    for ix, mod in enumerate(modules):
-
-        if mod == dd_value:
-            outstyles[ix + 1] = {}
-
     if dd_value not in modules:
         outstyles[0] = {}
+
+    else:
+        for ix, mod in enumerate(modules):
+
+            if mod == dd_value:
+                outstyles[ix + 1] = {}
 
     return outstyles
 
 
 # collect Render selections from sub pages and make them available to following pages
 
-c_in, c_out = render_selector.subpage_launch(module, matchtypes)
-
+c_in, c_out = render_selector.subpage_launch(module, subpages)
 
 @app.callback(c_out, c_in)
 def pointmatch_merge_launch_stores(*inputs):

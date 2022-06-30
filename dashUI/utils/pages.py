@@ -290,12 +290,13 @@ def compute_settings(module, status_table_cols=[], compute_table_cols=[]):
                                                               type='number', min=1)) for col in compute_table_cols])
                                                 ], className='table'),
                                     dcc.Store(id={'component': 'factors', 'module': module}, data={}),
-                                    dcc.Store(id={'component': 'store_compset', 'module': module}),
+                                    dcc.Store(id={'component': 'store_compset', 'module': module}, data={}),
                                     dcc.Store(id={'component': 'status_table_cols', 'module': module},
                                               data=[col for col in status_table_cols]),
                                     dcc.Store(id={'component': 'compute_table_cols', 'module': module},
                                               data=[col for col in compute_table_cols])
-                                    ])
+                                    ],
+                          id={'component': 'comp_set_detail', 'module': module})
 
     return c_sets
 

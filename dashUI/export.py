@@ -93,11 +93,7 @@ page3 = html.Div(id={'component': 'page2', 'module': module}, children=[html.H4(
                                                                         dcc.Input(id={'component': "path_input",
                                                                                       'module': module}, type="text",
                                                                                   debounce=True, persistence=True,
-                                                                                  className='dir_textinput'),
-                                                                        # dcc.Input(id={'component': "path_input", 'module': label}, type="text",style={'display': 'none'})
-                                                                        # html.Button('Browse',id={'component': "browse1", 'module': label}),
-                                                                        # 'graphical browsing works on cluster login node ONLY!',
-                                                                        # html.Br()
+                                                                                  className='dir_textinput')
                                                                         ])
 
 page.append(page3)
@@ -204,13 +200,14 @@ def convert_output(dd_value, thispage):
 
     modules = [m['id']['module'] for m in outputs[1:]]
 
-    for ix, mod in enumerate(modules):
-
-        if mod == dd_value:
-            outstyles[ix + 1] = {}
-
     if dd_value not in modules:
         outstyles[0] = {}
+
+    else:
+        for ix, mod in enumerate(modules):
+
+            if mod == dd_value:
+                outstyles[ix + 1] = {}
 
     return outstyles
 

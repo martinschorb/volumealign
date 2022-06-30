@@ -22,13 +22,13 @@ import params
 # callbacks
 
 def update_compset_params(module, compute_table_cols):
-    params = [[Output({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              [Output({'component': 'factors', 'module': module}, 'modified_timestamp')],
-              [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              [Input({'component': 'factors', 'module': module}, 'modified_timestamp')],
-              [State({'component': 'factors', 'module': module}, 'data'),
-               State({'component': 'compute_table_cols', 'module': module}, 'data'),
-               State('url', 'pathname')]
+    params = [*[Output({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
+              *[Output({'component': 'factors', 'module': module}, 'modified_timestamp')],
+              *[Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
+              *[Input({'component': 'factors', 'module': module}, 'modified_timestamp')],
+              *[State({'component': 'factors', 'module': module}, 'data'),
+                State({'component': 'compute_table_cols', 'module': module}, 'data')],
+              State('url', 'pathname')
               ]
 
     return params
@@ -40,17 +40,18 @@ def update_compute_settings(*inputs):
 
     :param (list, dict, str) inputs: [:-4] Input values from "compute_table_cols"<Br>
                                      [-4] trigger timestamp <Br>
-                                     [-3] compute_table_cols: column names<Br>
-                                     [-2] factors: factors to multiply the input values with.<Br>
-                                     [-1] thispage: current page URL
+                                     [-3] list compute_table_cols: column names<Br>
+                                     [-2] dict factors: factors to multiply the input values with.<Br>
+                                     [-1] str thispage: current page URL
     :return: factors that update compute_table_cols values when they are changed themselves.
     :rtype: (list, int)
     """
 
     thispage = inputs[-1]
-    inputs = inputs[:-1]
     thispage = thispage.lstrip('/')
-    compute_table_cols = inputs[-3]
+
+    compute_table_cols = inputs[-2]
+    inputs = inputs[:-2]
 
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
@@ -94,7 +95,7 @@ def store_compute_settings(*inputs):
 
     :param list inputs: Input values from "compute_table_cols"
     :return: Store of all values in "compute_table_cols"
-    :rtype: dict
+    :rtype: list
     """
     storage = dict()
 
@@ -103,7 +104,7 @@ def store_compute_settings(*inputs):
     for input_idx, label in enumerate(in_labels):
         storage[label] = in_values[input_idx]
 
-    return storage
+    return [storage]
 
 
 def compset_params(module, tp_dd_module, status_table_cols):
@@ -117,76 +118,19 @@ def compset_params(module, tp_dd_module, status_table_cols):
     stackoutput.extend(tablefields)
     stackoutput.extend(compute_tablefields)
 
-    outparams = [stackoutput,
-                 [Input({'component': 'tp_dd', 'module': tp_dd_module}, 'value'),
-                  Input({'component': 'store_tpmatchtime', 'module': module}, 'data'),
-                  Input({'component': 'input_Num_CPUs', 'module': module}, 'value')],
-                 [State({'component': 'stack_dd', 'module': module}, 'value'),
-                  State({'component': 'store_allstacks', 'module': module}, 'data'),
-                  State({'component': 'status_table_cols', 'module': module}, 'data'),
-                  State('url', 'pathname')]
+    outparams = [*stackoutput,
+                 Input({'component': 'tp_dd', 'module': tp_dd_module}, 'value'),
+                 Input({'component': 'store_tpmatchtime', 'module': module}, 'data'),
+                 Input({'component': 'input_Num_CPUs', 'module': module}, 'value'),
+                 State({'component': 'stack_dd', 'module': tp_dd_module}, 'value'),
+                 State({'component': 'store_allstacks', 'module': tp_dd_module}, 'data'),
+                 State({'component': 'status_table_cols', 'module': module}, 'data'),
+                 State('url', 'pathname')
                  ]
     return outparams
 
 
-def comp_set(tilepairdir, matchtime, n_cpu, stack_sel, allstacks, status_table_cols, thispage):
-    if n_cpu is None:
-        n_cpu = params.n_cpu_spark
-
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    # n_cpu = int(n_cpu)
-
-    out = dict()
-    factors = dict()
-    t_fields = [''] * len(status_table_cols)
-
-    # numtp = 1
-
-    if (not stack_sel == '-') and (allstacks is not None):
-        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]
-        stack = stack_sel
-
-        if not stacklist == []:
-            stackparams = stacklist[0]
-
-            if 'None' in (stackparams['stackId']['owner'], stackparams['stackId']['project']):
-                return dash.no_update
-
-            out['zmin'] = stackparams['stats']['stackBounds']['minZ']
-            out['zmax'] = stackparams['stats']['stackBounds']['maxZ']
-            out['numtiles'] = stackparams['stats']['tileCount']
-            out['numsections'] = stackparams['stats']['sectionCount']
-
-            if tilepairdir is None or tilepairdir == '':
-                numtp_out = 'no tilepairs'
-                totaltime = None
-            else:
-                numtp = hf.tilepair_numfromlog(tilepairdir, stack_sel)
-
-                if type(numtp) is int:
-                    numtp_out = str(numtp)
-                    totaltime = numtp * matchtime * params.n_cpu_standalone
-                else:
-                    numtp_out = 'no tilepairs'
-                    totaltime = None
-
-            t_fields = [stack, str(stackparams['stats']['sectionCount']), str(stackparams['stats']['tileCount']),
-                        numtp_out]
-
-            factors = {'runtime_minutes': totaltime}
-
-    outlist = []  # ,out]
-    outlist.extend(t_fields)
-    outlist.append(factors)
-
-    return outlist
-
-
-def all_compset_callbacks(label, tp_dd_module, compute_table_cols, status_table_cols):
+def all_compset_callbacks(label, compute_table_cols):
     # update callback
 
     u_cs_params = update_compset_params(label, compute_table_cols)
@@ -204,15 +148,16 @@ def all_compset_callbacks(label, tp_dd_module, compute_table_cols, status_table_
     @app.callback(st_cs_params,
                   prevent_initial_call=True)
     def sift_pointmatch_store_comp_settings(*args):
-        hf.is_url_active(args[-1])
         return store_compute_settings(*args)
 
-    # comp_settings callback
+    # hide compute settings if local execution is chosen
 
-    cs_params = compset_params(label, tp_dd_module, status_table_cols)
+    @app.callback(Output({'component': 'comp_set_detail', 'module': label}, 'style'),
+                  Input({'component': 'compute_sel', 'module': label}, 'value'))
+    def compset_switch(compsel):
 
-    @app.callback(cs_params,
-                  prevent_initial_call=True)
-    def sift_pointmatch_comp_settings(*args):
-        hf.is_url_active(args[-1])
-        return comp_set(*args)
+        if 'local' in compsel:
+            return {'display': 'none'}
+        else:
+            return {}
+
