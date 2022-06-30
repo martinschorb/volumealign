@@ -14,8 +14,9 @@ from dash.exceptions import PreventUpdate
 
 import os
 import glob
-import numpy as np
-import requests
+# import numpy as np
+# import requests
+import importlib
 
 from dashUI import params
 
@@ -24,24 +25,15 @@ from app import app
 from utils import pages
 from utils import helper_functions as hf
 
-from callbacks import runstate, render_selector, substack_sel, match_selector, tile_view
-
-from sift import sift_pointmatch
+from callbacks import render_selector, substack_sel, match_selector, tile_view
 
 module = 'pointmatch'
 
 matchtypes = [{'label': 'SIFT', 'value': 'SIFT'}]
 
-status_table_cols = ['stack',
-                     'slices',
-                     'tiles',
-                     'tilepairs']
+matchmodules = ['sift.sift_pointmatch']
 
-compute_table_cols = ['Num_CPUs',
-                      # 'MemGB_perCPU',
-                      'runtime_minutes']
-
-storeinit = {'tpmatchtime': 1000}
+storeinit = {}
 store = pages.init_store(storeinit, module)
 
 for storeitem in params.match_store.keys():
@@ -55,6 +47,8 @@ page = [main]
 
 # # ===============================================
 #  RENDER STACK SELECTOR
+
+page.append(pages.render_selector(module))
 
 # Pre-fill render stack selection from previous module
 
@@ -74,9 +68,7 @@ def pointmatch_update_store(*args):
     return render_selector.update_store(*args)
 
 
-page1 = pages.render_selector(module)
-
-page.append(page1)
+page1 = []
 
 # ===============================================
 
@@ -87,12 +79,10 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                             html.Div(id={'component': 'tp_prefix', 'module': module}, style={'display': 'none'})
                             ]),
                   html.H4("Choose type of PointMatch determination:"),
-                  dcc.Dropdown(id=module + 'dropdown1', persistence=True,
+                  dcc.Dropdown(id={'component': 'pm_type_dd', 'module': module}, persistence=True,
                                options=matchtypes,
                                value='SIFT')
                   ])
-
-page.append(page2)
 
 
 @app.callback([Output({'component': 'tp_dd', 'module': module}, 'options'),
@@ -135,225 +125,85 @@ def pointmatch_tp_dd_fill(stack, thispage):
 
 page3 = pages.match_selector(module, newcoll=True)
 
-page.append(page3)
-
-# # ===============================================
-# Compute Settings
-
-compute_settings = html.Details(children=[html.Summary('Compute settings:'),
-                                          html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
-                                                      html.Tr(
-                                                          [html.Td('', id={'component': 't_' + col, 'module': module})
-                                                           for col in status_table_cols])
-                                                      ], className='table'),
-                                          html.Br(),
-                                          html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
-                                                      html.Tr([html.Td(
-                                                          dcc.Input(id={'component': 'input_' + col, 'module': module},
-                                                                    type='number', min=1)) for col in
-                                                               compute_table_cols])
-                                                      ], className='table'),
-                                          dcc.Store(id={'component': 'factors', 'module': module}, data={}),
-                                          dcc.Store(id={'component': 'store_compset', 'module': module})
-                                          ])
-
-
-# callbacks
-
-@app.callback([Output({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              [Output({'component': 'factors', 'module': module}, 'modified_timestamp')],
-              [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              [Input({'component': 'factors', 'module': module}, 'modified_timestamp')],
-              [State({'component': 'factors', 'module': module}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
-def pointmatch_update_compute_settings(*inputs):
-    """
-    Calculates the dynamic fields of `compute_table_cols` when changes of its input parameters occur.
-
-    :param (list, dict, str) inputs: [:-2] Input values from "compute_table_cols"<Br>
-                                     [-2] factors: factors to multiply the input values with.<b>&#8592; pointmatch_comp_set</b><Br>
-                                     [-1] thispage: current page URL
-    :return: factors that update compute_table_cols values when they are changed themselves.
-    :rtype: (list, int)
-    """
-
-    thispage = inputs[-1]
-    inputs = inputs[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    idx_offset = len(compute_table_cols)
-
-    trigger = hf.trigger()
-
-    if trigger not in ('factors', 'input_' + compute_table_cols[0]):
-        return dash.no_update
-
-    out = list(inputs[:idx_offset])
-    out.append(dash.no_update)
-
-    if inputs[0] is None:
-        out[0] = params.n_cpu_spark
-    else:
-        out[0] = inputs[0]
-
-    if type(inputs[1]) in (str, type(None)):
-        out[1] = 1
-    else:
-        if None in inputs[-1].values():
-            out[1] = dash.no_update
-        else:
-            out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / 60000 / out[0] * (1 + params.time_add_buffer)) + 1
-
-    return out
-
-
-@app.callback(Output({'component': 'store_compset', 'module': module}, 'data'),
-              [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              prevent_initial_call=True)
-def pointmatch_store_compute_settings(*inputs):
-    """
-    Updates the store of  `compute_table_cols` values when changes of input parameters occur.
-
-    :param list inputs: Input values from "compute_table_cols"
-    :return: Store of all values in "compute_table_cols"
-    :rtype: dict
-    """
-    storage = dict()
-
-    in_labels, in_values = hf.input_components()
-
-    for input_idx, label in enumerate(in_labels):
-        storage[label] = in_values[input_idx]
-
-    return storage
-
-
-# Update directory and compute settings from stack selection
-
-stackoutput = []
-
-tablefields = [Output({'component': 't_' + col, 'module': module}, 'children') for col in status_table_cols]
-compute_tablefields = [Output({'component': 'factors', 'module': module}, 'data')]
-
-stackoutput.extend(tablefields)
-stackoutput.extend(compute_tablefields)
-
-
-@app.callback(stackoutput,
-              [Input({'component': 'tp_dd', 'module': module}, 'value'),
-               Input({'component': 'store_tpmatchtime', 'module': module}, 'data'),
-               Input({'component': 'input_Num_CPUs', 'module': module}, 'value')],
-              [State({'component': 'stack_dd', 'module': module}, 'value'),
-               State({'component': 'store_allstacks', 'module': module}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
-def pointmatch_comp_set(tilepairdir, matchtime, n_cpu, stack_sel, allstacks, thispage):
-    if n_cpu is None:
-        n_cpu = params.n_cpu_spark
-
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    # n_cpu = int(n_cpu)
-
-    out = dict()
-    factors = dict()
-    t_fields = [''] * len(status_table_cols)
-
-    # numtp = 1
-
-    if (not stack_sel == '-') and (allstacks is not None):
-        stacklist = [stack for stack in allstacks if stack['stackId']['stack'] == stack_sel]
-        stack = stack_sel
-
-        if not stacklist == []:
-            stackparams = stacklist[0]
-
-            if 'None' in (stackparams['stackId']['owner'], stackparams['stackId']['project']):
-                return dash.no_update
-
-            out['zmin'] = stackparams['stats']['stackBounds']['minZ']
-            out['zmax'] = stackparams['stats']['stackBounds']['maxZ']
-            out['numtiles'] = stackparams['stats']['tileCount']
-            out['numsections'] = stackparams['stats']['sectionCount']
-
-            if tilepairdir is None or tilepairdir == '':
-                numtp_out = 'no tilepairs'
-                totaltime = None
-            else:
-                numtp = hf.tilepair_numfromlog(tilepairdir, stack_sel)
-
-                if type(numtp) is int:
-                    numtp_out = str(numtp)
-                    totaltime = numtp * matchtime * params.n_cpu_standalone
-                else:
-                    numtp_out = 'no tilepairs'
-                    totaltime = None
-
-            t_fields = [stack, str(stackparams['stats']['sectionCount']), str(stackparams['stats']['tileCount']),
-                        numtp_out]
-
-            factors = {'runtime_minutes': totaltime}
-
-    outlist = []  # ,out]
-    outlist.extend(t_fields)
-    outlist.append(factors)
-
-    return outlist
-
-
 # =============================================
 # # Page content for specific pointmatch client
 
 
-page4 = html.Div(id=module + 'page1')
+page4 = [pages.log_output(module, hidden=True)]
 
-page.append(page4)
+# # =============================================
+# # # Page content
+
+page4.append(html.Div([html.Br(), 'No output data type selected.'],
+                      id=module + '_nullpage'))
+
+switch_outputs = [Output(module + '_nullpage', 'style')]
+
+status_inputs = []
+
+for pmtypesel, impmod in zip(matchtypes, matchmodules):
+    thismodule = importlib.import_module(impmod)
+
+    page1.append(html.Div(getattr(thismodule, 'page1'),
+                          id={'component': 'page1', 'module': pmtypesel['value']},
+                          style={'display': 'none'}))
+    switch_outputs.append(Output({'component': 'page1', 'module': pmtypesel['value']}, 'style'))
+
+    page4.append(html.Div(getattr(thismodule, 'page2'),
+                          id={'component': 'page2', 'module': pmtypesel['value']},
+                          style={'display': 'none'}))
+    switch_outputs.append(Output({'component': 'page2', 'module': pmtypesel['value']}, 'style'))
+
+    status_inputs.append(Input({'component': 'status', 'module': pmtypesel['value']}, 'data'))
 
 
-@app.callback([Output(module + 'page1', 'children')],
-              Input(module + 'dropdown1', 'value'))
-def pointmatch_output(value):
-    if value == 'SIFT':
-        return [sift_pointmatch.page]
+# Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-    else:
-        return [[html.Br(), 'No method type selected.']]
+@app.callback(switch_outputs,
+              Input({'component': 'pm_type_dd', 'module': module}, 'value'),
+              State('url', 'pathname'))
+def convert_output(dd_value, thispage):
+    """
+    Populates the page with subpages.
+
+    :param str dd_value: value of the "import_type_dd" dropdown.
+    :param str thispage: current page URL
+    :return: List of style dictionaries to determine which subpage content to display.<Br>
+             Additionally: the page's "store_render_init" store (setting owner).
+    :rtype: (list of dict, dict)
+    """
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or thispage not in hf.trigger(key='module'):
+        raise PreventUpdate
+
+    outputs = dash.callback_context.outputs_list
+    outstyles = [{'display': 'none'}] * (len(outputs) - 1)
+
+    modules = [m['id']['module'] for m in outputs[1:]]
+
+    for ix, mod in enumerate(modules):
+
+        if mod == dd_value:
+            outstyles[ix + 1] = {}
+
+    if dd_value not in modules:
+        outstyles[0] = {}
+
+    return outstyles
 
 
 # collect Render selections from sub pages and make them available to following pages
 
-# c_in, c_out = render_selector.subpage_launch(module, matchtypes)
-#
-# @app.callback(c_out,c_in)
-# def pointmatch_merge_launch_stores(*inputs):
-#     return hf.trigger_value()
-#
+c_in, c_out = render_selector.subpage_launch(module, matchtypes)
 
 
-# =============================================
-# Processing status
-
-# initialized with store
-# embedded from callbacks import runstate
-
-page.append(compute_settings)
-
-# # =============================================
-# # PROGRESS OUTPUT
+@app.callback(c_out, c_in)
+def pointmatch_merge_launch_stores(*inputs):
+    return hf.trigger_value()
 
 
-collapse_stdout = pages.log_output(module)
-
-# ----------------
-
-# Full page layout:
-
-
-page.append(collapse_stdout)
+page.append(html.Div(page1))
+page.append(html.Div(page2))
+page.append(html.Div(page3))
+page.append(html.Div(page4))

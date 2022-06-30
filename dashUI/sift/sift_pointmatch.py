@@ -23,11 +23,32 @@ from utils import pages, matchTrial, launch_jobs
 
 from utils import helper_functions as hf
 
+from callbacks import runstate, comp_settings
+
 # element prefix
 label = "pointmatch_sift"
 parent = "pointmatch"
 
 page = []
+
+storeinit = {'tpmatchtime': 1000}
+store = pages.init_store(storeinit, label)
+
+
+status_table_cols = ['stack',
+                     'slices',
+                     'tiles',
+                     'tilepairs']
+
+compute_table_cols = ['Num_CPUs',
+                      # 'MemGB_perCPU',
+                      'runtime_minutes']
+
+page1 = [pages.render_selector(label)]
+
+page1.append(html.Div(store))
+
+page2 = []
 
 matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
                        html.Br(),
@@ -51,7 +72,8 @@ matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
                                                     dcc.Loading(
                                                         id=label + "link_loading",
                                                         type="dot",
-                                                        children=html.Div('', id=label + 'mt_jscaller', style={'display': 'none'})
+                                                        children=html.Div('', id=label + 'mt_jscaller',
+                                                                          style={'display': 'none'})
                                                     )
                                                     ]),
                                  html.Br(),
@@ -66,7 +88,19 @@ matchtrial = html.Div([pages.tile_view(parent, numpanel=2, showlink=True),
                                  ])
                        ])
 
-page.append(matchtrial)
+page2.append(matchtrial)
+
+
+# # ===============================================
+# Compute Settings
+
+page2.append(pages.compute_settings(label, status_table_cols, compute_table_cols))
+
+comp_settings.all_compset_callbacks(label, parent, compute_table_cols, status_table_cols)
+
+
+#  =============================================
+# Start Button
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client', id=label + "go"),
@@ -76,11 +110,7 @@ gobutton = html.Div(children=[html.Br(),
                               ],
                     style={'display': 'inline-block'})
 
-page.append(gobutton)
-
-
-#  =============================================
-# Start Button
+page2.append(gobutton)
 
 
 @app.callback([Output(label + 'organism_dd', 'options'),
@@ -200,20 +230,20 @@ app.clientside_callback(
 
 @app.callback([Output(label + 'go', 'disabled'),
                Output(label + 'mtnotfound', 'children'),
-               Output({'component': 'store_launch_status', 'module': parent}, 'data'),
-               Output({'component': 'store_render_launch', 'module': parent}, 'data'),
-               Output({'component': 'store_tpmatchtime', 'module': parent}, 'data')],
+               Output({'component': 'store_launch_status', 'module': label}, 'data'),
+               Output({'component': 'store_render_launch', 'module': label}, 'data'),
+               Output({'component': 'store_tpmatchtime', 'module': label}, 'data')],
               [Input(label + 'go', 'n_clicks'),
                Input(label + 'mtselect', 'value'),
                Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
-              [State({'component': 'compute_sel', 'module': parent}, 'value'),
+              [State({'component': 'compute_sel', 'module': label}, 'value'),
                State({'component': 'mc_owner_dd', 'module': parent}, 'value'),
                State({'component': 'tp_dd', 'module': parent}, 'value'),
                State({'component': 'store_owner', 'module': parent}, 'data'),
                State({'component': 'store_project', 'module': parent}, 'data'),
                State({'component': 'stack_dd', 'module': parent}, 'value'),
-               State({'component': 'input_Num_CPUs', 'module': parent}, 'value'),
-               State({'component': 'input_runtime_minutes', 'module': parent}, 'value'),
+               State({'component': 'input_Num_CPUs', 'module': label}, 'value'),
+               State({'component': 'input_runtime_minutes', 'module': label}, 'value'),
                State('url', 'pathname')],
               prevent_initial_call=True)
 def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_owner, tilepairdir, owner, project, stack,
@@ -348,8 +378,6 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
             else:
                 spark_args['--cpu'] = launch_jobs.remote_cpu(comp_sel.split('::')[-1])
 
-
-
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)
 
@@ -382,3 +410,21 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
         launch_store['type'] = comp_sel
 
         return True, '', launch_store, outstore, mt_params['ptime']
+
+# =============================================
+# Processing status
+
+# initialized with store
+# embedded from callbacks import runstate
+
+# # =============================================
+# # PROGRESS OUTPUT
+
+
+collapse_stdout = pages.log_output(label)
+
+# ----------------
+
+# Full page layout:
+
+page2.append(collapse_stdout)

@@ -276,6 +276,30 @@ def compute_loc(module, c_options=params.comp_defaultoptions, c_default=params.c
     return out
 
 
+def compute_settings(module, status_table_cols=[], compute_table_cols=[]):
+    c_sets = html.Details(children=[html.Summary('Compute settings:'),
+                                    html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+                                                html.Tr(
+                                                    [html.Td('', id={'component': 't_' + col, 'module': module})
+                                                     for col in status_table_cols])
+                                                ], className='table'),
+                                    html.Br(),
+                                    html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+                                                html.Tr([html.Td(
+                                                    dcc.Input(id={'component': 'input_' + col, 'module': module},
+                                                              type='number', min=1)) for col in compute_table_cols])
+                                                ], className='table'),
+                                    dcc.Store(id={'component': 'factors', 'module': module}, data={}),
+                                    dcc.Store(id={'component': 'store_compset', 'module': module}),
+                                    dcc.Store(id={'component': 'status_table_cols', 'module': module},
+                                              data=[col for col in status_table_cols]),
+                                    dcc.Store(id={'component': 'compute_table_cols', 'module': module},
+                                              data=[col for col in compute_table_cols])
+                                    ])
+
+    return c_sets
+
+
 def log_output(module, hidden=False):
     """
     Generates the page elements to monitor/control the computation status and the log output.

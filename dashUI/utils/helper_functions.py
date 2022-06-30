@@ -7,6 +7,8 @@ Created on Wed Nov 11 14:24:32 2020
 """
 
 import dash
+from dash.exceptions import PreventUpdate
+
 import json
 import os
 import numpy as np
@@ -109,6 +111,12 @@ def compset_radiobutton(c_options):
 
     return outopt
 
+def is_url_active(thispage):
+    thispage = thispage.lstrip('/')
+
+    if thispage == '' or thispage not in trigger(key='module'):
+        raise PreventUpdate
+
 
 def tilepair_numfromlog(tilepairdir, stack):
     tp_log = params.render_log_dir + '/' + ''.join(
@@ -189,3 +197,4 @@ def spark_nodes(n_cpu):
     nodes_out = nodes + (cores1 > 0)
 
     return nodes_out
+
