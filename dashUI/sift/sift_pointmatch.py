@@ -439,7 +439,8 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
                 spark_p['--worker_cpu'] = params.cpu_pernode_spark
                 spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
             else:
-                spark_args['--cpu'] = launch_jobs.remote_cpu(comp_sel.split('::')[-1])
+                spark_args['--cpu'] = launch_jobs.remote_params(comp_sel.split('::')[-1])['cpu']
+                spark_args['--mem'] = launch_jobs.remote_params(comp_sel.split('::')[-1])['mem']
 
             run_params_generate = spsl_p.copy()
             run_params_generate.update(mtrun_p)

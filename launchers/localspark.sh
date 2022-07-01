@@ -67,7 +67,7 @@ export MASTER_URL="local[$WORKER_CPU]"
 # MAIN CALLS
 #======================================
 
-sparksubmitcall="$SPARK_HOME/bin/spark-submit --master $MASTER_URL --conf spark.default.parallelism=$WORKER_CPU --conf spark.executor.cores=$WORKER_CPU --executor-memory $SPARK_MEM --class $CLASS $JARFILE $PARAMS"
+sparksubmitcall="$SPARK_HOME/bin/spark-submit --master $MASTER_URL --executor-memory $SPARK_MEM --class $CLASS $JARFILE $PARAMS"
 
 echo "$sparksubmitcall"
 $sparksubmitcall

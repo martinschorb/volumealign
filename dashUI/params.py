@@ -65,16 +65,19 @@ comp_options = [
     {'label': 'Spark locally', 'value': 'localspark'}
 ]
 
-# list remote workstations/login nodes and the remote user format
-remote_compute = []
-    # 'pc-emcf-16.embl.de',
-    # 'render.embl.de']
+# list remote workstations/login nodes and the remote launch parameters if special (dict or str)
 
-remote_logins = {'login.cluster.embl.de': user,
-                 'pc-emcf-16.embl.de': 'testuser'}
+remote_params = ['user', 'cpu', 'mem']
 
-n_cpu_remote = {'login.cluster.embl.de': 6,
-                 'pc-emcf-16.embl.de': 4}
+remote_compute = [
+    {'pc-emcf-16.embl.de': {'user': 'testuser',
+                            'cpu': 2,
+                            'mem': 4}},
+    {'render.embl.de': {'cpu': 2,
+                        'mem': 4}},
+    'login.cluster.embl.de']
+
+
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
 remote_submission = {}
@@ -96,11 +99,16 @@ time_add_buffer = 0.2  # time buffer for job submission (relative)
 n_cpu_script = 4
 mem_per_cpu = 4  # GB
 n_jobs_default = 8
+default_walltime = 5 # min
 
 # standalone
 
 n_cpu_standalone = 8
+mem_standalone = 8 #GB
 
+default_compparams = {'user': user,
+                      'cpu': n_cpu_standalone,
+                      'mem': mem_standalone}
 
 # spark
 

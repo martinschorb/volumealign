@@ -690,10 +690,19 @@ def run(target='standalone',
 
     elif target == 'localspark' or target.split('spark::')[-1] in params.remote_compute:
         command = params.launch_dir + '/localspark.sh'
+        remotehost = target.split('spark::')[-1]
 
         spark_args = dict()
+
+        r_params = remote_params(remotehost)
+
+        spark_args['--cpu'] = r_params['cpu']
+        spark_args['--mem'] = r_params['mem']
+
         if type(special_args) is dict:
             spark_args.update(special_args)
+
+
 
         spark_args['--class'] = pyscript
         spark_args['--spark_home'] = params.spark_dir
@@ -706,7 +715,7 @@ def run(target='standalone',
         command += ' ' + args2string(spark_args)
         command += '--params= ' + args2string(run_args, ' ')
 
-        remotehost = target.split('spark::')[-1]
+
 
         return run_command(remotehost, command, logfile, errfile)
 
@@ -720,7 +729,8 @@ def run(target='standalone',
         command = runscriptfile
 
         if target_args is None:
-            slurm_args = '-N1 -n1 -c4 --mem 4G -t 00:02:00 -W '
+            slurm_args = '-N1 -n1 -c' + str(params.n_cpu_script) + ' --mem ' + str(params.mem_per_cpu)\
+                         + 'G -t 00:' + str(params.default_walltime) + ':00 -W '
         else:
             slurm_args = args2string(target_args)
 
@@ -745,6 +755,12 @@ def run(target='standalone',
 
         target_args['--runscript'] = logbase + '.' + target + '.sh'
 
+        if '--worker_cpu' not in target_args:
+            target_args['--worker_cpu'] = params.cpu_pernode_spark
+
+        if '--worker_mempercpu' not in target_args:
+            target_args['--worker_mempercpu'] = params.mem_per_cpu
+
         spsl_args = args2string(target_args)
 
         # spsl_args += args2string({'--logfile':logfile})
@@ -754,6 +770,7 @@ def run(target='standalone',
         spark_args = dict()
         if type(special_args) is dict:
             spark_args.update(special_args)
+
 
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
@@ -782,23 +799,38 @@ def remote_user(remotehost):
     :return: user name
     :rtype: str
     """
-    if remotehost in params.remote_logins.keys():
-        return params.remote_logins[remotehost]
-    else:
-        return params.user
 
-def remote_cpu(remotehost):
+    return params.remote_params(remotehost)['user']
+
+
+def remote_params(remotehost):
     """
-    Lookup for number of CPUs on remote hosts. Fallback to local setting if remote host not present in params.
+    Lookup for launch parameters on remote hosts. Fallback to local setting if remote host not present in params.
 
     :param str remotehost: address or host name of remote machine
-    :return: number of CPUs to be used
-    :rtype: int
+    :return: runtime parameters for remote host
+    :rtype: dict
     """
-    if remotehost in params.remote_logins.keys():
-        return params.n_cpu_remote[remotehost]
+
+    outparams = dict()
+    rem_dicts = []
+
+    for remote in params.remote_compute:
+        if type(remote) is dict: rem_dicts.append(list(remote.keys())[0])
+
+    if remotehost not in [*params.remote_compute,*rem_dicts]:
+        raise NotImplementedError('This machine is not listed in params.py.')
+
+    if remotehost in rem_dicts:
+        for r_param in params.remote_params:
+            if r_param in params.remote_compute[remotehost].keys():
+                outparams[r_param] = params.remote_compute[remotehost][r_param]
+            else:
+                outparams[r_param] = params.default_compparams[r_param]
     else:
-        return params.n_cpu_standalone
+         outparams.update(params.default_compparams)
+
+    return outparams
 
 def runtype(comp_sel):
     """
