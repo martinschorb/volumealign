@@ -29,6 +29,8 @@ from utils.checks import is_bad_filename
 label = "export_slices"
 parent = "export"
 
+compute_default = 'slurm'
+
 store = pages.init_store({}, label)
 
 status_table_cols = ['stack',
@@ -268,7 +270,7 @@ gobutton = html.Div(children=[html.Br(),
                                           id={'component': 'go', 'module': label}, disabled=True),
                               html.Div(id={'component': 'buttondiv', 'module': label}),
                               html.Br(),
-                              pages.compute_loc(label, c_default='slurm'),
+                              pages.compute_loc(label, c_default=compute_default),
                               html.Br(),
                               html.Div(id={'component': 'run_state', 'module': label}, style={'display': 'none'},
                                        children='wait')])

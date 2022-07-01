@@ -34,7 +34,6 @@ page = []
 storeinit = {'tpmatchtime': 1000}
 store = pages.init_store(storeinit, label)
 
-
 status_table_cols = ['stack',
                      'slices',
                      'tiles',
@@ -43,6 +42,10 @@ status_table_cols = ['stack',
 compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
+
+compute_locations = ['sparkslurm', 'localspark']
+
+compute_default = 'sparkslurm'
 
 page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(store)]
 
@@ -92,15 +95,13 @@ page2.append(matchtrial)
 
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start PointMatch Client', id=label + "go"),
-                              pages.compute_loc(label, c_options=['sparkslurm', 'localspark'],
-                                                c_default='sparkslurm'),
+                              pages.compute_loc(label, c_options=compute_locations,
+                                                c_default=compute_default),
                               html.Div(id=label + 'mtnotfound')
                               ],
                     style={'display': 'inline-block'})
 
 page2.append(gobutton)
-
-
 
 # # ===============================================
 # Compute Settings
@@ -158,7 +159,7 @@ def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, alls
 
                 if type(numtp) is int:
                     numtp_out = str(numtp)
-                    totaltime = numtp * matchtime * params.n_cpu_standalone
+                    totaltime = numtp * matchtime * params.n_cpu_standalone / 60000
                 else:
                     numtp_out = 'no tilepairs'
                     totaltime = None
@@ -173,6 +174,7 @@ def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, alls
     outlist.append(factors)
 
     return outlist
+
 
 @app.callback([Output(label + 'organism_dd', 'options'),
                Output(label + 'picks', 'data')],
@@ -471,6 +473,7 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
         launch_store['type'] = comp_sel
 
         return True, '', launch_store, outstore, mt_params['ptime']
+
 
 # =============================================
 # Processing status

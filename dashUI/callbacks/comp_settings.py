@@ -77,7 +77,7 @@ def update_compute_settings(*inputs):
         if None in inputs[-1].values():
             out[1] = dash.no_update
         else:
-            out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / 60000 / out[0] * (1 + params.time_add_buffer)) + 1
+            out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / out[0] * (1 + params.time_add_buffer)) + 1
 
     return out
 
@@ -160,4 +160,3 @@ def all_compset_callbacks(label, compute_table_cols):
             return {'display': 'none'}
         else:
             return {}
-

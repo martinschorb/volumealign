@@ -92,22 +92,8 @@ page2.append(
 gobutton = html.Div(children=[html.Br(),
                               html.Button('Start conversion', id=label + "go", disabled=True),
                               html.Div([], id=label + 'directory-popup', style={'color': '#E00'}),
-                              # dcc.ConfirmDialog(
-                              #     id=label+'danger-novaliddir',displayed=False,
-                              #     message='The selected directory does not exist or is not readable!'
-                              #     ),
                               html.Br(),
-                              html.Details([html.Summary('Compute location:'),
-                                            dcc.RadioItems(
-                                                options=[
-                                                    {'label': 'Cluster (slurm)', 'value': 'slurm'},
-                                                    {'label': 'locally (this submission node)', 'value': 'standalone'}
-                                                ],
-                                                value='slurm',
-                                                labelStyle={'display': 'inline-block'},
-                                                id=label + 'compute_sel'
-                                            )],
-                                           id=label + 'compute')],
+                              pages.compute_loc(label)],
                     style={'display': 'inline-block'})
 
 page2.append(gobutton)
@@ -149,7 +135,7 @@ page2.append(collapse_stdout)
                Input(label + 'go', 'n_clicks')
                ],
               [State({'component': 'project_dd', 'module': label}, 'value'),
-               State(label + 'compute_sel', 'value'),
+               State({'component': 'compute_sel', 'module': label}, 'value'),
                State({'component': 'store_run_status', 'module': label}, 'data'),
                State({'component': 'store_render_launch', 'module': label}, 'data')],
               prevent_initial_call=True)
