@@ -248,6 +248,7 @@ states.extend(bbox)
 states.append(State({'component': 'store_stackparams', 'module': parent}, 'data'))
 states.append(State({'component': 'sliceim_section_in_0', 'module': parent}, 'value'))
 states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent}, 'value'))
+states.append(State({'component': 'newdir_sel', 'module': parent}, 'value'))
 
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
@@ -263,7 +264,7 @@ states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent},
               prevent_initial_call=True)
 def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, owner, project,
                               Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
-                              sp_store, slice_in, c_limits):
+                              sp_store, slice_in, c_limits, newdir):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -445,7 +446,7 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
         elif is_bad_filename(outdir):
             return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, outstore
 
-        if not os.access(outdir, os.W_OK | os.X_OK):
+        if not os.access(outdir, os.W_OK | os.X_OK) and not newdir:
             return True, 'Output directory not writable!', dash.no_update, outstore
 
         else:
