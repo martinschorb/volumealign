@@ -239,7 +239,8 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
             return dash.no_update
 
-        elif comp_sel == 'sparkslurm':
+
+        elif 'spark' in comp_sel:
             spsl_p = dict()
 
             spsl_p['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
@@ -318,15 +319,17 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
             # fill parameters
 
+            spark_args = {'--jarfile': params.render_sparkjar}
+
             spark_p = dict()
 
-            spark_p['--time'] = '00:' + str(timelim) + ':00'
+            if comp_sel == 'sparkslurm':
+                spark_p['--time'] = '00:' + str(timelim) + ':00'
 
-            spark_p['--worker_cpu'] = params.cpu_pernode_spark
-            spark_p['--worker_mempercpu'] = params.mem_per_cpu
-            spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
-
-            spark_args = {'--jarfile': params.render_sparkjar}
+                spark_p['--worker_cpu'] = params.cpu_pernode_spark
+                spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
+            else:
+                spark_args['--cpu'] = launch_jobs.remote_cpu(comp_sel.split('::')[-1])
 
             run_params_generate = spsl_p.copy()
 
