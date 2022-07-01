@@ -26,6 +26,10 @@ while [ "$1" != "" ]; do
             JAVA_HOME=$VALUE
             shift
             ;;
+        --render_dir)
+            RENDER_DIR=$VALUE
+            shift
+            ;;
         --class)
             CLASS=$VALUE
             shift
@@ -43,7 +47,7 @@ while [ "$1" != "" ]; do
             PARAMS=$@
             break
             ;;
-      *)
+        *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage
             exit 1

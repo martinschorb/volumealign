@@ -312,7 +312,7 @@ app.clientside_callback(
 def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_owner, tilepairdir, owner, project, stack,
                                      n_cpu, timelim, thispage):
     thispage = thispage.lstrip('/')
-    print(comp_sel)
+
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 

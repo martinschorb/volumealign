@@ -696,8 +696,11 @@ def run(target='standalone',
             spark_args.update(special_args)
 
         spark_args['--class'] = pyscript
-        spark_args['--logdir'] = logbase
         spark_args['--spark_home'] = params.spark_dir
+
+        if not target == 'localspark':
+            spark_args['--logdir'] = logbase
+
         spark_args['--render_dir'] = params.render_dir
 
         command += ' ' + args2string(spark_args)
