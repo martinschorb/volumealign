@@ -26,7 +26,7 @@ from utils import pages, launch_jobs
 from utils import helper_functions as hf
 from utils.checks import is_bad_filename
 
-from callbacks import runstate
+from callbacks import runstate, comp_settings
 
 # element prefix
 label = "export_N5"
@@ -44,83 +44,6 @@ compute_table_cols = ['Num_CPUs',
 
 page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(children=store)]
 
-# # ===============================================
-# Compute Settings
-
-compute_settings = html.Details(children=[html.Summary('Compute settings:'),
-                                          html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
-                                                      html.Tr(
-                                                          [html.Td('', id={'component': 't_' + col, 'module': label})
-                                                           for col in status_table_cols])
-                                                      ], className='table'),
-                                          html.Br(),
-                                          html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
-                                                      html.Tr([html.Td(
-                                                          dcc.Input(id={'component': 'input_' + col, 'module': label},
-                                                                    type='number', min=1)) for col in
-                                                               compute_table_cols])
-                                                      ], className='table'),
-                                          dcc.Store(id={'component': 'factors', 'module': label}, data={}),
-                                          dcc.Store(id={'component': 'store_compset', 'module': label})
-                                          ])
-page1.append(compute_settings)
-
-
-# callbacks
-
-@app.callback([Output({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              [Output({'component': 'factors', 'module': label}, 'modified_timestamp')],
-              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              [Input({'component': 'factors', 'module': label}, 'modified_timestamp')],
-              [State({'component': 'factors', 'module': label}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
-def n5export_update_compute_settings(*inputs):
-    thispage = inputs[-1]
-    inputs = inputs[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    idx_offset = len(compute_table_cols)
-
-    trigger = hf.trigger()
-
-    if trigger not in ('factors', 'input_' + compute_table_cols[0]):
-        return dash.no_update
-
-    out = list(inputs[:idx_offset])
-    out.append(dash.no_update)
-
-    if inputs[0] is None:
-        out[0] = params.n_cpu_spark
-    else:
-        out[0] = inputs[0]
-
-    if type(inputs[1]) in (str, type(None)) or inputs[1] == {}:
-        out[1] = 120
-    else:
-        if None in inputs[-1].values():
-            out[1] = dash.no_update
-        else:
-            out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / out[0])
-
-    return out
-
-
-@app.callback(Output({'component': 'store_compset', 'module': label}, 'data'),
-              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              prevent_initial_call=True)
-def n5export_store_compute_settings(*inputs):
-    storage = dict()
-
-    in_labels, in_values = hf.input_components()
-
-    for input_idx, label in enumerate(in_labels):
-        storage[label] = in_values[input_idx]
-
-    return storage
 
 
 # Update directory and compute settings from stack selection
@@ -142,7 +65,6 @@ tablefields = [Output({'component': 't_' + col, 'module': label}, 'children') fo
 compute_tablefields = [Output({'component': 'factors', 'module': label}, 'data')]
 
 stackoutput.extend(tablefields)
-
 stackoutput.extend(compute_tablefields)
 
 
@@ -225,6 +147,91 @@ gobutton = html.Div(children=[html.Br(),
                                        children='wait')])
 
 page1.append(gobutton)
+
+
+# # ===============================================
+# Compute Settings
+
+page1.append(pages.compute_settings(label, status_table_cols, compute_table_cols))
+
+# comp_settings callbacks
+
+comp_settings.all_compset_callbacks(label, compute_table_cols)
+
+# compute_settings = html.Details(children=[html.Summary('Compute settings:'),
+#                                           html.Table([html.Tr([html.Th(col) for col in status_table_cols]),
+#                                                       html.Tr(
+#                                                           [html.Td('', id={'component': 't_' + col, 'module': label})
+#                                                            for col in status_table_cols])
+#                                                       ], className='table'),
+#                                           html.Br(),
+#                                           html.Table([html.Tr([html.Th(col) for col in compute_table_cols]),
+#                                                       html.Tr([html.Td(
+#                                                           dcc.Input(id={'component': 'input_' + col, 'module': label},
+#                                                                     type='number', min=1)) for col in
+#                                                                compute_table_cols])
+#                                                       ], className='table'),
+#                                           dcc.Store(id={'component': 'factors', 'module': label}, data={}),
+#                                           dcc.Store(id={'component': 'store_compset', 'module': label})
+#                                           ])
+# page1.append(compute_settings)
+#
+#
+# # callbacks
+#
+# @app.callback([Output({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+#               [Output({'component': 'factors', 'module': label}, 'modified_timestamp')],
+#               [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+#               [Input({'component': 'factors', 'module': label}, 'modified_timestamp')],
+#               [State({'component': 'factors', 'module': label}, 'data'),
+#                State('url', 'pathname')],
+#               prevent_initial_call=True)
+# def n5export_update_compute_settings(*inputs):
+#     thispage = inputs[-1]
+#     inputs = inputs[:-1]
+#     thispage = thispage.lstrip('/')
+#
+#     if thispage == '' or thispage not in hf.trigger(key='module'):
+#         raise PreventUpdate
+#
+#     idx_offset = len(compute_table_cols)
+#
+#     trigger = hf.trigger()
+#
+#     if trigger not in ('factors', 'input_' + compute_table_cols[0]):
+#         return dash.no_update
+#
+#     out = list(inputs[:idx_offset])
+#     out.append(dash.no_update)
+#
+#     if inputs[0] is None:
+#         out[0] = params.n_cpu_spark
+#     else:
+#         out[0] = inputs[0]
+#
+#     if type(inputs[1]) in (str, type(None)) or inputs[1] == {}:
+#         out[1] = 120
+#     else:
+#         if None in inputs[-1].values():
+#             out[1] = dash.no_update
+#         else:
+#             out[1] = np.ceil(inputs[-1][compute_table_cols[-1]] / out[0])
+#
+#     return out
+#
+#
+# @app.callback(Output({'component': 'store_compset', 'module': label}, 'data'),
+#               [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+#               prevent_initial_call=True)
+# def n5export_store_compute_settings(*inputs):
+#     storage = dict()
+#
+#     in_labels, in_values = hf.input_components()
+#
+#     for input_idx, label in enumerate(in_labels):
+#         storage[label] = in_values[input_idx]
+#
+#     return storage
 
 # =============================================
 
