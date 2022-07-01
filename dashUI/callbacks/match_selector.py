@@ -95,7 +95,6 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
                State({'component': 'mc_new_enabled', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
 def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage, new_enabled='False'):
-
     all_mcs = dash.no_update
 
     thispage = thispage.lstrip('/')
@@ -105,10 +104,12 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
-    if None in [mc_own_sel, new_mc, mc_dd_opt, init_match, thispage]:
+    if None in [mc_own_sel, mc_dd_opt, init_match]:
         raise PreventUpdate
 
+
     if 'mc_owner_dd' in trigger:
+
         if mc_own_sel == '':
             raise PreventUpdate
 

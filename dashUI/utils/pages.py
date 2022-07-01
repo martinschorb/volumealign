@@ -209,7 +209,7 @@ def match_selector(module, newcoll=False):
                     dcc.Store(id={'component': 'mc_new_enabled', 'module': module}, data=str(newcoll)),
                     html.Div([html.Div('Match Collection Owner:', style={'margin-right': '1em', 'margin-left': '2em'}),
                               dcc.Dropdown(id={'component': 'mc_owner_dd', 'module': module},
-                                           persistence=True, clearable=False, className='dropdown_narrow',
+                                           persistence=True, clearable=False, className='dropdown_inline',
                                            options=mc_owner_dd_options, value=mc_own),
                               html.Div([html.Div('Enter new Match Collection Owner:',
                                                  style={'margin-right': '1em', 'margin-left': '2em'}),
@@ -223,7 +223,7 @@ def match_selector(module, newcoll=False):
                     html.Div([html.Div(
                                   [html.Div('Match Collection:', style={'margin-right': '1em', 'margin-left': '2em'}),
                                    dcc.Dropdown(id={'component': 'matchcoll_dd', 'module': module}, persistence=True,
-                                                clearable=False, className='dropdown_narrow',
+                                                clearable=False, className='dropdown_inline',
                                                 options=mc_dd_options, value=mcoll)],
                                   id={'component': 'matchcoll', 'module': module}, style={'display': 'none'}),
                              html.Br(),
