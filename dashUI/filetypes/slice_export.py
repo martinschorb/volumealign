@@ -89,7 +89,7 @@ compute_settings = html.Details(children=[html.Summary('Compute settings:'),
                                                       html.Tr([html.Td(
                                                           dcc.Input(id={'component': 'input_' + col, 'module': label},
                                                                     type='number', min=1)) for col in
-                                                               compute_table_cols])
+                                                          compute_table_cols])
                                                       ], className='table'),
                                           dcc.Store(id={'component': 'factors', 'module': label}, data={}),
                                           dcc.Store(id={'component': 'store_compset', 'module': label})
@@ -242,7 +242,7 @@ def slice_export_stacktoparams(  # stack_sel,
 
             out['Gigapixels'] = out['numsections'] * (xmax - xmin) * (ymax - ymin) / (10 ** 9)
 
-            out['output dimensions'] = [int((xmax - xmin) * float(scale)),  int((ymax - ymin) * float(scale))]
+            out['output dimensions'] = [int((xmax - xmin) * float(scale)), int((ymax - ymin) * float(scale))]
 
             t_fields = [stack,
                         str(out['numsections']),
@@ -251,7 +251,7 @@ def slice_export_stacktoparams(  # stack_sel,
 
             timelim = np.ceil(
                 out['Gigapixels'] * float(scale) * params.export['min/GPix/CPU_slice'] / params.n_cpu_script * (
-                            1 + params.time_add_buffer)) + 1
+                        1 + params.time_add_buffer)) + 1
 
             factors = {'runtime_minutes': timelim}
 
@@ -300,6 +300,7 @@ states.append(State({'component': 'sliceim_section_in_0', 'module': parent}, 'va
 states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent}, 'value'))
 states.append(State({'component': 'scale_input', 'module': label}, 'value'))
 states.append(State({'component': 'newdir_sel', 'module': parent}, 'value'))
+
 
 @app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
                Output({'component': 'buttondiv', 'module': label}, 'children'),
