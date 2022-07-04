@@ -137,7 +137,8 @@ section_split = 500  # split stack into processing chunks for certain operations
 
 datadirdepth = {
     'SBEM': 3,
-    'SerialEM': 1}  # levels how deep inside the root directory the actual tile images are stored
+    'SerialEM': 1,
+    'FIBSEM': 1}  # levels how deep inside the root directory the actual tile images are stored
 
 mipmapdir = 'mipmaps'
 
