@@ -89,26 +89,26 @@ def run_command(remotehost, command, logfile, errfile):
 
     print(command)
 
-    # if remotehost in params.remote_compute:
-    #     ssh = paramiko.SSHClient()
-    #     ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
-    #     ssh.connect(remotehost, username=remote_user(remotehost))
-    #
-    #     command = 'echo $$ && ' + command
-    #
-    #     command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
-    #
-    #     stdin, stdout, stderr = ssh.exec_command(command)
-    #
-    #     remote_pid = stdout.readline().split('\n')[0]
-    #
-    #     return {remotehost: remote_pid}
-    #
-    # else:
-    #     with open(logfile, "wb") as out, open(errfile, "wb") as err:
-    #         p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
-    #
-    #     return p
+    if remotehost in params.remote_hosts:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost, username=remote_user(remotehost))
+
+        command = 'echo $$ && ' + command
+
+        command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+
+        remote_pid = stdout.readline().split('\n')[0]
+
+        return {remotehost: remote_pid}
+
+    else:
+        with open(logfile, "wb") as out, open(errfile, "wb") as err:
+            p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
+
+        return p
 
 
 def submit_command(remotehost, command, logfile):
@@ -266,7 +266,7 @@ def checkstatus(run_state):
                 newrunstate['id'] = runjob
                 return checkstatus(newrunstate)
 
-        elif 'localhost' not in j_id.keys() and not list(j_id.keys())[0] in params.remote_compute:
+        elif 'localhost' not in j_id.keys() and not list(j_id.keys())[0] in params.remote_hosts:
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
@@ -669,7 +669,7 @@ def run(target='standalone',
     print('launching - ')
     print(target)
 
-    if target in ['standalone', 'localhost'] or target in params.remote_compute:
+    if target in ['standalone', 'localhost'] or target in params.remote_hosts:
         command = 'bash ' + runscriptfile
 
         runscript.replace('#launch message', 'echo "Launching Render standalone processing script on " `hostname`')
@@ -680,7 +680,7 @@ def run(target='standalone',
 
         return run_command(target, command, logfile, errfile)
 
-    elif target == 'generic' or target.split('generic::')[-1] in params.remote_compute:
+    elif target == 'generic' or target.split('generic::')[-1] in params.remote_hosts:
         command = pyscript
         command += ' ' + run_args
 
@@ -688,7 +688,7 @@ def run(target='standalone',
 
         return run_command(remotehost, command, logfile, errfile)
 
-    elif target == 'localspark' or target.split('spark::')[-1] in params.remote_compute:
+    elif target == 'localspark' or target.split('spark::')[-1] in params.remote_hosts:
         command = params.launch_dir + '/localspark.sh'
         remotehost = target.split('spark::')[-1]
 
@@ -814,9 +814,7 @@ def remote_params(remotehost):
 
     outparams = dict()
 
-    r_hosts = [list(resource.keys())[0] for resource in params.remote_compute]
-
-    if remotehost in r_hosts:
+    if remotehost in params.remote_hosts:
         for r_param in params.remote_params:
             if r_param in params.remote_compute[remotehost].keys():
                 outparams[r_param] = params.remote_compute[remotehost][r_param]
@@ -836,7 +834,7 @@ def runtype(comp_sel):
     :rtype: str
     """
 
-    if comp_sel in params.remote_compute:
+    if comp_sel in params.remote_hosts:
         return 'standalone'
     else:
         return comp_sel

@@ -478,8 +478,8 @@ for idx in range(params.max_tileviews):
         imparams['imurl'] = imurl
 
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
+
         try:
-            print(imurl)
             img = io.imread(imurl)
         except:
             fig = px.line()
