@@ -368,15 +368,15 @@ for idx in range(params.max_tileviews):
                    Input({'component': 'slice_zoom', 'module': MATCH}, 'n_clicks'),
                    Input({'component': 'slice_reset', 'module': MATCH}, 'n_clicks'),
                    Input({'component': 'sliceim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'store_stackparams', 'module': MATCH}, 'data')],
+                   Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
+                   Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
                   [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
                    State({'component': 'project_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'stack_dd', 'module': MATCH}, 'value'),
                    State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
                    State({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
                    State('url', 'pathname')
                    ], prevent_initial_call=True)
-    def slice_view(section, zoomclick, resetclick, c_limits, thisstore, owner, project, stack, imparams,
+    def slice_view(section, zoomclick, resetclick, c_limits, thisstore, stack, owner, project, imparams,
                    rectsel, thispage):
         """
         Generates/populates the slice viewer.
@@ -479,6 +479,7 @@ for idx in range(params.max_tileviews):
 
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
         try:
+            print(imurl)
             img = io.imread(imurl)
         except:
             fig = px.line()
