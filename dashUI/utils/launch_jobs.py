@@ -108,7 +108,7 @@ def run_command(remotehost, command, logfile, errfile):
         with open(logfile, "wb") as out, open(errfile, "wb") as err:
             p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
 
-        return p
+        return p.pid
 
 
 def submit_command(remotehost, command, logfile):
@@ -279,7 +279,7 @@ def checkstatus(run_state):
     elif type(j_id) is str:
         runvars = [j_id]
 
-    if run_state['type'] in ['standalone', 'generic', 'localhost']:
+    if run_state['type'] in ['standalone', 'generic', 'localhost'] or 'local' in run_state['type'] :
         if run_state['status'] in ['running', 'launch']:
             for runvar in runvars:
                 if type(runvar) is dict:
