@@ -814,7 +814,7 @@ def remote_params(remotehost):
 
     outparams = dict()
 
-    if remotehost not in [*params.remote_compute,*rem_dicts]:
+    if remotehost not in params.remote_compute.keys():
         raise NotImplementedError('This machine is not listed in params.py.')
 
     if remotehost in params.remote_params.keys():
