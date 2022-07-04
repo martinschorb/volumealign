@@ -65,6 +65,10 @@ comp_options = [
     {'label': 'Spark locally', 'value': 'localspark'}
 ]
 
+comp_default = 'standalone'
+
+comp_defaultoptions = ['standalone', 'slurm']
+
 # list remote workstations/login nodes and the remote launch parameters if special (dict or str)
 
 remote_params = ['user', 'cpu', 'mem']
@@ -75,22 +79,19 @@ remote_compute = [
                             'mem': 4}},
     {'render.embl.de': {'cpu': 2,
                         'mem': 4}},
-    'login.cluster.embl.de']
+    {'login.cluster.embl.de': {}}]
 
 
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
 remote_submission = {}
 
-for resource in remote_compute:
-    comp_options.append({'label': 'Remote using ' + resource, 'value': resource})
-
-comp_default = 'standalone'
-
-comp_defaultoptions = ['standalone', 'slurm']
-
 # add remote resources
-comp_defaultoptions.extend(remote_compute)
+
+for resource in remote_compute:
+    r_name = list(resource.keys())[0]
+    comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
+    comp_defaultoptions.extend(r_name)
 
 min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 
