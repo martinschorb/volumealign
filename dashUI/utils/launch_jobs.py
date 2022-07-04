@@ -813,15 +813,11 @@ def remote_params(remotehost):
     """
 
     outparams = dict()
-    rem_dicts = []
-
-    for remote in params.remote_compute:
-        if type(remote) is dict: rem_dicts.append(list(remote.keys())[0])
 
     if remotehost not in [*params.remote_compute,*rem_dicts]:
         raise NotImplementedError('This machine is not listed in params.py.')
 
-    if remotehost in rem_dicts:
+    if remotehost in params.remote_params.keys():
         for r_param in params.remote_params:
             if r_param in params.remote_compute[remotehost].keys():
                 outparams[r_param] = params.remote_compute[remotehost][r_param]
