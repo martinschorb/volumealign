@@ -67,6 +67,8 @@ def test_run():
             rs1['id'] = run(pyscript='/thisscriptclearlydoesnotexist', logfile=rs1['logfile'], target=target)
             time.sleep(5)
 
+            print(rs1)
+
             while status(rs1)[0] == 'pending':
                 print('Wait for test job to start on ' + computeoption['label'] + '.')
                 time.sleep(10)

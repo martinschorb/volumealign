@@ -44,6 +44,9 @@ def test_paths():
 
     command = 'ls ' + thisdir
 
+
+    # check availability of run script directories for each compute target
+
     for target in compute_targets:
         print('Test directory availability on ' + target)
         if 'spark' in target:
