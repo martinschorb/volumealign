@@ -13,11 +13,10 @@ from dashUI import params
 from dashUI.utils.launch_jobs import remote_user
 
 compute_targets = params.comp_defaultoptions
-remote_targets = list(params.remote_compute)
+remote_targets = list(params.remote_hosts)
 
-for target in params.remote_logins.keys():
-    if target not in remote_targets:
-        remote_targets.append(target)
+if len(params.remote_submission.keys()) > 0:
+    remote_targets.extend(list(params.remote_submission.keys()))
 
 
 # test availability of remote hosts
@@ -35,6 +34,9 @@ def test_conda_envs():
 
         if target == 'standalone':
             result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT).decode()
+
+        elif target in params.comp_clustertypes:
+            continue
 
         else:
             ssh = paramiko.SSHClient()

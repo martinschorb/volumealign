@@ -800,7 +800,7 @@ def remote_user(remotehost):
     :rtype: str
     """
 
-    return params.remote_params(remotehost)['user']
+    return remote_params(remotehost)['user']
 
 
 def remote_params(remotehost):
@@ -815,15 +815,17 @@ def remote_params(remotehost):
     outparams = dict()
 
     if remotehost in params.remote_hosts:
+        r_idx = params.remote_hosts.index(remotehost)
         for r_param in params.remote_params:
-            if r_param in params.remote_compute[remotehost].keys():
-                outparams[r_param] = params.remote_compute[remotehost][r_param]
+            if r_param in params.remote_compute[r_idx][remotehost].keys():
+                outparams[r_param] = params.remote_compute[r_idx][remotehost][r_param]
             else:
                 outparams[r_param] = params.default_compparams[r_param]
     else:
          outparams.update(params.default_compparams)
 
     return outparams
+
 
 def runtype(comp_sel):
     """

@@ -67,6 +67,8 @@ comp_options = [
 
 comp_default = 'standalone'
 
+comp_clustertypes = ['slurm']
+
 comp_defaultoptions = ['standalone', 'slurm']
 
 # list remote workstations/login nodes and the remote launch parameters if special (dict or str)
@@ -74,9 +76,9 @@ comp_defaultoptions = ['standalone', 'slurm']
 remote_params = ['user', 'cpu', 'mem']
 
 remote_compute = [
-    {'pc-emcf-16.embl.de': {'user': 'testuser',
-                            'cpu': 2,
-                            'mem': 4}},
+    # {'pc-emcf-16.embl.de': {'user': 'testuser',
+    #                         'cpu': 2,
+    #                         'mem': 4}},
     {'render.embl.de': {'cpu': 2,
                         'mem': 4}},
     {'login.cluster.embl.de': {}}]
@@ -88,10 +90,13 @@ remote_submission = {}
 
 # add remote resources
 
+remote_hosts = []
+
 for resource in remote_compute:
     r_name = list(resource.keys())[0]
+    remote_hosts.append(r_name)
     comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
-    comp_defaultoptions.extend(r_name)
+    comp_defaultoptions.append(r_name)
 
 min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 
