@@ -219,7 +219,7 @@ def checkstatus(run_state):
     """
 
     outstat = []
-    runvars = [run_state['id']]
+    # runvars = [run_state['id']]
     j_id = run_state['id']
     logfile = run_state['logfile']
 
@@ -284,7 +284,9 @@ def checkstatus(run_state):
 
     if run_state['type'] in ['standalone', 'generic', 'localhost'] or run_state['type'] in params.remote_hosts:
         if run_state['status'] in ['running', 'launch']:
+
             for runvar in runvars:
+                print('this----------',runvar)
                 if type(runvar) is dict:
 
                     # remote check
@@ -301,11 +303,11 @@ def checkstatus(run_state):
 
                     if len(res) > 0:
                         outstat.append('running')
+                        print('running')
                         continue
 
                     elif run_state['status'] == 'launch':
                         outstat.append('launch')
-                        continue
 
                 elif type(runvar) is int:
                     if psutil.pid_exists(runvar):
@@ -320,6 +322,7 @@ def checkstatus(run_state):
                     raise TypeError('JOB ID for standalone jobs needs to be dict (host:id) or int for local call.')
 
                 if os.path.exists(run_state['logfile'] + '_exit'):
+                    print('error!')
                     outstat.append('error')
                 else:
                     outstat.append('done')

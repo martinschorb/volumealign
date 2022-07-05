@@ -8,7 +8,7 @@ import pytest
 import time
 from dashUI.utils.launch_jobs import *
 
-run_state0 = dict(status='',
+run_state0 = dict(status='running',
                   type='standalone',
                   logfile='log.log',
                   id=0)
@@ -34,7 +34,7 @@ def test_args2string():
     assert args2string(indict) == expectedargs
 
 
-# test launcher
+# test launcher and status calls
 def test_run():
     # run launcher test
 
@@ -46,7 +46,12 @@ def test_run():
 
     # check target not implemented
     with pytest.raises(NotImplementedError):
-        run(target='somefancycloud')
+        run(target='somefancycloudthatdoesnotexits')
+
+    # test wrong compute target type check
+    rs1['id'] = ['this is an invalid jobID']
+    with pytest.raises(TypeError):
+        checkstatus(rs1)
 
     c_options = params.comp_options
     c_options.append({'label':'Dummy remote launch and status.','value':'localhost'})
