@@ -326,6 +326,9 @@ def checkstatus(run_state):
         else:
             return (run_state['status'], ''), logfile, jobs
 
+    elif run_state['type'] in params.remote_hosts:
+        print('remote found!')
+
     else:
         return cluster_status(run_state), logfile, jobs
 
