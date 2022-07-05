@@ -270,6 +270,9 @@ def checkstatus(run_state):
             #         parameter list for next sequential job
             return 'pending', '', logfile, jobs
 
+        else:
+            runvars = [j_id]
+
     elif type(j_id) is list:
         runvars = j_id
 
@@ -279,7 +282,7 @@ def checkstatus(run_state):
     elif type(j_id) is str:
         runvars = [j_id]
 
-    if run_state['type'] in ['standalone', 'generic', 'localhost'] or 'local' in run_state['type'] :
+    if run_state['type'] in ['standalone', 'generic', 'localhost'] or run_state['type'] in params.remote_hosts:
         if run_state['status'] in ['running', 'launch']:
             for runvar in runvars:
                 if type(runvar) is dict:
@@ -325,9 +328,6 @@ def checkstatus(run_state):
 
         else:
             return (run_state['status'], ''), logfile, jobs
-
-    elif run_state['type'] in params.remote_hosts:
-        print('remote found!')
 
     else:
         return cluster_status(run_state), logfile, jobs
