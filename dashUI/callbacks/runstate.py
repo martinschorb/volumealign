@@ -188,12 +188,12 @@ def update_output(n, outfile, thispage):
 
 @app.callback([Output({'component': 'store_run_status', 'module': MATCH}, 'data'),
                Output({'component': 'outfile', 'module': MATCH}, 'children')],
-              [Input({'component': 'store_launch_status', 'module': MATCH}, 'modified_timestamp'),
-               Input({'component': 'store_r_status', 'module': MATCH}, 'modified_timestamp')],
-              [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
-               State({'component': 'store_r_status', 'module': MATCH}, 'data')],
+              [Input({'component': 'store_launch_status', 'module': MATCH}, 'data'),
+               Input({'component': 'store_r_status', 'module': MATCH}, 'data')],
+              # [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
+              #  State({'component': 'store_r_status', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
-def run_state(launch_trigger, status_trigger, launch_in, status_in):
+def run_state( launch_in, status_in): # launch_trigger, status_trigger,
     if not dash.callback_context.triggered:
         raise PreventUpdate
     trigger = hf.trigger()

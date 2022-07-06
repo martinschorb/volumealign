@@ -81,7 +81,7 @@ remote_compute = [
     #                         'mem': 4}},
     {'render.embl.de': {'cpu': 2,
                         'mem': 4}},
-    {'login.cluster.embl.de': {}}]
+    {'login01.cluster.embl.de': {}}]
 
 
 
