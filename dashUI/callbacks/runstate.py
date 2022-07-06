@@ -90,6 +90,8 @@ def update_status(n, click, run_state, logfile, module, thispage):
             if logfile.endswith('.log'):
                 r_status['logfile'] = logfile[:logfile.rfind('.log')] + '.err'
 
+        # print('update_status:', r_status)
+
         return r_status, status_style, status_href
 
     elif 'cancel' in trigger:
@@ -116,6 +118,8 @@ def update_status(n, click, run_state, logfile, module, thispage):
 def get_status(run_state, module, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
+
+    print(run_state)
 
     thispage = thispage.lstrip('/')
 
@@ -188,27 +192,27 @@ def update_output(n, outfile, thispage):
 
 @app.callback([Output({'component': 'store_run_status', 'module': MATCH}, 'data'),
                Output({'component': 'outfile', 'module': MATCH}, 'children')],
-              [Input({'component': 'store_launch_status', 'module': MATCH}, 'data'),
-               Input({'component': 'store_r_status', 'module': MATCH}, 'data')],
-              # [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
-              #  State({'component': 'store_r_status', 'module': MATCH}, 'data')],
+              [Input({'component': 'store_launch_status', 'module': MATCH}, 'modified_timestamp'),
+               Input({'component': 'store_r_status', 'module': MATCH}, 'modified_timestamp')],
+              [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
+               State({'component': 'store_r_status', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
-def run_state( launch_in, status_in): # launch_trigger, status_trigger,
+def run_state(launch_trigger, status_trigger, launch_in, status_in):
     if not dash.callback_context.triggered:
         raise PreventUpdate
     trigger = hf.trigger()
 
-    # print('-- merge status --')
-    # print(trigger)
+    print('-- merge status --')
+    print(trigger)
 
     if 'launch' in trigger:
-        # print('launch triggered state:')
-        # print(launch_in)
+        print('launch triggered state:')
+        print(launch_in)
         out = launch_in
 
     else:
-        # print('status triggered state:')
-        # print(status_in)
+        print('status triggered state:')
+        print(status_in)
         out = status_in.copy()
 
     return out, out['logfile']

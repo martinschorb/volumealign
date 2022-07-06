@@ -188,7 +188,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
 
         run_state['status'] = 'running'
         run_state['id'] = sbem_conv_p
-        run_state['type'] = launch_jobs.runtype(comp_sel)
+        run_state['type'] = launch_jobs.runtype(compute_sel)
         run_state['logfile'] = log_file
 
     else:
@@ -220,7 +220,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
                 run_state['status'] = 'wait'
                 popup = 'Input  Data not accessible.'
 
-    out['logfile'] = log_file
-    out['status'] = run_state['status']
+    out.update(run_state)
+    print(out)
 
     return but_disabled, popup, out, outstore

@@ -96,6 +96,32 @@ def test_run():
             time.sleep(35)
             assert status(rs1)[0] == 'done'
 
+def test_canceljobs():
+
+    rs1 = dict(run_state0)
+
+    c_options = params.comp_clustertypes
+
+    # check all available target types
+    for computeoption in c_options:
+
+        target = computeoption['value']
+
+        print('Testing cancel' + computeoption['label'] + '.')
+
+        rs1['type'] = target
+
+        rs1['status'] = 'launch'
+        rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render_cancel.log')
+        rs1['id'] = run(logfile=rs1['logfile'], target=target)
+
+        time.sleep(3)
+
+        canceljobs(rs1)
+
+        time.sleep(3)
+
+        assert str(rs1['id']) + ' cancelled.' in status(rs1)[0]
 
 # test status of local tasks
 def test_find_activejob():

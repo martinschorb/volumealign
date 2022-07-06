@@ -18,6 +18,8 @@ import psutil
 import paramiko
 import requests
 
+import dashUI.params as params
+
 
 def args2string(args, separator='='):
     """
@@ -111,7 +113,7 @@ def run_command(remotehost, command, logfile, errfile):
         return p.pid
 
 
-def submit_command(remotehost, command, logfile):
+def submit_command(target, command, logfile):
     """
     Launcher to run a shell command that submits a/multiple HPC job(s) either locally or on a remote host.
 
@@ -124,8 +126,11 @@ def submit_command(remotehost, command, logfile):
 
     my_env = os.environ.copy()
 
-    if remotehost in params.remote_submission.keys():
-        remotehost = params.remote_submission[remotehost]
+    if target in params.remote_submission.keys():
+
+        remotehost = params.remote_submission[target]
+
+        print('Remote ' + target + ' submission on '  + remotehost + '.')
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
@@ -134,6 +139,7 @@ def submit_command(remotehost, command, logfile):
         stdin, stdout, stderr = ssh.exec_command(command)
         time.sleep(3)
         jobid = stdout.readline()
+
     else:
         p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
         time.sleep(3)

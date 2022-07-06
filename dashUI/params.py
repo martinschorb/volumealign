@@ -86,7 +86,7 @@ remote_compute = [
 
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
-remote_submission = {}
+remote_submission = {'slurm': 'login01.cluster.embl.de'}
 
 # add remote resources
 

@@ -199,6 +199,8 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
     launch_store['id'] = tilepairs_generate_p
     launch_store['type'] = launch_jobs.runtype(comp_sel)
 
+    print(launch_store)
+
     outstore = dict()
     outstore['owner'] = owner
     outstore['project'] = project

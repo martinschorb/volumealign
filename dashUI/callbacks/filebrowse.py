@@ -74,7 +74,8 @@ def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, 
     if thispage == '' or thispage not in hf.trigger(key='module') or inpath is None:
         raise PreventUpdate
 
-    path = inpath
+    # remove trailing or leading white spaces
+    inpath = inpath.strip(' ')
 
     if 'dummy' in trigger:
         path = dummydata
