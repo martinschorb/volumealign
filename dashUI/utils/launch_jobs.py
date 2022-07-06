@@ -579,11 +579,11 @@ def canceljobs(run_state, out_status='cancelled'):
 
     #     add other cluster types here
 
-    elif 'standalone' in cl_type or 'generic' in cl_type:
+    elif 'standalone' in cl_type or 'generic' in cl_type or '::' in cl_type:
         command = 'kill ' + str(j_id)
 
-    if cl_type in params.remote_submission.keys():
-        remotehost = params.remote_submission[cl_type]
+    if cl_type.split('::')[-1] in params.remote_hosts:
+        remotehost = cl_type.split('::')[-1]
 
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)

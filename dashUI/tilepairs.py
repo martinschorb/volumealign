@@ -207,7 +207,6 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
 
     return True, launch_store, outstore
 
-
 # =============================================
 # Processing status
 

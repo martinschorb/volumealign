@@ -13,11 +13,11 @@ from dash.exceptions import PreventUpdate
 import subprocess
 import os
 
-from dashUI.app import app
+from app import app
 
-import dashUI.params as params
-from dashUI.utils import launch_jobs
-from dashUI.utils import helper_functions as hf
+import params as params
+from utils import launch_jobs
+from utils import helper_functions as hf
 
 static_states = ['done', 'cancelled', 'error', 'input', 'wait', 'timeout']
 
@@ -132,7 +132,7 @@ def get_status(run_state, module, thispage):
     c_button_style = {'display': 'none'}
     if 'running' in run_state['status']:
         status = html.Div([html.Img(src='assets/gears.gif', height=72), html.Br(), 'running'])
-        if run_state['type'] not in ['standalone']:
+        if run_state['type'] not in ['standalone', 'generic']:
             c_button_style = {}
         status_style = {'color': '#07E'}
     elif run_state['status'] == 'input':
@@ -197,9 +197,7 @@ def update_output(n, outfile, thispage):
               [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
                State({'component': 'store_r_status', 'module': MATCH}, 'data')],
               prevent_initial_call=True)
-def run_state(launch_trigger, status_trigger, launch_in, status_in):
-    if not dash.callback_context.triggered:
-        raise PreventUpdate
+def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
     trigger = hf.trigger()
 
     print('-- merge status --')
