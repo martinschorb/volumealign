@@ -200,12 +200,12 @@ def update_output(n, outfile, thispage):
 def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
     trigger = hf.trigger()
 
-    print('-- merge status --')
-    print(trigger)
+    # print('-- merge status --')
+    # print(trigger)
 
     if 'launch' in trigger:
-        print('launch triggered state:')
-        print(launch_in)
+        # print('launch triggered state:')
+        # print(launch_in)
         out = launch_in
 
     else:

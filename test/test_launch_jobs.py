@@ -123,6 +123,39 @@ def test_canceljobs():
 
         assert str(rs1['id']) + ' cancelled.' in status(rs1)[0]
 
+def test_localsparkjobs():
+    rs1 = dict(run_state0)
+
+    c_options = params.comp_options
+    c_options.append({'label':'Dummy remote launch and status.','value':'localhost'})
+
+    # check all available target types
+    for computeoption in c_options:
+        if 'spark' in target:
+            target = computeoption['value']
+
+            print('Testing ' + computeoption['label'] + '.')
+
+            rs1['type'] = target
+            rs1['status'] = 'launch'
+            rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_localspark.log')
+
+            spark_args = {'--jarfile': params.render_sparkjar}
+
+            spark_args['--cpu'] = remote_params(target.split('::')[-1])['cpu']
+            spark_args['--mem'] = remote_params(target.split('::')[-1])['mem']
+
+            rs1['id'] = run(pyscript='org.janelia.render.client.spark.n5.N5Client',
+                            logfile=rs1['logfile'],
+                            target=target,
+                            special_args=spark_args,
+                            )
+            time.sleep(5)
+
+            print(rs1)
+
+    assert True
+
 # test status of local tasks
 def test_find_activejob():
     rs1 = dict(run_state0)
