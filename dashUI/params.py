@@ -16,6 +16,7 @@ import numpy as np
 ## Directory presets
 
 base_dir = '/g/emcf/software/volumealign/'
+base_dir = '/g/emcf/schorb/code/volumealign/'
 
 render_dir = '/g/emcf/software/render'
 
@@ -96,7 +97,9 @@ for resource in remote_compute:
     r_name = list(resource.keys())[0]
     remote_hosts.append(r_name)
     comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
+    comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' +  r_name})
     comp_defaultoptions.append(r_name)
+
 
 min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 

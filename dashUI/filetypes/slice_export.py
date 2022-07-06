@@ -453,7 +453,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         launch_store = dict()
         launch_store['logfile'] = log_file
-        launch_store['status'] = 'running'
+        launch_store['status'] = 'launch'
         launch_store['id'] = sliceexport_p
         launch_store['type'] = launch_jobs.runtype(comp_sel)
 

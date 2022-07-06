@@ -13,11 +13,11 @@ from dash.exceptions import PreventUpdate
 import subprocess
 import os
 
-from app import app
+from dashUI.app import app
 
-import params
-from utils import launch_jobs
-from utils import helper_functions as hf
+import dashUI.params as params
+from dashUI.utils import launch_jobs
+from dashUI.utils import helper_functions as hf
 
 static_states = ['done', 'cancelled', 'error', 'input', 'wait', 'timeout']
 
@@ -211,8 +211,8 @@ def run_state(launch_trigger, status_trigger, launch_in, status_in):
         out = launch_in
 
     else:
-        print('status triggered state:')
-        print(status_in)
+        # print('status triggered state:')
+        # print(status_in)
         out = status_in.copy()
 
     return out, out['logfile']

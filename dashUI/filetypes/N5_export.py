@@ -42,7 +42,7 @@ compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
 
-compute_locations = ['sparkslurm', 'localspark']
+compute_locations = ['sparkslurm', 'localspark', 'spark::render.embl.de']
 
 compute_default = 'sparkslurm'
 
@@ -85,6 +85,7 @@ def n5export_stacktoparams(  # stack_sel,
         owner, project, stack_sel, allstacks,
         browsedir,
         thispage):
+
     thispage = thispage.lstrip('/')
 
     if thispage == '' or thispage not in hf.trigger(key='module'):
@@ -368,9 +369,11 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
         launch_store = dict()
         launch_store['logfile'] = log_file
-        launch_store['status'] = 'running'
+        launch_store['status'] = 'launch'
         launch_store['id'] = n5export_p
         launch_store['type'] = comp_sel
+
+        print(launch_store)
 
         return True, '', launch_store, outstore
 

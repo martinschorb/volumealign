@@ -156,7 +156,7 @@ def all_compset_callbacks(label, compute_table_cols):
                   Input({'component': 'compute_sel', 'module': label}, 'value'))
     def compset_switch(compsel):
 
-        if 'local' in compsel:
+        if 'local' in compsel or 'spark::' in compsel:
             return {'display': 'none'}
         else:
             return {}

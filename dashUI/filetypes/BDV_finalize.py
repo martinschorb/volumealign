@@ -201,7 +201,7 @@ def bdv_finalize_execute_gobutton(click, jsonfile, launch_store):
                               jsonfile=param_file,
                               logfile=log_file, errfile=err_file)
 
-    launch_store['status'] = 'running'
+    launch_store['status'] = 'launch'
     launch_store['id'] = mkxml_p
     launch_store['type'] = 'standalone'
     launch_store['logfile'] = log_file

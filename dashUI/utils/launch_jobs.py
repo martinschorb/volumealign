@@ -91,14 +91,14 @@ def run_command(remotehost, command, logfile, errfile):
 
     print(command)
 
+    command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
+
     if remotehost in params.remote_hosts:
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
         ssh.connect(remotehost, username=remote_user(remotehost))
 
         command = 'echo $$ && ' + command
-
-        command += ' >  ' + logfile + ' 2> ' + errfile + ' || echo $? > ' + logfile + '_exit'
 
         stdin, stdout, stderr = ssh.exec_command(command)
 
@@ -107,6 +107,7 @@ def run_command(remotehost, command, logfile, errfile):
         return {remotehost: remote_pid}
 
     else:
+
         with open(logfile, "wb") as out, open(errfile, "wb") as err:
             p = subprocess.Popen(command, stdout=out, stderr=err, shell=True, env=my_env, executable='bash')
 
@@ -288,7 +289,9 @@ def checkstatus(run_state):
     elif type(j_id) is str:
         runvars = [j_id]
 
-    if run_state['type'] in ['standalone', 'generic', 'localhost'] or run_state['type'] in params.remote_hosts:
+    if run_state['type'] in ['standalone', 'generic', 'localhost']\
+            or run_state['type'].split('::')[-1] in params.remote_hosts:
+
         if run_state['status'] in ['running', 'launch']:
 
             for runvar in runvars:
@@ -712,20 +715,13 @@ def run(target='standalone',
         if type(special_args) is dict:
             spark_args.update(special_args)
 
-
-
         spark_args['--class'] = pyscript
         spark_args['--spark_home'] = params.spark_dir
-
-        if not target == 'localspark':
-            spark_args['--logdir'] = logbase
 
         spark_args['--render_dir'] = params.render_dir
 
         command += ' ' + args2string(spark_args)
         command += '--params= ' + args2string(run_args, ' ')
-
-
 
         return run_command(remotehost, command, logfile, errfile)
 
@@ -780,7 +776,6 @@ def run(target='standalone',
         spark_args = dict()
         if type(special_args) is dict:
             spark_args.update(special_args)
-
 
         spark_args['--class'] = pyscript
         spark_args['--logdir'] = logbase
