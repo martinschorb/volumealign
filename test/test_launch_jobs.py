@@ -6,6 +6,9 @@ tests for functionality in dashUI.utils.launch_jobs
 import os
 import pytest
 import time
+import json
+import shutil
+
 from dashUI.utils.launch_jobs import *
 
 run_state0 = dict(status='running',
@@ -54,7 +57,7 @@ def test_run():
         checkstatus(rs1)
 
     c_options = params.comp_options
-    c_options.append({'label':'Dummy remote launch and status.','value':'localhost'})
+    c_options.append({'label': 'Dummy remote launch and status.', 'value': 'localhost'})
 
     # check all available target types
     for computeoption in c_options:
@@ -65,7 +68,7 @@ def test_run():
 
         rs1['type'] = target
 
-        if not 'spark' in target:
+        if 'spark' not in target:
             # check wrong script
             rs1['status'] = 'launch'
             rs1['logfile'] = os.path.join(params.render_log_dir, 'tests', 'test_render_wrongscript.log')
@@ -96,15 +99,14 @@ def test_run():
             time.sleep(35)
             assert status(rs1)[0] == 'done'
 
-def test_canceljobs():
 
+def test_canceljobs():
     rs1 = dict(run_state0)
 
     c_options = params.comp_clustertypes
 
     # check all available target types
     for computeoption in c_options:
-
         target = computeoption['value']
 
         print('Testing cancel' + computeoption['label'] + '.')
@@ -123,11 +125,12 @@ def test_canceljobs():
 
         assert str(rs1['id']) + ' cancelled.' in status(rs1)[0]
 
+
 def test_localsparkjobs():
     rs1 = dict(run_state0)
 
     c_options = params.comp_options
-    c_options.append({'label':'Dummy remote launch and status.','value':'localhost'})
+    c_options.append({'label': 'Dummy remote launch and status.', 'value': 'localhost'})
 
     # check all available target types
     for computeoption in c_options:
@@ -145,16 +148,56 @@ def test_localsparkjobs():
             spark_args['--cpu'] = remote_params(target.split('::')[-1])['cpu']
             spark_args['--mem'] = remote_params(target.split('::')[-1])['mem']
 
+            tempdir = os.path.join(params.base_dir, 'test', 'test_files', 'testn5export')
+
+            os.makedirs(tempdir)
+
+            with open(os.path.join(params.base_dir, 'test', 'test_files', 'test_n5export.json')) as f:
+                n5exp_params = json.load(f)
+
+            n5exp_params['--baseDataUrl'] = params.render_base_url + params.render_version.rstrip('/')
+
+            n5path = os.path.join(tempdir, 'testn5.n5')
+
+            n5exp_params['--n5Path'] = n5path
+
             rs1['id'] = run(pyscript='org.janelia.render.client.spark.n5.N5Client',
                             logfile=rs1['logfile'],
                             target=target,
+                            run_args=n5exp_params,
                             special_args=spark_args,
                             )
-            time.sleep(5)
+            time.sleep(1)
 
-            print(rs1)
+            assert status(rs1)[0] == 'running'
 
-    assert True
+            time.sleep(10)
+
+            assert status(rs1)[0] == 'done'
+
+            assert os.path.exists(n5path)
+
+            assert os.path.exists(os.path.join(n5path, 'attributes.json'))
+
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset']))
+
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's0'))
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's1'))
+
+            for chunk in ['0', '1', '2', '3']:
+                for chunk1 in ['0', '1', '2', '3']:
+                    assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's0', chunk, chunk1))
+
+            for chunk in ['0', '1']:
+                for chunk1 in ['0', '1']:
+                    assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's1', chunk, chunk1))
+
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 'attributes.json'))
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's0', 'attributes.json'))
+            assert os.path.exists(os.path.join(n5path, n5exp_params['--n5Dataset'], 's1', 'attributes.json'))
+
+            shutil.rmtree(tempdir)
+
 
 # test status of local tasks
 def test_find_activejob():

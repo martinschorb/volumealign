@@ -1,0 +1,20 @@
+{
+    "--baseDataUrl": "---",
+    "--owner": "000tests",
+    "--stack": "test_sbem",
+    "--project": "test_project",
+    "--n5Dataset": "setup0/timepoint0",
+    "--blockSize": "512,512,4",
+    "--factors": "2,2,2",
+    "--n5Path": "---",
+    "--tileWidth": "2048",
+    "--tileHeight": "1536",
+    "--minX": 6000,
+    "--maxX": 8000,
+    "--minY": -21000,
+    "--maxY": -19000,
+    "--minZ": 2,
+    "--maxZ": 4,
+    "--minIntensity": 0,
+    "--maxIntensity": 255
+}
