@@ -374,6 +374,9 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         slicerun_p['bounds'] = bounds
         slicerun_p['imgformat'] = imgformat
 
+        if 'tif' in imgformat:
+            slicerun_p['resolutionUnit'] = 'nm'
+
         # contrast limits
 
         slicerun_p['minInt'] = c_limits[0]
@@ -423,6 +426,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
             lastrun = slicerun_p.copy()
             lastrun['minZ'] = steps[-1]
             lastrun['maxZ'] = Zmax
+
 
             lastpfile = param_file + '_' + str(numjobs - 1) + '.json'
             with open(lastpfile, 'w') as f:
