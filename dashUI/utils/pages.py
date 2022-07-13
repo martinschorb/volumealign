@@ -374,7 +374,7 @@ def substack_sel(module, hidden=False):
                              children=['range of sections to consider:  ',
                                        dcc.Input(id={'component': 'sec_input1', 'module': module}, type='number', min=1,
                                                  max=10, value=0)],
-                             style={'display': 'none'}),
+                             style={}),
                     html.Br(),
                     html.Details([html.Summary('Substack selection'),
                                   html.Table([html.Tr([html.Td('Start slice: '),
@@ -387,6 +387,7 @@ def substack_sel(module, hidden=False):
                                                                      type='number', min=0, value=1))])])
                                   ])
                     ],
+                   id={'component': '3Dselection', 'module': module},
                    style=dispstyle)
 
     return out

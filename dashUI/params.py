@@ -223,7 +223,7 @@ im_width = 900
 default_tile_scale = 0.5
 
 # controls refresh rate and length of console output
-refresh_interval = 3000  # ms
+refresh_interval = 6000  # ms
 disp_lines = 50  # output lines to display
 
 # =============================================================

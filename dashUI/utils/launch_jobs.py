@@ -104,6 +104,8 @@ def run_command(remotehost, command, logfile, errfile):
 
         remote_pid = stdout.readline().split('\n')[0]
 
+        ssh.close()
+
         return {remotehost: remote_pid}
 
     else:
@@ -138,9 +140,9 @@ def submit_command(target, command, logfile):
         ssh.connect(remotehost, username=remote_user(remotehost), timeout=10)
 
         stdin, stdout, stderr = ssh.exec_command(command)
-        time.sleep(3)
         jobid = stdout.readline()
 
+        ssh.close()
     else:
         p = subprocess.Popen(command, shell=True, env=my_env, executable='bash', stdout=subprocess.PIPE)
         time.sleep(3)
@@ -232,6 +234,8 @@ def checkstatus(run_state):
 
     jobs = j_id
 
+    print(j_id)
+
     if type(j_id) is dict:
         if 'par' in j_id.keys():
             runvars = [job for job in j_id['par']]
@@ -307,8 +311,12 @@ def checkstatus(run_state):
                     command = 'ps aux | grep "' + params.user + ' *' + str(runvar[remotehost]) + ' "'
 
                     stdin, stdout, stderr = ssh.exec_command(command)
-                    time.sleep(2)
+
                     res = stdout.readlines()
+
+                    ssh.close()
+
+                    print('result arrived for ' + str(runvar[remotehost]))
 
                     if len(res) > 0:
                         outstat.append('running')
@@ -399,6 +407,7 @@ def cluster_status(run_state):
 
         result = ''.join(stdout.readlines())
 
+        ssh.close()
     else:
         # check cluster status locally
         result = subprocess.check_output(command, shell=True, env=my_env, stderr=subprocess.STDOUT).decode()
@@ -590,6 +599,10 @@ def canceljobs(run_state, out_status='cancelled'):
         ssh.connect(remotehost, username=remote_user(remotehost))
 
         stdin, stdout, stderr = ssh.exec_command(command)
+
+        result = ''.join(stdout.readlines())
+
+        ssh.close()
     else:
         os.system(command)
 

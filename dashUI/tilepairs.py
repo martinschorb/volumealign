@@ -80,7 +80,30 @@ page.append(pages.substack_sel(module))
 
 # # ===============================================
 
-@app.callback([Output({'component': '3Dslices', 'module': module}, 'style'),
+@app.callback([Output({'component': 'page2', 'module': module}, 'style'),
+               Output({'component': 'multi-run', 'module': module}, 'style'),
+               Output({'component': 'pairmode', 'module': module}, 'value')],
+              Input({'component': 'owner_dd', 'module': module}, 'value'),
+              prevent_initial_call=True)
+def stack2Donly(owner):
+    """
+    Toggles visibility of the slice selectors.
+
+    :param str owner: The Render owner
+    :return: CSS display mode, '2D
+    :rtype: dict
+    """
+    style1 = {}
+    style2 = {'display': 'none'}
+    val = '2D'
+    if owner in ['SerialEM']:
+        style1 = {'display': 'none'}
+        style2 = {}
+
+    return style1, style2, val
+
+
+@app.callback([Output({'component': '3Dselection', 'module': module}, 'style'),
                Output({'component': 'sec_input1', 'module': module}, 'value')],
               Input({'component': 'pairmode', 'module': module}, 'value'),
               prevent_initial_call=True)
@@ -100,6 +123,21 @@ def tilepairs_3D_status(pairmode):
         val = 1
     return style, val
 
+
+# optional bundle multi-stack import from SerialEM
+
+
+page3 = html.Div(id={'component': 'multi-run', 'module': module},
+                 children=[html.H4('Process all stacks from this data import (multiple nav items)?'),
+                           html.Div([dcc.Checklist(options=[
+                               {'label': 'process all nav items', 'value': 'multi'}],
+                               id={'component': 'multi-nav', 'module': module}),
+                           ],
+                               style={'display': 'inline,block'}),
+                           html.Br()
+                           ])
+
+page.append(page3)
 
 # =============================================
 # Start Button
@@ -128,9 +166,12 @@ page.append(gobutton)
                State({'component': 'startsection', 'module': module}, 'value'),
                State({'component': 'endsection', 'module': module}, 'value'),
                State({'component': 'store_owner', 'module': module}, 'data'),
-               State({'component': 'store_project', 'module': module}, 'data')],
+               State({'component': 'store_project', 'module': module}, 'data'),
+               State({'component': 'multi-nav', 'module': module}, 'value'),
+               State({'component': 'stack_dd', 'module': module}, 'options')],
               prevent_initial_call=True)
-def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, startsection, endsection, owner, project):
+def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, startsection, endsection, owner, project,
+                               multi, stacklist):
     if click is None:
         return dash.no_update
 
@@ -146,49 +187,39 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
     run_params['render']['owner'] = owner
     run_params['render']['project'] = project
 
-    run_params_generate = run_params.copy()
+    with open(os.path.join(params.json_template_dir, 'tilepairs.json'), 'r') as f:
+        run_params.update(json.load(f))
 
-    # generate script call...
+    run_params['minZ'] = startsection
+    run_params['maxZ'] = endsection
 
     tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
 
-    if not os.path.exists(tilepairdir):
-        os.makedirs(tilepairdir)
+    if multi is None:
+        param_file = generate_run_params(run_params, owner, stack,
+                                         run_prefix, pairmode, slicedepth)
+    else:
+        #     prepare multiple runs
+        param_file = []
+        stackprefix = stack.split('_nav_')[0]
 
-    run_params_generate['output_dir'] = tilepairdir
+        for stackoption in stacklist:
+            if stackprefix in stackoption['value']:
+                currentstack = stackoption['value']
 
-    with open(os.path.join(params.json_template_dir, 'tilepairs.json'), 'r') as f:
-        run_params_generate.update(json.load(f))
+                param_file_current = generate_run_params(run_params, owner, currentstack,
+                                                         run_prefix, pairmode, slicedepth)
 
-    run_params_generate['output_json'] = tilepairdir + '/tiles_' + stack + '_' + pairmode
+                param_file.append(param_file_current)
 
-    run_params_generate['minZ'] = startsection
-    run_params_generate['maxZ'] = endsection
-
-    run_params_generate['stack'] = stack
-
-    if pairmode == '2D':
-        run_params_generate['zNeighborDistance'] = 0
-        run_params_generate['excludeSameLayerNeighbors'] = 'False'
-
-    elif pairmode == '3D':
-        run_params_generate['zNeighborDistance'] = slicedepth
-        run_params_generate['excludeSameLayerNeighbors'] = 'True'
-
-        if owner == 'SBEM':
-            run_params_generate["xyNeighborFactor"] = 0.2
-
-    param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + pairmode + '.json'
-
-    with open(param_file, 'w') as f:
-        json.dump(run_params_generate, f, indent=4)
+    print(param_file)
 
     log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode
     err_file = log_file + '.err'
     log_file += '.log'
 
     tilepairs_generate_p = launch_jobs.run(target=comp_sel,
-                                           pyscript=params.asap_dir+'/pointmatch/create_tilepairs.py',
+                                           pyscript=params.asap_dir + '/pointmatch/create_tilepairs.py',
                                            jsonfile=param_file,
                                            run_args=None, target_args=None,
                                            logfile=log_file, errfile=err_file)
@@ -206,6 +237,40 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
     outstore['tilepairdir'] = tilepairdir
 
     return True, launch_store, outstore
+
+
+def generate_run_params(run_params, owner, stack, run_prefix, pairmode, slicedepth):
+    run_params_generate = run_params.copy()
+
+    # generate script call...
+
+    tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
+
+    if not os.path.exists(tilepairdir):
+        os.makedirs(tilepairdir)
+
+    if pairmode == '2D':
+        run_params_generate['zNeighborDistance'] = 0
+        run_params_generate['excludeSameLayerNeighbors'] = 'False'
+
+    elif pairmode == '3D':
+        run_params_generate['zNeighborDistance'] = slicedepth
+        run_params_generate['excludeSameLayerNeighbors'] = 'True'
+
+        if owner == 'SBEM':
+            run_params_generate["xyNeighborFactor"] = 0.2
+
+    run_params_generate['stack'] = stack
+    run_params_generate['output_dir'] = tilepairdir
+    run_params_generate['output_json'] = tilepairdir + '/tiles_' +  pairmode
+
+    param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + stack + '_' + pairmode + '.json'
+
+    with open(param_file, 'w') as f:
+        json.dump(run_params_generate, f, indent=4)
+
+    return param_file
+
 
 # =============================================
 # Processing status

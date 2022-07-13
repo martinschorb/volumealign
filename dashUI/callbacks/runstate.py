@@ -119,8 +119,6 @@ def get_status(run_state, module, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    print(run_state)
-
     thispage = thispage.lstrip('/')
 
     if thispage == '' or thispage not in hf.trigger(key='module'):
@@ -212,5 +210,8 @@ def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
         # print('status triggered state:')
         # print(status_in)
         out = status_in.copy()
+
+    if out == {}:
+        raise PreventUpdate
 
     return out, out['logfile']

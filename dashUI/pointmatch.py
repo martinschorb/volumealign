@@ -110,7 +110,7 @@ def pointmatch_tp_dd_fill(stack, thispage):
         raise PreventUpdate
 
     tp_dirlist = [d_item for d_item in glob.glob(params.json_run_dir + '/tilepairs_' + params.user + '*' + stack + '*')
-                  if os.path.isdir(d_item)]
+                  if any((os.path.isdir(d_item), os.path.splitext(d_item)[-1] == 'json'))]
     tpdir_dd_options = list(dict())
 
     if tp_dirlist == []:
