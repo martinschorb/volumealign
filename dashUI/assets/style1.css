@@ -102,6 +102,12 @@
   vertical-align:"middle";
 }
 
+.copybutton{
+  width: 60px;
+  display: inline-block;
+  vertical-align:"middle";
+}
+
 .dir_textinput{
   width: 400px;
 }

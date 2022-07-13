@@ -132,7 +132,11 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                                     style={'margin-left': '0.5em', 'margin-right': '1em'})),
                                      html.Td(dcc.Dropdown(id={'component': 'project_dd', 'module': module},
                                                           className='dropdown_inline',
-                                                          persistence=True, clearable=False))
+                                                          persistence=True, clearable=False)),
+                                     dcc.Clipboard(
+                                         target_id={'component': 'project_dd', 'module': module},
+                                         title="copy project name",
+                                         className='copybutton')
                                  ])),
                                      dcc.Store(id={'component': 'project_store', 'module': module}),
 
@@ -159,7 +163,11 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                                     style={'margin-left': '0.5em', 'margin-right': '1em'})),
                                      html.Td(dcc.Dropdown(id={'component': 'stack_dd', 'module': module},
                                                           className='dropdown_inline',
-                                                          persistence=True, clearable=False))
+                                                          persistence=True, clearable=False)),
+                                     dcc.Clipboard(
+                                         target_id={'component': 'stack_dd', 'module': module},
+                                         title="copy stack name",
+                                         className='copybutton')
                                  ])),
                                      dcc.Store(id={'component': 'stacks', 'module': module}),
 

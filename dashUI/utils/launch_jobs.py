@@ -233,8 +233,8 @@ def checkstatus(run_state):
     logfile = run_state['logfile']
 
     jobs = j_id
-
-    print(j_id)
+    #
+    # print(j_id)
 
     if type(j_id) is dict:
         if 'par' in j_id.keys():
