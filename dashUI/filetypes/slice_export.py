@@ -210,6 +210,9 @@ def slice_export_stacktoparams(  # stack_sel,
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
+    if type(scale) not in [float,int]:
+        raise PreventUpdate
+
     out = dict()
     factors = dict()
 
@@ -390,7 +393,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         target_args = dict()
 
-        if comp_sel == 'standalone':
+        if comp_sel == 'standalone' or comp_sel in params.remote_hosts:
             run_params = slicerun_p.copy()
 
             pfile = param_file + '.json'
@@ -404,7 +407,9 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
             # compute memory req.
 
-            mem = int(np.ceil((bounds['maxX'] - bounds['minX']) * (bounds['maxY'] - bounds['minY']) * 3 / 1e9))  # in GB
+            mem = int(np.ceil((bounds['maxX'] - bounds['minX']) * (bounds['maxY'] - bounds['minY']) * 25 / 1e9))  # in GB
+
+            print(mem)
 
             # parallelize calls
 
@@ -442,6 +447,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
                 target_args['--cpus-per-task'] = params.n_cpu_script
 
         # generate script call...
+
+        print(pfile)
 
         run_prefix = launch_jobs.run_prefix()
 
