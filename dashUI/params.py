@@ -87,7 +87,8 @@ remote_compute = [
 
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
-remote_submission = {'slurm': 'login01.cluster.embl.de'}
+remote_submission = {'slurm': 'login01.cluster.embl.de',
+                     'sparkslurm': 'login01.cluster.embl.de'}
 
 # add remote resources
 
@@ -216,7 +217,7 @@ mt_owner = 'flyTEM'
 ## UI parameters
 
 # maximum number of tile view images per UI module
-max_tileviews = 3
+max_tileviews = 2
 # view image width
 im_width = 900
 

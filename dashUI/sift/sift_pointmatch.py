@@ -43,7 +43,7 @@ compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
 
-compute_locations = ['sparkslurm', 'localspark']
+compute_locations = ['sparkslurm', 'localspark', 'spark::render.embl.de']
 
 compute_default = 'sparkslurm'
 
@@ -238,13 +238,14 @@ def sift_pointmatch_IDs(organism, picks):
                Output(label + 'mt_link', 'href'),
                Output(label + 'mt_jscaller', 'children')],
               [Input(label + 'matchID_dd', 'value'),
-               Input(label + 'mt_linkbutton', 'n_clicks')],
+               Input(label + 'mt_linkbutton', 'n_clicks'),
+               Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
               [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
                State({'component': 'tileim_link_1', 'module': parent}, 'children'),
                State({'component': 'tile_dd_1', 'module': parent}, 'value'),
                State({'component': 'tile_dd_1', 'module': parent}, 'options')]
               )
-def sift_browse_matchTrial(matchID, buttonclick, link1, link2, tile2sel, tile2options):
+def sift_browse_matchTrial(matchID, buttonclick, matchcoll, link1, link2, tile2sel, tile2options):
     if None in (matchID, link1, link2):
         return dash.no_update
 
