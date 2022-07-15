@@ -381,8 +381,8 @@ def substack_sel(module, hidden=False):
     out = html.Div([html.Div(id={'component': '3Dslices', 'module': module},
                              children=['range of sections to consider:  ',
                                        dcc.Input(id={'component': 'sec_input1', 'module': module}, type='number', min=1,
-                                                 max=10, value=0)],
-                             style={}),
+                                                 max=10, value=1)],
+                             style={'display':'none'}),
                     html.Br(),
                     html.Details([html.Summary('Substack selection'),
                                   html.Table([html.Tr([html.Td('Start slice: '),
@@ -576,7 +576,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                                     html.Td(dcc.Input(
                                                                         id={'component': 'sliceim_section_in' + idx_str,
                                                                             'module': module}, type='number', min=0,
-                                                                        debounce=True, value=0)),
+                                                                        value=0)),
                                                                     ])
                                                            ]),
                                                id={'component': 'sliceim_section_div' + idx_str, 'module': module},
@@ -617,7 +617,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                      html.Button('Reset Zoom',
                                                                  id={'component': 'slice_reset', 'module': module})],
                                                     style={'text-align': 'left-inline'})
-                                           ])
+                                           ], id={'component': 'sliceim_details' + idx_str, 'module': module})
                              ])
                    )
 
