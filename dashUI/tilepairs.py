@@ -70,12 +70,11 @@ page2 = html.Div(id={'component': 'page2', 'module': module},
                                id={'component': 'pairmode', 'module': module}),
                            ],
                                style={'display': 'inline,block'}),
-                           html.Br()
+                           html.Br(),
+                           pages.substack_sel(module)
                            ])
 
 page.append(page2)
-
-page.append(pages.substack_sel(module))
 
 
 # # ===============================================
@@ -103,7 +102,7 @@ def stack2Donly(owner):
     return style1, style2, val
 
 
-@app.callback([Output({'component': '3Dselection', 'module': module}, 'style'),
+@app.callback([Output({'component': '3Dslices', 'module': module}, 'style'),
                Output({'component': 'sec_input1', 'module': module}, 'value')],
               Input({'component': 'pairmode', 'module': module}, 'value'),
               prevent_initial_call=True)
@@ -195,7 +194,7 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
 
     tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
 
-    if multi is None:
+    if multi in [None, []]:
         param_file = generate_run_params(run_params, owner, stack,
                                          run_prefix, pairmode, slicedepth)
     else:
@@ -204,15 +203,13 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
         stackprefix = stack.split('_nav_')[0]
 
         for stackoption in stacklist:
-            if stackprefix in stackoption['value']:
+            if stackprefix in stackoption['value'] and stackoption['value'][-1].isnumeric():
                 currentstack = stackoption['value']
 
                 param_file_current = generate_run_params(run_params, owner, currentstack,
                                                          run_prefix, pairmode, slicedepth)
 
                 param_file.append(param_file_current)
-
-    print(param_file)
 
     log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode
     err_file = log_file + '.err'
@@ -262,7 +259,7 @@ def generate_run_params(run_params, owner, stack, run_prefix, pairmode, slicedep
 
     run_params_generate['stack'] = stack
     run_params_generate['output_dir'] = tilepairdir
-    run_params_generate['output_json'] = tilepairdir + '/tiles_' +  pairmode
+    run_params_generate['output_json'] = tilepairdir + '/tiles_' + pairmode
 
     param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '_' + stack + '_' + pairmode + '.json'
 
