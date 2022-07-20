@@ -119,7 +119,7 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
-    if None in [stack_sel, owner, project, allstacks, browsedir]:
+    if None in [stack_sel, owner, project, allstacks]:
         raise PreventUpdate
 
     dir_out = browsedir
@@ -140,8 +140,11 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
                       + '/stack/' + stack + '/z/' + str(int(
                     (stacklist[0]['stats']['stackBounds']['maxZ'] - stacklist[0]['stats']['stackBounds']['minZ']) / 2))\
                       + '/render-parameters'
+                try:
+                    tiles0 = requests.get(url).json()
+                except requests.exceptions.JSONDecodeError:
+                    return ''
 
-                tiles0 = requests.get(url).json()
 
                 tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
 

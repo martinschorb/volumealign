@@ -408,8 +408,8 @@ def sliceexport_execute_gobutton(click, outdir, stack,
             # compute memory req.
 
             mem = int(np.ceil((bounds['maxX'] - bounds['minX']) * (bounds['maxY'] - bounds['minY']) * 25 / 1e9))  # in GB
-
-            print(mem)
+            #
+            # print(mem)
 
             # parallelize calls
 
@@ -448,8 +448,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
         # generate script call...
 
-        print(pfile)
-
         run_prefix = launch_jobs.run_prefix()
 
         log_file = params.render_log_dir + '/' + label + '_' + run_prefix
@@ -467,8 +465,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
         launch_store['status'] = 'launch'
         launch_store['id'] = sliceexport_p
         launch_store['type'] = launch_jobs.runtype(comp_sel)
-
-        print(launch_store)
 
         return True, '', launch_store, outstore
 

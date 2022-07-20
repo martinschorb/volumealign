@@ -75,7 +75,7 @@ def activate_conda(conda_dir=params.conda_dir,
     return script
 
 
-def run_command(remotehost, command, logfile, errfile):
+def run_command(remotehost, command, logfile='', errfile=''):
     """
     Launcher to run a shell command either locally or on a remote host.
 
@@ -316,7 +316,7 @@ def checkstatus(run_state):
 
                     ssh.close()
 
-                    print('result arrived for ' + str(runvar[remotehost]))
+                    # print('result arrived for ' + str(runvar[remotehost]))
 
                     if len(res) > 0:
                         outstat.append('running')
@@ -603,6 +603,19 @@ def canceljobs(run_state, out_status='cancelled'):
         result = ''.join(stdout.readlines())
 
         ssh.close()
+
+    elif cl_type in params.remote_submission.keys():
+        remotehost = params.remote_submission[cl_type]
+
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.client.AutoAddPolicy)
+        ssh.connect(remotehost, username=remote_user(remotehost))
+
+        stdin, stdout, stderr = ssh.exec_command(command)
+
+        result = ''.join(stdout.readlines())
+
+        ssh.close()
     else:
         os.system(command)
 
@@ -635,7 +648,6 @@ def run(target='standalone',
     :return: Job ID (str or dict or list of Job IDs)
     :rtype: str or dict or list
     """
-
     if type(inputs) is list:
         # multiple sequential tasks to be initiated
         if any([type(inp) is not dict for inp in inputs]):
@@ -672,6 +684,7 @@ def run(target='standalone',
     # check target format
     if type(target) is not str:
         raise TypeError('Target needs to be string.')
+
 
     logbase = os.path.splitext(os.path.basename(logfile))[0]
     logdir = os.path.dirname(logfile)

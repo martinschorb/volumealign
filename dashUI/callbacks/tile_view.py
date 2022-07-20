@@ -509,9 +509,11 @@ for idx in range(params.max_tileviews):
 
     @app.callback(Output({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
                   Input({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData"),
-                  State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+                  [State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+                   State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'open'),
+                   State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'nclicks')],
                   )
-    def paramstoouterlimits(annotations, imparams):
+    def paramstoouterlimits(annotations, imparams, open, click):
         """
         Generates the bounding box values from the image annotation rectangle(s).
 

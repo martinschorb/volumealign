@@ -373,8 +373,6 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
         launch_store['id'] = n5export_p
         launch_store['type'] = comp_sel
 
-        print(launch_store)
-
         return True, '', launch_store, outstore
 
     else:

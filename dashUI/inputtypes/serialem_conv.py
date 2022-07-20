@@ -221,6 +221,5 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
                 popup = 'Input  Data not accessible.'
 
     out.update(run_state)
-    print(out)
 
     return but_disabled, popup, out, outstore
