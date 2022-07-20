@@ -145,7 +145,6 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
                 except requests.exceptions.JSONDecodeError:
                     return ''
 
-
                 tilefile0 = os.path.abspath(tiles0['tileSpecs'][0]['mipmapLevels']['0']['imageUrl'].strip('file:'))
 
                 dir_out = os.path.join(os.sep, *tilefile0.split(os.sep)[:-params.datadirdepth[owner] - 1])
