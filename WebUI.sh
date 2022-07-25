@@ -1,9 +1,9 @@
 #!/bin/bash
 
 eval "$(/g/emcf/software/python/miniconda/bin/conda shell.bash hook)"
-conda activate dash
+conda activate dash-new
 
-dashpath=/g/emcf/software/volumealign/dashUI
+dashpath=/g/emcf/software/volumealign
 
 cd $dashpath
 
