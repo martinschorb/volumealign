@@ -15,7 +15,7 @@ from utils.launch_jobs import run_prefix
 
 target_machines = params.remote_compute
 
-user_file = './web_users.json'
+user_file = './dashUI/web_users.json'
 
 # required for many cluster environments, including SPARK
 ssh_key_login = True
@@ -64,4 +64,4 @@ print('http://' + params.hostname + ':' + str(port) + '\n\n')
 print('from any device in the network.\n Do not use CTRL+C to copy the address, this will close the process.')
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
-os.system('python index.py ' + str(port) + ' > ' + logfile)
+os.system('python dashUI/index.py ' + str(port) + ' > ' + logfile)
