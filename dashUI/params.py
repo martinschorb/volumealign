@@ -58,6 +58,7 @@ init_logfile = 'out.txt'  # render_log_dir + 'fancylogfile.log'
 
 # name of the conda environment that provides the render-modules and renderapi packages
 render_envname = 'render'
+dash_envname = 'dash-new'
 
 comp_options = [
     {'label': 'Cluster (slurm)', 'value': 'slurm'},

@@ -130,12 +130,13 @@ def test_localsparkjobs():
     rs1 = dict(run_state0)
 
     c_options = params.comp_options
-    c_options.append({'label': 'Dummy remote launch and status.', 'value': 'localhost'})
+    # c_options.append({'label': 'Dummy remote launch and status.', 'value': 'localhost'})
 
     # check all available target types
     for computeoption in c_options:
+        target = computeoption['value']
+
         if 'spark' in target:
-            target = computeoption['value']
 
             print('Testing ' + computeoption['label'] + '.')
 
@@ -167,11 +168,11 @@ def test_localsparkjobs():
                             run_args=n5exp_params,
                             special_args=spark_args,
                             )
-            time.sleep(1)
+            time.sleep(2)
 
             assert status(rs1)[0] == 'running'
 
-            time.sleep(10)
+            time.sleep(15)
 
             assert status(rs1)[0] == 'done'
 

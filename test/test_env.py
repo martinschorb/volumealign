@@ -96,3 +96,5 @@ def test_conda_envs():
             result = ''.join(stdout.readlines())
 
         assert '\n' + params.render_envname + ' ' * 4 in result
+
+        assert '\n' + params.dash_envname + ' ' * 4 in result
