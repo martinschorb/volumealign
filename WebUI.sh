@@ -7,4 +7,4 @@ dashpath=/g/emcf/software/volumealign
 
 cd $dashpath
 
-python start_webUI.py
+python dashUI/start_webUI.py
