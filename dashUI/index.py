@@ -6,7 +6,7 @@ Created on Tue Nov  3 15:26:45 2020
 @author: schorb
 """
 
-from dash import dcc
+from dash import dcc, __version__
 from dash import html
 from dash.dependencies import Input, Output
 # from pydoc import locate
@@ -34,6 +34,7 @@ menu_items = [
             'export',
             'finalize'
             ]
+
 
 menu_text = ['Convert & upload',
              # 'Generate MipMaps',
@@ -164,5 +165,7 @@ if __name__ == '__main__':
 
     # needed for gc3pie status calls
     sys.path.append(params.launch_dir)
+
+    print('using dash version ', __version__)
 
     app.run_server(host='0.0.0.0', debug=debug, port=port)
