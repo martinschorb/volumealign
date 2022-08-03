@@ -6,7 +6,7 @@ Created on Tue Nov  3 15:26:45 2020
 @author: schorb
 """
 
-from dash import dcc
+from dash import dcc, __version__
 from dash import html
 from dash.dependencies import Input, Output
 # from pydoc import locate
@@ -14,6 +14,7 @@ from dash.dependencies import Input, Output
 import importlib
 import json
 import sys
+import os
 
 from app import app
 
@@ -34,6 +35,7 @@ menu_items = [
             'export',
             'finalize'
             ]
+
 
 menu_text = ['Convert & upload',
              # 'Generate MipMaps',
@@ -162,7 +164,10 @@ if __name__ == '__main__':
         debug = False
         port = sys.argv[1]
 
-    # needed for gc3pie status calls
-    sys.path.append(params.launch_dir)
+    print('using dash version ', __version__)
 
-    app.run_server(host='0.0.0.0', debug=debug, port=port)
+    if os.path.exists('cert.pem') and os.path.exists('key.pem'):
+        app.run_server(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
+    else:
+        print('No HTTPS encrypted connection supported. Check documentation.')
+        app.run_server(host='0.0.0.0', debug=debug, port=port)

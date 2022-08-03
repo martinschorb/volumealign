@@ -10,3 +10,10 @@ The design of the workflow is inspired and borrowed from [IMOD's](https://bio3d.
 ## customization
 
 All sub-pages can be arranged individually. Some commonly used functionality is made available through generic functions with the page elements provided in [`index.py`]({{ dirs.code }}dash/index.py).
+
+## HTTPS encryption
+
+The web interface can be reached using HTTPS if a certificate (`cert.pem`) and key (`key.pem`) file is provided in the root directory. These can be created using 
+```
+openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
+```
