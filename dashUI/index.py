@@ -168,4 +168,4 @@ if __name__ == '__main__':
 
     print('using dash version ', __version__)
 
-    app.run_server(host='0.0.0.0', debug=debug, port=port)
+    app.run_server(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
