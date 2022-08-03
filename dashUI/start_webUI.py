@@ -56,11 +56,16 @@ for checkdir in [params.render_log_dir, params.json_run_dir]:
     if not os.access(checkdir, 7):
         raise OSError('The directory ' + checkdir + ' is not accessible. Check its user rights.')
 
+prefix = 'http://'
+
+if os.path.exists('cert.pem') and os.path.exists('key.pem'):
+    prefix = 'https://'
+
 logfile = os.path.join(params.render_log_dir, 'webUI_' + run_prefix() + '.log')
 
 print('Starting Render WebUI.\n')
 print('As long as this window is open, you can access Render through:\n\n')
-print('http://' + params.hostname + ':' + str(port) + '\n\n')
+print(prefix + params.hostname + ':' + str(port) + '\n\n')
 print('from any device in the network.\n Do not use CTRL+C to copy the address, this will close the process.')
 print('To avoid excessive resource use, please close the server when done with your processing.')
 
