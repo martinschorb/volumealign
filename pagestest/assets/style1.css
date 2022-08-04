@@ -1,0 +1,162 @@
+/* define colours */
+
+:root {
+  --active_fg: #077;
+  --active_bg: #BFDEE0;
+  --passive_bg0: #eee;
+  --passive_bg1: #bbb;
+  --passive_bg2: #ccc;
+  --main_bg: #f1f1f1;
+  --text_active: #f1f1f1;
+  --text_passive: #666666;
+}
+
+
+/* Style the header */
+.header {
+  background-color: var(--active_bg);
+  padding: 4px;
+  text-align: center;
+  font-size: 20px;
+  color: var(--text_passive);
+}
+
+.header a{
+  text-decoration: none;
+  color: var(--text_passive);
+}
+
+.header h1{
+  float:center;
+}
+
+.header img{
+  float:right;
+  height: 54px;
+  margin-top: -18px;
+}
+
+/* Create two columns/boxes that floats next to each other */
+
+/* Style the sidebar - fixed full height */
+.sidebar {
+  height: 100%;
+  width: 18%;
+  float: left;
+  z-index: 1;
+  background-color: var(--passive_bg2);
+  overflow-x: hidden;
+  text-align: center;
+  font-size: 18px;
+  padding: 1%;
+  padding-top: 16px;
+}
+
+.sidebar_back {
+  height: auto;
+  width: 15%;
+  z-index: 1;
+  background-color: var(--passive_bg0);
+  display: block;
+}
+
+/* Style sidebar links */
+.sidebar a {
+  padding: 8px 8px 8px 12px;
+  display: block;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 20px;
+  color: var(--text_active);
+  background-color: var(--passive_bg1);
+}
+
+/* Style links on mouse-over */
+.sidebar a:hover {
+  background-color: var(--active_bg);
+  color: var(--main_bg);
+}
+
+/* Style links on mouse-over */
+.nav-pills .nav-link.active {
+  background-color: var(--active_fg);
+  color: var(--main_bg);
+}
+
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 15px;}
+  .sidebar a {font-size: 18px;}
+}
+
+.main {
+  background-color: var(--main_bg);
+  font-size: 14px;
+  padding: 1%;
+  text-align: center;
+
+}
+
+.console_out {
+  font-family:"Courier New";
+  font-size:"9px";
+}
+
+.dropdown_inline{
+  width: 320px;
+  display: inline-block;
+  vertical-align:"middle";
+}
+
+.copybutton{
+  width: 60px;
+  display: inline-block;
+  vertical-align:"middle";
+}
+
+.dir_textinput{
+  width: 400px;
+}
+
+.table {
+  font-family: sans-serif;
+  text-align: center;
+  border-collapse: collapse;
+  width: 60%;
+}
+
+.table td, .table th {
+  border: 1px solid var(--passive_bg1);
+  padding: 8px;
+}
+
+.table tr:nth-child(even){background-color: var(--passive_bg0);}
+
+.rc-slider {
+  width: 55%;
+}
+
+.rc-slider-track {
+  background-color: var(--active_fg);
+}
+
+.rc-slider-rail {
+  background-color: var(--passive_bg1);
+}
+
+.rc-slider-dot-active {
+  border-color: var(--active_fg);
+  border: solid 2px var(--active_fg);
+}
+
+.rc-slider-handle {
+  background-color: var(--active_fg);
+  border-color: var(--active_fg);
+}
+
+.rc-slider-handle:hover {
+  border-color: var(--active_fg);
+}
+
+.rc-slider-handle-active:active {
+  border-color: var(--active_fg);
+}
