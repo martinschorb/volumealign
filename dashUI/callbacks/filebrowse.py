@@ -8,25 +8,24 @@ Created on Thu Jul  1 15:42:18 2021
 import os
 
 import dash
-
-from app import app
+from dash import callback
 
 from dash.exceptions import PreventUpdate
 
 from dash.dependencies import Input, Output, State, MATCH, ALL
-from utils import helper_functions as hf
+from dashUI.utils import helper_functions as hf
 
 startpath = os.getcwd()
 # show_files = False
 show_hidden = False
 
 
-@app.callback([Output({'component': 'path_input', 'module': MATCH}, 'value'),
-               Output({'component': 'path_dummy', 'module': MATCH}, 'data')],
-              [Input({'component': 'path_store', 'module': MATCH}, 'data'),
-               Input({'component': 'path_ext', 'module': MATCH}, 'data')],
-              State({'component': 'newdir_sel', 'module': MATCH}, 'value'),
-              prevent_initial_call=True)
+@callback([Output({'component': 'path_input', 'module': MATCH}, 'value'),
+           Output({'component': 'path_dummy', 'module': MATCH}, 'data')],
+          [Input({'component': 'path_store', 'module': MATCH}, 'data'),
+           Input({'component': 'path_ext', 'module': MATCH}, 'data')],
+          State({'component': 'newdir_sel', 'module': MATCH}, 'value'),
+          prevent_initial_call=True)
 def update_store(inpath, extpath, createdir_val):
     trigger = hf.trigger()
     createdir = createdir_val == ['Create new directory']
@@ -45,22 +44,22 @@ def update_store(inpath, extpath, createdir_val):
     return path, outtrigger
 
 
-@app.callback([Output({'component': 'browse_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'path_store', 'module': MATCH}, 'data'),
-               Output({'component': 'path_dd', 'module': MATCH}, 'data'),
-               Output({'component': 'browse_dd', 'module': MATCH}, 'value')],
-              [Input({'component': 'browse_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'path_input', 'module': MATCH}, 'n_blur'),
-               Input({'component': 'path_dummy', 'module': MATCH}, 'modified_timestamp')],
-              [State({'component': 'path_input', 'module': MATCH}, 'value'),
-               State({'component': 'path_store', 'module': MATCH}, 'data'),
-               State({'component': 'path_showfiles', 'module': MATCH}, 'data'),
-               State({'component': 'path_filetypes', 'module': MATCH}, 'data'),
-               State({'component': 'path_dummy', 'module': MATCH}, 'data'),
-               State({'component': 'newdir_sel', 'module': MATCH}, 'value'),
-               State({'component': 'path_dd', 'module': MATCH}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'browse_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'path_store', 'module': MATCH}, 'data'),
+           Output({'component': 'path_dd', 'module': MATCH}, 'data'),
+           Output({'component': 'browse_dd', 'module': MATCH}, 'value')],
+          [Input({'component': 'browse_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'path_input', 'module': MATCH}, 'n_blur'),
+           Input({'component': 'path_dummy', 'module': MATCH}, 'modified_timestamp')],
+          [State({'component': 'path_input', 'module': MATCH}, 'value'),
+           State({'component': 'path_store', 'module': MATCH}, 'data'),
+           State({'component': 'path_showfiles', 'module': MATCH}, 'data'),
+           State({'component': 'path_filetypes', 'module': MATCH}, 'data'),
+           State({'component': 'path_dummy', 'module': MATCH}, 'data'),
+           State({'component': 'newdir_sel', 'module': MATCH}, 'value'),
+           State({'component': 'path_dd', 'module': MATCH}, 'data'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def update_path_dd(filesel, intrig, trig2, inpath, path, show_files, filetypes, dummydata, createdir_val, ddpath,
                    thispage):
     if dash.callback_context.triggered:

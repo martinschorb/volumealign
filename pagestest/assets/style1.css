@@ -9,6 +9,7 @@
   --main_bg: #f1f1f1;
   --text_active: #f1f1f1;
   --text_passive: #666666;
+  --sidebar_width: 17%;
 }
 
 
@@ -41,8 +42,9 @@
 /* Style the sidebar - fixed full height */
 .sidebar {
   height: 100%;
-  width: 18%;
+  width: var(--sidebar_width);
   float: left;
+  position: fixed;
   z-index: 1;
   background-color: var(--passive_bg2);
   overflow-x: hidden;
@@ -54,7 +56,7 @@
 
 .sidebar_back {
   height: auto;
-  width: 15%;
+  width: var(--sidebar_width);
   z-index: 1;
   background-color: var(--passive_bg0);
   display: block;
@@ -89,10 +91,16 @@
 }
 
 .main {
+  height: 85%;
+  width = calc(100% - var(--sidebar_width))
   background-color: var(--main_bg);
+  position: fixed;
   font-size: 14px;
+  margin: 0 0 0 calc(var(--sidebar_width) + 2%);
   padding: 1%;
-  text-align: center;
+  foat: right;
+  text-align: left;
+  overflow-x: hidden;
 
 }
 

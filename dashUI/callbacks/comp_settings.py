@@ -9,14 +9,13 @@ Created on Thu Jun 30 15:42:18 2022
 import dash
 import numpy as np
 
+from dash import callback
 from dash.exceptions import PreventUpdate
 
 from dash.dependencies import Input, Output, State, MATCH, ALL
-from utils import helper_functions as hf
+from dashUI.utils import helper_functions as hf
 
-from app import app
-
-import params
+from dashUI import params
 
 
 # callbacks
@@ -135,8 +134,8 @@ def all_compset_callbacks(label, compute_table_cols):
 
     u_cs_params = update_compset_params(label, compute_table_cols)
 
-    @app.callback(u_cs_params,
-                  prevent_initial_call=True)
+    @callback(u_cs_params,
+              prevent_initial_call=True)
     def sift_pointmatch_update_comp_settings(*args):
         hf.is_url_active(args[-1])
         return update_compute_settings(*args)
@@ -145,15 +144,15 @@ def all_compset_callbacks(label, compute_table_cols):
 
     st_cs_params = store_compset_params(label, compute_table_cols)
 
-    @app.callback(st_cs_params,
-                  prevent_initial_call=True)
+    @callback(st_cs_params,
+              prevent_initial_call=True)
     def sift_pointmatch_store_comp_settings(*args):
         return store_compute_settings(*args)
 
     # hide compute settings if local execution is chosen
 
-    @app.callback(Output({'component': 'comp_set_detail', 'module': label}, 'style'),
-                  Input({'component': 'compute_sel', 'module': label}, 'value'))
+    @callback(Output({'component': 'comp_set_detail', 'module': label}, 'style'),
+              Input({'component': 'compute_sel', 'module': label}, 'value'))
     def compset_switch(compsel):
 
         if 'local' in compsel or 'spark::' in compsel:

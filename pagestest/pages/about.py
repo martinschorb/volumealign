@@ -3,7 +3,7 @@ import dash
 
 import dash_bootstrap_components as dbc
 
-from .side_bar import sidebar
+from pagestest.pages.side_bar import sidebar
 
 dash.register_page(__name__)
 

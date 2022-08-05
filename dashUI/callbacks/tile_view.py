@@ -7,7 +7,7 @@ Created on Mon Jan 18 14:52:17 2021
 """
 
 import dash
-
+from dash import callback
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
@@ -17,10 +17,8 @@ import plotly.express as px
 from skimage import io
 import re
 
-from app import app
-
-import params
-from utils import helper_functions as hf
+from dashUI import params
+from dashUI.utils import helper_functions as hf
 
 for idx in range(params.max_tileviews):
     idx_str = '_' + str(idx)
@@ -48,15 +46,15 @@ for idx in range(params.max_tileviews):
         states.append(State('url', 'pathname'))
 
 
-        @app.callback([Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'value'),
-                       Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'min'),
-                       Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'max'),
-                       Output({'component': imtype + '_section_div' + idx_str, 'module': MATCH}, 'style'),
-                       Output({'component': imtype + '_contrastslider' + idx_str, 'module': MATCH}, 'max'),
-                       Output({'component': imtype + '_contrastslider' + idx_str, 'module': MATCH}, 'value')],
-                      inputs,
-                      states,
-                      prevent_initial_call=True)
+        @callback([Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'value'),
+                   Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'min'),
+                   Output({'component': imtype + '_section_in' + idx_str, 'module': MATCH}, 'max'),
+                   Output({'component': imtype + '_section_div' + idx_str, 'module': MATCH}, 'style'),
+                   Output({'component': imtype + '_contrastslider' + idx_str, 'module': MATCH}, 'max'),
+                   Output({'component': imtype + '_contrastslider' + idx_str, 'module': MATCH}, 'value')],
+                  inputs,
+                  states,
+                  prevent_initial_call=True)
         def stacktoslice(stack_sel, lead_trigger, tilepairdir, allstacks, owner, project, orig_sec, neighbours,
                          lead_tile, thispage):
             stacklist = []
@@ -141,18 +139,18 @@ for idx in range(params.max_tileviews):
                 raise PreventUpdate
 
     # init tile selector
-    @app.callback([Output({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'options'),
-                   Output({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value')],
-                  [Input({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'tp_dd', 'module': MATCH}, 'value')],
-                  [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'project_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'stack_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value'),
-                   State({'component': 'neighbours', 'module': MATCH}, 'children'),
-                   State({'component': 'lead_tile', 'module': MATCH}, 'data'),
-                   State('url', 'pathname')],
-                  prevent_initial_call=True)
+    @callback([Output({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'options'),
+               Output({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value')],
+              [Input({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
+               Input({'component': 'tp_dd', 'module': MATCH}, 'value')],
+              [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               State({'component': 'project_dd', 'module': MATCH}, 'value'),
+               State({'component': 'stack_dd', 'module': MATCH}, 'value'),
+               State({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value'),
+               State({'component': 'neighbours', 'module': MATCH}, 'children'),
+               State({'component': 'lead_tile', 'module': MATCH}, 'data'),
+               State('url', 'pathname')],
+              prevent_initial_call=True)
     def slicetotiles(slicenum, tilepairdir, owner, project, stack, prev_tile, neighbours, lead_tile, thispage):
         """
         Fills the tile selection dropdown with the tiles found for the selected slice.
@@ -253,17 +251,17 @@ for idx in range(params.max_tileviews):
         return dd_options, tile
 
 
-    @app.callback([Output({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children'),
-                   Output({'component': 'tileim_link' + idx_str, 'module': MATCH}, 'children'),
-                   Output({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'data')],
-                  [Input({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'store_render_launch', 'module': MATCH}, 'data')],
-                  [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'project_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'stack_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
-                   State('url', 'pathname')
-                   ], prevent_initial_call=True)
+    @callback([Output({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children'),
+               Output({'component': 'tileim_link' + idx_str, 'module': MATCH}, 'children'),
+               Output({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'data')],
+              [Input({'component': 'tile_dd' + idx_str, 'module': MATCH}, 'value'),
+               Input({'component': 'store_render_launch', 'module': MATCH}, 'data')],
+              [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               State({'component': 'project_dd', 'module': MATCH}, 'value'),
+               State({'component': 'stack_dd', 'module': MATCH}, 'value'),
+               State({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
+               State('url', 'pathname')
+               ], prevent_initial_call=True)
     def im_view_url(tile, runstore, owner, project, stack, section, thispage):
         """
         Generates the link to the tile image to display.
@@ -326,11 +324,11 @@ for idx in range(params.max_tileviews):
         return imurl, url1, leadtile
 
     # init tile image display
-    @app.callback(Output({'component': 'tileim_image' + idx_str, 'module': MATCH}, 'src'),
-                  [Input({'component': 'tileim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children')],
-                  State('url', 'pathname')
-                  )
+    @callback(Output({'component': 'tileim_image' + idx_str, 'module': MATCH}, 'src'),
+              [Input({'component': 'tileim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
+               Input({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children')],
+              State('url', 'pathname')
+              )
     def im_view(c_limits, imurl, thispage):
         """
         Generate the tile view.
@@ -360,22 +358,22 @@ for idx in range(params.max_tileviews):
         return imurl
 
     # init slice image display
-    @app.callback([Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'figure'),
-                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config'),
-                   Output({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
-                   Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData")],
-                  [Input({'component': 'sliceim_section_in' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'slice_zoom', 'module': MATCH}, 'n_clicks'),
-                   Input({'component': 'slice_reset', 'module': MATCH}, 'n_clicks'),
-                   Input({'component': 'sliceim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
-                   Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
-                   Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
-                  [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'project_dd', 'module': MATCH}, 'value'),
-                   State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
-                   State({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
-                   State('url', 'pathname')
-                   ], prevent_initial_call=True)
+    @callback([Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'figure'),
+               Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, 'config'),
+               Output({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+               Output({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData")],
+              [Input({'component': 'sliceim_section_in' + idx_str, 'module': MATCH}, 'value'),
+               Input({'component': 'slice_zoom', 'module': MATCH}, 'n_clicks'),
+               Input({'component': 'slice_reset', 'module': MATCH}, 'n_clicks'),
+               Input({'component': 'sliceim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
+               Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
+               Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
+              [State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+               State({'component': 'project_dd', 'module': MATCH}, 'value'),
+               State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+               State({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
+               State('url', 'pathname')
+               ], prevent_initial_call=True)
     def slice_view(section, zoomclick, resetclick, c_limits, thisstore, stack, owner, project, imparams,
                    rectsel, thispage):
         """
@@ -507,12 +505,12 @@ for idx in range(params.max_tileviews):
         return fig, config, imparams, None
 
 
-    @app.callback(Output({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
-                  Input({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData"),
-                  [State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
-                   State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'open'),
-                   State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'nclicks')],
-                  )
+    @callback(Output({'component': 'sliceim_rectsel' + idx_str, 'module': MATCH}, 'data'),
+              Input({'component': 'sliceim_image' + idx_str, 'module': MATCH}, "relayoutData"),
+              [State({'component': 'sliceim_params' + idx_str, 'module': MATCH}, 'data'),
+               State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'open'),
+               State({'component': 'sliceim_details' + idx_str, 'module': MATCH}, 'nclicks')],
+              )
     def paramstoouterlimits(annotations, imparams, open, click):
         """
         Generates the bounding box values from the image annotation rectangle(s).
@@ -574,8 +572,8 @@ for idx in range(params.max_tileviews):
         return (outdims)
 
 
-@app.callback(Output({'component': 'lead_tile', 'module': MATCH}, 'data'),
-              Input({'component': 'lead_tile_0', 'module': MATCH}, 'data'))
+@callback(Output({'component': 'lead_tile', 'module': MATCH}, 'data'),
+          Input({'component': 'lead_tile_0', 'module': MATCH}, 'data'))
 def collect_leadtiles(lead_in):
     # print(lead_in)
     return lead_in

@@ -13,12 +13,11 @@ from dash.exceptions import PreventUpdate
 
 import requests
 
-from app import app
+from dash import callback
 
-import params
-
-from utils import checks
-from utils import helper_functions as hf
+from dashUI import params
+from dashUI.utils import checks
+from dashUI.utils import helper_functions as hf
 
 new_project_style = {'margin-left': '2em'}
 new_stack_style = {'margin-left': '11em'}
@@ -78,14 +77,15 @@ def subpage_launch(module, subpages):
 # Update owner dropdown:
 
 
-@app.callback([Output({'component': 'owner_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'owner_dd', 'module': MATCH}, 'value')
-               ],
-              [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-               Input('url', 'pathname')],
-              State({'component': 'owner_dd', 'module': MATCH}, 'options'),
-              prevent_initial_call=True)
-def update_owner_dd(init_in, thispage, dd_options_in):
+@callback([Output({'component': 'owner_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'owner_dd', 'module': MATCH}, 'value')
+           ],
+          [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
+           Input('url', 'pathname'),
+           Input({'component': 'menu', 'module':  MATCH}, 'active')],
+          State({'component': 'owner_dd', 'module': MATCH}, 'options'),
+          prevent_initial_call=True)
+def update_owner_dd(init_in, thispage, menu, dd_options_in):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -114,20 +114,20 @@ def update_owner_dd(init_in, thispage, dd_options_in):
 
 # Update projects dropdown and browse link
 
-@app.callback([Output({'component': 'browse_proj', 'module': MATCH}, 'href'),
-               Output({'component': 'project_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'project_dd', 'module': MATCH}, 'value'),
-               Output({'component': 'project_store', 'module': MATCH}, 'data')
-               ],
-              [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-               Input({'component': 'proj_input', 'module': MATCH}, 'value'),
-               Input('url', 'pathname')],
-              [State({'component': 'store_project', 'module': MATCH}, 'data'),
-               State({'component': 'project_dd', 'module': MATCH}, 'options'),
-               State({'component': 'new_project_div', 'module': MATCH}, 'style')
-               ],
-              prevent_initial_call=True)
+@callback([Output({'component': 'browse_proj', 'module': MATCH}, 'href'),
+           Output({'component': 'project_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'project_dd', 'module': MATCH}, 'value'),
+           Output({'component': 'project_store', 'module': MATCH}, 'data')
+           ],
+          [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
+           Input({'component': 'proj_input', 'module': MATCH}, 'value'),
+           Input('url', 'pathname')],
+          [State({'component': 'store_project', 'module': MATCH}, 'data'),
+           State({'component': 'project_dd', 'module': MATCH}, 'options'),
+           State({'component': 'new_project_div', 'module': MATCH}, 'style')
+           ],
+          prevent_initial_call=True)
 def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_options_in, newp_visible):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -191,23 +191,23 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
 # Update stack dropdown and browse link
 
 
-@app.callback([Output({'component': 'browse_stack', 'module': MATCH}, 'href'),
-               Output({'component': 'stack_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'stack_dd', 'module': MATCH}, 'value'),
-               Output({'component': 'store_allstacks', 'module': MATCH}, 'data'),
-               Output({'component': 'full_stack_div', 'module': MATCH}, 'style'),
-               Output({'component': 'render_project', 'module': MATCH}, 'style')],
-              [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-               Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'project_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'stack_input', 'module': MATCH}, 'value')],
-              [State({'component': 'store_stack', 'module': MATCH}, 'data'),
-               State({'component': 'stack_dd', 'module': MATCH}, 'options'),
-               State({'component': 'project_store', 'module': MATCH}, 'data'),
-               State({'component': 'new_stack_div', 'module': MATCH}, 'style'),
-               State('url', 'pathname')],
-              prevent_initial_callback=True
-              )
+@callback([Output({'component': 'browse_stack', 'module': MATCH}, 'href'),
+           Output({'component': 'stack_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'stack_dd', 'module': MATCH}, 'value'),
+           Output({'component': 'store_allstacks', 'module': MATCH}, 'data'),
+           Output({'component': 'full_stack_div', 'module': MATCH}, 'style'),
+           Output({'component': 'render_project', 'module': MATCH}, 'style')],
+          [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
+           Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'project_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'stack_input', 'module': MATCH}, 'value')],
+          [State({'component': 'store_stack', 'module': MATCH}, 'data'),
+           State({'component': 'stack_dd', 'module': MATCH}, 'options'),
+           State({'component': 'project_store', 'module': MATCH}, 'data'),
+           State({'component': 'new_stack_div', 'module': MATCH}, 'style'),
+           State('url', 'pathname')],
+          prevent_initial_callback=True
+          )
 def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_options_in, proj_store, news_visible,
                     thispage):
     if not dash.callback_context.triggered:
@@ -284,8 +284,8 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
         return href_out, dd_options, out_stack, stacks, stackdiv_style, {'display': 'none'}
 
 
-@app.callback(Output({'component': 'render_stack', 'module': MATCH}, 'style'),
-              Input({'component': 'stack_dd', 'module': MATCH}, 'value'))
+@callback(Output({'component': 'render_stack', 'module': MATCH}, 'style'),
+          Input({'component': 'stack_dd', 'module': MATCH}, 'value'))
 def sbem_conv_update_stack_browse(stack_state):
     if stack_state == 'newstack':
         return new_stack_style
@@ -296,12 +296,12 @@ def sbem_conv_update_stack_browse(stack_state):
 # Update render store fields:
 
 
-@app.callback([Output({'component': 'store_owner', 'module': MATCH}, 'data'),
-               Output({'component': 'store_project', 'module': MATCH}, 'data'),
-               ],
-              Input({'component': 'project_dd', 'module': MATCH}, 'value'),
-              State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-              prevent_initial_callback=True)
+@callback([Output({'component': 'store_owner', 'module': MATCH}, 'data'),
+           Output({'component': 'store_project', 'module': MATCH}, 'data'),
+           ],
+          Input({'component': 'project_dd', 'module': MATCH}, 'value'),
+          State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+          prevent_initial_callback=True)
 def update_render_store(proj_sel, own_sel):
     if not dash.callback_context.triggered:
         raise PreventUpdate

@@ -7,30 +7,28 @@ Created on Mon Jan 18 14:52:17 2021
 """
 
 import dash
-
+from dash import callback
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
 import requests
 
-from app import app
 
-import params
-
-from utils import checks
-from utils import helper_functions as hf
+from dashUI import params
+from dashUI.utils import checks
+from dashUI.utils import helper_functions as hf
 
 
 # Update mc_owner dropdown:
 
-@app.callback([Output({'component': 'mc_owner_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'mc_owner_dd', 'module': MATCH}, 'value')
-               ],
-              [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-               Input({'component': 'mcown_input', 'module': MATCH}, 'value'),
-               Input('url', 'pathname')],
-              State({'component': 'mc_owner_dd', 'module': MATCH}, 'options'),
-              prevent_initial_call=True)
+@callback([Output({'component': 'mc_owner_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'mc_owner_dd', 'module': MATCH}, 'value')
+           ],
+          [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
+           Input({'component': 'mcown_input', 'module': MATCH}, 'value'),
+           Input('url', 'pathname')],
+          State({'component': 'mc_owner_dd', 'module': MATCH}, 'options'),
+          prevent_initial_call=True)
 def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
     if not dash.callback_context.triggered:
         trigger = 'init'
@@ -82,18 +80,18 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
 
 
 # Update match collection dropdown 
-@app.callback([Output({'component': 'new_mc_owner', 'module': MATCH}, 'style'),
-               Output({'component': 'matchcoll_dd', 'module': MATCH}, 'options'),
-               Output({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
-               Output({'component': 'matchcoll', 'module': MATCH}, 'style'),
-               Output({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
-              [Input({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'mc_input', 'module': MATCH}, 'value')],
-              [State({'component': 'matchcoll_dd', 'module': MATCH}, 'options'),
-               State({'component': 'store_init_render', 'module': MATCH}, 'data'),
-               State('url', 'pathname'),
-               State({'component': 'mc_new_enabled', 'module': MATCH}, 'data')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'new_mc_owner', 'module': MATCH}, 'style'),
+           Output({'component': 'matchcoll_dd', 'module': MATCH}, 'options'),
+           Output({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
+           Output({'component': 'matchcoll', 'module': MATCH}, 'style'),
+           Output({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
+          [Input({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'mc_input', 'module': MATCH}, 'value')],
+          [State({'component': 'matchcoll_dd', 'module': MATCH}, 'options'),
+           State({'component': 'store_init_render', 'module': MATCH}, 'data'),
+           State('url', 'pathname'),
+           State({'component': 'mc_new_enabled', 'module': MATCH}, 'data')],
+          prevent_initial_call=True)
 def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage, new_enabled='False'):
     all_mcs = dash.no_update
 
@@ -164,16 +162,16 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
 
 
 # initiate new mc input
-@app.callback([Output({'component': 'new_matchcoll', 'module': MATCH}, 'style'),
-               Output({'component': 'browse_mc_div', 'module': MATCH}, 'style'),
-               Output({'component': 'browse_mc', 'module': MATCH}, 'href')],
-              [Input({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
-               Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
-              [State({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
-               State({'component': 'owner_dd', 'module': MATCH}, 'value'),
-               State({'component': 'project_dd', 'module': MATCH}, 'value'),
-               State({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'new_matchcoll', 'module': MATCH}, 'style'),
+           Output({'component': 'browse_mc_div', 'module': MATCH}, 'style'),
+           Output({'component': 'browse_mc', 'module': MATCH}, 'href')],
+          [Input({'component': 'matchcoll_dd', 'module': MATCH}, 'value'),
+           Input({'component': 'stack_dd', 'module': MATCH}, 'value')],
+          [State({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
+           State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+           State({'component': 'project_dd', 'module': MATCH}, 'value'),
+           State({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
+          prevent_initial_call=True)
 def new_matchcoll(mc_sel, stack, mc_owner, owner, project, all_mcs):
     if not dash.callback_context.triggered:
         raise PreventUpdate

@@ -7,22 +7,22 @@ Created on Mon Jan 18 14:52:17 2021
 """
 
 import dash
+from dash import callback
 # import dash_core_components as dcc
 # import dash_html_components as html
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-from app import app
 
 
 outs = list()
 
 for dim in ['X', 'Y', 'Z']:
-    @app.callback([Output({'component': 'start' + dim, 'module': MATCH}, 'max'),
-                   Output({'component': 'end' + dim, 'module': MATCH}, 'min')],
-                  [Input({'component': 'start' + dim, 'module': MATCH}, 'value'),
-                   Input({'component': 'end' + dim, 'module': MATCH}, 'value')]
-                  )
+    @callback([Output({'component': 'start' + dim, 'module': MATCH}, 'max'),
+               Output({'component': 'end' + dim, 'module': MATCH}, 'min')],
+              [Input({'component': 'start' + dim, 'module': MATCH}, 'value'),
+               Input({'component': 'end' + dim, 'module': MATCH}, 'value')]
+              )
     def innerlimits(minval, maxval):
         return maxval, minval
 
@@ -35,10 +35,10 @@ for dim in ['X', 'Y', 'Z']:
 outs.append(Output({'component': 'sliceim_bboxparams_0', 'module': MATCH}, 'data'))
 
 
-@app.callback(outs,
-              [Input({'component': 'sliceim_rectsel_0', 'module': MATCH}, "data")],
-              State({'component': 'sliceim_params_0', 'module': MATCH}, 'data')
-              )
+@callback(outs,
+          [Input({'component': 'sliceim_rectsel_0', 'module': MATCH}, "data")],
+          State({'component': 'sliceim_params_0', 'module': MATCH}, 'data')
+          )
 def paramstoouterlimits(annotations, imparams):
     if not dash.callback_context.triggered:
         raise PreventUpdate

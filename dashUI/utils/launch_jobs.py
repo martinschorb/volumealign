@@ -18,7 +18,6 @@ import psutil
 import paramiko
 import requests
 
-import dashUI.params as params
 
 
 def args2string(args, separator='='):

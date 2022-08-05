@@ -6,15 +6,15 @@ Created on Wed Nov 11 14:24:32 2020
 @author: schorb
 """
 
-import params
+
 from dash import dcc
 from dash import html
 
 import plotly.graph_objects as go
 
-from utils import checks
-from utils import helper_functions as hf
-
+from dashUI.utils import checks
+from dashUI.utils import helper_functions as hf
+from dashUI import params
 
 def init_store(storeinit, module):
     """

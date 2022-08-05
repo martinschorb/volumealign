@@ -9,7 +9,7 @@ import json
 
 import requests
 
-import params
+from dashUI import params
 
 
 def mt_parameters(matchID, owner=params.mt_owner, raw=False):

@@ -13,7 +13,7 @@ import json
 import os
 import numpy as np
 
-import params
+from dashUI import params
 
 
 def trigger(key=None, debug=False):

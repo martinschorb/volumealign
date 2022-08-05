@@ -7,17 +7,15 @@ Created on Thu Jan 14 14:50:48 2021
 """
 from dash.dependencies import Input, Output, State, MATCH, ALL
 import dash
-from dash import html
+from dash import html, callback
 from dash.exceptions import PreventUpdate
 
 import subprocess
 import os
 
-from app import app
-
-import params as params
-from utils import launch_jobs
-from utils import helper_functions as hf
+from dashUI import params
+from dashUI.utils import launch_jobs
+from dashUI.utils import helper_functions as hf
 
 static_states = ['done', 'cancelled', 'error', 'input', 'wait', 'timeout']
 
@@ -25,20 +23,21 @@ static_states = ['done', 'cancelled', 'error', 'input', 'wait', 'timeout']
 #  =================================================
 
 
-@app.callback([Output({'component': 'store_r_status', 'module': MATCH}, 'data'),
-               Output({'component': 'statuspage_div', 'module': MATCH}, 'style'),
-               Output({'component': 'statuspage_link', 'module': MATCH}, 'href')],
-              [Input('interval1', 'n_intervals'),
-               Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')
-               ],
-              [State({'component': 'store_run_status', 'module': MATCH}, 'data'),
-               State({'component': 'outfile', 'module': MATCH}, 'children'),
-               State({'component': 'name', 'module': MATCH}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'store_r_status', 'module': MATCH}, 'data'),
+           Output({'component': 'statuspage_div', 'module': MATCH}, 'style'),
+           Output({'component': 'statuspage_link', 'module': MATCH}, 'href')],
+          [Input('interval1', 'n_intervals'),
+           Input({'component': 'cancel', 'module': MATCH}, 'n_clicks')],
+          [State({'component': 'store_run_status', 'module': MATCH}, 'data'),
+           State({'component': 'outfile', 'module': MATCH}, 'children'),
+           State({'component': 'name', 'module': MATCH}, 'data'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def update_status(n, click, run_state, logfile, module, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
+    #
+    # print('status update initiated')
 
     if None in [n, run_state, logfile, module, thispage]:
         raise PreventUpdate
@@ -107,14 +106,13 @@ def update_status(n, click, run_state, logfile, module, thispage):
 #  =================================================
 
 
-@app.callback([Output({'component': 'get-status', 'module': MATCH}, 'children'),
-               Output({'component': 'get-status', 'module': MATCH}, 'style'),
-               Output({'component': 'cancel', 'module': MATCH}, 'style')
-               ],
-              Input({'component': 'store_run_status', 'module': MATCH}, 'data'),
-              [State({'component': 'name', 'module': MATCH}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'get-status', 'module': MATCH}, 'children'),
+           Output({'component': 'get-status', 'module': MATCH}, 'style'),
+           Output({'component': 'cancel', 'module': MATCH}, 'style')],
+          Input({'component': 'store_run_status', 'module': MATCH}, 'data'),
+          [State({'component': 'name', 'module': MATCH}, 'data'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def get_status(run_state, module, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -154,11 +152,11 @@ def get_status(run_state, module, thispage):
 # #  =================================================
 
 
-@app.callback(Output({'component': 'console-out', 'module': MATCH}, 'value'),
-              [Input('interval1', 'n_intervals'),
-               Input({'component': 'outfile', 'module': MATCH}, 'children')],
-              State('url', 'pathname')
-              )
+@callback(Output({'component': 'console-out', 'module': MATCH}, 'value'),
+          [Input('interval1', 'n_intervals'),
+           Input({'component': 'outfile', 'module': MATCH}, 'children')],
+          State('url', 'pathname')
+          )
 def update_output(n, outfile, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -188,13 +186,13 @@ def update_output(n, outfile, thispage):
 # #  =================================================
 
 
-@app.callback([Output({'component': 'store_run_status', 'module': MATCH}, 'data'),
-               Output({'component': 'outfile', 'module': MATCH}, 'children')],
-              [Input({'component': 'store_launch_status', 'module': MATCH}, 'modified_timestamp'),
-               Input({'component': 'store_r_status', 'module': MATCH}, 'modified_timestamp')],
-              [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
-               State({'component': 'store_r_status', 'module': MATCH}, 'data')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'store_run_status', 'module': MATCH}, 'data'),
+           Output({'component': 'outfile', 'module': MATCH}, 'children')],
+          [Input({'component': 'store_launch_status', 'module': MATCH}, 'modified_timestamp'),
+           Input({'component': 'store_r_status', 'module': MATCH}, 'modified_timestamp')],
+          [State({'component': 'store_launch_status', 'module': MATCH}, 'data'),
+           State({'component': 'store_r_status', 'module': MATCH}, 'data')],
+          prevent_initial_call=True)
 def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
     trigger = hf.trigger()
 

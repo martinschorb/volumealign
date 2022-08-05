@@ -7,20 +7,18 @@ Created on Mon Jan 18 14:52:17 2021
 """
 
 import dash
-from dash import dcc
-from dash import html
+from dash import callback
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-from app import app
-from utils import helper_functions as hf
+from dashUI.utils import helper_functions as hf
 
 
-@app.callback(Output({'component': 'store_stackparams', 'module': MATCH}, 'data'),
-              Input({'component': 'stack_dd', 'module': MATCH}, 'value'),
-              [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback(Output({'component': 'store_stackparams', 'module': MATCH}, 'data'),
+          Input({'component': 'stack_dd', 'module': MATCH}, 'value'),
+          [State({'component': 'store_allstacks', 'module': MATCH}, 'data'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def stacktoparams(stack_sel, allstacks, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -56,13 +54,13 @@ def stacktoparams(stack_sel, allstacks, thispage):
     return thisstore
 
 
-@app.callback([Output({'component': 'startsection', 'module': MATCH}, 'value'),
-               Output({'component': 'startsection', 'module': MATCH}, 'min'),
-               Output({'component': 'endsection', 'module': MATCH}, 'value'),
-               Output({'component': 'endsection', 'module': MATCH}, 'max')],
-              Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
-              State('url', 'pathname'),
-              prevent_initial_call=True)
+@callback([Output({'component': 'startsection', 'module': MATCH}, 'value'),
+           Output({'component': 'startsection', 'module': MATCH}, 'min'),
+           Output({'component': 'endsection', 'module': MATCH}, 'value'),
+           Output({'component': 'endsection', 'module': MATCH}, 'max')],
+          Input({'component': 'store_stackparams', 'module': MATCH}, 'data'),
+          State('url', 'pathname'),
+          prevent_initial_call=True)
 def paramstosections(thisstore, thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -81,12 +79,12 @@ def paramstosections(thisstore, thispage):
     return sec_start, sec_start, sec_end, sec_end
 
 
-@app.callback([Output({'component': 'startsection', 'module': MATCH}, 'max'),
-               Output({'component': 'endsection', 'module': MATCH}, 'min')],
-              [Input({'component': 'startsection', 'module': MATCH}, 'value'),
-               Input({'component': 'endsection', 'module': MATCH}, 'value'),
-               Input({'component': 'sec_input1', 'module': MATCH}, 'value')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'startsection', 'module': MATCH}, 'max'),
+           Output({'component': 'endsection', 'module': MATCH}, 'min')],
+          [Input({'component': 'startsection', 'module': MATCH}, 'value'),
+           Input({'component': 'endsection', 'module': MATCH}, 'value'),
+           Input({'component': 'sec_input1', 'module': MATCH}, 'value')],
+          prevent_initial_call=True)
 def sectionlimits(start_sec, end_sec, sec_range=0):
     if sec_range is not None and start_sec is not None and end_sec is not None:
         return end_sec - sec_range, start_sec + sec_range
