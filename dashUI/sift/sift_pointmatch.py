@@ -7,8 +7,7 @@ Created on Tue Nov  3 13:30:16 2020
 """
 
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback, clientside_callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
@@ -16,14 +15,14 @@ import os
 import glob
 import json
 
-from app import app
-import params
+from dashUI import params
 
-from utils import pages, matchTrial, launch_jobs
+from dashUI.utils import pages, matchTrial, launch_jobs
 
-from utils import helper_functions as hf
+from dashUI.utils import helper_functions as hf
 
-from callbacks import runstate, comp_settings
+from dashUI.callbacks import runstate, comp_settings
+
 
 # element prefix
 label = "pointmatch_sift"
@@ -115,7 +114,7 @@ comp_settings.all_compset_callbacks(label, compute_table_cols)
 cs_params = comp_settings.compset_params(label, parent, status_table_cols)
 
 
-@app.callback(cs_params,
+@callback(cs_params,
               prevent_initial_call=True)
 def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, allstacks, status_table_cols, thispage):
     hf.is_url_active(thispage)
@@ -176,7 +175,7 @@ def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, alls
     return outlist
 
 
-@app.callback([Output(label + 'organism_dd', 'options'),
+@callback([Output(label + 'organism_dd', 'options'),
                Output(label + 'picks', 'data')],
               [Input({'component': 'tp_dd', 'module': parent}, 'value')],
               State('url', 'pathname'),
@@ -214,7 +213,7 @@ def sift_pointmatch_organisms(tilepairdir, thispage):
     return dd_options, picks
 
 
-@app.callback([Output(label + 'matchID_dd', 'options')],
+@callback([Output(label + 'matchID_dd', 'options')],
               [Input(label + 'organism_dd', 'value'),
                Input(label + 'picks', 'data')],
               prevent_initial_call=True)
@@ -234,7 +233,7 @@ def sift_pointmatch_IDs(organism, picks):
     return [dd_options]
 
 
-@app.callback([Output(label + 'mtselect', 'value'),
+@callback([Output(label + 'mtselect', 'value'),
                Output(label + 'mt_link', 'href'),
                Output(label + 'mt_jscaller', 'children')],
               [Input(label + 'matchID_dd', 'value'),
@@ -271,7 +270,7 @@ def sift_browse_matchTrial(matchID, buttonclick, matchcoll, link1, link2, tile2s
     return matchID, mc_url, dash.no_update
 
 
-app.clientside_callback(
+clientside_callback(
     """
     function(trigger, url) {
         window.open(arguments[1]);
@@ -292,7 +291,7 @@ app.clientside_callback(
 
 # TODO! (#1) Fix store  outputs to enable additional modules
 
-@app.callback([Output(label + 'go', 'disabled'),
+@callback([Output(label + 'go', 'disabled'),
                Output(label + 'mtnotfound', 'children'),
                Output({'component': 'store_launch_status', 'module': label}, 'data'),
                Output({'component': 'store_render_launch', 'module': label}, 'data'),

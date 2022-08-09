@@ -17,7 +17,7 @@ menu_items = [
             'convert',
             # 'mipmaps',
             'tilepairs',
-            # 'pointmatch',
+            'pointmatch',
             'solve',
             # 'export',
             # 'finalize'

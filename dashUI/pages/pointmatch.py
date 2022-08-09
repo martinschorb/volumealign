@@ -6,28 +6,28 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import os
 import glob
-# import numpy as np
-# import requests
+
 import importlib
 
 from dashUI import params
 
-from app import app
+from dashUI.utils import pages
+from dashUI.utils import helper_functions as hf
 
-from utils import pages
-from utils import helper_functions as hf
+from dashUI.callbacks import render_selector, substack_sel, match_selector, tile_view
 
-from callbacks import render_selector, substack_sel, match_selector, tile_view
+from dashUI.pages.side_bar import sidebar
 
 module = 'pointmatch'
+
+dash.register_page(__name__,
+                   name='Find Point Matches')
 
 subpages = [{'label': 'SIFT', 'value': 'SIFT'}]
 
@@ -55,7 +55,7 @@ page.append(pages.render_selector(module))
 us_out, us_in, us_state = render_selector.init_update_store(module, 'tilepairs')
 
 
-@app.callback(us_out, us_in, us_state,
+@callback(us_out, us_in, us_state,
               prevent_initial_call=True)
 def pointmatch_update_store(*args):
     thispage = args[-1]
@@ -87,7 +87,7 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                   ])
 
 
-@app.callback([Output({'component': 'tp_dd', 'module': module}, 'options'),
+@callback([Output({'component': 'tp_dd', 'module': module}, 'options'),
                Output({'component': 'tp_dd', 'module': module}, 'value')],
               Input({'component': 'stack_dd', 'module': module}, 'value'),
               State('url', 'pathname'),
@@ -160,7 +160,7 @@ for pmtypesel, impmod in zip(subpages, submodules):
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-@app.callback(switch_outputs,
+@callback(switch_outputs,
               Input({'component': 'pm_type_dd', 'module': module}, 'value'),
               State('url', 'pathname'))
 def convert_output(dd_value, thispage):
@@ -199,7 +199,7 @@ def convert_output(dd_value, thispage):
 
 c_in, c_out = render_selector.subpage_launch(module, subpages)
 
-@app.callback(c_out, c_in)
+@callback(c_out, c_in)
 def pointmatch_merge_launch_stores(*inputs):
     return hf.trigger_value()
 
@@ -208,3 +208,9 @@ page.append(html.Div(page1))
 page.append(html.Div(page2))
 page.append(html.Div(page3))
 page.append(html.Div(page4))
+
+page.extend(store)
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]
