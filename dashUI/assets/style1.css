@@ -9,6 +9,7 @@
   --main_bg: #f1f1f1;
   --text_active: #f1f1f1;
   --text_passive: #666666;
+  --sidebar_width: 17%;
 }
 
 
@@ -33,6 +34,7 @@
 .header img{
   float:right;
   height: 54px;
+  margin-top: -18px;
 }
 
 /* Create two columns/boxes that floats next to each other */
@@ -40,9 +42,9 @@
 /* Style the sidebar - fixed full height */
 .sidebar {
   height: 100%;
-  width: 15%;
-  position: fixed;
+  width: var(--sidebar_width);
   float: left;
+  position: fixed;
   z-index: 1;
   background-color: var(--passive_bg2);
   overflow-x: hidden;
@@ -54,7 +56,7 @@
 
 .sidebar_back {
   height: auto;
-  width: 15%;
+  width: var(--sidebar_width);
   z-index: 1;
   background-color: var(--passive_bg0);
   display: block;
@@ -77,6 +79,11 @@
   color: var(--main_bg);
 }
 
+/* Style links on mouse-over */
+.nav-pills .nav-link.active {
+  background-color: var(--active_fg);
+  color: var(--main_bg);
+}
 
 @media screen and (max-height: 450px) {
   .sidebar {padding-top: 15px;}
@@ -84,11 +91,17 @@
 }
 
 .main {
-  float: right;
-  width: 80%;
+  height: 85%;
+  width = calc(100% - var(--sidebar_width))
   background-color: var(--main_bg);
+  position: fixed;
   font-size: 14px;
+  margin: 0 0 0 calc(var(--sidebar_width) + 2%);
   padding: 1%;
+  foat: right;
+  text-align: left;
+  overflow-x: hidden;
+
 }
 
 .console_out {

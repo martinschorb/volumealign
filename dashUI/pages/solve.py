@@ -6,27 +6,28 @@ solve
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import os
-import importlib
 import json
 import time
 
 import renderapi
 
 from dashUI import params
-from app import app
 
-from utils import pages, launch_jobs, checks
-from utils import helper_functions as hf
+from dashUI.utils import pages, launch_jobs, checks
+from dashUI.utils import helper_functions as hf
 
-from callbacks import runstate, render_selector, substack_sel, match_selector, tile_view
+from dashUI.callbacks import render_selector
+
+from dashUI.pages.side_bar import sidebar
 
 module = 'solve'
+dash.register_page(__name__,
+                   name='Solve Positions')
 
 storeinit = {}
 store = pages.init_store(storeinit, module)
@@ -48,8 +49,8 @@ page = [main]
 us_out, us_in, us_state = render_selector.init_update_store(module, 'pointmatch')
 
 
-@app.callback(us_out, us_in, us_state,
-              prevent_initial_call=True)
+@callback(us_out, us_in, us_state,
+          prevent_initial_call=True)
 def solve_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -133,17 +134,17 @@ page.append(stack_div)
 
 # Fills the Stack DropDown
 
-@app.callback([Output({'component': 'outstack_dd', 'module': module}, 'options'),
-               Output({'component': 'outstack_dd', 'module': module}, 'value'),
-               Output(module + 'browse_proj', 'href'),
-               Output(module + 'browse_proj', 'style')
-               ],
-              [Input({'component': 'stack_dd', 'module': module}, 'options'),
-               Input(module + 'stack_input', 'value')],
-              [State({'component': 'owner_dd', 'module': module}, 'value'),
-               State({'component': 'project_dd', 'module': module}, 'value'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'outstack_dd', 'module': module}, 'options'),
+           Output({'component': 'outstack_dd', 'module': module}, 'value'),
+           Output(module + 'browse_proj', 'href'),
+           Output(module + 'browse_proj', 'style')
+           ],
+          [Input({'component': 'stack_dd', 'module': module}, 'options'),
+           Input(module + 'stack_input', 'value')],
+          [State({'component': 'owner_dd', 'module': module}, 'value'),
+           State({'component': 'project_dd', 'module': module}, 'value'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def solve_stacks(dd_options_in, newstack_name, owner, project_sel, thispage):
     thispage = thispage.lstrip('/')
 
@@ -173,13 +174,13 @@ def solve_stacks(dd_options_in, newstack_name, owner, project_sel, thispage):
     return dd_options, stack, proj_href, {}
 
 
-@app.callback([Output(module + 'browse_stack', 'href'),
-               Output(module + 'browse_stackdiv', 'style')],
-              Input({'component': 'outstack_dd', 'module': module}, 'value'),
-              [State({'component': 'project_dd', 'module': module}, 'value'),
-               State({'component': 'owner_dd', 'module': module}, 'value'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output(module + 'browse_stack', 'href'),
+           Output(module + 'browse_stackdiv', 'style')],
+          Input({'component': 'outstack_dd', 'module': module}, 'value'),
+          [State({'component': 'project_dd', 'module': module}, 'value'),
+           State({'component': 'owner_dd', 'module': module}, 'value'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def solve_update_stack_browse(stack_state, project_sel, owner, thispage):
     thispage = thispage.lstrip('/')
 
@@ -198,9 +199,9 @@ def solve_update_stack_browse(stack_state, project_sel, owner, thispage):
 
 # Create a new Stack
 
-@app.callback(Output(module + 'newstack', 'style'),
-              Input({'component': 'outstack_dd', 'module': module}, 'value'),
-              prevent_initial_call=True)
+@callback(Output(module + 'newstack', 'style'),
+          Input({'component': 'outstack_dd', 'module': module}, 'value'),
+          prevent_initial_call=True)
 def solve_new_stack_input(stack_value):
     if stack_value == 'newstack':
         style = {'display': 'block'}
@@ -257,22 +258,22 @@ gobutton = html.Div(children=[html.Br(),
 page.append(gobutton)
 
 
-@app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
-               Output({'component': 'store_launch_status', 'module': module}, 'data'),
-               Output({'component': 'store_render_launch', 'module': module}, 'data')],
-              [Input({'component': 'go', 'module': module}, 'n_clicks'),
-               Input({'component': 'matchcoll_dd', 'module': module}, 'value'),
-               Input({'component': 'outstack_dd', 'module': module}, 'value'),
-               Input({'component': 'tform_dd', 'module': module}, 'value')],
-              [State({'component': 'type_dd', 'module': module}, 'value'),
-               State({'component': 'compute_sel', 'module': module}, 'value'),
-               State({'component': 'startsection', 'module': module}, 'value'),
-               State({'component': 'endsection', 'module': module}, 'value'),
-               State({'component': 'store_owner', 'module': module}, 'data'),
-               State({'component': 'store_project', 'module': module}, 'data'),
-               State({'component': 'stack_dd', 'module': module}, 'value'),
-               State({'component': 'mc_owner_dd', 'module': module}, 'value')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'go', 'module': module}, 'disabled'),
+           Output({'component': 'store_launch_status', 'module': module}, 'data'),
+           Output({'component': 'store_render_launch', 'module': module}, 'data')],
+          [Input({'component': 'go', 'module': module}, 'n_clicks'),
+           Input({'component': 'matchcoll_dd', 'module': module}, 'value'),
+           Input({'component': 'outstack_dd', 'module': module}, 'value'),
+           Input({'component': 'tform_dd', 'module': module}, 'value')],
+          [State({'component': 'type_dd', 'module': module}, 'value'),
+           State({'component': 'compute_sel', 'module': module}, 'value'),
+           State({'component': 'startsection', 'module': module}, 'value'),
+           State({'component': 'endsection', 'module': module}, 'value'),
+           State({'component': 'store_owner', 'module': module}, 'data'),
+           State({'component': 'store_project', 'module': module}, 'data'),
+           State({'component': 'stack_dd', 'module': module}, 'value'),
+           State({'component': 'mc_owner_dd', 'module': module}, 'value')],
+          prevent_initial_call=True)
 def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, startsection, endsection, owner, project,
                            stack, mc_own):
     if not dash.callback_context.triggered:
@@ -408,3 +409,8 @@ collapse_stdout = pages.log_output(module)
 
 
 page.append(collapse_stdout)
+page.extend(store)
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]

@@ -2,7 +2,7 @@ from dash import html
 
 import dash
 
-from pagestest.pages.side_bar import sidebar
+from dashUI.pages.side_bar import sidebar
 
 dash.register_page(
     __name__,
