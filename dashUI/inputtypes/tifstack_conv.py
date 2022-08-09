@@ -6,25 +6,20 @@ Created on Wed Nov  4 08:42:12 2020
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import os
-
 import json
-import requests
-import importlib
 
-from app import app
-import params
+from dashUI import params
 
-from utils import launch_jobs, pages, checks
-from utils import helper_functions as hf
-from utils.checks import is_bad_filename
+from dashUI.utils import launch_jobs, pages, checks
+from dashUI.utils import helper_functions as hf
+from dashUI.utils.checks import is_bad_filename
 
-from callbacks import filebrowse, render_selector
+from dashUI.callbacks import filebrowse, render_selector
 
 # element prefix
 parent = "convert"
@@ -89,7 +84,7 @@ page1.append(voxsz)
 us_out, us_in, us_state = render_selector.init_update_store(label, parent, comp_in='store_render_init')
 
 
-@app.callback(us_out, us_in, us_state)
+@callback(us_out, us_in, us_state)
 def tifstack_conv_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -139,7 +134,7 @@ collapse_stdout = pages.log_output(label)
 
 
 page2.append(collapse_stdout)
-
+# page2.append(html.Div(store))
 
 # =============================================
 
@@ -148,7 +143,7 @@ page2.append(collapse_stdout)
 # =============================================
 
 
-@app.callback([Output(label + 'go', 'disabled'),
+@callback([Output(label + 'go', 'disabled'),
                Output(label + 'directory-popup', 'children'),
                Output({'component': 'store_launch_status', 'module': label}, 'data'),
                Output({'component': 'store_render_launch', 'module': label}, 'data')

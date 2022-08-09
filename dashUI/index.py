@@ -24,6 +24,16 @@ menu_items = [
             ]
 
 
+# menu_text = ['Convert & upload',
+#              # 'Generate MipMaps',
+#              'Find Tile Pairs',
+#              'Find Point Matches',
+#              'Solve Positions',
+#              'Export aligned volume',
+#              'Final post-processing'
+#              ]
+
+
 navbar = html.Div(id='navbar',className='header', children= html.H1([dcc.Link(href='/', children='Volume EM alignment with Render'),
                                                         html.A(html.Img(src='assets/help.svg'), href=params.doc_url,
                                                                target="_blank")

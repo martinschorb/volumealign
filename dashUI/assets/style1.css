@@ -98,10 +98,14 @@
   font-size: 14px;
   margin: 0 0 0 calc(var(--sidebar_width) + 2%);
   padding: 1%;
-  foat: right;
+  float: right;
   text-align: left;
   overflow-x: hidden;
+}
 
+.subpage {
+  width = 100%;
+  font-size: 14px;
 }
 
 .console_out {

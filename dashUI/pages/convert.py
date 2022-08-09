@@ -12,7 +12,6 @@ from dash.exceptions import PreventUpdate
 
 import importlib
 
-from dashUI.utils import pages, launch_jobs, checks
 from dashUI.utils import helper_functions as hf
 from dashUI.pages.side_bar import sidebar
 from dashUI.callbacks import runstate, render_selector
@@ -21,7 +20,7 @@ from dashUI.callbacks import runstate, render_selector
 
 module = 'convert'
 dash.register_page(__name__,
-                   name='Solve Positions')
+                   name='Convert & upload')
 inputtypes = [
     {'label': 'SBEMImage', 'value': 'SBEM'},
     {'label': 'SerialEM Montage', 'value': 'SerialEM'},
@@ -36,7 +35,7 @@ inputmodules = [
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:", id='conv_head'),
                           dcc.Dropdown(id={'component': 'import_type_dd', 'module': module},
-                                       options=inputtypes, value='')
+                                       options=inputtypes, value='', className='dropdown_inline')
                           ])
 
 stores = [dcc.Store(id={'component': 'store_render_init', 'module': module}, storage_type='session', data=''),
@@ -80,9 +79,9 @@ switch_outputs.append(Output({'component': 'store_render_init', 'module': module
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-@app.callback(switch_outputs,
-              Input({'component': 'import_type_dd', 'module': module}, 'value'),
-              State('url', 'pathname'))
+@callback(switch_outputs,
+          Input({'component': 'import_type_dd', 'module': module}, 'value'),
+          State('url', 'pathname'))
 def convert_output(dd_value, thispage):
     """
     Populates the page with subpages.
@@ -127,10 +126,14 @@ def convert_output(dd_value, thispage):
 c_in, c_out = render_selector.subpage_launch(module, inputtypes)
 
 
-@app.callback(c_out, c_in)
+@callback(c_out, c_in)
 def convert_merge_launch_stores(*inputs):
     return hf.trigger_value()
 
 
-page.append(html.Div(page1))
+page.append(html.Div(page1, className='subpage'))
 page.append(html.Div(page2))
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]
