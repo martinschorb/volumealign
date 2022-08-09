@@ -10,8 +10,7 @@ import os
 import sys
 
 import dash
-from dash import dcc, __version__
-import dash_bootstrap_components as dbc
+from dash import dcc, html, __version__
 
 from dashUI import params
 from index import navbar
@@ -23,9 +22,7 @@ app = dash.Dash(
 
 intervals = dcc.Interval(id='interval1', interval=params.refresh_interval, n_intervals=0)
 
-app.layout = dbc.Container(
-    [navbar, dcc.Location(id='url', refresh=True), intervals, dash.page_container]
-)
+app.layout = html.Div([navbar, dcc.Location(id='url', refresh=True), intervals, dash.page_container])
 
 if __name__ == '__main__':
     debug = True

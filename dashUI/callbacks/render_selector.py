@@ -81,13 +81,10 @@ def subpage_launch(module, subpages):
            Output({'component': 'owner_dd', 'module': MATCH}, 'value')
            ],
           [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-           Input('url', 'pathname'),
-           Input({'component': 'menu', 'module':  MATCH}, 'active')],
-          State({'component': 'owner_dd', 'module': MATCH}, 'options'),
-          prevent_initial_call=True)
-def update_owner_dd(init_in, thispage, menu, dd_options_in):
-    if not dash.callback_context.triggered:
-        raise PreventUpdate
+           Input('url', 'pathname')],
+          State({'component': 'owner_dd', 'module': MATCH}, 'options')
+          )
+def update_owner_dd(init_in, thispage, dd_options_in):
 
     thispage = thispage.lstrip('/')
 

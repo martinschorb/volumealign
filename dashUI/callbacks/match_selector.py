@@ -27,8 +27,8 @@ from dashUI.utils import helper_functions as hf
           [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
            Input({'component': 'mcown_input', 'module': MATCH}, 'value'),
            Input('url', 'pathname')],
-          State({'component': 'mc_owner_dd', 'module': MATCH}, 'options'),
-          prevent_initial_call=True)
+          State({'component': 'mc_owner_dd', 'module': MATCH}, 'options')
+          )
 def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
     if not dash.callback_context.triggered:
         trigger = 'init'
@@ -39,8 +39,6 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
         raise PreventUpdate
 
     thispage = thispage.lstrip('/')
-
-    trigger = hf.trigger()
 
     if thispage not in hf.trigger(key='module'):
         raise PreventUpdate
@@ -92,7 +90,7 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
            State('url', 'pathname'),
            State({'component': 'mc_new_enabled', 'module': MATCH}, 'data')],
           prevent_initial_call=True)
-def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage, new_enabled='False'):
+def mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage, new_enabled='False'):
     all_mcs = dash.no_update
 
     thispage = thispage.lstrip('/')
@@ -173,6 +171,7 @@ def pointmatch_mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage,
            State({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
           prevent_initial_call=True)
 def new_matchcoll(mc_sel, stack, mc_owner, owner, project, all_mcs):
+
     if not dash.callback_context.triggered:
         raise PreventUpdate
 

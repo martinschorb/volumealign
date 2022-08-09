@@ -14,13 +14,13 @@ from dashUI import params
 
 
 menu_items = [
-            'convert',
+            # 'convert',
             # 'mipmaps',
             'tilepairs',
-            'pointmatch',
+            # 'pointmatch',
             'solve',
-            'export',
-            'finalize'
+            # 'export',
+            # 'finalize'
             ]
 
 
