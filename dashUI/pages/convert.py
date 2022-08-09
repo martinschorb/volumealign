@@ -6,24 +6,22 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import importlib
 
-# import params
-from app import app
-# from utils import pages
-from utils import helper_functions as hf
-
-from callbacks import runstate, render_selector
+from dashUI.utils import pages, launch_jobs, checks
+from dashUI.utils import helper_functions as hf
+from dashUI.pages.side_bar import sidebar
+from dashUI.callbacks import runstate, render_selector
 
 # from inputtypes import sbem_conv, serialem_conv
 
 module = 'convert'
-
+dash.register_page(__name__,
+                   name='Solve Positions')
 inputtypes = [
     {'label': 'SBEMImage', 'value': 'SBEM'},
     {'label': 'SerialEM Montage', 'value': 'SerialEM'},
