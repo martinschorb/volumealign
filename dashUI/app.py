@@ -15,9 +15,17 @@ from dash import dcc, html, __version__
 from dashUI import params
 from index import navbar
 
+debug = True
+port = 8050
+
+if len(sys.argv) > 1:
+    debug = False
+    port = sys.argv[1]
+
 app = dash.Dash(
     __name__,
     use_pages=True,
+    suppress_callback_exceptions=True
 )
 
 intervals = dcc.Interval(id='interval1', interval=params.refresh_interval, n_intervals=0)
@@ -25,12 +33,6 @@ intervals = dcc.Interval(id='interval1', interval=params.refresh_interval, n_int
 app.layout = html.Div([navbar, dcc.Location(id='url', refresh=True), intervals, dash.page_container])
 
 if __name__ == '__main__':
-    debug = True
-    port = 8050
-
-    if len(sys.argv) > 1:
-        debug = False
-        port = sys.argv[1]
 
     print('using dash version ', __version__)
 

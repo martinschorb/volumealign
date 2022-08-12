@@ -7,8 +7,7 @@ Created on Tue Nov  3 13:30:16 2020
 """
 
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
@@ -19,11 +18,10 @@ import os
 import json
 import requests
 
-from app import app
-import params
+from dashUI import params
 
-from utils import pages, launch_jobs
-from utils import helper_functions as hf
+from dashUI.utils import pages, launch_jobs
+from dashUI.utils import helper_functions as hf
 
 # element prefix
 label = "finalize_BDV"
@@ -77,11 +75,12 @@ page2.append(collapse_stdout)
 # =============================================
 
 
-@app.callback([Output(label + '_input_dd', 'options'),
-               Output(label + '_input_dd', 'value')],
-              [Input({'component': 'subpage_dd', 'module': parent}, 'value'),
-               Input('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output(label + '_input_dd', 'options'),
+           Output(label + '_input_dd', 'value')],
+          [Input({'component': 'subpage_dd', 'module': parent}, 'value'),
+           Input('url', 'pathname')],
+          prevent_initial_call=True,
+          suppress_callback_exceptions=True)
 def bdv_finalize_volume_dd(dd_in, thispage):
     thispage = thispage.lstrip('/')
 
@@ -133,15 +132,16 @@ def bdv_finalize_volume_dd(dd_in, thispage):
 # =============================================
 
 
-@app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
-               Output({'component': 'buttondiv', 'module': label}, 'children'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data')
-               # Output({'component': 'store_render_launch', 'module': label},'data'),
-               ],
-              [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input(label + '_input_dd', 'value')],
-              State({'component': 'store_launch_status', 'module': parent}, 'data')
-              )
+@callback([Output({'component': 'go', 'module': label}, 'disabled'),
+           Output({'component': 'buttondiv', 'module': label}, 'children'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data')
+           # Output({'component': 'store_render_launch', 'module': label},'data'),
+           ],
+          [Input({'component': 'go', 'module': label}, 'n_clicks'),
+           Input(label + '_input_dd', 'value')],
+          State({'component': 'store_launch_status', 'module': parent}, 'data'),
+          suppress_callback_exceptions=True
+          )
 def bdv_finalize_execute_gobutton(click, jsonfile, launch_store):
     if not dash.callback_context.triggered:
         raise PreventUpdate

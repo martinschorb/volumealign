@@ -26,6 +26,7 @@ from dashUI.callbacks import render_selector
 from dashUI.pages.side_bar import sidebar
 
 module = 'solve'
+
 dash.register_page(__name__,
                    name='Solve Positions')
 

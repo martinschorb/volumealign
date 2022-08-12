@@ -20,7 +20,7 @@ menu_items = [
             'pointmatch',
             'solve',
             'export',
-            # 'finalize'
+            'finalize'
             ]
 
 

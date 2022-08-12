@@ -79,11 +79,6 @@
   color: var(--main_bg);
 }
 
-/* Style links on mouse-over */
-.nav-pills .nav-link.active {
-  background-color: var(--active_fg);
-  color: var(--main_bg);
-}
 
 @media screen and (max-height: 450px) {
   .sidebar {padding-top: 15px;}

@@ -6,27 +6,30 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
 import importlib
+import time
 
-from app import app
+from dashUI.utils import pages
+from dashUI.utils import helper_functions as hf
 
-from utils import pages
-from utils import helper_functions as hf
+from dashUI.callbacks import runstate, render_selector
 
-from callbacks import runstate, render_selector
-
-# from filetypes import BDV_finalize, MoBIE_finalize
+from dashUI.pages.side_bar import sidebar
 
 module = 'finalize'
 previous = 'export'
 
-subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'BDV'},
-            {'label': 'Add to MoBIE project', 'value': 'MoBIE'}]
+dash.register_page(__name__,
+                   name='Final post-processing')
+
+
+subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'finalize_BDV'},
+            {'label': 'Add to MoBIE project', 'value': 'finalize_MoBIE'}
+            ]
 
 submodules = [
     'filetypes.BDV_finalize',
@@ -88,10 +91,19 @@ for subsel, impmod in zip(subpages, submodules):
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-@app.callback(switch_outputs,
-              Input({'component': 'subpage_dd', 'module': module}, 'value'),
-              State('url', 'pathname'))
-def convert_output(dd_value, thispage):
+@callback(switch_outputs,
+          Input({'component': 'subpage_dd', 'module': module}, 'value'),
+          State('url', 'pathname'))
+def finalize_output(dd_value, thispage):
+    """
+    Populates the page with subpages.
+
+    :param str dd_value: value of the "import_type_dd" dropdown.
+    :param str thispage: current page URL
+    :return: List of style dictionaries to determine which subpage content to display.<Br>
+             Additionally: the page's "store_render_init" store (setting owner).
+    :rtype: (list of dict, dict)
+    """
     thispage = thispage.lstrip('/')
 
     if thispage == '' or thispage not in hf.trigger(key='module'):
@@ -103,7 +115,6 @@ def convert_output(dd_value, thispage):
     modules = [m['id']['module'] for m in outputs[1:]]
 
     for ix, mod in enumerate(modules):
-
         if mod == dd_value:
             outstyles[ix + 1] = {}
 
@@ -113,15 +124,18 @@ def convert_output(dd_value, thispage):
     return outstyles
 
 
-# collect variables from sub pages and make them available to following pages
+# collect variables from subpages and make them available to following pages
 
 c_in, c_out = render_selector.subpage_launch(module, subpages)
 
-
-@app.callback(c_out, c_in)
-def convert_merge_launch_stores(*inputs):
+@callback(c_out, c_in)
+def finalize_merge_launch_stores(*inputs):
     return hf.trigger_value()
 
 
 page.append(html.Div(page1))
 page.append(html.Div(page2))
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]
