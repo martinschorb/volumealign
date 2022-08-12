@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+
+@author: schorb
+"""
+
+import time
 import dash
 from dash import html, dcc, callback
 
@@ -50,12 +58,12 @@ def display_page(pathname):
     Parameters
     ----------
     pathname : TYPE
-        DESCRIPTION.
+        the URL suffix of the current page (change triggers callback).
 
     Returns
     -------
     outlist : TYPE
-        DESCRIPTION.
+        styles of the menu items (highlight the tile/box).
 
     """
     s1 = style_active
@@ -69,4 +77,6 @@ def display_page(pathname):
 
     outlist.extend(menu_styles)
 
+    # make sure page elements are loaded, so they can be updated
+    time.sleep(0.4)
     return outlist
