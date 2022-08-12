@@ -6,8 +6,7 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -17,16 +16,21 @@ import importlib
 
 from dashUI import params
 
-from app import app
+from dashUI.utils import pages
+from dashUI.utils import helper_functions as hf
 
-from utils import pages
-from utils import helper_functions as hf
-
-from callbacks import (render_selector,
+from dashUI.callbacks import (render_selector,
                        boundingbox, tile_view,
                        substack_sel, filebrowse)
 
+from dashUI.pages.side_bar import sidebar
+
+
 module = 'export'
+
+dash.register_page(__name__,
+                   name='Export aligned volume')
+
 
 subpages = [{'label': 'N5 (MoBIE/BDV)', 'value': 'N5'},
             {'label': 'slice images', 'value': 'slices'}
@@ -52,8 +56,8 @@ page = [main]
 us_out, us_in, us_state = render_selector.init_update_store(module, 'solve')
 
 
-@app.callback(us_out, us_in, us_state,
-              prevent_initial_call=True)
+@callback(us_out, us_in, us_state,
+          prevent_initial_call=True)
 def export_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -105,16 +109,16 @@ page.append(pathbrowse)
 
 # callback for output
 
-@app.callback(Output({'component': 'path_ext', 'module': module}, 'data'),
-              [Input({'component': "path_input", 'module': module}, 'n_blur'),
-               Input({'component': "path_input", 'module': module}, 'n_submit'),
-               Input({'component': 'stack_dd', 'module': module}, 'value')],
-              [State({'component': 'store_owner', 'module': module}, 'data'),
-               State({'component': 'store_project', 'module': module}, 'data'),
-               State({'component': 'store_allstacks', 'module': module}, 'data'),
-               State({'component': "path_input", 'module': module}, 'value')
-               ]
-              )
+@callback(Output({'component': 'path_ext', 'module': module}, 'data'),
+          [Input({'component': "path_input", 'module': module}, 'n_blur'),
+           Input({'component': "path_input", 'module': module}, 'n_submit'),
+           Input({'component': 'stack_dd', 'module': module}, 'value')],
+          [State({'component': 'store_owner', 'module': module}, 'data'),
+           State({'component': 'store_project', 'module': module}, 'data'),
+           State({'component': 'store_allstacks', 'module': module}, 'data'),
+           State({'component': "path_input", 'module': module}, 'value')
+           ]
+          )
 def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, browsedir):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -170,6 +174,26 @@ status_inputs = []
 
 page2 = []
 
+# collect variables from sub pages and make them available to following pages
+
+c_in, c_out = render_selector.subpage_launch(module, subpages)
+
+if not c_in == []:
+    @callback(c_out, c_in)
+    def convert_merge_launch_stores(*inputs):
+        return hf.trigger_value()
+
+page.append(html.Div(page1))
+page.append(html.Div(page2))
+
+page.extend(store)
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]
+
+
+
 for subsel, impmod in zip(subpages, submodules):
     thismodule = importlib.import_module(impmod)
 
@@ -188,9 +212,9 @@ for subsel, impmod in zip(subpages, submodules):
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
-@app.callback(switch_outputs,
-              Input({'component': 'subpage_dd', 'module': module}, 'value'),
-              State('url', 'pathname'))
+@callback(switch_outputs,
+          Input({'component': 'subpage_dd', 'module': module}, 'value'),
+          State('url', 'pathname'))
 def convert_output(dd_value, thispage):
     thispage = thispage.lstrip('/')
 
@@ -212,16 +236,3 @@ def convert_output(dd_value, thispage):
                 outstyles[ix + 1] = {}
 
     return outstyles
-
-
-# collect variables from sub pages and make them available to following pages
-
-c_in, c_out = render_selector.subpage_launch(module, subpages)
-
-if not c_in == []:
-    @app.callback(c_out, c_in)
-    def convert_merge_launch_stores(*inputs):
-        return hf.trigger_value()
-
-page.append(html.Div(page1))
-page.append(html.Div(page2))

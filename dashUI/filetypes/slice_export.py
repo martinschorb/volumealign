@@ -7,8 +7,7 @@ Created on Tue Nov  3 13:30:16 2020
 """
 
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
@@ -18,12 +17,14 @@ import os
 import json
 import requests
 
-from app import app
-import params
+from dashUI import params
 
-from utils import pages, launch_jobs
-from utils import helper_functions as hf
-from utils.checks import is_bad_filename
+from dashUI.utils import pages, launch_jobs
+from dashUI.utils import helper_functions as hf
+from dashUI.utils.checks import is_bad_filename
+
+from dashUI.callbacks import runstate
+
 
 # element prefix
 label = "export_slices"
@@ -99,15 +100,15 @@ page1.append(compute_settings)
 
 # callbacks
 
-@app.callback([Output({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              [Output({'component': 'factors', 'module': label}, 'modified_timestamp'),
-               Output({'component': 'computesettings', 'module': label}, 'style')],
-              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              [Input({'component': 'factors', 'module': label}, 'modified_timestamp'),
-               Input({'component': 'compute_sel', 'module': label}, 'value')],
-              [State({'component': 'factors', 'module': label}, 'data'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback([Output({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+          [Output({'component': 'factors', 'module': label}, 'modified_timestamp'),
+           Output({'component': 'computesettings', 'module': label}, 'style')],
+          [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+          [Input({'component': 'factors', 'module': label}, 'modified_timestamp'),
+           Input({'component': 'compute_sel', 'module': label}, 'value')],
+          [State({'component': 'factors', 'module': label}, 'data'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def slice_export_update_compute_settings(*inputs):
     thispage = inputs[-1]
     inputs = inputs[:-1]
@@ -151,9 +152,9 @@ def slice_export_update_compute_settings(*inputs):
     return out
 
 
-@app.callback(Output({'component': 'store_compset', 'module': label}, 'data'),
-              [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
-              prevent_initial_call=True)
+@callback(Output({'component': 'store_compset', 'module': label}, 'data'),
+          [Input({'component': 'input_' + col, 'module': label}, 'value') for col in compute_table_cols],
+          prevent_initial_call=True)
 def slice_export_store_compute_settings(*inputs):
     storage = dict()
 
@@ -189,15 +190,15 @@ stackoutput.extend(tablefields)
 stackoutput.extend(compute_tablefields)
 
 
-@app.callback(stackoutput,
-              stackinput,
-              [State({'component': 'store_owner', 'module': parent}, 'data'),
-               State({'component': 'store_project', 'module': parent}, 'data'),
-               State({'component': 'stack_dd', 'module': parent}, 'value'),
-               State({'component': 'store_allstacks', 'module': parent}, 'data'),
-               State({'component': "path_input", 'module': parent}, 'value'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback(stackoutput,
+          stackinput,
+          [State({'component': 'store_owner', 'module': parent}, 'data'),
+           State({'component': 'store_project', 'module': parent}, 'data'),
+           State({'component': 'stack_dd', 'module': parent}, 'value'),
+           State({'component': 'store_allstacks', 'module': parent}, 'data'),
+           State({'component': "path_input", 'module': parent}, 'value'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def slice_export_stacktoparams(  # stack_sel,
         xmin, xmax, ymin, ymax, zmin, zmax,
         browsetrig,
@@ -305,18 +306,18 @@ states.append(State({'component': 'scale_input', 'module': label}, 'value'))
 states.append(State({'component': 'newdir_sel', 'module': parent}, 'value'))
 
 
-@app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
-               Output({'component': 'buttondiv', 'module': label}, 'children'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data'),
-               Output({'component': 'store_render_launch', 'module': label}, 'data')],
-              [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input({'component': "path_input", 'module': parent}, 'value'),
-               Input({'component': 'stack_dd', 'module': parent}, 'value'),
-               Input({'component': 'filetype_dd', 'module': label}, 'value'),
-               Input({'component': 'input_Num_parallel_jobs', 'module': label}, 'value'),
-               Input({'component': 'input_runtime_minutes', 'module': label}, 'value')],
-              states,
-              prevent_initial_call=True)
+@callback([Output({'component': 'go', 'module': label}, 'disabled'),
+           Output({'component': 'buttondiv', 'module': label}, 'children'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data'),
+           Output({'component': 'store_render_launch', 'module': label}, 'data')],
+          [Input({'component': 'go', 'module': label}, 'n_clicks'),
+           Input({'component': "path_input", 'module': parent}, 'value'),
+           Input({'component': 'stack_dd', 'module': parent}, 'value'),
+           Input({'component': 'filetype_dd', 'module': label}, 'value'),
+           Input({'component': 'input_Num_parallel_jobs', 'module': label}, 'value'),
+           Input({'component': 'input_runtime_minutes', 'module': label}, 'value')],
+          states,
+          prevent_initial_call=True)
 def sliceexport_execute_gobutton(click, outdir, stack,
                                  imgformat,
                                  numjobs, timelim,

@@ -7,8 +7,7 @@ Created on Tue Nov  3 13:30:16 2020
 """
 
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 
@@ -19,14 +18,13 @@ import json
 import requests
 import importlib
 
-from app import app
-import params
+from dashUI import params
 
-from utils import pages, launch_jobs
-from utils import helper_functions as hf
-from utils.checks import is_bad_filename
+from dashUI.utils import pages, launch_jobs
+from dashUI.utils import helper_functions as hf
+from dashUI.utils.checks import is_bad_filename
 
-from callbacks import runstate, comp_settings
+from dashUI.callbacks import runstate, comp_settings
 
 # element prefix
 label = "export_N5"
@@ -70,15 +68,15 @@ stackoutput.extend(tablefields)
 stackoutput.extend(compute_tablefields)
 
 
-@app.callback(stackoutput,
-              stackinput,
-              [State({'component': 'store_owner', 'module': parent}, 'data'),
-               State({'component': 'store_project', 'module': parent}, 'data'),
-               State({'component': 'stack_dd', 'module': parent}, 'value'),
-               State({'component': 'store_allstacks', 'module': parent}, 'data'),
-               State({'component': "path_input", 'module': parent}, 'value'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+@callback(stackoutput,
+          stackinput,
+          [State({'component': 'store_owner', 'module': parent}, 'data'),
+           State({'component': 'store_project', 'module': parent}, 'data'),
+           State({'component': 'stack_dd', 'module': parent}, 'value'),
+           State({'component': 'store_allstacks', 'module': parent}, 'data'),
+           State({'component': "path_input", 'module': parent}, 'value'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def n5export_stacktoparams(  # stack_sel,
         xmin, xmax, ymin, ymax, zmin, zmax,
         browsetrig,
@@ -186,17 +184,17 @@ states.append(State({'component': 'sliceim_contrastslider_0', 'module': parent},
 states.append(State({'component': 'newdir_sel', 'module': parent}, 'value'))
 
 
-@app.callback([Output({'component': 'go', 'module': label}, 'disabled'),
-               Output({'component': 'buttondiv', 'module': label}, 'children'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data'),
-               Output({'component': 'store_render_launch', 'module': label}, 'data')],
-              [Input({'component': 'go', 'module': label}, 'n_clicks'),
-               Input({'component': "path_input", 'module': parent}, 'value'),
-               Input({'component': 'stack_dd', 'module': parent}, 'value'),
-               Input({'component': 'input_Num_CPUs', 'module': label}, 'value'),
-               Input({'component': 'input_runtime_minutes', 'module': label}, 'value')],
-              states,
-              prevent_initial_call=True)
+@callback([Output({'component': 'go', 'module': label}, 'disabled'),
+           Output({'component': 'buttondiv', 'module': label}, 'children'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data'),
+           Output({'component': 'store_render_launch', 'module': label}, 'data')],
+          [Input({'component': 'go', 'module': label}, 'n_clicks'),
+           Input({'component': "path_input", 'module': parent}, 'value'),
+           Input({'component': 'stack_dd', 'module': parent}, 'value'),
+           Input({'component': 'input_Num_CPUs', 'module': label}, 'value'),
+           Input({'component': 'input_runtime_minutes', 'module': label}, 'value')],
+          states,
+          prevent_initial_call=True)
 def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, owner, project,
                               Xmin, Xmax, Ymin, Ymax, Zmin, Zmax,
                               sp_store, slice_in, c_limits, newdir):

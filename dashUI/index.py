@@ -19,7 +19,7 @@ menu_items = [
             'tilepairs',
             'pointmatch',
             'solve',
-            # 'export',
+            'export',
             # 'finalize'
             ]
 
