@@ -118,7 +118,7 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                      html.Td(dcc.Dropdown(id={'component': 'owner_dd', 'module': module},
                                                           className='dropdown_inline',
                                                           options=[], value=owner,
-                                                          persistence=True, clearable=False))
+                                                          persistence=False, clearable=False))
                                  ])),
                                      html.Div(id={'component': 'owner', 'module': module},
                                               style={'display': 'none'}),

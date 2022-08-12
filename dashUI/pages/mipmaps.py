@@ -6,8 +6,7 @@ Created on Thu Nov 12 16:15:27 2020
 @author: schorb
 """
 import dash
-from dash import dcc
-from dash import html
+from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
@@ -16,18 +15,20 @@ import requests
 import os
 import importlib
 import numpy as np
-# import subprocess
 
+from dashUI import params
 
-import params
-from app import app
+from dashUI.utils import launch_jobs, pages
+from dashUI.utils import helper_functions as hf
 
-from utils import launch_jobs, pages
-from utils import helper_functions as hf
+from dashUI.callbacks import runstate, render_selector, substack_sel
 
-from callbacks import runstate, render_selector, substack_sel
+from dashUI.pages.side_bar import sidebar
 
 module = 'mipmaps'
+
+dash.register_page(__name__,
+                   name='Generate MipMaps')
 
 storeinit = {}
 store = pages.init_store(storeinit, module)
@@ -57,7 +58,7 @@ page = [main]
 us_out, us_in, us_state = render_selector.init_update_store(module, 'convert')
 
 
-@app.callback(us_out, us_in, us_state)
+@callback(us_out, us_in, us_state)
 def mipmaps_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -79,10 +80,9 @@ page.append(page1)
 
 page2 = html.Div(id={'component': 'page2', 'module': module},
                  children=[html.H3('Mipmap output directory (subdirectory "mipmaps")'),
-                           dcc.Input(id={'component': "input1", 'module': module}, type="text", debounce=True,
+                           dcc.Input(id={'component': "path_input", 'module': module}, type="text", debounce=True,
                                      persistence=True, className='dir_textinput'),
-                           html.Button('Browse', id={'component': "browse1", 'module': module}),
-                           'graphical browsing works on cluster login node ONLY!',
+                           pages.path_browse(module),
                            html.Br()])
 
 page.append(page2)
@@ -112,10 +112,10 @@ page.append(pages.substack_sel(module, hidden=True))
 
 # callbacks
 
-@app.callback(Output({'component': 'store_compset', 'module': module}, 'data'),
-              [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
-              State('url', 'pathname'),
-              prevent_initial_call=True)
+@callback(Output({'component': 'store_compset', 'module': module}, 'data'),
+          [Input({'component': 'input_' + col, 'module': module}, 'value') for col in compute_table_cols],
+          State('url', 'pathname'),
+          prevent_initial_call=True)
 def mipmaps_store_compute_settings(*inputs):
     thispage = inputs[-1]
     inputs = inputs[:-1]
@@ -136,7 +136,7 @@ def mipmaps_store_compute_settings(*inputs):
 
 # Update directory and compute settings from stack selection
 
-stackoutput = [Output({'component': 'input1', 'module': module}, 'value'),
+stackoutput = [Output({'component': 'path_ext', 'module': module}, 'data'),
                Output({'component': 'store_stack', 'module': module}, 'data'),
                # Output({'component': 'store_stackparams', 'module': module}, 'data')
                ]
@@ -148,7 +148,7 @@ stackoutput.extend(tablefields)
 stackoutput.extend(compute_tablefields)
 
 
-@app.callback(stackoutput,
+@callback(stackoutput,
               Input({'component': 'stack_dd', 'module': module}, 'value'),
               [State({'component': 'store_owner', 'module': module}, 'data'),
                State({'component': 'store_project', 'module': module}, 'data'),
@@ -226,12 +226,12 @@ gobutton = html.Div(children=[html.Br(),
 page.append(gobutton)
 
 
-@app.callback([Output({'component': 'go', 'module': module}, 'disabled'),
+@callback([Output({'component': 'go', 'module': module}, 'disabled'),
                Output({'component': 'directory-popup', 'module': module}, 'children'),
                Output({'component': 'runstep', 'module': module}, 'data'),
                Output({'component': 'store_launch_status', 'module': module}, 'data'),
                Output({'component': 'store_render_launch', 'module': module}, 'data')],
-              [Input({'component': 'input1', 'module': module}, 'value'),
+              [Input({'component': 'path_input', 'module': module}, 'value'),
                Input({'component': 'go', 'module': module}, 'n_clicks'),
                Input('interval1', 'n_intervals')],
               [State({'component': 'store_run_status', 'module': module}, 'data'),
@@ -273,7 +273,7 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
     # ------------------------------------
     # activate button, prepare launch
 
-    if 'input1' in trigger:
+    if 'path_input' in trigger:
 
         disable_out = True
         if any([mipmapdir == '', mipmapdir is None]):
@@ -430,7 +430,7 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
             launch_store = dict()
             launch_store['logfile'] = log_file
             launch_store['status'] = html.Div(
-                [html.Img(src='assets/gears.gif', height=72), html.Br(), 'running apply mipmaps to stack'])
+                [html.Img(src='../assets/gears.gif', height=72), html.Br(), 'running apply mipmaps to stack'])
             launch_store['id'] = mipmap_apply_p
             launch_store['type'] = launch_jobs.runtype(comp_sel)
 
@@ -461,3 +461,8 @@ collapse_stdout = pages.log_output(module)
 
 
 page.append(collapse_stdout)
+page.extend(store)
+
+
+def layout():
+    return [sidebar(), html.Div(page, className='main')]
