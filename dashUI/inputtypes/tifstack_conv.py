@@ -54,7 +54,6 @@ pathbrowse = pages.path_browse(label)
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
-
 voxsz = html.Div(children=[html.H4("Resolution values"),
                            "x/y (isotropic): ",
                            dcc.Input(id={'component': 'xy_px_input', 'module': label}, type="number",
@@ -62,8 +61,8 @@ voxsz = html.Div(children=[html.H4("Resolution values"),
                                      value=10.0,
                                      persistence=True),
                            " nm",
-                           html.Br(),html.Br(),
-                            "z (milling step): ",
+                           html.Br(), html.Br(),
+                           "z (milling step): ",
                            dcc.Input(id={'component': 'z_px_input', 'module': label}, type="number",
                                      debounce=True,
                                      value=10.0,
@@ -73,7 +72,6 @@ voxsz = html.Div(children=[html.H4("Resolution values"),
                  )
 
 page1.append(voxsz)
-
 
 # # ===============================================
 #  RENDER STACK SELECTOR
@@ -144,21 +142,21 @@ page2.append(collapse_stdout)
 
 
 @callback([Output(label + 'go', 'disabled'),
-               Output(label + 'directory-popup', 'children'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data'),
-               Output({'component': 'store_render_launch', 'module': label}, 'data')
-               ],
-              [Input({'component': 'stack_dd', 'module': label}, 'value'),
-               Input({'component': 'path_input', 'module': label}, 'value'),
-               Input(label + 'go', 'n_clicks')
-               ],
-              [State({'component': 'project_dd', 'module': label}, 'value'),
-               State({'component': 'compute_sel', 'module': label}, 'value'),
-               State({'component': 'xy_px_input', 'module': label}, 'value'),
-               State({'component': 'z_px_input', 'module': label}, 'value'),
-               State({'component': 'store_run_status', 'module': label}, 'data'),
-               State({'component': 'store_render_launch', 'module': label}, 'data')],
-              prevent_initial_call=True)
+           Output(label + 'directory-popup', 'children'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data'),
+           Output({'component': 'store_render_launch', 'module': label}, 'data')
+           ],
+          [Input({'component': 'stack_dd', 'module': label}, 'value'),
+           Input({'component': 'path_input', 'module': label}, 'value'),
+           Input(label + 'go', 'n_clicks')
+           ],
+          [State({'component': 'project_dd', 'module': label}, 'value'),
+           State({'component': 'compute_sel', 'module': label}, 'value'),
+           State({'component': 'xy_px_input', 'module': label}, 'value'),
+           State({'component': 'z_px_input', 'module': label}, 'value'),
+           State({'component': 'store_run_status', 'module': label}, 'data'),
+           State({'component': 'store_render_launch', 'module': label}, 'data')],
+          prevent_initial_call=True)
 def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs, zwidth, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
@@ -196,7 +194,6 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
 
         run_params['pxs'] = vox_sz
 
-
         with open(param_file, 'w') as f:
             json.dump(run_params, f, indent=4)
 
@@ -208,9 +205,9 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
         # -----------------------
 
         tif_conv_p = launch_jobs.run(target=compute_sel,
-                                      pyscript=params.rendermodules_dir +
-                                               '/dataimport/generate_EM_tilespecs_from_TIFStack.py',
-                                      jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
+                                     pyscript=params.rendermodules_dir +
+                                              '/dataimport/generate_EM_tilespecs_from_TIFStack.py',
+                                     jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
 
         run_state['status'] = 'running'
         run_state['id'] = tif_conv_p

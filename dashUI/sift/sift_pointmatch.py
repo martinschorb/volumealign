@@ -115,7 +115,7 @@ cs_params = comp_settings.compset_params(label, parent, status_table_cols)
 
 
 @callback(cs_params,
-              prevent_initial_call=True)
+          prevent_initial_call=True)
 def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, allstacks, status_table_cols, thispage):
     hf.is_url_active(thispage)
 
@@ -176,10 +176,10 @@ def sift_pointmatch_comp_settings(tilepairdir, matchtime, n_cpu, stack_sel, alls
 
 
 @callback([Output(label + 'organism_dd', 'options'),
-               Output(label + 'picks', 'data')],
-              [Input({'component': 'tp_dd', 'module': parent}, 'value')],
-              State('url', 'pathname'),
-              prevent_initial_call=True)
+           Output(label + 'picks', 'data')],
+          [Input({'component': 'tp_dd', 'module': parent}, 'value')],
+          State('url', 'pathname'),
+          prevent_initial_call=True)
 def sift_pointmatch_organisms(tilepairdir, thispage):
     thispage = thispage.lstrip('/')
 
@@ -214,9 +214,9 @@ def sift_pointmatch_organisms(tilepairdir, thispage):
 
 
 @callback([Output(label + 'matchID_dd', 'options')],
-              [Input(label + 'organism_dd', 'value'),
-               Input(label + 'picks', 'data')],
-              prevent_initial_call=True)
+          [Input(label + 'organism_dd', 'value'),
+           Input(label + 'picks', 'data')],
+          prevent_initial_call=True)
 def sift_pointmatch_IDs(organism, picks):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -234,16 +234,16 @@ def sift_pointmatch_IDs(organism, picks):
 
 
 @callback([Output(label + 'mtselect', 'value'),
-               Output(label + 'mt_link', 'href'),
-               Output(label + 'mt_jscaller', 'children')],
-              [Input(label + 'matchID_dd', 'value'),
-               Input(label + 'mt_linkbutton', 'n_clicks'),
-               Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
-              [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
-               State({'component': 'tileim_link_1', 'module': parent}, 'children'),
-               State({'component': 'tile_dd_1', 'module': parent}, 'value'),
-               State({'component': 'tile_dd_1', 'module': parent}, 'options')]
-              )
+           Output(label + 'mt_link', 'href'),
+           Output(label + 'mt_jscaller', 'children')],
+          [Input(label + 'matchID_dd', 'value'),
+           Input(label + 'mt_linkbutton', 'n_clicks'),
+           Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
+          [State({'component': 'tileim_link_0', 'module': parent}, 'children'),
+           State({'component': 'tileim_link_1', 'module': parent}, 'children'),
+           State({'component': 'tile_dd_1', 'module': parent}, 'value'),
+           State({'component': 'tile_dd_1', 'module': parent}, 'options')]
+          )
 def sift_browse_matchTrial(matchID, buttonclick, matchcoll, link1, link2, tile2sel, tile2options):
     if None in (matchID, link1, link2):
         return dash.no_update
@@ -292,23 +292,23 @@ clientside_callback(
 # TODO! (#1) Fix store  outputs to enable additional modules
 
 @callback([Output(label + 'go', 'disabled'),
-               Output(label + 'mtnotfound', 'children'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data'),
-               Output({'component': 'store_render_launch', 'module': label}, 'data'),
-               Output({'component': 'store_tpmatchtime', 'module': label}, 'data')],
-              [Input(label + 'go', 'n_clicks'),
-               Input(label + 'mtselect', 'value'),
-               Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
-              [State({'component': 'compute_sel', 'module': label}, 'value'),
-               State({'component': 'mc_owner_dd', 'module': parent}, 'value'),
-               State({'component': 'tp_dd', 'module': parent}, 'value'),
-               State({'component': 'store_owner', 'module': parent}, 'data'),
-               State({'component': 'store_project', 'module': parent}, 'data'),
-               State({'component': 'stack_dd', 'module': parent}, 'value'),
-               State({'component': 'input_Num_CPUs', 'module': label}, 'value'),
-               State({'component': 'input_runtime_minutes', 'module': label}, 'value'),
-               State('url', 'pathname')],
-              prevent_initial_call=True)
+           Output(label + 'mtnotfound', 'children'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data'),
+           Output({'component': 'store_render_launch', 'module': label}, 'data'),
+           Output({'component': 'store_tpmatchtime', 'module': label}, 'data')],
+          [Input(label + 'go', 'n_clicks'),
+           Input(label + 'mtselect', 'value'),
+           Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
+          [State({'component': 'compute_sel', 'module': label}, 'value'),
+           State({'component': 'mc_owner_dd', 'module': parent}, 'value'),
+           State({'component': 'tp_dd', 'module': parent}, 'value'),
+           State({'component': 'store_owner', 'module': parent}, 'data'),
+           State({'component': 'store_project', 'module': parent}, 'data'),
+           State({'component': 'stack_dd', 'module': parent}, 'value'),
+           State({'component': 'input_Num_CPUs', 'module': label}, 'value'),
+           State({'component': 'input_runtime_minutes', 'module': label}, 'value'),
+           State('url', 'pathname')],
+          prevent_initial_call=True)
 def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_owner, tilepairdir, owner, project, stack,
                                      n_cpu, timelim, thispage):
     thispage = thispage.lstrip('/')

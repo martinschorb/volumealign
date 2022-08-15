@@ -44,7 +44,7 @@ us_out, us_in, us_state = render_selector.init_update_store(module, 'convert')
 
 
 @callback(us_out, us_in, us_state,
-              prevent_initial_call=True)
+          prevent_initial_call=True)
 def tilepairs_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -82,10 +82,10 @@ page.append(page2)
 # # ===============================================
 
 @callback([Output({'component': 'page2', 'module': module}, 'style'),
-               Output({'component': 'multi-run', 'module': module}, 'style'),
-               Output({'component': 'pairmode', 'module': module}, 'value')],
-              Input({'component': 'owner_dd', 'module': module}, 'value'),
-              prevent_initial_call=True)
+           Output({'component': 'multi-run', 'module': module}, 'style'),
+           Output({'component': 'pairmode', 'module': module}, 'value')],
+          Input({'component': 'owner_dd', 'module': module}, 'value'),
+          prevent_initial_call=True)
 def stack2Donly(owner):
     """
     Toggles visibility of the slice selectors.
@@ -291,6 +291,7 @@ collapse_stdout = pages.log_output(module)
 
 page.append(collapse_stdout)
 page.extend(store)
+
 
 def layout():
     return [sidebar(),html.Div(page, className='main')]

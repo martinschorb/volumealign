@@ -13,6 +13,8 @@ from dash import html, dcc, __version__
 from dashUI import params
 
 
+title_header = 'Volume EM alignment with Render'
+
 menu_items = [
             'convert',
             # 'mipmaps',
@@ -34,7 +36,8 @@ menu_items = [
 #              ]
 
 
-navbar = html.Div(id='navbar',className='header', children= html.H1([dcc.Link(href='/', children='Volume EM alignment with Render'),
-                                                        html.A(html.Img(src='assets/help.svg'), href=params.doc_url,
+navbar = html.Div(id='navbar',className='header', children= html.H1([dcc.Link(href='/', children=title_header),
+                                                        html.A(html.Img(src='assets/help.svg', id="helplink_image"),
+                                                               href=params.doc_url,
                                                                target="_blank")
                                                         ], className='header'))

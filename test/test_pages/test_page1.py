@@ -2,26 +2,56 @@ from dash.testing.application_runners import import_app
 import dash
 from dash import html
 
-def test_bsly001_falsy_child(dash_duo):
-    # 3. define your app inside the test function
-    app = dash.Dash(__name__)
-    app.layout = html.Div(id="nully-wrapper", children=0)
-    # 4. host the app locally in a thread, all dash server configs could be
-    # passed after the first app argument
-    dash_duo.start_server(app)
-    # 5. use wait_for_* if your target element is the result of a callback,
-    # keep in mind even the initial rendering can trigger callbacks
-    dash_duo.wait_for_text_to_equal("#nully-wrapper", "0", timeout=4)
-    # 6. use this form if its present is expected at the action point
-    assert dash_duo.find_element("#nully-wrapper").text == "0"
-    # 7. to make the checkpoint more readable, you can describe the
-    # acceptance criterion as an assert message after the comma.
-    assert dash_duo.get_logs() == [], "browser console should contain no error"
-    # 8. visual testing with percy snapshot
-    dash_duo.percy_snapshot("bsly001-layout")
+import requests
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-def test_name(dash_duo):
-    app = import_app("pagestest.app")
+from dashUI.index import title_header
+from dashUI import params
+
+
+def test_home(dash_duo):
+    app = import_app("dashUI.app")
     dash_duo.start_server(app)
-    name = dash_duo.find_element("navbar")
-    print(name)
+    wait = WebDriverWait(dash_duo.driver, 10)
+
+    navbar_elem = dash_duo.find_element("#navbar")
+
+    # check title
+    assert navbar_elem.text == title_header
+
+    # check help link
+    helplink = navbar_elem.find_element(By.CSS_SELECTOR,'#helplink_image')
+
+    #check if image is loaded properly
+    help_imlink = helplink.get_attribute('src')
+    response = requests.get(help_imlink, stream=True)
+
+    assert response.status_code == 200
+
+    #check if help redirect works
+
+    # Store the ID of the original window
+    original_window = dash_duo.driver.current_window_handle
+
+    # Check we don't have other windows open already
+    assert len(dash_duo.driver.window_handles) == 1
+
+    # click the link to open the help page
+    helplink.click()
+
+    # Wait for the new window or tab
+    wait.until(EC.number_of_windows_to_be(2))
+
+    for window_handle in dash_duo.driver.window_handles:
+        if window_handle != original_window:
+            dash_duo.driver.switch_to.window(window_handle)
+
+            assert dash_duo.driver.current_url == params.doc_url
+            response = requests.get(dash_duo.driver.current_url)
+
+            assert response.status_code == 200
+
+            dash_duo.driver.close()
+            dash_duo.driver.switch_to.window(original_window)

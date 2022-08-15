@@ -25,7 +25,6 @@ from dashUI.callbacks import (render_selector,
 
 from dashUI.pages.side_bar import sidebar
 
-
 module = 'export'
 
 dash.register_page(__name__,
@@ -37,8 +36,8 @@ subpages = [{'label': 'N5 (MoBIE/BDV)', 'value': 'N5'},
             ]
 
 submodules = [
-    'filetypes.N5_export',
-    'filetypes.slice_export'
+    'dashUI.filetypes.N5_export',
+    'dashUI.filetypes.slice_export'
 ]
 
 storeinit = {}
@@ -117,8 +116,7 @@ page.append(pathbrowse)
            State({'component': 'store_project', 'module': module}, 'data'),
            State({'component': 'store_allstacks', 'module': module}, 'data'),
            State({'component': "path_input", 'module': module}, 'value')
-           ]
-          )
+           ])
 def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, browsedir):
     if not dash.callback_context.triggered:
         raise PreventUpdate

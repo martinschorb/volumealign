@@ -31,7 +31,7 @@ dash.register_page(__name__,
 
 subpages = [{'label': 'SIFT', 'value': 'SIFT'}]
 
-submodules = ['sift.sift_pointmatch']
+submodules = ['dashUI.sift.sift_pointmatch']
 
 storeinit = {}
 store = pages.init_store(storeinit, module)
@@ -56,7 +56,7 @@ us_out, us_in, us_state = render_selector.init_update_store(module, 'tilepairs')
 
 
 @callback(us_out, us_in, us_state,
-              prevent_initial_call=True)
+          prevent_initial_call=True)
 def pointmatch_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
@@ -88,10 +88,10 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
 
 
 @callback([Output({'component': 'tp_dd', 'module': module}, 'options'),
-               Output({'component': 'tp_dd', 'module': module}, 'value')],
-              Input({'component': 'stack_dd', 'module': module}, 'value'),
-              State('url', 'pathname'),
-              prevent_initial_call=True)
+           Output({'component': 'tp_dd', 'module': module}, 'value')],
+          Input({'component': 'stack_dd', 'module': module}, 'value'),
+          State('url', 'pathname'),
+          prevent_initial_call=True)
 def pointmatch_tp_dd_fill(stack, thispage):
     """
     Fills the tilepair dropdown.
@@ -161,8 +161,8 @@ for pmtypesel, impmod in zip(subpages, submodules):
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 
 @callback(switch_outputs,
-              Input({'component': 'pm_type_dd', 'module': module}, 'value'),
-              State('url', 'pathname'))
+          Input({'component': 'pm_type_dd', 'module': module}, 'value'),
+          State('url', 'pathname'))
 def convert_output(dd_value, thispage):
     """
     Populates the page with subpages.
@@ -198,6 +198,7 @@ def convert_output(dd_value, thispage):
 # collect Render selections from sub pages and make them available to following pages
 
 c_in, c_out = render_selector.subpage_launch(module, subpages)
+
 
 @callback(c_out, c_in)
 def pointmatch_merge_launch_stores(*inputs):

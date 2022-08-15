@@ -28,9 +28,9 @@ inputtypes = [
 ]
 
 inputmodules = [
-    'inputtypes.sbem_conv',
-    'inputtypes.serialem_conv',
-    'inputtypes.tifstack_conv'
+    'dashUI.inputtypes.sbem_conv',
+    'dashUI.inputtypes.serialem_conv',
+    'dashUI.inputtypes.tifstack_conv'
 ]
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:", id='conv_head'),

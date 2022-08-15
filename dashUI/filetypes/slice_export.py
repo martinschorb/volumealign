@@ -433,7 +433,6 @@ def sliceexport_execute_gobutton(click, outdir, stack,
             lastrun['minZ'] = steps[-1]
             lastrun['maxZ'] = Zmax
 
-
             lastpfile = param_file + '_' + str(numjobs - 1) + '.json'
             with open(lastpfile, 'w') as f:
                 json.dump(lastrun, f, indent=4)

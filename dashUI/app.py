@@ -13,7 +13,7 @@ import dash
 from dash import dcc, html, __version__
 
 from dashUI import params
-from index import navbar
+from dashUI.index import navbar
 
 debug = True
 port = 8050

@@ -129,20 +129,20 @@ page2.append(collapse_stdout)
 
 
 @callback([Output(label + 'go', 'disabled'),
-               Output(label + 'directory-popup', 'children'),
-               # Output(label+'danger-novaliddir','displayed'),
-               Output({'component': 'store_launch_status', 'module': label}, 'data'),
-               Output({'component': 'store_render_launch', 'module': label}, 'data')
-               ],
-              [Input({'component': 'stack_dd', 'module': label}, 'value'),
-               Input({'component': 'path_input', 'module': label}, 'value'),
-               Input(label + 'go', 'n_clicks')
-               ],
-              [State({'component': 'project_dd', 'module': label}, 'value'),
-               State({'component': 'compute_sel', 'module': label}, 'value'),
-               State({'component': 'store_run_status', 'module': label}, 'data'),
-               State({'component': 'store_render_launch', 'module': label}, 'data')],
-              prevent_initial_call=True)
+           Output(label + 'directory-popup', 'children'),
+           # Output(label+'danger-novaliddir','displayed'),
+           Output({'component': 'store_launch_status', 'module': label}, 'data'),
+           Output({'component': 'store_render_launch', 'module': label}, 'data')
+           ],
+          [Input({'component': 'stack_dd', 'module': label}, 'value'),
+           Input({'component': 'path_input', 'module': label}, 'value'),
+           Input(label + 'go', 'n_clicks')
+           ],
+          [State({'component': 'project_dd', 'module': label}, 'value'),
+           State({'component': 'compute_sel', 'module': label}, 'value'),
+           State({'component': 'store_run_status', 'module': label}, 'data'),
+           State({'component': 'store_render_launch', 'module': label}, 'data')],
+          prevent_initial_call=True)
 def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
