@@ -25,6 +25,7 @@ menu_items = [
             'finalize'
             ]
 
+home_title = 'VolumeAlign WebUI'
 
 # menu_text = ['Convert & upload',
 #              # 'Generate MipMaps',

@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+
+@author: schorb
+"""
+
 from dash.testing.application_runners import import_app
 import dash
 
@@ -8,8 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dashUI.index import title_header, menu_items
-from dashUI.pages.home import title
+from dashUI.index import title_header, home_title, menu_items
 from dashUI import params
 
 
@@ -83,6 +89,4 @@ def test_home(dash_duo):
 
     assert dash_duo.driver.current_url == dash_duo.server_url + '/'
 
-    assert dash_duo.driver.title == title
-
-
+    assert dash_duo.driver.title == home_title
