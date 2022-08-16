@@ -1,13 +1,15 @@
 from dash.testing.application_runners import import_app
 import dash
-from dash import html
 
 import requests
+import time
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from dashUI.index import title_header
+from dashUI.index import title_header, menu_items
+from dashUI.pages.home import title
 from dashUI import params
 
 
@@ -55,3 +57,32 @@ def test_home(dash_duo):
 
             dash_duo.driver.close()
             dash_duo.driver.switch_to.window(original_window)
+
+
+    reg = list(dash.page_registry.values())
+
+    paths = []
+    for page in reg:
+        paths.append(page["path"].strip('/'))
+
+    # check all subpages
+    for submenu in menu_items:
+        subpagetitle = reg[paths.index(submenu)]["name"]
+        menubutton = dash_duo.driver.find_element(By.LINK_TEXT, subpagetitle)
+        menubutton.click()
+
+        wait.until(EC.title_is(subpagetitle))
+
+        assert dash_duo.driver.current_url.endswith(submenu)
+
+    #check top link back to home page
+
+    navbar_elem.click()
+
+    time.sleep(0.5)
+
+    assert dash_duo.driver.current_url == dash_duo.server_url + '/'
+
+    assert dash_duo.driver.title == title
+
+

@@ -6,7 +6,7 @@ Created on Tue Nov  3 15:26:45 2020
 @author: schorb
 """
 
-
+import dash
 from dash import html, dcc, __version__
 
 
