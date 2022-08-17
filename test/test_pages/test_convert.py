@@ -22,16 +22,41 @@ from helpers import css_escape, module_selector, check_subpages
 
 module = 'convert'
 
-def test_convert(dash_duo):
-    app = import_app("dashUI.app")
-    dash_duo.start_server(app)
-    wait = WebDriverWait(dash_duo.driver, 10)
+def test_convert(thisdash):
 
-    dash_duo.driver.get(dash_duo.server_url + '/' + module)
+    thisdash.driver.get(thisdash.server_url + '/' + module)
 
     # check input type dropdown -> subpage selection
-    input_dd = dash_duo.find_element(module_selector('import_type_dd', module))
+    input_dd = thisdash.find_element(module_selector('import_type_dd', module))
 
     inputtypes = ['SBEM', 'SerialEM', 'tifstack']
 
-    check_subpages(inputtypes, input_dd, module, dash_duo)
+    check_subpages(inputtypes, input_dd, module, thisdash)
+
+
+def test_conv_SBEM(thisdash):
+    inp_sel = 'SBEM'
+
+    thisdash.driver.get(thisdash.server_url + '/' + module)
+
+    # check input type dropdown -> subpage selection
+    input_dd = thisdash.find_element(module_selector('import_type_dd', module))
+
+    input_dd.clear()
+    input_dd.send_keys(inp_sel, Keys.RETURN)
+
+    pathinputs = thisdash.driver.find_elements(By.XPATH, '//input[@class="dir_textinput"]')
+
+    for p_input in pathinputs:
+        if inp_sel in p_input.get_attribute('id'):
+            break
+
+    p_input.send_keys(Keys.META, 'A', Keys.BACKSPACE)
+    p_input.send_keys(Keys.CONTROL, 'A', Keys.BACKSPACE)
+
+
+
+
+
+
+

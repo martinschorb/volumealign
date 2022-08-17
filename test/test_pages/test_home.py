@@ -18,13 +18,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from dashUI.index import title_header, home_title, menu_items
 from dashUI import params
 
+def test_home(thisdash):
+    
+    wait = WebDriverWait(thisdash.driver, 10)
 
-def test_home(dash_duo):
-    app = import_app("dashUI.app")
-    dash_duo.start_server(app)
-    wait = WebDriverWait(dash_duo.driver, 10)
-
-    navbar_elem = dash_duo.find_element("#navbar")
+    navbar_elem = thisdash.find_element("#navbar")
 
     # check title
     assert navbar_elem.text == title_header
@@ -41,10 +39,10 @@ def test_home(dash_duo):
     #check if help redirect works
 
     # Store the ID of the original window
-    original_window = dash_duo.driver.current_window_handle
+    original_window = thisdash.driver.current_window_handle
 
     # Check we don't have other windows open already
-    assert len(dash_duo.driver.window_handles) == 1
+    assert len(thisdash.driver.window_handles) == 1
 
     # click the link to open the help page
     helplink.click()
@@ -52,17 +50,17 @@ def test_home(dash_duo):
     # Wait for the new window or tab
     wait.until(EC.number_of_windows_to_be(2))
 
-    for window_handle in dash_duo.driver.window_handles:
+    for window_handle in thisdash.driver.window_handles:
         if window_handle != original_window:
-            dash_duo.driver.switch_to.window(window_handle)
+            thisdash.driver.switch_to.window(window_handle)
 
-            assert dash_duo.driver.current_url == params.doc_url
-            response = requests.get(dash_duo.driver.current_url)
+            assert thisdash.driver.current_url == params.doc_url
+            response = requests.get(thisdash.driver.current_url)
 
             assert response.status_code == 200
 
-            dash_duo.driver.close()
-            dash_duo.driver.switch_to.window(original_window)
+            thisdash.driver.close()
+            thisdash.driver.switch_to.window(original_window)
 
 
     reg = list(dash.page_registry.values())
@@ -74,12 +72,12 @@ def test_home(dash_duo):
     # check all subpages
     for submenu in menu_items:
         subpagetitle = reg[paths.index(submenu)]["name"]
-        menubutton = dash_duo.driver.find_element(By.LINK_TEXT, subpagetitle)
+        menubutton = thisdash.driver.find_element(By.LINK_TEXT, subpagetitle)
         menubutton.click()
 
         wait.until(EC.title_is(subpagetitle))
 
-        assert dash_duo.driver.current_url.endswith(submenu)
+        assert thisdash.driver.current_url.endswith(submenu)
 
     #check top link back to home page
 
@@ -87,6 +85,6 @@ def test_home(dash_duo):
 
     time.sleep(0.5)
 
-    assert dash_duo.driver.current_url == dash_duo.server_url + '/'
+    assert thisdash.driver.current_url == thisdash.server_url + '/'
 
-    assert dash_duo.driver.title == home_title
+    assert thisdash.driver.title == home_title

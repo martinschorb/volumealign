@@ -4,8 +4,9 @@
 
 @author: schorb
 """
-
+import os
 import re
+from dashUI.params import base_dir
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -77,4 +78,30 @@ def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None
         if 'compute_sel' in sub_elements:
             compute_loc = dashtest_el.find_element(module_selector('compute_sel',module + '_' + inp_sel))
             assert compute_loc.get_attribute('type') == 'radio'
+
+def check_browsedir(thisdash, module):
+    pathinputs = thisdash.driver.find_elements(By.XPATH, '//input[@class="dir_textinput"]')
+
+    for p_input in pathinputs:
+        if module in p_input.get_attribute('id'):
+            break
+
+    p_input.send_keys(Keys.META, 'A', Keys.BACKSPACE)
+    p_input.send_keys(Keys.CONTROL, 'A', Keys.BACKSPACE)
+
+    p_input.send_keys(base_dir,'test')
+
+    dropdowns = thisdash.driver.find_elements(By.XPATH, '//div[@class="dash-dropdown"]')
+
+    for dropdown in dropdowns:
+        if module in dropdown.get_attribute('id') and 'browse_dd' in dropdown.get_attribute('id'):
+            break
+
+    sums = thisdash.driver.find_elements(By.XPATH,'//summary')
+
+    for summary in sums:
+        if 'Browse' == summary.text:
+            break
+
+    dropdown.click()
 

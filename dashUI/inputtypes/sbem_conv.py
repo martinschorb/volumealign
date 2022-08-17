@@ -49,13 +49,14 @@ store = pages.init_store({}, label)
 # Pick source directory
 
 
-directory_sel = html.Div(children=[html.H4("Select dataset root directory:"),
+directory_sel = html.Div(children=[html.H4("Select dataset root directory:", id='firsth4_'+label),
                                    # html.Script(type="text/javascript",children="alert('test')"),                                   
                                    dcc.Input(id={'component': 'path_input', 'module': label}, type="text",
                                              debounce=True,
                                              value=params.default_dir,
                                              persistence=True, className='dir_textinput')
-                                   ])
+                                   ]
+                         )
 
 pathbrowse = pages.path_browse(label)
 
