@@ -6,7 +6,7 @@ Created on Tue Nov  3 13:30:16 2020
 @author: schorb
 """
 import dash
-from dash import dcc, html, callback
+from dash import dcc, html, callback, ctx
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -15,6 +15,7 @@ import importlib
 from dashUI.utils import helper_functions as hf
 from dashUI.pages.side_bar import sidebar
 from dashUI.callbacks import runstate, render_selector
+from dashUI.callbacks.pages_cb import cb_convert as cb
 
 # from inputtypes import sbem_conv, serialem_conv
 
@@ -82,7 +83,7 @@ switch_outputs.append(Output({'component': 'store_render_init', 'module': module
 @callback(switch_outputs,
           Input({'component': 'import_type_dd', 'module': module}, 'value'),
           State('url', 'pathname'))
-def convert_output(dd_value, thispage):
+def convert_output(*args):
     """
     Populates the page with subpages.
 
@@ -92,33 +93,8 @@ def convert_output(dd_value, thispage):
              Additionally: the page's "store_render_init" store (setting owner).
     :rtype: (list of dict, dict)
     """
-    thispage = thispage.lstrip('/')
+    return cb.convert_output(*args)
 
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    outputs = dash.callback_context.outputs_list
-    outstyles = [{'display': 'none'}] * (len(outputs) - 1)
-
-    modules = [m['id']['module'] for m in outputs[1:]]
-
-    for ix, mod in enumerate(modules):
-
-        if mod == dd_value:
-            outstyles[ix + 1] = {}
-
-    if dd_value not in modules:
-        outstyles[0] = {}
-
-    # if dd_value in (None,''):
-    #     dd_value = 'SBEM'
-    outstore = dict()
-    outstore['owner'] = dd_value
-
-    out = outstyles
-    out.append(outstore)
-
-    return out
 
 
 # collect Render selections from sub pages and make them available to following pages
