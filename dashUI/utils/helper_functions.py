@@ -32,7 +32,7 @@ def trigger(key=None, debug=False):
             trigger = ctx.triggered[0]['prop_id'].partition('.')[0]
         else:
             i = 0
-            while i < len(ctx.inputs.keys()) and not list(ctx.inputs.keys())[i].startswith('{'):
+            while i < len(ctx.inputs.keys()) - 1 and not list(ctx.inputs.keys())[i].startswith('{'):
                 i += 1
 
             if not list(ctx.inputs.keys())[i].startswith('{'):
@@ -111,6 +111,7 @@ def compset_radiobutton(c_options):
 
     return outopt
 
+
 def is_url_active(thispage):
     thispage = thispage.lstrip('/')
 
@@ -176,9 +177,10 @@ def neighbours_from_json(infiles, target_id):
 
 
 def check_write_parentdirs(rootpath):
-    while not os.access(rootpath, os.W_OK | os.X_OK) and rootpath != os.path.join(rootpath,
-                                                                                  os.path.pardir) and not os.path.exists(
-            rootpath):
+    while not os.access(rootpath, os.W_OK | os.X_OK) \
+            and rootpath != os.path.join(rootpath, os.path.pardir)\
+            and not os.path.exists(rootpath):
+
         rootpath = os.path.abspath(os.path.join(rootpath, os.path.pardir))
 
     return os.access(rootpath, os.W_OK | os.X_OK)
@@ -197,4 +199,3 @@ def spark_nodes(n_cpu):
     nodes_out = nodes + (cores1 > 0)
 
     return nodes_out
-
