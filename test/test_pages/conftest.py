@@ -6,12 +6,9 @@
 """
 
 import pytest
-from dash.testing.application_runners import import_app
-
 
 @pytest.fixture
-def thisdash(dash_duo):
-    app = import_app("dashUI.app")
-    dash_duo.start_server(app)
+def thisdash(dash_br):
+    dash_br.server_url = "https://localhost:8050"
 
-    yield dash_duo
+    yield dash_br

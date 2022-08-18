@@ -10,6 +10,7 @@ import dash
 
 import requests
 import time
+import os
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -18,8 +19,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from dashUI.index import title_header, home_title, menu_items
 from dashUI import params
 
+
 def test_home(thisdash):
-    
+
     wait = WebDriverWait(thisdash.driver, 10)
 
     navbar_elem = thisdash.find_element("#navbar")
@@ -28,15 +30,15 @@ def test_home(thisdash):
     assert navbar_elem.text == title_header
 
     # check help link
-    helplink = navbar_elem.find_element(By.CSS_SELECTOR,'#helplink_image')
+    helplink = navbar_elem.find_element(By.CSS_SELECTOR, '#helplink_image')
 
-    #check if image is loaded properly
+    # check if image is loaded properly
     help_imlink = helplink.get_attribute('src')
-    response = requests.get(help_imlink, stream=True)
+    response = requests.get(help_imlink, stream=True, verify=False)
 
     assert response.status_code == 200
 
-    #check if help redirect works
+    # check if help redirect works
 
     # Store the ID of the original window
     original_window = thisdash.driver.current_window_handle
@@ -55,23 +57,21 @@ def test_home(thisdash):
             thisdash.driver.switch_to.window(window_handle)
 
             assert thisdash.driver.current_url == params.doc_url
-            response = requests.get(thisdash.driver.current_url)
+            response = requests.get(thisdash.driver.current_url, verify=False)
 
             assert response.status_code == 200
 
             thisdash.driver.close()
             thisdash.driver.switch_to.window(original_window)
 
-
-    reg = list(dash.page_registry.values())
-
-    paths = []
-    for page in reg:
-        paths.append(page["path"].strip('/'))
+    titles = []
+    for page in menu_items:
+        with open(os.path.join(params.base_dir, 'dashUI', 'pages', page + '.py')) as f:
+            psource = f.read()
+            titles.append(psource.split("  name='")[1].split("')\n")[0])
 
     # check all subpages
-    for submenu in menu_items:
-        subpagetitle = reg[paths.index(submenu)]["name"]
+    for submenu, subpagetitle in zip(menu_items, titles):
         menubutton = thisdash.driver.find_element(By.LINK_TEXT, subpagetitle)
         menubutton.click()
 
@@ -79,7 +79,7 @@ def test_home(thisdash):
 
         assert thisdash.driver.current_url.endswith(submenu)
 
-    #check top link back to home page
+    # check top link back to home page
 
     navbar_elem.click()
 

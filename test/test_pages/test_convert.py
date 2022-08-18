@@ -18,7 +18,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from dashUI.callbacks.pages_cb.cb_convert import convert_output
 
-from helpers import css_escape, module_selector, check_subpages
+from helpers import module_selector, check_subpages, check_browsedir
 
 module = 'convert'
 
@@ -45,14 +45,7 @@ def test_conv_SBEM(thisdash):
     input_dd.clear()
     input_dd.send_keys(inp_sel, Keys.RETURN)
 
-    pathinputs = thisdash.driver.find_elements(By.XPATH, '//input[@class="dir_textinput"]')
-
-    for p_input in pathinputs:
-        if inp_sel in p_input.get_attribute('id'):
-            break
-
-    p_input.send_keys(Keys.META, 'A', Keys.BACKSPACE)
-    p_input.send_keys(Keys.CONTROL, 'A', Keys.BACKSPACE)
+    check_browsedir(thisdash, inp_sel)
 
 
 
