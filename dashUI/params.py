@@ -13,10 +13,12 @@ import socket
 import numpy as np
 
 # =============================================================
-## Directory presets
+# Directory presets
 
-base_dir = '/g/emcf/software/volumealign/'
-# base_dir = '/g/emcf/schorb/code/volumealign/'
+base_dir = os.path.join(os.path.dirname(__file__), '..')
+
+# for debugging at a specific location uncomment the next line
+# base_dir = '/g/emcf/software/volumealign/'
 
 render_dir = '/g/emcf/software/render'
 
@@ -54,7 +56,7 @@ doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 init_logfile = 'out.txt'  # render_log_dir + 'fancylogfile.log'
 
 # ==============================================================
-## Compute resources presets
+# Compute resources presets
 
 # name of the conda environment that provides the render-modules and renderapi packages
 render_envname = 'render'
@@ -85,8 +87,6 @@ remote_compute = [
                         'mem': 4}},
     {'login01.cluster.embl.de': {}}]
 
-
-
 # dict. If empty, submission and status calls for cluster environments will be issued locally
 remote_submission = {'slurm': 'login01.cluster.embl.de',
                      'sparkslurm': 'login01.cluster.embl.de'}
@@ -99,9 +99,8 @@ for resource in remote_compute:
     r_name = list(resource.keys())[0]
     remote_hosts.append(r_name)
     comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
-    comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' +  r_name})
+    comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' + r_name})
     comp_defaultoptions.append(r_name)
-
 
 min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
 
@@ -110,12 +109,12 @@ time_add_buffer = 0.2  # time buffer for job submission (relative)
 n_cpu_script = 4
 mem_per_cpu = 4  # GB
 n_jobs_default = 8
-default_walltime = 5 # min
+default_walltime = 5  # min
 
 # standalone
 
 n_cpu_standalone = 8
-mem_standalone = 8 #GB
+mem_standalone = 8  # GB
 
 default_compparams = {'user': user,
                       'cpu': n_cpu_standalone,
@@ -141,7 +140,7 @@ export['min/GPix/CPU_slice'] = 20
 section_split = 500  # split stack into processing chunks for certain operations (mipmaps,...)
 
 # ==============================================================
-## Data type presets
+# Data type presets
 
 # directory structure
 
@@ -215,7 +214,7 @@ match_store = {  # 'init_match':{},
 mt_owner = 'flyTEM'
 
 # =============================================================
-## UI parameters
+# UI parameters
 
 # maximum number of tile view images per UI module
 max_tileviews = 2
@@ -229,7 +228,7 @@ refresh_interval = 6000  # ms
 disp_lines = 50  # output lines to display
 
 # =============================================================
-## solve parameters
+# solve parameters
 
 solve_transforms = [
     'AffineModel', 'SimilarityModel', 'Polynomial2DTransform',
