@@ -99,7 +99,7 @@ def check_browsedir(thisdash, module):
     p_input.send_keys(Keys.META, 'A', Keys.BACKSPACE)
     p_input.send_keys(Keys.CONTROL, 'A', Keys.BACKSPACE)
 
-    p_input.send_keys(base_dir, 'test')
+    p_input.send_keys(os.path.abspath(os.path.join(base_dir, 'test')))
 
 
     sums = thisdash.driver.find_elements(By.XPATH, '//summary')
