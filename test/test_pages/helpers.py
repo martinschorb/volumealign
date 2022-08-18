@@ -7,11 +7,17 @@
 import os
 import re
 import time
+import requests
 
-from dashUI.params import base_dir
+from dashUI.params import base_dir, render_base_url
+from dashUI.utils.checks import clean_render_name
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
+teststring = 'randomstringthatshouldbe;;nowherelse' + time.asctime()
 
 
 def css_escape(s):
@@ -82,6 +88,43 @@ def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None
             assert compute_loc.get_attribute('type') == 'radio'
 
 
+def checklink(thisdash, link, target):
+    wait = WebDriverWait(thisdash.driver, 10)
+
+    # check if link image is loaded properly
+    if link.tag_name == 'img':
+        imlink = link.get_attribute('src')
+        response = requests.get(imlink, stream=True, verify=False)
+
+        assert response.status_code == 200
+
+    # check if help redirect works
+
+    # Store the ID of the original window
+    original_window = thisdash.driver.current_window_handle
+
+    # Check we don't have other windows open already
+    assert len(thisdash.driver.window_handles) == 1
+
+    # click the link to open the help page
+    link.click()
+
+    # Wait for the new window or tab
+    wait.until(EC.number_of_windows_to_be(2))
+
+    for window_handle in thisdash.driver.window_handles:
+        if window_handle != original_window:
+            thisdash.driver.switch_to.window(window_handle)
+            wait.until(EC.url_matches(target))
+
+            response = requests.get(thisdash.driver.current_url, verify=False)
+
+            assert response.status_code == 200
+
+            thisdash.driver.close()
+            thisdash.driver.switch_to.window(original_window)
+
+
 def check_browsedir(thisdash, module):
     """
     Checks functionality of a directory browse element
@@ -100,7 +143,6 @@ def check_browsedir(thisdash, module):
     p_input.send_keys(Keys.CONTROL, 'A', Keys.BACKSPACE)
 
     p_input.send_keys(os.path.abspath(os.path.join(base_dir, 'test')))
-
 
     sums = thisdash.driver.find_elements(By.XPATH, '//summary')
 
@@ -137,3 +179,68 @@ def check_browsedir(thisdash, module):
         testdirs.append(currdir)
 
     assert 'test_files' in testdirs
+
+    summary.click()
+
+
+def check_renderselect(thisdash, module, components=None):
+    if components is None:
+        # all three selectors without creating new items
+        components = {'owner': False, 'project': False, 'stack': False}
+
+    elif type(components) is list:
+        # all selected items without creating new entries
+        incomp = components
+        components = {}
+        for item in incomp:
+            components[item] = False
+
+    elif type(components) is not dict:
+        raise TypeError('components need to be list or dict')
+
+    selection = {}
+
+    for component in components.keys():
+
+        sel_dd = thisdash.driver.find_element(By.XPATH, '//div[@class="dash-dropdown" and contains(@id,"' +
+                                              component + '") and contains(@id,"' + module + '")]')
+
+        if type(components[component]) is str:
+            selection[component] = components[component]
+        else:
+            selection[component] = sel_dd.text.split('\n')[-1]
+            assert 'Create new' not in selection[component]
+
+        target = render_base_url + 'view/stacks.html?'
+
+        if 'owner' in selection.keys():
+            target += 'renderStackOwner=' + selection['owner'] + '&'
+
+
+
+        if components[component]:
+            assert sel_dd.text.startswith('Create new')
+            sel_inp = sel_dd.find_element(By.XPATH, '//input[contains(@id,"' +
+                                          component + '") and contains(@id,"' + module + '")]')
+
+            sel_inp.clear()
+            sel_inp.send_keys(teststring)
+            sel_inp.send_keys(Keys.RETURN)
+
+            time.sleep(0.5)
+
+            assert sel_dd.text == clean_render_name(teststring)
+
+            # close dropdown
+            minarrow = sel_dd.find_element(By.XPATH, './/span[@class="Select-arrow-zone"]')
+
+            minarrow.click()
+
+
+        browselink = thisdash.driver.find_element(By.XPATH,'//a[contains(@id,"' + component + '")]')
+
+        assert browselink.text == '(Browse)'
+
+        checklink(thisdash, browselink, target.rstrip('&'))
+
+    minarrow.click()

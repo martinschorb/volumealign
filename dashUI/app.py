@@ -38,7 +38,7 @@ app.layout = html.Div([navbar, dcc.Location(id='url', refresh=True), intervals, 
 if __name__ == '__main__':
 
     print('using dash version ', __version__)
-    print(debug)
+
     if os.path.exists('cert.pem') and os.path.exists('key.pem'):
         app.run_server(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
     else:

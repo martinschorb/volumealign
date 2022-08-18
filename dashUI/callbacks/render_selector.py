@@ -111,14 +111,14 @@ def update_owner_dd(init_in, thispage, dd_options_in):
 
 # Update projects dropdown and browse link
 
-@callback([Output({'component': 'browse_proj', 'module': MATCH}, 'href'),
+@callback([Output({'component': 'browse_project', 'module': MATCH}, 'href'),
            Output({'component': 'project_dd', 'module': MATCH}, 'options'),
            Output({'component': 'project_dd', 'module': MATCH}, 'value'),
            Output({'component': 'project_store', 'module': MATCH}, 'data')
            ],
           [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
            Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-           Input({'component': 'proj_input', 'module': MATCH}, 'value'),
+           Input({'component': 'project_input', 'module': MATCH}, 'value'),
            Input('url', 'pathname')],
           [State({'component': 'store_project', 'module': MATCH}, 'data'),
            State({'component': 'project_dd', 'module': MATCH}, 'options'),
@@ -173,7 +173,7 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
             out_project = item
         dd_options.append({'label': item, 'value': item})
 
-    if trigger == 'proj_input':
+    if trigger == 'project_input':
         newproj_in = checks.clean_render_name(newproj_in)
         dd_options.append({'label': newproj_in, 'value': newproj_in})
         out_project = newproj_in

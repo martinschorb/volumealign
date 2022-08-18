@@ -127,7 +127,7 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                  # Project selection
                                  html.Td([html.Table(html.Tr([
                                      html.Td(html.Div('Project:', style={'margin-left': '2em'})),
-                                     html.Td(html.A('(Browse)', id={'component': 'browse_proj', 'module': module},
+                                     html.Td(html.A('(Browse)', id={'component': 'browse_project', 'module': module},
                                                     target="_blank",
                                                     style={'margin-left': '0.5em', 'margin-right': '1em'})),
                                      html.Td(dcc.Dropdown(id={'component': 'project_dd', 'module': module},
@@ -142,7 +142,7 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
 
                                      # creator
                                      html.Div(html.Div(['Enter new project name: ',
-                                                        dcc.Input(id={'component': "proj_input", 'module': module},
+                                                        dcc.Input(id={'component': "project_input", 'module': module},
                                                                   type="text", debounce=True, placeholder="new_project",
                                                                   persistence=False)
                                                         ],

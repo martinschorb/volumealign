@@ -19,6 +19,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from dashUI.index import title_header, home_title, menu_items
 from dashUI import params
 
+from helpers import checklink
+
 
 def test_home(thisdash):
 
@@ -32,37 +34,7 @@ def test_home(thisdash):
     # check help link
     helplink = navbar_elem.find_element(By.CSS_SELECTOR, '#helplink_image')
 
-    # check if image is loaded properly
-    help_imlink = helplink.get_attribute('src')
-    response = requests.get(help_imlink, stream=True, verify=False)
-
-    assert response.status_code == 200
-
-    # check if help redirect works
-
-    # Store the ID of the original window
-    original_window = thisdash.driver.current_window_handle
-
-    # Check we don't have other windows open already
-    assert len(thisdash.driver.window_handles) == 1
-
-    # click the link to open the help page
-    helplink.click()
-
-    # Wait for the new window or tab
-    wait.until(EC.number_of_windows_to_be(2))
-
-    for window_handle in thisdash.driver.window_handles:
-        if window_handle != original_window:
-            thisdash.driver.switch_to.window(window_handle)
-
-            assert thisdash.driver.current_url == params.doc_url
-            response = requests.get(thisdash.driver.current_url, verify=False)
-
-            assert response.status_code == 200
-
-            thisdash.driver.close()
-            thisdash.driver.switch_to.window(original_window)
+    checklink(thisdash, helplink, params.doc_url)
 
     titles = []
     for page in menu_items:
