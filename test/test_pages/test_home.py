@@ -19,7 +19,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from dashUI.index import title_header, home_title, menu_items
 from dashUI import params
 
-from helpers import checklink
+from helpers import check_link
 
 
 def test_home(thisdash):
@@ -34,7 +34,7 @@ def test_home(thisdash):
     # check help link
     helplink = navbar_elem.find_element(By.CSS_SELECTOR, '#helplink_image')
 
-    checklink(thisdash, helplink, params.doc_url)
+    check_link(thisdash, helplink, params.doc_url)
 
     titles = []
     for page in menu_items:

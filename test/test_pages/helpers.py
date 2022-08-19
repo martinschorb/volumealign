@@ -295,7 +295,8 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
         if not component == 'owner':
             # there is no browse link at the owner level
-            browselink = thisdash.driver.find_element(By.XPATH,'//a[contains(@id,"' + component + '")]')
+            browselink = thisdash.driver.find_element(
+                By.XPATH, '//a[contains(@id,"' + component + '") and contains(@id,"'+module+'")]')
 
             assert browselink.text == '(Browse)'
 

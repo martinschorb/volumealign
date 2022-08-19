@@ -148,7 +148,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
 
-    if trigger == 'go':
+    if 'go' in trigger:
         # launch procedure
 
         # prepare parameters:
@@ -213,7 +213,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         else:
             if not (run_state['status'] == 'running'):
                 run_state['status'] = 'wait'
-                popup = 'Input  Data not accessible.'
+                popup = 'Input Data not accessible.'
 
     out.update(run_state)
 
