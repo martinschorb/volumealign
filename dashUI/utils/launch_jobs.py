@@ -817,6 +817,10 @@ def run(target='standalone',
 
         return jobid
 
+    elif target == 'test':
+        # Test run of the web UI
+        return 'test_launch'
+
     else:
         raise NotImplementedError('This compute format is not (yet) implemented.')
 

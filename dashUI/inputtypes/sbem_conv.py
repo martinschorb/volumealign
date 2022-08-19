@@ -146,7 +146,9 @@ page2.append(collapse_stdout)
           prevent_initial_call=True)
 def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
     ctx = dash.callback_context
+
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
+
     but_disabled = True
     popup = ''
     out = run_state
@@ -158,7 +160,8 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
 
-    if trigger == 'go':
+    if 'go' in trigger:
+
         # launch procedure
 
         # prepare parameters:

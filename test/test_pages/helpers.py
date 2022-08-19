@@ -8,6 +8,9 @@ import os
 import re
 import time
 import requests
+import json
+
+from dash._utils import AttributeDict
 
 from dashUI.params import base_dir, render_base_url
 from dashUI.utils.checks import clean_render_name
@@ -33,8 +36,39 @@ def css_escape(s):
 
 
 def module_selector(component, module):
+    """
+    Returns the CSS label from a pattern-matching dash ID
+
+    :param str component: Component name
+    :param str module: Module name
+    :return: CSS compatible ID string
+    :rtype: str
+    """
     selector = css_escape('#{"component":"' + component + '","module":"' + module + '"} input')
     return selector
+
+
+def set_callback_context(el_id, value, valkey='value', context='triggered_inputs'):
+    """
+    Generates a compatible dictionary for filling context_value.
+
+    :param str or tuple el_id: Dash element ID. Tuple -> component/module dict
+    :param value: value of the element
+    :param str valkey: dash key of the value (element-specific)
+    :param str context: the context attribute for the callback
+    :return: Attribute dict to be fed into context
+    """
+
+    if type(value) is dict:
+        valkey = list(value.keys())[0]
+        value = value[valkey]
+
+    if type(el_id) is tuple:
+        assert len(el_id) == 2
+        el_id = {"component": el_id[0], "module": el_id[1]}
+
+    return AttributeDict(**{context: [{'prop_id': json.dumps(el_id) + '.' + valkey,
+                                       valkey: value}]})
 
 
 def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None):
@@ -88,7 +122,16 @@ def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None
             assert compute_loc.get_attribute('type') == 'radio'
 
 
-def checklink(thisdash, link, target):
+def check_link(thisdash, link, target):
+    """
+    Check if a hyperlink on a page points to the desired target and if that web page can be reached.
+
+    :param dash.testing.composite.DashComposite thisdash: the dash testing instance
+    :param selenium.webdriver.remote.webelement.WebElement link: the link element
+                (HTML a, HTML img: tests as well if the source image is accessible).
+    :param str target: target address to test
+    """
+
     wait = WebDriverWait(thisdash.driver, 10)
 
     # check if link image is loaded properly
@@ -183,12 +226,20 @@ def check_browsedir(thisdash, module):
     summary.click()
 
 
-def check_renderselect(thisdash, module, components=None):
-    if components is None:
-        # all three selectors without creating new items
-        components = {'owner': False, 'project': False, 'stack': False}
+def check_renderselect(thisdash, module, components={'owner': False, 'project': False, 'stack': False}):
+    """
+    Checks a render selector page element
 
-    elif type(components) is not dict:
+    :param dash.testing.composite.DashComposite thisdash: the dash testing instance
+    :param str module: The module label.
+    :param dict components: The Selector components to be checked.
+            - String values -> no check but set the value
+            - False -> check the selector
+            - True -> check selector and creation input for new entries
+    :rtype: None
+    """
+
+    if type(components) is not dict:
         raise TypeError('components need to be dict')
 
     selection = {}
@@ -248,6 +299,6 @@ def check_renderselect(thisdash, module, components=None):
 
             assert browselink.text == '(Browse)'
 
-            checklink(thisdash, browselink, target.rstrip('&'))
+            check_link(thisdash, browselink, target.rstrip('&'))
 
     thisdash.select_dcc_dropdown(sel_dd, index=-2)
