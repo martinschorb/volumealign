@@ -24,7 +24,7 @@ from dashUI.callbacks import filebrowse, render_selector
 # element prefix
 parent = "convert"
 
-label = parent + "_tifstack"
+label = parent + "_FIBSEM"
 
 # SELECT input directory
 
@@ -59,6 +59,7 @@ voxsz = html.Div(children=[html.H4("Resolution values"),
                            dcc.Input(id={'component': 'xy_px_input', 'module': label}, type="number",
                                      debounce=True,
                                      value=10.0,
+                                     min=1,
                                      persistence=True),
                            " nm",
                            html.Br(), html.Br(),
@@ -66,9 +67,11 @@ voxsz = html.Div(children=[html.H4("Resolution values"),
                            dcc.Input(id={'component': 'z_px_input', 'module': label}, type="number",
                                      debounce=True,
                                      value=10.0,
+                                     min=1,
                                      persistence=True),
                            " nm",
-                           ]
+                           ],
+                 id='fibsem_stack_resolution_div'
                  )
 
 page1.append(voxsz)
@@ -83,7 +86,7 @@ us_out, us_in, us_state = render_selector.init_update_store(label, parent, comp_
 
 
 @callback(us_out, us_in, us_state)
-def tifstack_conv_update_store(*args):
+def fibsem_conv_update_store(*args):
     thispage = args[-1]
     args = args[:-1]
 
@@ -157,7 +160,7 @@ page2.append(collapse_stdout)
            State({'component': 'store_run_status', 'module': label}, 'data'),
            State({'component': 'store_render_launch', 'module': label}, 'data')],
           prevent_initial_call=True)
-def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs, zwidth, run_state, outstore):
+def fibsem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs, zwidth, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
@@ -171,7 +174,7 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
 
-    if trigger == 'go':
+    if 'go' in trigger:
         # launch procedure
 
         # prepare parameters:
@@ -197,7 +200,7 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
         with open(param_file, 'w') as f:
             json.dump(run_params, f, indent=4)
 
-        log_file = params.render_log_dir + '/' + 'tifstack_conv_' + run_prefix
+        log_file = params.render_log_dir + '/' + 'fibsem_conv_' + run_prefix
         err_file = log_file + '.err'
         log_file += '.log'
 
@@ -241,7 +244,7 @@ def tifstack_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, p
         else:
             if not (run_state['status'] == 'running'):
                 run_state['status'] = 'wait'
-                popup = 'Input  Data not accessible.'
+                popup = 'Input Data not accessible.'
 
     out['logfile'] = log_file
     out['status'] = run_state['status']

@@ -269,6 +269,7 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
             # menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
             selection[component] = options[-1]
+            assert len(options) > 1
             assert 'Create new' not in selection[component]
 
         if components[component] is True:
@@ -292,11 +293,10 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
             #
             # minarrow.click()
 
-
         if not component == 'owner':
             # there is no browse link at the owner level
             browselink = thisdash.driver.find_element(
-                By.XPATH, '//a[contains(@id,"' + component + '") and contains(@id,"'+module+'")]')
+                By.XPATH, '//a[contains(@id,"' + component + '") and contains(@id,"' + module + '")]')
 
             assert browselink.text == '(Browse)'
 

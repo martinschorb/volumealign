@@ -25,13 +25,13 @@ dash.register_page(__name__,
 inputtypes = [
     {'label': 'SBEMImage', 'value': 'SBEM'},
     {'label': 'SerialEM Montage', 'value': 'SerialEM'},
-    {'label': 'Image stack - FIB/SEM', 'value': 'tifstack'},
+    {'label': 'Image stack - FIB/SEM', 'value': 'FIBSEM'},
 ]
 
 inputmodules = [
     'dashUI.inputtypes.sbem_conv',
     'dashUI.inputtypes.serialem_conv',
-    'dashUI.inputtypes.tifstack_conv'
+    'dashUI.inputtypes.fibsem_conv'
 ]
 
 main = html.Div(children=[html.H3("Import volume EM datasets - Choose type:", id='conv_head'),
