@@ -18,20 +18,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from dashUI.callbacks.pages_cb.cb_convert import convert_output
 
-from helpers import module_selector, check_subpages, check_browsedir
+from helpers import module_selector, check_subpages, check_browsedir, check_renderselect
 
 module = 'convert'
 
-def test_convert(thisdash):
-
-    thisdash.driver.get(thisdash.server_url + '/' + module)
-
-    # check input type dropdown -> subpage selection
-    input_dd = thisdash.find_element(module_selector('import_type_dd', module))
-
-    inputtypes = ['SBEM', 'SerialEM', 'tifstack']
-
-    check_subpages(inputtypes, input_dd, module, thisdash)
+# def test_convert(thisdash):
+#
+#     thisdash.driver.get(thisdash.server_url + '/' + module)
+#
+#     # check input type dropdown -> subpage selection
+#     input_dd = thisdash.find_element(module_selector('import_type_dd', module))
+#
+#     inputtypes = ['SBEM', 'SerialEM', 'tifstack']
+#
+#     check_subpages(inputtypes, input_dd, module, thisdash)
 
 
 def test_conv_SBEM(thisdash):
@@ -47,7 +47,8 @@ def test_conv_SBEM(thisdash):
 
     check_browsedir(thisdash, inp_sel)
 
-    print('12')
+    check_renderselect(thisdash, module + '_' + inp_sel, components={'owner': 'SBEM', 'project': True, 'stack' : True})
+
 
 
 

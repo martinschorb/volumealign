@@ -115,7 +115,7 @@ def checklink(thisdash, link, target):
     for window_handle in thisdash.driver.window_handles:
         if window_handle != original_window:
             thisdash.driver.switch_to.window(window_handle)
-            wait.until(EC.url_matches(target))
+            wait.until(EC.url_to_be(target))
 
             response = requests.get(thisdash.driver.current_url, verify=False)
 
@@ -188,15 +188,8 @@ def check_renderselect(thisdash, module, components=None):
         # all three selectors without creating new items
         components = {'owner': False, 'project': False, 'stack': False}
 
-    elif type(components) is list:
-        # all selected items without creating new entries
-        incomp = components
-        components = {}
-        for item in incomp:
-            components[item] = False
-
     elif type(components) is not dict:
-        raise TypeError('components need to be list or dict')
+        raise TypeError('components need to be dict')
 
     selection = {}
 
@@ -205,20 +198,30 @@ def check_renderselect(thisdash, module, components=None):
         sel_dd = thisdash.driver.find_element(By.XPATH, '//div[@class="dash-dropdown" and contains(@id,"' +
                                               component + '") and contains(@id,"' + module + '")]')
 
-        if type(components[component]) is str:
-            selection[component] = components[component]
-        else:
-            selection[component] = sel_dd.text.split('\n')[-1]
-            assert 'Create new' not in selection[component]
-
         target = render_base_url + 'view/stacks.html?'
 
         if 'owner' in selection.keys():
             target += 'renderStackOwner=' + selection['owner'] + '&'
 
+        if 'project' in selection.keys():
+            target += 'renderStackProject=' + selection['project']
 
+        if type(components[component]) is str:
+            selection[component] = components[component]
+        else:
+            sel_dd.click()
+            menu = sel_dd.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
+            options = menu.text.split("\n")
 
-        if components[component]:
+            if teststring in options:
+                options.remove(teststring)
+
+            # menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
+            selection[component] = options[-1]
+            assert 'Create new' not in selection[component]
+
+        if components[component] is True:
+            thisdash.select_dcc_dropdown(sel_dd, index=0)
             assert sel_dd.text.startswith('Create new')
             sel_inp = sel_dd.find_element(By.XPATH, '//input[contains(@id,"' +
                                           component + '") and contains(@id,"' + module + '")]')
@@ -227,20 +230,24 @@ def check_renderselect(thisdash, module, components=None):
             sel_inp.send_keys(teststring)
             sel_inp.send_keys(Keys.RETURN)
 
-            time.sleep(0.5)
+            time.sleep(0.4)
 
             assert sel_dd.text == clean_render_name(teststring)
 
-            # close dropdown
-            minarrow = sel_dd.find_element(By.XPATH, './/span[@class="Select-arrow-zone"]')
+            thisdash.select_dcc_dropdown(sel_dd, index=-2)
 
-            minarrow.click()
+            # # close dropdown
+            # minarrow = sel_dd.find_element(By.XPATH, './/span[@class="Select-arrow-zone"]')
+            #
+            # minarrow.click()
 
 
-        browselink = thisdash.driver.find_element(By.XPATH,'//a[contains(@id,"' + component + '")]')
+        if not component == 'owner':
+            # there is no browse link at the owner level
+            browselink = thisdash.driver.find_element(By.XPATH,'//a[contains(@id,"' + component + '")]')
 
-        assert browselink.text == '(Browse)'
+            assert browselink.text == '(Browse)'
 
-        checklink(thisdash, browselink, target.rstrip('&'))
+            checklink(thisdash, browselink, target.rstrip('&'))
 
-    minarrow.click()
+    thisdash.select_dcc_dropdown(sel_dd, index=-2)
