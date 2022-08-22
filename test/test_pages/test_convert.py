@@ -11,6 +11,8 @@ import dash
 import requests
 import time
 import os
+import json
+import pytest
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -27,6 +29,7 @@ from dashUI.inputtypes.serialem_conv import serialem_conv_gobutton
 from dashUI.inputtypes.fibsem_conv import fibsem_conv_gobutton
 
 from dashUI.utils.launch_jobs import run_prefix
+from dashUI.params import json_run_dir, render_json
 
 from helpers import module_selector, \
     check_subpages, \
@@ -50,6 +53,7 @@ def test_convert(thisdash):
     check_subpages(inputtypes, input_dd, module, thisdash)
 
 
+@pytest.mark.dependency(depends=["test_webUI"])
 def test_conv_SBEM(thisdash):
     inp_sel = 'SBEM'
     inp_module = 'sbem_conv'
@@ -121,8 +125,11 @@ def test_conv_SBEM(thisdash):
 
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
+    test_projname = 'testproject'
+    test_stackname = 'teststack'
+
     prefix = run_prefix()
-    result = sbem_conv_gobutton('teststack', os.getcwd(), 1, 'testproject', 'test', dict(in_status), {})
+    result = sbem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', dict(in_status), {})
 
     assert result[0]
     assert result[1] == ''
@@ -135,7 +142,28 @@ def test_conv_SBEM(thisdash):
 
     assert result[3] == {'owner': 'SBEM', 'project': 'testproject', 'stack': 'teststack'}
 
+    #     check parameter file output for initiating the processing
 
+    param_file = json_run_dir + '/' + label + '_' + prefix + '.json'
+
+    assert os.path.exists(param_file)
+
+    with open(param_file) as f:
+        outputparams = json.load(f)
+
+    expectedrender = dict(render_json)
+    expectedrender['render']['owner'] = inp_sel
+    expectedrender['render']['project'] = test_projname
+
+    assert outputparams['render'] == expectedrender['render']
+
+    assert outputparams['stack'] == test_stackname
+    assert outputparams['image_directory'] == os.getcwd()
+
+    assert outputparams['close_stack'] == 'True'
+
+
+@pytest.mark.dependency(depends=["test_webUI"])
 def test_conv_SerialEM(thisdash):
     inp_sel = 'SerialEM'
     inp_module = 'serialem_conv'
@@ -200,8 +228,11 @@ def test_conv_SerialEM(thisdash):
 
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
+    test_projname = 'testproject'
+    test_stackname = 'teststack'
+
     prefix = run_prefix()
-    result = serialem_conv_gobutton('teststack', os.getcwd(), 1, 'testproject', 'test', dict(in_status), {})
+    result = serialem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', dict(in_status), {})
 
     assert result[0]
     assert result[1] == ''
@@ -213,6 +244,26 @@ def test_conv_SerialEM(thisdash):
     assert inp_module in result[2]['logfile']
 
     assert result[3] == {'owner': 'SerialEM', 'project': 'testproject', 'stack': 'teststack'}
+
+    #     check parameter file output for initiating the processing
+
+    param_file = json_run_dir + '/' + label + '_' + prefix + '.json'
+
+    assert os.path.exists(param_file)
+
+    with open(param_file) as f:
+        outputparams = json.load(f)
+
+    expectedrender = dict(render_json)
+    expectedrender['render']['owner'] = inp_sel
+    expectedrender['render']['project'] = test_projname
+
+    assert outputparams['render'] == expectedrender['render']
+
+    assert outputparams['stack'] == test_stackname
+    assert outputparams['image_file'] == os.getcwd()
+
+    assert outputparams['close_stack'] == 'True'
 
     # check 5:  bad input directory -> popup text, disabled button
     context_value.set(set_callback_context(dir_el, dir_val))
@@ -226,9 +277,29 @@ def test_conv_SerialEM(thisdash):
     assert result[2] == {'logfile': 'out.txt', 'status': 'wait'}
     assert type(result[3]) is dash._callback.NoUpdate
 
+    #     check parameter file output for initiating the processing
 
+    param_file = json_run_dir + '/' + label + '_' + prefix + '.json'
+
+    assert os.path.exists(param_file)
+
+    with open(param_file) as f:
+        outputparams = json.load(f)
+
+    expectedrender = dict(render_json)
+    expectedrender['render']['owner'] = inp_sel
+    expectedrender['render']['project'] = test_projname
+
+    assert outputparams['render'] == expectedrender['render']
+
+    assert outputparams['stack'] == test_stackname
+    assert outputparams['image_directory'] == os.getcwd()
+
+    assert outputparams['close_stack'] == 'True'
+
+@pytest.mark.dependency(depends=["test_webUI"])
 def test_conv_fibsem(thisdash):
-    inp_sel = 'fibsem'
+    inp_sel = 'FIBSEM'
     inp_module = 'fibsem_conv'
     label = module + '_' + inp_sel
 
@@ -255,17 +326,17 @@ def test_conv_fibsem(thisdash):
 
     validstyle = xyinput.value_of_css_property('outline')
 
-    zinput.clear()
-    zinput.send_keys('abs')
-    assert zinput.value_of_css_property('outline') != validstyle
+    xyinput.clear()
+    xyinput.send_keys('abs')
+    assert xyinput.value_of_css_property('outline') != validstyle
 
-    zinput.clear()
-    zinput.send_keys('0')
-    assert zinput.value_of_css_property('outline') != validstyle
+    xyinput.clear()
+    xyinput.send_keys('0')
+    assert xyinput.value_of_css_property('outline') != validstyle
 
-    zinput.clear()
-    zinput.send_keys('20')
-    assert zinput.value_of_css_property('outline') == validstyle
+    xyinput.clear()
+    xyinput.send_keys('10')
+    assert xyinput.value_of_css_property('outline') == validstyle
 
     zinput.clear()
     zinput.send_keys('abs')
@@ -334,8 +405,11 @@ def test_conv_fibsem(thisdash):
 
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
+    test_projname = 'testproject'
+    test_stackname = 'teststack'
+
     prefix = run_prefix()
-    result = fibsem_conv_gobutton('teststack', os.getcwd(), 1, 'testproject', 'test', 10, 10, dict(in_status), {})
+    result = fibsem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', 10, 20, dict(in_status), {})
 
     assert result[0]
     assert result[1] == ''
@@ -347,3 +421,25 @@ def test_conv_fibsem(thisdash):
     assert inp_module in result[2]['logfile']
 
     assert result[3] == {'owner': 'FIBSEM', 'project': 'testproject', 'stack': 'teststack'}
+
+    #     check parameter file output for initiating the processing
+
+    param_file = json_run_dir + '/' + label + '_' + prefix + '.json'
+
+    assert os.path.exists(param_file)
+
+    with open(param_file) as f:
+        outputparams = json.load(f)
+
+    expectedrender = dict(render_json)
+    expectedrender['render']['owner'] = inp_sel
+    expectedrender['render']['project'] = test_projname
+
+    assert outputparams['render'] == expectedrender['render']
+
+    assert outputparams['stack'] == test_stackname
+    assert outputparams['image_directory'] == os.getcwd()
+
+    assert outputparams['pxs'] == [10, 10, 20]
+
+    assert outputparams['close_stack'] == 'True'

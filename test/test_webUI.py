@@ -6,33 +6,53 @@ tests the Web UI launcher
 import os
 import subprocess
 import time
+import json
+import requests
+
+import pytest
 
 from dashUI import params
+from dashUI.start_webUI import prefix
 
-dash_env = 'dash-new'
+@pytest.mark.dependency()
+def test_webUI():
+    dash_env = 'dash-new'
 
-dashpath = params.base_dir
+    dashpath = params.base_dir
 
-assert os.path.exists(dashpath)
+    assert os.path.exists(dashpath)
 
-expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"
+    expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"
 
-p = subprocess.Popen('./WebUI.sh', stdout='webui_temp.out')
+    p = subprocess.Popen(os.path.join(params.base_dir,'WebUI.sh'), stdout=open('webui_temp.out','w'))
 
-# check for regular running
-time.sleep(5)
+    # check for regular running
+    time.sleep(5)
 
-assert p.errors is None
+    assert p.errors is None
 
-assert p.returncode is None
+    assert p.returncode is None
 
-with open('webui_temp.out','r') as outfile:
-    stdout = outfile.read()
+    with open('webui_temp.out','r') as outfile:
+        stdout = outfile.read()
 
-assert stdout.startswith(expected_stdout)
+    assert stdout.startswith(expected_stdout)
 
-assert params.hostname in stdout
+    assert params.hostname in stdout
 
-port = stdout[stdout.find(params.hostname)+len(params.hostname)+1 : stdout.rfind('\n\n\n')]
+    port = stdout[stdout.find(params.hostname)+len(params.hostname)+1 : stdout.rfind('\n\n\n')]
 
+    if os.path.exists(os.path.join(params.base_dir, 'dashUI', 'web_users.json')):
+        with open(os.path.join(params.base_dir, 'dashUI', 'web_users.json')) as f:
+            users = json.load(f)
+        assert params.user in users.keys()
+        expectedport = users[params.user]
+    else:
+        expectedport = 8050
+
+    assert port == str(expectedport)
+
+    response = requests.get(prefix + 'localhost:' + port, verify=False)
+
+    assert response.status_code == 200
 
