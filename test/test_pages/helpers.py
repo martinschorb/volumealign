@@ -12,7 +12,8 @@ import json
 
 from dash._utils import AttributeDict
 
-from dashUI.params import base_dir, render_base_url
+from dashUI.params import base_dir, render_base_url, render_version, render_owners
+
 from dashUI.utils.checks import clean_render_name
 
 from selenium.webdriver.common.by import By
@@ -201,7 +202,8 @@ def check_browsedir(thisdash, module):
         if module in dropdown.get_attribute('id') and 'browse_dd' in dropdown.get_attribute('id'):
             break
 
-    dropdown.click()
+    dd_area = dropdown.find_element(By.CLASS_NAME, 'Select-placeholder')
+    dd_area.click()
 
     menu = dropdown.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
     options = menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
@@ -293,7 +295,6 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
             thisdash.select_dcc_dropdown(sel_dd, index=-2)
 
-
         if not component == 'owner':
             # there is no browse link at the owner level
             browselink = thisdash.driver.find_element(
@@ -304,3 +305,34 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
             check_link(thisdash, browselink, target.rstrip('&'))
 
     thisdash.select_dcc_dropdown(sel_dd, index=-1)
+
+
+def get_renderparams():
+    """
+    Gets the render parameters for the first stack found on the render server.
+
+    :return: a dictionary describing the stack, the renderparameters dictionary
+    :rtype: (dict, dict, list)
+    """
+
+    p_url0 = render_base_url + render_version + 'owner/' + render_owners[0]
+
+    p_url = p_url0 + '/projects'
+
+    projects = requests.get(p_url).json()
+
+    st_url = p_url0 + '/project/' + projects[0] + '/stacks'
+
+    stacks = requests.get(st_url).json()
+
+    sel_stack = stacks[0]['stackId']
+
+    tile_url = st_url.rstrip('s') + '/' + sel_stack['stack'] + '/tileIds'
+
+    tiles = requests.get(tile_url).json()
+
+    rp_url = tile_url.rstrip('Ids') + '/' + tiles[0] + '/render-parameters'
+
+    renderparams = requests.get(rp_url).json()
+
+    return sel_stack, renderparams, stacks
