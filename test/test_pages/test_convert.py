@@ -277,25 +277,6 @@ def test_conv_SerialEM(thisdash):
     assert result[2] == {'logfile': 'out.txt', 'status': 'wait'}
     assert type(result[3]) is dash._callback.NoUpdate
 
-    #     check parameter file output for initiating the processing
-
-    param_file = json_run_dir + '/' + label + '_' + prefix + '.json'
-
-    assert os.path.exists(param_file)
-
-    with open(param_file) as f:
-        outputparams = json.load(f)
-
-    expectedrender = dict(render_json)
-    expectedrender['render']['owner'] = inp_sel
-    expectedrender['render']['project'] = test_projname
-
-    assert outputparams['render'] == expectedrender['render']
-
-    assert outputparams['stack'] == test_stackname
-    assert outputparams['image_directory'] == os.getcwd()
-
-    assert outputparams['close_stack'] == 'True'
 
 @pytest.mark.dependency(depends=["test_webUI"])
 def test_conv_fibsem(thisdash):
