@@ -14,26 +14,35 @@ import pytest
 from dashUI import params
 from dashUI.start_webUI import prefix
 
-@pytest.mark.dependency()
-def test_webUI():
-    dash_env = 'dash-new'
 
-    dashpath = params.base_dir
+@pytest.fixture(scope='session')
+def startup_webui():
+    outfile = os.path.join(params.base_dir,'test','webui_temp.out')
 
-    assert os.path.exists(dashpath)
-
-    expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"
-
-    p = subprocess.Popen(os.path.join(params.base_dir,'WebUI.sh'), stdout=open('webui_temp.out','w'))
+    p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
 
     # check for regular running
-    time.sleep(5)
+    time.sleep(4)
 
     assert p.errors is None
 
     assert p.returncode is None
+    assert os.path.exists(outfile)
 
-    with open('webui_temp.out','r') as outfile:
+    yield outfile
+
+    os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "sh -c python") | cut -d " " -f 1)')
+    os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "python") | cut -d " " -f 1)')
+    os.system('rm ' + outfile)
+
+
+@pytest.mark.dependency()
+def test_webUI(startup_webui):
+
+    expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"
+    assert os.path.exists(startup_webui)
+
+    with open(startup_webui,'r') as outfile:
         stdout = outfile.read()
 
     assert stdout.startswith(expected_stdout)
@@ -55,4 +64,6 @@ def test_webUI():
     response = requests.get(prefix + 'localhost:' + port, verify=False)
 
     assert response.status_code == 200
+
+
 

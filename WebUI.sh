@@ -14,4 +14,4 @@ eval "$($condapath/bin/conda shell.bash hook)"
 
 conda activate dash-new
 
-python dashUI/start_webUI.py
+python -u dashUI/start_webUI.py
