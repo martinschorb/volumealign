@@ -18,6 +18,7 @@ run_state0 = dict(status='running',
 
 
 # test conversion of argstrings
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_args2string():
     # test Type Error
     with pytest.raises(TypeError):
@@ -38,6 +39,7 @@ def test_args2string():
 
 
 # test launcher and status calls
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_run():
     # run launcher test
 
@@ -99,6 +101,8 @@ def test_run():
             time.sleep(35)
             assert status(rs1)[0] == 'done'
 
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
+
 
 def test_canceljobs():
     rs1 = dict(run_state0)
@@ -124,6 +128,8 @@ def test_canceljobs():
         time.sleep(3)
 
         assert str(rs1['id']) + ' cancelled.' in status(rs1)[0]
+
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 
 
 def test_localsparkjobs():
@@ -199,8 +205,10 @@ def test_localsparkjobs():
 
             shutil.rmtree(tempdir)
 
-
 # test status of local tasks
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
+
+
 def test_find_activejob():
     rs1 = dict(run_state0)
     rs1['id'] = {'par': [1, 2, 3, 4]}

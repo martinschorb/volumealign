@@ -28,6 +28,7 @@ if len(params.remote_submission.keys()) > 0:
 
 
 # test availability of remote hosts
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_remote():
     for target in remote_targets:
         ssh = paramiko.SSHClient()
@@ -36,6 +37,7 @@ def test_remote():
 
 
 # check existence of relevant paths
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_paths():
 
     # check configured base directory (locally)
@@ -76,6 +78,7 @@ def test_paths():
 
 
             # check existence of environment on desired targets (default compute targets)
+@pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_conda_envs():
     for target in compute_targets:
         command = 'conda env list'

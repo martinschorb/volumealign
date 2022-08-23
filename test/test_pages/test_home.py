@@ -11,6 +11,7 @@ import dash
 import requests
 import time
 import os
+import pytest
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,8 +22,9 @@ from dashUI import params
 
 from helpers import check_link
 
-
-def test_home(thisdash):
+@pytest.mark.dependency(depends=["webUI"],
+                        scope='session')
+def test_home(thisdash, startup_webui):
 
     wait = WebDriverWait(thisdash.driver, 10)
 

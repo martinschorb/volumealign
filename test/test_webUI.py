@@ -15,28 +15,7 @@ from dashUI import params
 from dashUI.start_webUI import prefix
 
 
-@pytest.fixture(scope='session')
-def startup_webui():
-    outfile = os.path.join(params.base_dir,'test','webui_temp.out')
-
-    p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
-
-    # check for regular running
-    time.sleep(4)
-
-    assert p.errors is None
-
-    assert p.returncode is None
-    assert os.path.exists(outfile)
-
-    yield outfile
-
-    os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "sh -c python") | cut -d " " -f 1)')
-    os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "python") | cut -d " " -f 1)')
-    os.system('rm ' + outfile)
-
-
-@pytest.mark.dependency()
+@pytest.mark.dependency(name='webUI', scope='session')
 def test_webUI(startup_webui):
 
     expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"

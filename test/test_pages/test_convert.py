@@ -40,8 +40,9 @@ from helpers import module_selector, \
 module = 'convert'
 
 
-
-def test_convert(thisdash):
+@pytest.mark.dependency(depends=["webUI"],
+                        scope='session')
+def test_convert(thisdash, startup_webui):
 
     thisdash.driver.get(thisdash.server_url + '/' + module)
 
@@ -53,8 +54,9 @@ def test_convert(thisdash):
     check_subpages(inputtypes, input_dd, module, thisdash)
 
 
-@pytest.mark.dependency(depends=["test_webUI"])
-def test_conv_SBEM(thisdash):
+@pytest.mark.dependency(depends=["webUI"],
+                        scope='session')
+def test_conv_SBEM(thisdash, startup_webui):
     inp_sel = 'SBEM'
     inp_module = 'sbem_conv'
     label = module + '_' + inp_sel
@@ -96,7 +98,7 @@ def test_conv_SBEM(thisdash):
     context_value.set(set_callback_context(stack_el, 'test'))
     result = sbem_conv_gobutton('test', os.getcwd(), 1, 'test', 'standalone', dict(in_status), {})
 
-    assert result[0] is False
+    assert not result[0]
     assert result[1] == ''
     assert result[2] == in_status
     assert type(result[3]) is dash._callback.NoUpdate
@@ -126,7 +128,7 @@ def test_conv_SBEM(thisdash):
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
     test_projname = 'testproject'
-    test_stackname = 'teststack'
+    test_stackname = 'testtack'
 
     prefix = run_prefix()
     result = sbem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', dict(in_status), {})
@@ -140,7 +142,7 @@ def test_conv_SBEM(thisdash):
     assert prefix in result[2]['logfile']
     assert inp_module in result[2]['logfile']
 
-    assert result[3] == {'owner': 'SBEM', 'project': 'testproject', 'stack': 'teststack'}
+    assert result[3] == {'owner': 'SBEM', 'project': 'testproject', 'stack': 'testtack'}
 
     #     check parameter file output for initiating the processing
 
@@ -163,8 +165,9 @@ def test_conv_SBEM(thisdash):
     assert outputparams['close_stack'] == 'True'
 
 
-@pytest.mark.dependency(depends=["test_webUI"])
-def test_conv_SerialEM(thisdash):
+@pytest.mark.dependency(depends=["webUI"],
+                        scope='session')
+def test_conv_SerialEM(thisdash, startup_webui):
     inp_sel = 'SerialEM'
     inp_module = 'serialem_conv'
     label = module + '_' + inp_sel
@@ -209,7 +212,7 @@ def test_conv_SerialEM(thisdash):
     context_value.set(set_callback_context(stack_el, 'test'))
     result = serialem_conv_gobutton('test', dir_val, 1, 'test', 'standalone', dict(in_status), {})
 
-    assert result[0] is False
+    assert not result[0]
     assert result[1] == ''
     assert result[2] == in_status
     assert type(result[3]) is dash._callback.NoUpdate
@@ -229,7 +232,7 @@ def test_conv_SerialEM(thisdash):
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
     test_projname = 'testproject'
-    test_stackname = 'teststack'
+    test_stackname = 'testtack'
 
     prefix = run_prefix()
     result = serialem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', dict(in_status), {})
@@ -243,7 +246,7 @@ def test_conv_SerialEM(thisdash):
     assert prefix in result[2]['logfile']
     assert inp_module in result[2]['logfile']
 
-    assert result[3] == {'owner': 'SerialEM', 'project': 'testproject', 'stack': 'teststack'}
+    assert result[3] == {'owner': 'SerialEM', 'project': 'testproject', 'stack': 'testtack'}
 
     #     check parameter file output for initiating the processing
 
@@ -278,8 +281,9 @@ def test_conv_SerialEM(thisdash):
     assert type(result[3]) is dash._callback.NoUpdate
 
 
-@pytest.mark.dependency(depends=["test_webUI"])
-def test_conv_fibsem(thisdash):
+@pytest.mark.dependency(depends=["webUI"],
+                        scope='session')
+def test_conv_fibsem(thisdash, startup_webui):
     inp_sel = 'FIBSEM'
     inp_module = 'fibsem_conv'
     label = module + '_' + inp_sel
@@ -357,7 +361,7 @@ def test_conv_fibsem(thisdash):
     context_value.set(set_callback_context(stack_el, 'test'))
     result = fibsem_conv_gobutton('test', os.getcwd(), 1, 'test', 'standalone', 10, 10, dict(in_status), {})
 
-    assert result[0] is False
+    assert not result[0]
     assert result[1] == ''
     assert result[2] == in_status
     assert type(result[3]) is dash._callback.NoUpdate
@@ -387,7 +391,7 @@ def test_conv_fibsem(thisdash):
     context_value.set(set_callback_context(gobutton_el, 1, valkey='n_clicks'))
 
     test_projname = 'testproject'
-    test_stackname = 'teststack'
+    test_stackname = 'testtack'
 
     prefix = run_prefix()
     result = fibsem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', 10, 20, dict(in_status), {})
@@ -401,7 +405,7 @@ def test_conv_fibsem(thisdash):
     assert prefix in result[2]['logfile']
     assert inp_module in result[2]['logfile']
 
-    assert result[3] == {'owner': 'FIBSEM', 'project': 'testproject', 'stack': 'teststack'}
+    assert result[3] == {'owner': 'FIBSEM', 'project': 'testproject', 'stack': 'testtack'}
 
     #     check parameter file output for initiating the processing
 
