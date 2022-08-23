@@ -267,9 +267,14 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
             if teststring in options:
                 options.remove(teststring)
 
+            assert len(options) > 0
+
             # menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
-            selection[component] = options[-1]
-            assert len(options) > 1
+            if 'Create new' in options[0]:
+                selection[component] = options[-1]
+            else:
+                selection[component] = options[0]
+
             assert 'Create new' not in selection[component]
 
         if components[component] is True:
@@ -288,10 +293,6 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
             thisdash.select_dcc_dropdown(sel_dd, index=-2)
 
-            # # close dropdown
-            # minarrow = sel_dd.find_element(By.XPATH, './/span[@class="Select-arrow-zone"]')
-            #
-            # minarrow.click()
 
         if not component == 'owner':
             # there is no browse link at the owner level
@@ -302,4 +303,4 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
             check_link(thisdash, browselink, target.rstrip('&'))
 
-    thisdash.select_dcc_dropdown(sel_dd, index=-2)
+    thisdash.select_dcc_dropdown(sel_dd, index=-1)

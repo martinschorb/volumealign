@@ -17,6 +17,8 @@ from dashUI.start_webUI import prefix
 
 @pytest.mark.dependency(name='webUI', scope='session')
 def test_webUI(startup_webui):
+    if startup_webui == 'server is already running':
+        pass
 
     expected_stdout = "Starting Render WebUI.\n\nAs long as this window is open, you can access Render through:"
     assert os.path.exists(startup_webui)
