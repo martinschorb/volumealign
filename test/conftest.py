@@ -16,26 +16,30 @@ from dashUI.start_webUI import prefix
 
 @pytest.fixture(scope='session')
 def startup_webui():
-    response = requests.get(prefix + 'localhost:8050', verify=False)
+    try:
+        response = requests.get(prefix + 'localhost:8050', verify=False)
+        s = 200
+    except:
+        s = 404
 
-    if response.status_code == 200:
+    if s == 200:
         yield 'server is already running'
-    else:
-        outfile = os.path.join(params.base_dir,'test','webui_temp.out')
 
-        p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
+    outfile = os.path.join(params.base_dir,'test','webui_temp.out')
 
-        # check for regular running
-        time.sleep(8)
+    p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
 
-        assert p.errors is None
+    # check for regular running
+    time.sleep(8)
 
-        assert p.returncode is None
-        assert os.path.exists(outfile)
+    assert p.errors is None
 
-        yield outfile
+    assert p.returncode is None
+    assert os.path.exists(outfile)
 
-    if not response.status_code == 200:
+    yield outfile
+
+    if not s == 200:
         os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "sh -c python") | cut -d " " -f 1)')
         os.system('kill $(echo $(ps x -o "pid command" | grep "dashUI/app" |grep "python") | cut -d " " -f 1)')
         os.system('rm ' + outfile)

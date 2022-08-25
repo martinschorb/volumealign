@@ -211,7 +211,8 @@ def set_callback_context(el_id, value, valkey='value', context='triggered_inputs
 
 # ===========================
 # Need to wait for dash-testing dev!
-# def multi_context(*inputs):
+def multi_context(*inputs):
+    pass
 #     out = dict()
 #     for indict in inputs:
 #         print(type(indict))
