@@ -49,8 +49,7 @@ for m_item in menu_items:
 
 
 @callback(menu_cb_out,
-          [Input('url', 'pathname')],
-          prevent_initial_call=True)
+          [Input('url', 'pathname')])
 def display_page(pathname):
     """
 
