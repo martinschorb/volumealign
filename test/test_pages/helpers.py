@@ -49,27 +49,104 @@ def module_selector(component, module):
     return selector
 
 
+def make_elid(el_id):
+    """
+    expands a tuple describing component/module
+
+    :param str or tuple el_id: Dash element ID. Tuple -> component/module dict
+    :return: component/module dict
+    :rtype: dict or str
+    """
+    if type(el_id) is tuple:
+        assert len(el_id) == 2
+        return {"component": el_id[0], "module": el_id[1]}
+    elif type(el_id) is list:
+        return [make_elid(el) for el in el_id]
+    else:
+        return el_id
+
+
 def set_callback_context(el_id, value, valkey='value', context='triggered_inputs'):
     """
     Generates a compatible dictionary for filling context_value.
 
     :param str or tuple el_id: Dash element ID. Tuple -> component/module dict
     :param value: value of the element
-    :param str valkey: dash key of the value (element-specific)
+    :param str or list valkey: dash key of the value (element-specific)
     :param str context: the context attribute for the callback
     :return: Attribute dict to be fed into context
     """
 
-    if type(value) is dict:
-        valkey = list(value.keys())[0]
-        value = value[valkey]
+    if type(el_id) in (tuple, str):
+        el_id = make_elid(el_id)
+        el_ids = [el_id]
+    else:
+        el_ids = make_elid(list(el_id))
 
-    if type(el_id) is tuple:
-        assert len(el_id) == 2
-        el_id = {"component": el_id[0], "module": el_id[1]}
+    if '_list' in context:
+        if type(valkey) is list and type(value) is list:
+            assert len(valkey) == len(value) == len(el_ids)
+            outlist = [{'id': el, 'property': vkey, vkey: val}
+                       for el, vkey, val in zip(el_ids, value.keys(), value.values())]
+        elif type(value) is list:
+            assert len(value) == len(el_ids)
+            if all([type(val) == dict for val in value]):
+                outlist = [{'id': el, 'property': vkey, vkey: val}
+                           for el, vkey, val in zip(el_ids, value.keys(), value.values())]
+            else:
+                outlist = [{'id': el, 'property': valkey, valkey: val}
+                           for el, val in zip(el_ids, value)]
 
-    return AttributeDict(**{context: [{'prop_id': json.dumps(el_id) + '.' + valkey,
-                                       valkey: value}]})
+        elif len(el_ids) == 1:
+            outlist = [{'id': el_id, 'property': valkey, valkey: value}]
+
+        else:
+            raise TypeError
+
+        return AttributeDict(**{context: outlist})
+
+    elif context in ['inputs', 'states']:
+        if type(valkey) is list and type(value) is list:
+            assert len(valkey) == len(value) == len(el_ids)
+            out = {json.dumps(el) + '.' + vkey: val
+                   for el, vkey, val in zip(el_ids, valkey, value)}
+
+        elif type(value) is list:
+            assert len(value) == len(el_ids)
+            if all([type(val) == dict for val in value]):
+                out = {json.dumps(el) + '.' + vkey: val
+                       for el, vkey, val in zip(el_ids, value.keys(), value.values())}
+            else:
+                out = {json.dumps(el) + '.' + valkey: val
+                       for el, val in zip(el_ids, value)}
+
+        elif len(el_ids) == 1:
+            out = {json.dumps(el_id) + '.' + valkey: value}
+
+        else:
+            raise TypeError
+
+        return AttributeDict(**{context: out})
+
+    else:
+        if type(value) is dict:
+            valkey = list(value.keys())[0]
+            value = value[valkey]
+
+        return AttributeDict(**{context: [{'prop_id': json.dumps(el_id) + '.' + valkey, valkey: value}
+                                          for el_id in el_ids]})
+
+
+def multi_context(*inputs):
+    out = dict()
+    for indict in inputs:
+        print(type(indict))
+        indict=dict(indict)
+        print(indict)
+        print(type(indict))
+        out[list(indict.keys())[0]] = list(indict.values())[0]
+    print(out)
+    return AttributeDict(**out)
 
 
 def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None):

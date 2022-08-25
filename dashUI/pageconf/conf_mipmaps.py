@@ -6,6 +6,8 @@ Created on Thu Nov 12 16:15:27 2020
 @author: schorb
 """
 
+module = 'mipmaps'
+
 status_table_cols = ['stack',
                      'slices',
                      'tiles',
