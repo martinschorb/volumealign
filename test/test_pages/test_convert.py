@@ -5,23 +5,16 @@
 @author: schorb
 """
 
-from dash.testing.application_runners import import_app
 import dash
 
-import requests
-import time
 import os
 import json
 import pytest
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
-from contextvars import copy_context
 from dash._callback_context import context_value
-from dash._utils import AttributeDict
 
 # import callbacks to check
 from dashUI.inputtypes.sbem_conv import sbem_conv_gobutton
@@ -35,6 +28,7 @@ from helpers import module_selector, \
     check_subpages, \
     check_browsedir, \
     check_renderselect, \
+    check_inputvalues, \
     set_callback_context
 
 module = 'convert'
@@ -43,7 +37,6 @@ module = 'convert'
 @pytest.mark.dependency(depends=["webUI"],
                         scope='session')
 def test_convert(thisdash, startup_webui):
-
     thisdash.driver.get(thisdash.server_url + '/' + module)
 
     # check input type dropdown -> subpage selection
@@ -309,32 +302,12 @@ def test_conv_fibsem(thisdash, startup_webui):
     assert xyinput.get_attribute('value') == '10'
     assert zinput.get_attribute('value') == '10'
 
-    validstyle = xyinput.value_of_css_property('outline')
-
-    xyinput.clear()
-    xyinput.send_keys('abs')
-    assert xyinput.value_of_css_property('outline') != validstyle
-
-    xyinput.clear()
-    xyinput.send_keys('0')
-    assert xyinput.value_of_css_property('outline') != validstyle
-
-    xyinput.clear()
-    xyinput.send_keys('10')
-    assert xyinput.value_of_css_property('outline') == validstyle
-
-    zinput.clear()
-    zinput.send_keys('abs')
-    assert zinput.value_of_css_property('outline') != validstyle
-
-    zinput.clear()
-    zinput.send_keys('0')
-    assert zinput.value_of_css_property('outline') != validstyle
-
     zinput.clear()
     zinput.send_keys('20')
-    assert zinput.value_of_css_property('outline') == validstyle
 
+    testvalues = {'2': True, '0': False, 'abc': False}
+    check_inputvalues(xyinput, testvalues)
+    check_inputvalues(zinput, testvalues)
 
     # Check the go callback
     # ====================================

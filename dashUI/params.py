@@ -142,6 +142,9 @@ section_split = 500  # split stack into processing chunks for certain operations
 # ==============================================================
 # Data type presets
 
+# dimensionality
+owners_2d = ['SerialEM']
+
 # directory structure
 
 datadirdepth = {

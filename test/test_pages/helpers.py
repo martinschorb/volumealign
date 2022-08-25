@@ -66,6 +66,79 @@ def make_elid(el_id):
         return el_id
 
 
+def get_renderparams():
+    """
+    Gets the render parameters for the first stack found on the render server.
+
+    :return: a dictionary describing the stack, the renderparameters dictionary
+    :rtype: (dict, dict, list)
+    """
+
+    p_url0 = render_base_url + render_version + 'owner/' + render_owners[0]
+
+    p_url = p_url0 + '/projects'
+
+    projects = requests.get(p_url).json()
+
+    st_url = p_url0 + '/project/' + projects[0] + '/stacks'
+
+    stacks = requests.get(st_url).json()
+
+    sel_stack = stacks[0]['stackId']
+
+    tile_url = st_url.rstrip('s') + '/' + sel_stack['stack'] + '/tileIds'
+
+    tiles = requests.get(tile_url).json()
+
+    rp_url = tile_url.rstrip('Ids') + '/' + tiles[0] + '/render-parameters'
+
+    renderparams = requests.get(rp_url).json()
+
+    return sel_stack, renderparams, stacks
+
+
+def set_stack(thisdash, module, stackdict):
+    """
+    Sets all render selector dropdowns to the desired values.
+
+    :param dash.testing.composite.DashComposite thisdash: the dash testing instance
+    :param str module: the name of the current module
+    :param dict stackdict: The stackID dictionary {'owner': str, 'project': str, 'stack': str}
+    """
+    for component, value in stackdict.items():
+
+        sel_dd = thisdash.driver.find_element(By.XPATH, '//div[@class="dash-dropdown" and contains(@id,"' +
+                                              component + '") and contains(@id,"' + module + '")]')
+
+        thisdash.select_dcc_dropdown(sel_dd, value=value)
+
+
+def select_radioitem(element, idx=None):
+    """
+    Finds selected radio elements and allows to define them.
+    If multi-select is disabled, the last item of a provided list will stay active.
+
+    :param selenium.webdriver.remote.webelement.WebElement element: the radio element
+    :param idx: index to select (if non-integer or not a list, only returns selected buttons)
+    :return: list of selected buttons
+    :rtype: list
+    """
+    inputs = element.find_elements(By.XPATH, './/input')
+    outs = []
+
+    if type(idx) is int:
+        inputs[idx].click()
+    elif type(idx) is list:
+        for idx0 in idx:
+            inputs[idx0].click()
+
+    for r_idx, r_i in enumerate(inputs):
+        if r_i.is_selected():
+            outs.append(r_idx)
+
+    return outs
+
+
 def set_callback_context(el_id, value, valkey='value', context='triggered_inputs'):
     """
     Generates a compatible dictionary for filling context_value.
@@ -136,17 +209,18 @@ def set_callback_context(el_id, value, valkey='value', context='triggered_inputs
         return AttributeDict(**{context: [{'prop_id': json.dumps(el_id) + '.' + valkey, valkey: value}
                                           for el_id in el_ids]})
 
-
-def multi_context(*inputs):
-    out = dict()
-    for indict in inputs:
-        print(type(indict))
-        indict=dict(indict)
-        print(indict)
-        print(type(indict))
-        out[list(indict.keys())[0]] = list(indict.values())[0]
-    print(out)
-    return AttributeDict(**out)
+# ===========================
+# Need to wait for dash-testing dev!
+# def multi_context(*inputs):
+#     out = dict()
+#     for indict in inputs:
+#         print(type(indict))
+#         indict=dict(indict)
+#         print(indict)
+#         print(type(indict))
+#         out[list(indict.keys())[0]] = list(indict.values())[0]
+#     print(out)
+#     return AttributeDict(**out)
 
 
 def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None):
@@ -384,32 +458,64 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
     thisdash.select_dcc_dropdown(sel_dd, index=-1)
 
 
-def get_renderparams():
+def check_inputvalues(element, vals):
     """
-    Gets the render parameters for the first stack found on the render server.
+    Checks the validity of values in a text input (type, range, etc.). Assume initial value is valid.
 
-    :return: a dictionary describing the stack, the renderparameters dictionary
-    :rtype: (dict, dict, list)
+    :param selenium.webdriver.remote.webelement.WebElement element: the input element
+    :param dict vals: Expected behaviour in the format: {value: valid(bool)}
     """
 
-    p_url0 = render_base_url + render_version + 'owner/' + render_owners[0]
+    orig_val = element.get_attribute('value')
+    validstyle = element.value_of_css_property('outline')
+    assert type(vals) is dict
 
-    p_url = p_url0 + '/projects'
+    for testval, valid in vals.items():
+        element.clear()
+        element.send_keys(testval)
+        assert (element.value_of_css_property('outline') == validstyle) is valid
 
-    projects = requests.get(p_url).json()
+    element.clear()
+    element.send_keys(orig_val)
 
-    st_url = p_url0 + '/project/' + projects[0] + '/stacks'
 
-    stacks = requests.get(st_url).json()
+def check_substackselect(thisdash, module, switch=None):
 
-    sel_stack = stacks[0]['stackId']
+    subst_div = thisdash.driver.find_element(By.XPATH, '//div[contains(@id,"3Dslices")'
+                                                       ' and contains(@id,"' + module + '")]')
 
-    tile_url = st_url.rstrip('s') + '/' + sel_stack['stack'] + '/tileIds'
+    rangesel = subst_div.find_element(By.XPATH, './input')
 
-    tiles = requests.get(tile_url).json()
+    assert rangesel.get_attribute('value') == '1'
 
-    rp_url = tile_url.rstrip('Ids') + '/' + tiles[0] + '/render-parameters'
+    testvalues = {'2': True, '0': False, 'abc': False}
+    check_inputvalues(rangesel, testvalues)
 
-    renderparams = requests.get(rp_url).json()
+    stackparams = get_renderparams()[-1][0]
 
-    return sel_stack, renderparams, stacks
+    set_stack(thisdash, module, stackparams['stackId'])
+
+    minz = stackparams['stats']['stackBounds']['minZ']
+    maxz = stackparams['stats']['stackBounds']['maxZ']
+
+    subsel_div = thisdash.driver.find_element(By.XPATH, '//div[contains(@id,"3Dselection")'
+                                                        ' and contains(@id,"' + module + '")]')
+
+    selection = subsel_div.find_element(By.XPATH, './/details')
+    selection.click()
+
+    slicesels = selection.find_elements(By.XPATH, './/input')
+
+    # check min input
+    testvalues = {str(int((maxz-minz)/2)): True,
+                  str(minz): True,
+                  str(maxz): True,
+                  str(minz-1): False,
+                  str(maxz+1): False,
+                  'abc': False}
+
+    check_inputvalues(slicesels[0], testvalues)
+
+    # check max input
+
+    check_inputvalues(slicesels[1], testvalues)
