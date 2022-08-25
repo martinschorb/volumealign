@@ -275,7 +275,7 @@ def check_subpages(subpage_ids, input_dd, module, dashtest_el, sub_elements=None
             assert compute_loc.get_attribute('type') == 'radio'
 
 
-def check_link(thisdash, link, target):
+def check_link(thisdash, link, target, urlmatch=''):
     """
     Check if a hyperlink on a page points to the desired target and if that web page can be reached.
 
@@ -283,6 +283,7 @@ def check_link(thisdash, link, target):
     :param selenium.webdriver.remote.webelement.WebElement link: the link element
                 (HTML a, HTML img: tests as well if the source image is accessible).
     :param str target: target address to test
+    :param str split: string to split the address URL to cut off parameters etc.
     """
 
     wait = WebDriverWait(thisdash.driver, 10)
@@ -311,7 +312,10 @@ def check_link(thisdash, link, target):
     for window_handle in thisdash.driver.window_handles:
         if window_handle != original_window:
             thisdash.driver.switch_to.window(window_handle)
-            wait.until(EC.url_to_be(target))
+            if urlmatch == '':
+                wait.until(EC.url_to_be(target))
+            else:
+                wait.until(EC.url_matches(urlmatch))
 
             response = requests.get(thisdash.driver.current_url, verify=False)
 
@@ -454,9 +458,105 @@ def check_renderselect(thisdash, module, components={'owner': False, 'project': 
 
             assert browselink.text == '(Browse)'
 
-            check_link(thisdash, browselink, target.rstrip('&'))
+            check_link(thisdash, browselink, target.strip('&'))
 
     thisdash.select_dcc_dropdown(sel_dd, index=-1)
+
+
+def check_matchselect(thisdash, module, stackdict, components={'mc_owner': False, 'matchcoll': False}):
+    """
+    Checks a render match selector page element
+
+    :param dash.testing.composite.DashComposite thisdash: the dash testing instance
+    :param str module: The module label.
+    :param dict stackdict: The stackID dictionary {'owner': str, 'project': str, 'stack': str}
+    :param dict components: The Selector components to be checked.
+            - String values -> no check but set the value
+            - False -> check the selector
+            - True -> check selector and creation input for new entries
+    :rtype: None
+    """
+
+    if type(components) is not dict:
+        raise TypeError('components need to be dict')
+
+    selection = {}
+
+    for component in components.keys():
+
+        sel_dd = thisdash.driver.find_element(By.XPATH, '//div[@class="dash-dropdown" and contains(@id,"' +
+                                              component + '") and contains(@id,"' + module + '")]')
+
+        if type(components[component]) is str:
+            selection[component] = components[component]
+        else:
+            sel_dd.click()
+            menu = sel_dd.find_element(By.CSS_SELECTOR, "div.Select-menu-outer")
+            options = menu.text.split("\n")
+
+            if teststring in options:
+                options.remove(teststring)
+
+            assert len(options) > 0
+
+            # menu.find_elements(By.CSS_SELECTOR, "div.VirtualizedSelectOption")
+            if 'new Match' in options[0]:
+                selection[component] = options[-1]
+            else:
+                selection[component] = options[0]
+
+            assert 'new Match' not in selection[component]
+
+        if components[component] is True:
+            thisdash.select_dcc_dropdown(sel_dd, index=0)
+            assert sel_dd.text.startswith('new Match')
+            sel_inp = sel_dd.find_element(By.XPATH, '//input[contains(@id,"' +
+                                          component + '") and contains(@id,"' + module + '")]')
+
+            sel_inp.clear()
+            sel_inp.send_keys(teststring)
+            sel_inp.send_keys(Keys.RETURN)
+
+            time.sleep(0.4)
+
+            assert sel_dd.text == clean_render_name(teststring)
+
+            thisdash.select_dcc_dropdown(sel_dd, index=-2)
+            thisdash.select_dcc_dropdown(sel_dd, index=-2)
+
+        if not component == 'mc_owner':
+            # there is no browse link at the MC owner level
+            urlmatch = ''
+            target = render_base_url + 'view/point-match-explorer.html?'
+            urlmatch += '[view/point.match.explorer.html]*'
+
+            target += 'matchCollection=' + selection['matchcoll']
+            urlmatch += '[matchCollection=' + selection['matchcoll'] +']*'
+
+            target += '&matchOwner=' + selection['mc_owner'] + '&'
+            urlmatch += '[matchOwner=' + selection['mc_owner'] + ']*'
+
+            target += '&renderStack=' + stackdict['stack']
+            urlmatch += '[renderStack=' + stackdict['stack'] + ']*'
+
+            target += '&renderStackOwner=' + stackdict['owner']
+            urlmatch += '[renderStackOwner=' + stackdict['owner'] + ']*'
+
+            target += '&renderStackProject=' + stackdict['project']
+            urlmatch += '[renderStackProject=' + stackdict['project'] + ']*'
+
+            target += '&startZ=0'
+            target += '&endZ=100'
+
+            browselink = thisdash.driver.find_element(
+                By.XPATH, '//a[contains(@id,"browse_mc") and contains(@id,"' + module + '")]')
+
+            assert browselink.text == 'Explore Match Collection'
+
+            check_link(thisdash, browselink, target, urlmatch=urlmatch)
+
+    thisdash.select_dcc_dropdown(sel_dd, index=-1)
+
 
 
 def check_inputvalues(element, vals):

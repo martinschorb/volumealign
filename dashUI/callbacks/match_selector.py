@@ -25,7 +25,7 @@ from dashUI.utils import helper_functions as hf
            Output({'component': 'mc_owner_dd', 'module': MATCH}, 'value')
            ],
           [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-           Input({'component': 'mcown_input', 'module': MATCH}, 'value'),
+           Input({'component': 'mc_owner_input', 'module': MATCH}, 'value'),
            Input('url', 'pathname')],
           State({'component': 'mc_owner_dd', 'module': MATCH}, 'options')
           )
@@ -84,7 +84,7 @@ def update_mc_owner_dd(init_in, new_owner, thispage, dd_own_in):
            Output({'component': 'matchcoll', 'module': MATCH}, 'style'),
            Output({'component': 'store_all_matchcolls', 'module': MATCH}, 'data')],
           [Input({'component': 'mc_owner_dd', 'module': MATCH}, 'value'),
-           Input({'component': 'mc_input', 'module': MATCH}, 'value')],
+           Input({'component': 'matchcoll_input', 'module': MATCH}, 'value')],
           [State({'component': 'matchcoll_dd', 'module': MATCH}, 'options'),
            State({'component': 'store_init_render', 'module': MATCH}, 'data'),
            State('url', 'pathname'),
@@ -147,7 +147,7 @@ def mcown_dd_sel(mc_own_sel, new_mc, mc_dd_opt, init_match, thispage, new_enable
 
             mc_style = {'display': 'flex'}
 
-    elif 'mc_input' in trigger:
+    elif 'matchcoll_input' in trigger:
         div1style = {'display': 'none'}
         new_mc = checks.clean_render_name(new_mc)
         mc_dd_opt.append({'label': new_mc, 'value': new_mc})
