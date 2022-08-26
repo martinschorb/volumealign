@@ -28,6 +28,7 @@ from helpers import (module_selector,
                      check_renderselect,
                      check_matchselect,
                      check_inputvalues,
+                     check_tiles,
                      set_callback_context,
                      set_stack)
 
@@ -36,7 +37,7 @@ module = 'pointmatch'
 
 @pytest.mark.dependency(depends=["webUI"],
                         scope='session')
-def test_pointmatch(thisdash, startup_webui):
+def test_pointmatch(thisdash, startup_webui, prepare_teststack):
     thisdash.driver.get(thisdash.server_url + '/' + module)
 
     # check input type dropdown -> subpage selection
@@ -46,6 +47,8 @@ def test_pointmatch(thisdash, startup_webui):
 
     # LAYOUT of pointmatch does not adhere to subpage-style!!!
     # check_subpages(inputtypes, input_dd, module, thisdash)
+
+    check_tiles(thisdash, module)
 
     check_renderselect(thisdash, module)
 

@@ -66,13 +66,17 @@ def make_elid(el_id):
         return el_id
 
 
-def get_renderparams():
+def get_renderparams(rp={}):
     """
-    Gets the render parameters for the first stack found on the render server.
+    Gets the render parameters for the first (or defined) stack found on the render server.
 
+    :param dict rp: a stackID dictionary {'owner': str, 'project': str, 'stack': str}
     :return: a dictionary describing the stack, the renderparameters dictionary
     :rtype: (dict, dict, list)
     """
+
+    if 'owner' in rp.keys() and rp['owner'] in render_owners:
+        render_owners[0] = rp['owner']
 
     p_url0 = render_base_url + render_version + 'owner/' + render_owners[0]
 
@@ -80,11 +84,17 @@ def get_renderparams():
 
     projects = requests.get(p_url).json()
 
+    if 'project' in rp.keys() and rp['project'] in projects:
+        projects[0] = rp['project']
+
     st_url = p_url0 + '/project/' + projects[0] + '/stacks'
 
     stacks = requests.get(st_url).json()
 
     sel_stack = stacks[0]['stackId']
+
+    if 'stack' in rp.keys() and rp['stack'] in [stack['stackId']['stack'] for stack in stacks]:
+        sel_stack = rp
 
     tile_url = st_url.rstrip('s') + '/' + sel_stack['stack'] + '/tileIds'
 
@@ -558,7 +568,6 @@ def check_matchselect(thisdash, module, stackdict, components={'mc_owner': False
     thisdash.select_dcc_dropdown(sel_dd, index=-1)
 
 
-
 def check_inputvalues(element, vals):
     """
     Checks the validity of values in a text input (type, range, etc.). Assume initial value is valid.
@@ -620,3 +629,6 @@ def check_substackselect(thisdash, module, switch=None):
     # check max input
 
     check_inputvalues(slicesels[1], testvalues)
+
+def check_tiles(thisdash, module):
+    pass
