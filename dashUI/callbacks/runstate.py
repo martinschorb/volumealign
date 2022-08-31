@@ -216,7 +216,13 @@ def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
 
 
 @callback(Output({'component': 'donelink', 'module': MATCH}, 'style'),
-          Input({'component': 'get-status', 'module': MATCH}, 'modified_timestamp'))
-def show_donelink(status):
+          Input({'component': 'get-status', 'module': MATCH}, 'children'),
+          State({'component': 'donelink_status', 'module': MATCH}, 'children'))
+def show_donelink(status, expected_status):
+
+
     style = {'display': 'none'}
+    if status == [expected_status]:
+        style = {}
+
     return style
