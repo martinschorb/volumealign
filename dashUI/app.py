@@ -40,7 +40,7 @@ if __name__ == '__main__':
     print('using dash version ', __version__)
 
     if os.path.exists('cert.pem') and os.path.exists('key.pem'):
-        app.run_server(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
+        app.run(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
     else:
         print('No HTTPS encrypted connection supported. Check documentation.')
-        app.run_server(host='0.0.0.0', debug=debug, port=port)
+        app.run(host='0.0.0.0', debug=debug, port=port)
