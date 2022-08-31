@@ -14,6 +14,7 @@ import plotly.graph_objects as go
 
 from dashUI.utils import checks
 from dashUI.utils import helper_functions as hf
+
 from dashUI import params
 
 def init_store(storeinit, module):
@@ -670,3 +671,28 @@ def path_browse(module, tf_in=None, create=False, show_files=False, file_types=[
     triggerdummy = dcc.Store(data=file_types, id={'component': 'path_dummy', 'module': module})
 
     return html.Div([fbrowse, fbstore, showfiles, filetypes, triggerdummy])
+
+
+def donelink(module, url='/mipmaps', status='DONE', text=None):
+    """
+    A Link to an optional web page that is displayed if the status has a certain value.
+
+    :param str module: module/page name
+    :param str url: the target page
+    :param str status: the status at which the link is shown
+    :param str status: the text to show on the link. Defaults to the title of the page if present in page registry.
+    :return: HTML element (optionally displayed) providing a link to a page
+    :rtype: html.Div
+    """
+
+    title = ''
+    reg, paths = hf.page_reg()
+
+    if text is None and url.lstrip('/') in paths:
+        title = reg[paths.index(url.lstrip('/'))]["name"]
+
+    return html.Div([html.H4('Optional follow up computation:'),
+                     dcc.Link(title, href=url)
+                     ],
+                    id={'component': 'donelink', 'module': module},
+                    style={'display':'none'})

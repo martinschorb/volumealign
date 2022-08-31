@@ -199,3 +199,19 @@ def spark_nodes(n_cpu):
     nodes_out = nodes + (cores1 > 0)
 
     return nodes_out
+
+
+def page_reg():
+    """
+    Provides the dash pages present in the layout.
+
+    :return:
+    :rtype: (list, list)
+    """
+    reg = list(dash.page_registry.values())
+
+    paths = []
+    for page in reg:
+        paths.append(page["path"].strip('/'))
+
+    return reg, paths

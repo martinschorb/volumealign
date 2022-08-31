@@ -213,3 +213,10 @@ def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
         raise PreventUpdate
 
     return out, out['logfile']
+
+
+@callback(Output({'component': 'donelink', 'module': MATCH}, 'style'),
+          Input({'component': 'get-status', 'module': MATCH}, 'modified_timestamp'))
+def show_donelink(status):
+    style = {'display': 'none'}
+    return style

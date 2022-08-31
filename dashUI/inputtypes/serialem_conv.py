@@ -93,6 +93,8 @@ gobutton = html.Div(children=[html.Br(),
 
 page2.append(gobutton)
 
+page2.append(pages.donelink(label))
+
 # =============================================
 # Processing status
 
@@ -111,6 +113,8 @@ collapse_stdout = pages.log_output(label)
 
 
 page2.append(collapse_stdout)
+
+
 # page2.extend(store)
 
 # =============================================

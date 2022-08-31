@@ -117,6 +117,8 @@ gobutton = html.Div(children=[html.Br(),
 
 page2.append(gobutton)
 
+page2.append(pages.donelink(label))
+
 # =============================================
 # Processing status
 

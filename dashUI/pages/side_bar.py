@@ -12,17 +12,15 @@ from dash import html, dcc, callback
 from dash.dependencies import Input, Output
 
 from dashUI.index import menu_items
+from dashUI.utils.helper_functions import page_reg
 
 style_active = {"background-color": "#077", "color": "#f1f1f1"}
 
 
 def sidebar():
     menu = list()
-    reg = list(dash.page_registry.values())
 
-    paths = []
-    for page in reg:
-        paths.append(page["path"].strip('/'))
+    reg, paths = page_reg()
 
     for m_item in menu_items:
 
