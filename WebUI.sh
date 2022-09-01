@@ -8,7 +8,12 @@ fi
 
 cd "$scriptpath"
 
-condapath=$(conda info --base)
+cstring=$(cat ./dashUI/params.py | grep conda_dir)
+
+condapath=${cstring##*dir = }
+
+condapath=${condapath#\'}
+condapath=${condapath%\'}
 
 eval "$($condapath/bin/conda shell.bash hook)"
 
