@@ -13,3 +13,4 @@ public
 dist/
 .pytest*
 *dashtest
+*/web_users.json
