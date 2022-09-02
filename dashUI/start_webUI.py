@@ -8,6 +8,7 @@ Created on Fri Feb  5 08:49:53 2021
 
 import os
 import json
+import time
 
 from dashUI import params
 from dashUI.utils.launch_jobs import run_prefix, remote_user
@@ -65,6 +66,7 @@ if __name__ == "__main__":
                 os.system('cat ' + home + '/.ssh/id_rsa.pub')
 
                 print('==============================================')
+                time.sleep(20)
 
         # find port for new user
         if len(users_exist.values()) ==0:
