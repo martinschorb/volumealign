@@ -24,18 +24,6 @@ new_stack_style = {'margin-left': '11em'}
 fullitem_style = {'display': 'inline-block'}
 
 
-# Update init parameters from previous module
-
-
-def init_update_store(thismodule, prevmodule, comp_in='store_render_launch', comp_out='store_init_render'):
-    dash_out = Output({'component': comp_out, 'module': thismodule}, 'data')
-    dash_in = Input({'component': comp_in, 'module': prevmodule}, 'data')
-    dash_state = [State({'component': 'store_init_render', 'module': thismodule}, 'data'),
-                  State('url', 'pathname')]
-
-    return dash_out, dash_in, dash_state
-
-
 def update_store(prevstore, thisstore):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -80,15 +68,17 @@ def subpage_launch(module, subpages):
 @callback([Output({'component': 'owner_dd', 'module': MATCH}, 'options'),
            Output({'component': 'owner_dd', 'module': MATCH}, 'value')
            ],
-          [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-           Input('url', 'pathname')],
-          State({'component': 'owner_dd', 'module': MATCH}, 'options')
+           Input('url', 'pathname'),
+          [State({'component': 'owner_dd', 'module': MATCH}, 'options'),
+           State({'component': 'owner_dd', 'module': MATCH}, 'value'),
+           State({'component': 'fixed_values', 'module': MATCH}, 'data'),
+           State('render_store', 'data')]
           )
-def update_owner_dd(init_in, thispage, dd_options_in):
+def update_owner_dd(thispage, dd_options_in, curr_ddowner, fixed, init_in):
 
     thispage = thispage.lstrip('/')
 
-    if thispage in (None, '') or thispage not in hf.trigger(key='module') and dd_options_in is not None:
+    if thispage in (None, '') and dd_options_in is not None:
         raise PreventUpdate
 
     dd_options = list(dict())
@@ -98,7 +88,10 @@ def update_owner_dd(init_in, thispage, dd_options_in):
     for item in allowners:
         dd_options.append({'label': item, 'value': item})
 
-    init_owner = init_in['owner']
+    if not 'owner' in fixed.keys():
+        init_owner = init_in['owner']
+    else:
+        init_owner = curr_ddowner
 
     if init_owner == '':
         init_owner = allowners[0]
@@ -117,15 +110,15 @@ def update_owner_dd(init_in, thispage, dd_options_in):
            Output({'component': 'project_store', 'module': MATCH}, 'data')
            ],
           [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
-           Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
            Input({'component': 'project_input', 'module': MATCH}, 'value'),
            Input('url', 'pathname')],
-          [State({'component': 'store_project', 'module': MATCH}, 'data'),
+          [State('render_store', 'data'),
+           State({'component': 'store_project', 'module': MATCH}, 'data'),
            State({'component': 'project_dd', 'module': MATCH}, 'options'),
            State({'component': 'new_project_div', 'module': MATCH}, 'style')
            ],
           prevent_initial_call=True)
-def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_options_in, newp_visible):
+def update_proj_dd(owner_sel, newproj_in, thispage, init_store, store_proj, dd_options_in, newp_visible):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -157,10 +150,6 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
     store = {}
     store['allprojects'] = projects
 
-    if 'store_init_render' in trigger or init_store['owner'] == owner_sel:
-        if 'project' in init_store.keys() and init_store['project'] not in (None, ''):
-            out_project = init_store['project']
-
     # assemble dropdown
     dd_options = list(dict())
 
@@ -172,6 +161,10 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
         if item == store_proj:
             out_project = item
         dd_options.append({'label': item, 'value': item})
+
+    if init_store['owner'] == owner_sel:
+        if 'project' in init_store.keys() and init_store['project'] not in (None, ''):
+            out_project = init_store['project']
 
     if trigger == 'project_input':
         newproj_in = checks.clean_render_name(newproj_in)
@@ -194,18 +187,18 @@ def update_proj_dd(owner_sel, init_store, newproj_in, thispage, store_proj, dd_o
            Output({'component': 'store_allstacks', 'module': MATCH}, 'data'),
            Output({'component': 'full_stack_div', 'module': MATCH}, 'style'),
            Output({'component': 'render_project', 'module': MATCH}, 'style')],
-          [Input({'component': 'store_init_render', 'module': MATCH}, 'data'),
-           Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
+          [Input({'component': 'owner_dd', 'module': MATCH}, 'value'),
            Input({'component': 'project_dd', 'module': MATCH}, 'value'),
            Input({'component': 'stack_input', 'module': MATCH}, 'value')],
-          [State({'component': 'store_stack', 'module': MATCH}, 'data'),
+          [State('render_store', 'data'),
+           State({'component': 'store_stack', 'module': MATCH}, 'data'),
            State({'component': 'stack_dd', 'module': MATCH}, 'options'),
            State({'component': 'project_store', 'module': MATCH}, 'data'),
            State({'component': 'new_stack_div', 'module': MATCH}, 'style'),
            State('url', 'pathname')],
           prevent_initial_callback=True
           )
-def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_options_in, proj_store, news_visible,
+def update_stack_dd(own_sel, proj_sel, newstack_in, init_store, store_stack, dd_options_in, proj_store, news_visible,
                     thispage):
     if not dash.callback_context.triggered:
         raise PreventUpdate
@@ -246,7 +239,7 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
 
         href_out = params.render_base_url + 'view/stacks.html?renderStackOwner=' + own_sel \
                    + '&renderStackProject=' + proj_sel
-        # get list of projects on render server
+        # get list of stacks on render server
         url = params.render_base_url + params.render_version + 'owner/' + own_sel + '/project/' + proj_sel + '/stacks'
 
         stacks = requests.get(url).json()
@@ -257,7 +250,7 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
 
         if not news_visible == {'display': 'none'}:
             dd_options.append({'label': 'Create new Stack', 'value': 'newstack'})
-            out_project = 'newstack'
+            out_stack = 'newstack'
 
         for item in stacks:
             if 'stack' in init_store.keys():
@@ -265,10 +258,6 @@ def update_stack_dd(init_store, own_sel, proj_sel, newstack_in, store_stack, dd_
                     out_stack = item['stackId']['stack']
 
             dd_options.append({'label': item['stackId']['stack'], 'value': item['stackId']['stack']})
-
-        if 'store_init_render' in trigger:
-            if 'stack' in init_store.keys() and init_store['stack'] not in (None, ''):
-                out_stack = init_store['stack']
 
         if trigger == 'stack_input':
             newstack_in = checks.clean_render_name(newstack_in)

@@ -34,22 +34,6 @@ page = [main]
 # # ===============================================
 #  RENDER STACK SELECTOR
 
-# Pre-fill render stack selection from previous module
-
-us_out, us_in, us_state = render_selector.init_update_store(module, 'convert')
-
-@callback(us_out, us_in, us_state)
-def mipmaps_update_store(*args):
-    thispage = args[-1]
-    args = args[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    return render_selector.update_store(*args)
-
-
 page1 = pages.render_selector(module)
 
 page.append(page1)

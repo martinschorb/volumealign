@@ -20,8 +20,8 @@ from dashUI.utils import pages
 from dashUI.utils import helper_functions as hf
 
 from dashUI.callbacks import (render_selector,
-                       boundingbox, tile_view,
-                       substack_sel, filebrowse)
+                              boundingbox, tile_view,
+                              substack_sel, filebrowse)
 
 from dashUI.pages.side_bar import sidebar
 
@@ -29,7 +29,6 @@ module = 'export'
 
 dash.register_page(__name__,
                    name='Export aligned volume')
-
 
 subpages = [{'label': 'N5 (MoBIE/BDV)', 'value': 'N5'},
             {'label': 'slice images', 'value': 'slices'}
@@ -49,24 +48,6 @@ page = [main]
 
 # # ===============================================
 #  RENDER STACK SELECTOR
-
-# Pre-fill render stack selection from previous module
-
-us_out, us_in, us_state = render_selector.init_update_store(module, 'solve')
-
-
-@callback(us_out, us_in, us_state,
-          prevent_initial_call=True)
-def export_update_store(*args):
-    thispage = args[-1]
-    args = args[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    return render_selector.update_store(*args)
-
 
 page.append(pages.render_selector(module))
 
@@ -139,8 +120,8 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
                     return dash.no_update
 
                 url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
-                      + '/stack/' + stack + '/z/' + str(int(
-                    (stacklist[0]['stats']['stackBounds']['maxZ'] - stacklist[0]['stats']['stackBounds']['minZ']) / 2))\
+                      + '/stack/' + stack + '/z/' + str(int((stacklist[0]['stats']['stackBounds']['maxZ'] -
+                                                             stacklist[0]['stats']['stackBounds']['minZ']) / 2)) \
                       + '/render-parameters'
                 try:
                     tiles0 = requests.get(url).json()
@@ -189,7 +170,6 @@ page.extend(store)
 
 def layout():
     return [sidebar(), html.Div(page, className='main')]
-
 
 
 for subsel, impmod in zip(subpages, submodules):

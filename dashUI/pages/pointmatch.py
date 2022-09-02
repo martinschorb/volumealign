@@ -50,24 +50,6 @@ page = [main]
 
 page.append(pages.render_selector(module))
 
-# Pre-fill render stack selection from previous module
-
-us_out, us_in, us_state = render_selector.init_update_store(module, 'tilepairs')
-
-
-@callback(us_out, us_in, us_state,
-          prevent_initial_call=True)
-def pointmatch_update_store(*args):
-    thispage = args[-1]
-    args = args[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    return render_selector.update_store(*args)
-
-
 page1 = []
 
 # ===============================================
@@ -157,6 +139,7 @@ for pmtypesel, impmod in zip(subpages, submodules):
     switch_outputs.append(Output({'component': 'page2', 'module': pmtypesel['value']}, 'style'))
 
     status_inputs.append(Input({'component': 'status', 'module': pmtypesel['value']}, 'data'))
+
 
 # Switch the visibility of elements for each selected sub-page based on the import type dropdown selection
 

@@ -343,7 +343,7 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
     if 'go' in trigger:
         if click is None:
-            return dash.no_update
+            raise PreventUpdate
 
         # prepare parameters:
         run_prefix = launch_jobs.run_prefix()
@@ -470,16 +470,16 @@ def sliceexport_execute_gobutton(click, outdir, stack,
 
     else:
         if outdir == '':
-            return True, 'No output directory selected!', dash.no_update, outstore
+            return True, 'No output directory selected!', dash.no_update, dash.no_update
 
         elif is_bad_filename(outdir):
-            return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, outstore
+            return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, dash.no_update
 
         if newdir == [] and not os.access(outdir, os.W_OK | os.X_OK):
-            return True, 'Output directory not writable!', dash.no_update, outstore
+            return True, 'Output directory not writable!', dash.no_update, dash.no_update
 
         else:
-            return False, '', dash.no_update, outstore
+            return False, '', dash.no_update, dash.no_update
 
 
 # =============================================

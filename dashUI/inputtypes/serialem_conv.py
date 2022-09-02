@@ -8,15 +8,13 @@ Created on Wed Nov  4 08:42:12 2020
 import dash
 from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 
 import os
 import json
 
 from dashUI import params
 
-from dashUI.utils import launch_jobs, pages, checks
-from dashUI.utils import helper_functions as hf
+from dashUI.utils import launch_jobs, pages
 from dashUI.utils.checks import is_bad_filename
 
 from dashUI.callbacks import filebrowse, render_selector
@@ -31,6 +29,12 @@ label = parent + "_SerialEM"
 # get user name and main group to pre-polulate input directory
 
 group = params.group
+
+# ============================
+# set up render parameters
+
+owner = "SerialEM"
+
 
 # =============================================
 # # Page content
@@ -55,28 +59,9 @@ page1 = [directory_sel, pathbrowse, html.Div(store)]
 # # ===============================================
 #  RENDER STACK SELECTOR
 
-
-# Pre-fill render stack selection from previous module
-
-us_out, us_in, us_state = render_selector.init_update_store(label, parent, comp_in='store_render_init')
-
-
-@callback(us_out, us_in, us_state)
-def serialem_conv_update_store(*args):
-    thispage = args[-1]
-    args = args[:-1]
-
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    return render_selector.update_store(*args)
-
-
 page2 = []
 page2.append(
-    html.Div(pages.render_selector(label, create=True, show=['stack', 'project'], header='Select target stack:'),
+    html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
     )
 

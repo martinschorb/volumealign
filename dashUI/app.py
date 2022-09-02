@@ -51,8 +51,11 @@ def update_render_store(*inputs):
         raise PreventUpdate
 
     store = inputs[-1]
-    store.update(ctx.triggered[0]['value'])
-    print(store)
+
+    for key, val in ctx.triggered[0]['value'].items():
+        if val not in ['', None]:
+            store[key] = ctx.triggered[0]['value'][key]
+
     return store
 
 
@@ -60,11 +63,11 @@ if __name__ == '__main__':
 
     print('using dash version ', __version__)
 
-    cert = os.path.join(params.base_dir, 'cert.pem')
-    key = os.path.join(params.base_dir, 'key.pem')
+    sslcert = os.path.join(params.base_dir, 'cert.pem')
+    sslkey = os.path.join(params.base_dir, 'key.pem')
 
-    if os.path.exists(cert) and os.path.exists(key):
-        app.run(host='0.0.0.0', debug=debug, port=port, ssl_context=(cert, key))
+    if os.path.exists(sslcert) and os.path.exists(sslkey):
+        app.run(host='0.0.0.0', debug=debug, port=port, ssl_context=(sslcert, sslkey))
     else:
         print('No HTTPS encrypted connection supported. Check documentation.')
         app.run(host='0.0.0.0', debug=debug, port=port)

@@ -216,7 +216,7 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
     if 'go' in trigger:
         if click is None:
-            return dash.no_update
+            raise PreventUpdate
 
         # prepare parameters:
         run_prefix = launch_jobs.run_prefix()
@@ -375,16 +375,16 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
     else:
         if outdir == '':
-            return True, 'No output directory selected!', dash.no_update, outstore
+            return True, 'No output directory selected!', dash.no_update, dash.no_update
 
         elif is_bad_filename(outdir):
-            return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, outstore
+            return True, 'Wrong characters in input directory path. Please fix!', dash.no_update, dash.no_update
 
         if not os.access(outdir, os.W_OK | os.X_OK) and not newdir:
-            return True, 'Output directory not writable!', dash.no_update, outstore
+            return True, 'Output directory not writable!', dash.no_update, dash.no_update
 
         else:
-            return False, '', dash.no_update, outstore
+            return False, '', dash.no_update, dash.no_update
 
 
 # =============================================

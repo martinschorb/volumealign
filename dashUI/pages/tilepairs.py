@@ -9,14 +9,12 @@ import dash
 from dash import dcc, callback
 from dash import html
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 
 from dashUI.pages.side_bar import sidebar
 from dashUI.callbacks.pages_cb import cb_tilepairs as cb
 
 from dashUI import params
 from dashUI.utils import pages
-from dashUI.utils import helper_functions as hf
 from dashUI.callbacks import render_selector
 
 module = 'tilepairs'
@@ -34,24 +32,6 @@ page = [main]
 
 # # ===============================================
 #  RENDER STACK SELECTOR
-
-# Pre-fill render stack selection from previous module
-
-us_out, us_in, us_state = render_selector.init_update_store(module, 'convert')
-
-
-@callback(us_out, us_in, us_state,
-          prevent_initial_call=True)
-def tilepairs_update_store(*args):
-    thispage = args[-1]
-    args = args[:-1]
-    thispage = thispage.lstrip('/')
-
-    if thispage == '' or thispage not in hf.trigger(key='module'):
-        raise PreventUpdate
-
-    return render_selector.update_store(*args)
-
 
 page1 = pages.render_selector(module)
 

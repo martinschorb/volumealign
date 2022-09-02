@@ -8,6 +8,7 @@ import json
 import os
 
 import dash
+from dash.exceptions import PreventUpdate
 
 from dashUI import params
 from dashUI.utils import launch_jobs
@@ -52,7 +53,7 @@ def generate_run_params(run_params, owner, stack, run_prefix, pairmode, slicedep
 def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, startsection, endsection, owner, project,
                                multi, stacklist):
     if click is None:
-        return dash.no_update
+        raise PreventUpdate
 
     trigger = hf.trigger()
 
@@ -111,6 +112,6 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
     outstore['owner'] = owner
     outstore['project'] = project
     outstore['stack'] = stack
-    outstore['tilepairdir'] = tilepairdir
+    # outstore['tilepairdir'] = tilepairdir
 
     return True, launch_store, outstore

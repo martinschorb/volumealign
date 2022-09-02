@@ -246,7 +246,7 @@ def sift_pointmatch_IDs(organism, picks):
           )
 def sift_browse_matchTrial(matchID, buttonclick, matchcoll, link1, link2, tile2sel, tile2options):
     if None in (matchID, link1, link2):
-        return dash.no_update
+        raise PreventUpdate
 
     trigger = hf.trigger()
 
@@ -339,19 +339,19 @@ def sift_pointmatch_execute_gobutton(click, matchID, matchcoll, comp_sel, mc_own
     outstore['mc_owner'] = mc_owner
 
     if tilepairdir == '':
-        return True, 'No tile pair directory selected!', dash.no_update, outstore, dash.no_update
+        return True, 'No tile pair directory selected!', dash.no_update, dash.no_update, dash.no_update
 
     if matchcoll in ('', 'new_mc', 'new_mcoll'):
-        return True, 'No Match collection selected!', dash.no_update, outstore, dash.no_update
+        return True, 'No Match collection selected!', dash.no_update, dash.no_update, dash.no_update
 
     if 'mtselect' in trigger:
-        return False, '', dash.no_update, outstore, mt_params['ptime']
+        return False, '', dash.no_update, dash.no_update, mt_params['ptime']
     elif 'matchcoll_dd' in trigger:
-        return False, '', dash.no_update, outstore, mt_params['ptime']
+        return False, '', dash.no_update, dash.no_update, mt_params['ptime']
 
     elif 'go' in trigger:
         if click is None:
-            return dash.no_update
+            return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
         # prepare parameters:
         run_prefix = launch_jobs.run_prefix()

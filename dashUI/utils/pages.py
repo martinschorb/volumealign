@@ -30,7 +30,7 @@ def init_store(storeinit, module):
     store = list()
 
     # store.append(html.Div(id={'component':'outfile','module':module},style={'display':'none'}))
-    store.append(dcc.Store(id={'component': 'name', 'module': module}, data=module, storage_type='session'))
+    store.append(dcc.Store(id={'component': 'name', 'module': module}, data=module))
 
     newstore = params.default_store.copy()
     newstore.update(storeinit)
@@ -103,14 +103,17 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
             new_stack_style = {}
 
     # show owner selector or predetermine its value
+    fixed_val =dict()
 
     if owner in (False, ''):
         owner = ''
     else:
         own_style = dict(display='none')
+        fixed_val['owner'] = owner
 
     out = html.Div(id={'component': 'r_sel_head', 'module': module},
                    children=[html.H4(header),
+                             dcc.Store(id={'component': 'fixed_values', 'module': module}, data=fixed_val),
                              html.Table(html.Tr([
 
                                  # Owner selection
@@ -133,14 +136,13 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                                     style={'margin-left': '0.5em', 'margin-right': '1em'})),
                                      html.Td(dcc.Dropdown(id={'component': 'project_dd', 'module': module},
                                                           className='dropdown_inline',
-                                                          persistence=True, clearable=False)),
+                                                          persistence=False, clearable=False)),
                                      dcc.Clipboard(
                                          target_id={'component': 'project_dd', 'module': module},
                                          title="copy project name",
                                          className='copybutton')
                                  ])),
-                                     dcc.Store(id={'component': 'project_store', 'module': module},
-                                               storage_type='session'),
+                                     dcc.Store(id={'component': 'project_store', 'module': module}),
 
                                      # creator
                                      html.Div(html.Div(['Enter new project name: ',
@@ -165,14 +167,13 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                                     style={'margin-left': '0.5em', 'margin-right': '1em'})),
                                      html.Td(dcc.Dropdown(id={'component': 'stack_dd', 'module': module},
                                                           className='dropdown_inline',
-                                                          persistence=True, clearable=False)),
+                                                          persistence=False, clearable=False)),
                                      dcc.Clipboard(
                                          target_id={'component': 'stack_dd', 'module': module},
                                          title="copy stack name",
                                          className='copybutton')
                                  ])),
-                                     dcc.Store(id={'component': 'stacks', 'module': module},
-                                               storage_type='session'),
+                                     dcc.Store(id={'component': 'stacks', 'module': module}),
 
                                      # creator
                                      html.Div(html.Div(['Enter new stack name: ',
