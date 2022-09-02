@@ -692,10 +692,11 @@ def donelink(module, url='/mipmaps', status='DONE', text=None):
         title = reg[paths.index(url.lstrip('/'))]["name"]
 
     return html.Div([html.H4('Optional follow up computation:'),
-                     dcc.Link(title, href=url),
+                     html.Button(dcc.Link(html.Div(title,className='normallink'), href=url)),
                      html.Div(status,
                               id={'component': 'donelink_status', 'module': module},
-                              style={'display':'none'})
+                              style={'display':'none'}),
+                     html.Br()
                      ],
                     id={'component': 'donelink', 'module': module},
                     style={'display':'none'})
