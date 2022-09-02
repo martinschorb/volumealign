@@ -38,7 +38,6 @@ page = [main]
 
 us_out, us_in, us_state = render_selector.init_update_store(module, 'convert')
 
-
 @callback(us_out, us_in, us_state)
 def mipmaps_update_store(*args):
     thispage = args[-1]

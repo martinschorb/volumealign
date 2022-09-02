@@ -30,7 +30,7 @@ def init_store(storeinit, module):
     store = list()
 
     # store.append(html.Div(id={'component':'outfile','module':module},style={'display':'none'}))
-    store.append(dcc.Store(id={'component': 'name', 'module': module}, data=module))
+    store.append(dcc.Store(id={'component': 'name', 'module': module}, data=module, storage_type='session'))
 
     newstore = params.default_store.copy()
     newstore.update(storeinit)
@@ -139,7 +139,8 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                          title="copy project name",
                                          className='copybutton')
                                  ])),
-                                     dcc.Store(id={'component': 'project_store', 'module': module}),
+                                     dcc.Store(id={'component': 'project_store', 'module': module},
+                                               storage_type='session'),
 
                                      # creator
                                      html.Div(html.Div(['Enter new project name: ',
@@ -170,7 +171,8 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
                                          title="copy stack name",
                                          className='copybutton')
                                  ])),
-                                     dcc.Store(id={'component': 'stacks', 'module': module}),
+                                     dcc.Store(id={'component': 'stacks', 'module': module},
+                                               storage_type='session'),
 
                                      # creator
                                      html.Div(html.Div(['Enter new stack name: ',

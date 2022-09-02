@@ -8,18 +8,20 @@ Created on Tue Nov  3 15:26:45 2020
 
 import os
 import sys
+import logging
 
 import dash
-from dash import dcc, html, __version__
+from dash import dcc, html, callback, ctx, __version__
+from dash.dependencies import Input, Output, State, ALL
+from dash.exceptions import PreventUpdate
 
 from dashUI import params
-from dashUI.index import navbar
-import logging
+from dashUI.index import navbar, globalstore
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 debug = True
-port = 8050
+port = params.dash_startingport
 
 if len(sys.argv) > 1:
     debug = False
@@ -33,14 +35,36 @@ app = dash.Dash(
 
 intervals = dcc.Interval(id='interval1', interval=params.refresh_interval, n_intervals=0)
 
-app.layout = html.Div([navbar, dcc.Location(id='url', refresh=True), intervals, dash.page_container])
+app.layout = html.Div([navbar,
+                       dcc.Location(id='url', refresh=True),
+                       intervals,
+                       globalstore,
+                       dash.page_container])
+
+
+@callback(Output('render_store', 'data'),
+          Input({'component': 'store_render_launch', 'module': ALL}, 'data'),
+          State('render_store', 'data'),
+          prevent_initial_callback=True)
+def update_render_store(*inputs):
+    if ctx.triggered[0]['value'] is None:
+        raise PreventUpdate
+
+    store = inputs[-1]
+    store.update(ctx.triggered[0]['value'])
+    print(store)
+    return store
+
 
 if __name__ == '__main__':
 
     print('using dash version ', __version__)
 
-    if os.path.exists('cert.pem') and os.path.exists('key.pem'):
-        app.run(host='0.0.0.0', debug=debug, port=port, ssl_context=('cert.pem', 'key.pem'))
+    cert = os.path.join(params.base_dir, 'cert.pem')
+    key = os.path.join(params.base_dir, 'key.pem')
+
+    if os.path.exists(cert) and os.path.exists(key):
+        app.run(host='0.0.0.0', debug=debug, port=port, ssl_context=(cert, key))
     else:
         print('No HTTPS encrypted connection supported. Check documentation.')
         app.run(host='0.0.0.0', debug=debug, port=port)

@@ -42,3 +42,7 @@ navbar = html.Div(id='navbar',className='header', children= html.H1([dcc.Link(hr
                                                                href=params.doc_url,
                                                                target="_blank")
                                                         ], className='header'))
+
+
+globalstore = html.Div([dcc.Store(id='render_store', data = params.default_store['init_render'], storage_type='session')
+                        ])
