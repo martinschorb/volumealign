@@ -41,6 +41,7 @@ if __name__ == "__main__":
 
         print('Setting up new user for Render WebUI. This is necessary only once.\n')
         print('Please follow the instructions below.\n')
+        print('==============================================\n\n')
         # create new user...
 
         if ssh_key_login:
@@ -55,6 +56,8 @@ if __name__ == "__main__":
                 os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa ' + remote_user(thost) + '@' + thost)
 
             if params.hostname.endswith('embl.de'):
+                print('\n==============================================\n\n')
+
                 print('In order to enable cluster submission, you need to log into this website:\n'
                       'https://pwtools.embl.de/sshkey \n'
                       'and copy the text below into the field for your SSH key. \n'
@@ -63,7 +66,11 @@ if __name__ == "__main__":
 
                 print('==============================================')
 
-        port = max(users_exist.values()) + 1
+        # find port for new user
+        if len(users_exist.values()) ==0:
+            port = params.dash_startingport
+        else:
+            port = max(users_exist.values()) + 1
 
         users_exist[params.user] = port
 

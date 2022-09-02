@@ -35,6 +35,8 @@ spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
 # derived directories for launchers etc...
 # you can point these to other targets if desired
 
+dash_startingport = 8050
+
 workdir = os.path.join(base_dir, 'dashUI')
 
 launch_dir = os.path.join(base_dir, 'launchers')
