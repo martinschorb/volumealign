@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
   name="volumealign",
-  version="0.3",
+  version="0.5",
   author="Martin Schorb",
   author_email="schorb@embl.de",
   description="Volume alignment with Render",

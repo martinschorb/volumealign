@@ -11,9 +11,9 @@ import json
 import subprocess
 
 from dashUI import params
-from dashUI.utils.launch_jobs import run_prefix
+from dashUI.utils.launch_jobs import run_prefix, remote_user
 
-target_machines = params.remote_compute
+target_machines = params.remote_compute.keys()
 
 user_file = params.base_dir + '/dashUI/web_users.json'
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
                 os.system("ssh-keygen -t rsa -b 4096 -q -f " + home + "/.ssh/id_rsa -N ")
 
             for target in target_machines:
-                os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa ' + target_machines[target] + '@' + target)
+                os.system('ssh-copy-id -i ' + home + '/.ssh/id_rsa ' + remote_user(target) + '@' + target)
 
             if params.hostname.endswith('embl.de'):
                 print('In order to enable cluster submission, you need to log into this website:\n'
