@@ -56,6 +56,13 @@ pathbrowse = pages.path_browse(label)
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
+
+page1.append(html.Div(children=[html.Br(),
+                                dcc.Checklist(options=[
+                                {'label': 'Automatically crop black frame from images', 'value': 'autocrop'}],
+                                              id={'component': 'autocrop', 'module': label})]))
+
+
 voxsz = html.Div(children=[html.H4("Resolution values"),
                            "x/y (isotropic): ",
                            dcc.Input(id={'component': 'xy_px_input', 'module': label}, type="number",
@@ -142,10 +149,12 @@ page2.append(collapse_stdout)
            State({'component': 'compute_sel', 'module': label}, 'value'),
            State({'component': 'xy_px_input', 'module': label}, 'value'),
            State({'component': 'z_px_input', 'module': label}, 'value'),
+           State({'component': 'autocrop', 'module': label}, 'value'),
            State({'component': 'store_run_status', 'module': label}, 'data'),
            State({'component': 'store_render_launch', 'module': label}, 'data')],
           prevent_initial_call=True)
-def fibsem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs, zwidth, run_state, outstore):
+def fibsem_conv_gobutton(stack_sel, in_dir, click,
+                         proj_dd_sel, compute_sel, pxs, zwidth, autocrop, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
@@ -176,6 +185,9 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, pxs
 
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
+
+        if autocrop == 'autocrop':
+            run_params['autocrop'] = True
 
         vox_sz = [pxs] * 2
         vox_sz.append(zwidth)
