@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 os.makedirs(home + '/.ssh')
 
             if not os.path.exists(home + '/.ssh/id_rsa'):
-                os.system("ssh-keygen -t rsa -b 4096 -q -f " + home + "/.ssh/id_rsa -N ")
+                os.system("ssh-keygen -t rsa -b 4096 -q -f " + home + "/.ssh/id_rsa")
 
             for target in target_machines:
                 thost = list(target.keys())[0]
