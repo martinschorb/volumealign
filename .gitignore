@@ -13,4 +13,4 @@ public
 dist/
 .pytest*
 *dashtest
-*/web_users.json
+dashUI/web_users.json

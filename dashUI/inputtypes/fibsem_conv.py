@@ -186,7 +186,7 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click,
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
 
-        if autocrop == 'autocrop':
+        if autocrop == ['autocrop']:
             run_params['autocrop'] = True
 
         vox_sz = [pxs] * 2
