@@ -292,7 +292,7 @@ def checkstatus(run_state):
     elif type(j_id) is str:
         runvars = [j_id]
 
-    if run_state['type'] in ['standalone', 'generic', 'localhost']\
+    if run_state['type'] in ['standalone', 'generic', 'localhost', 'localspark']\
             or run_state['type'].split('::')[-1] in params.remote_hosts:
 
         if run_state['status'] in ['running', 'launch']:
