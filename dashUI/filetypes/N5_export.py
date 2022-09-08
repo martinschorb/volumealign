@@ -44,7 +44,6 @@ compute_locations = ['sparkslurm', 'localspark', 'spark::render.embl.de']
 
 compute_default = 'sparkslurm'
 
-
 page1 = [html.Br(), pages.render_selector(label, show=False), html.Div(children=store)]
 
 # Update directory and compute settings from stack selection
@@ -83,7 +82,6 @@ def n5export_stacktoparams(  # stack_sel,
         owner, project, stack_sel, allstacks,
         browsedir,
         thispage):
-
     thispage = thispage.lstrip('/')
 
     if thispage == '' or thispage not in hf.trigger(key='module'):
@@ -148,7 +146,6 @@ gobutton = html.Div(children=[html.Br(),
                                        children='wait')])
 
 page1.append(gobutton)
-
 
 # # ===============================================
 # Compute Settings
@@ -238,7 +235,6 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
             return dash.no_update
 
-
         elif 'spark' in comp_sel:
             spsl_p = dict()
 
@@ -281,13 +277,6 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
             tilespecs = requests.get(url).json()
 
-            # tilesize = '{:.0f},{:.0f}'.format(tilespecs[0]['width'], tilespecs[0]['height'])
-
-            # n5run_p['--tileSize'] = tilesize
-
-            n5run_p['--tileWidth'] = '{:.0f}'.format(tilespecs[0]['width'])
-            n5run_p['--tileHeight'] = '{:.0f}'.format(tilespecs[0]['height'])
-
             blocksize = list(map(int, n5run_p['--blockSize'].split(',')))
             factors = list(map(int, n5run_p['--factors'].split(',')))
 
@@ -301,6 +290,12 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
 
                 blocksize[idx] = min(blocksize[idx], extent)
                 factors[idx] = min(blocksize[idx], factors[idx])
+
+            tw = np.ceil(tilespecs[0]['width'] / blocksize[0]) * blocksize[0]
+            th = np.ceil(tilespecs[0]['height'] / blocksize[1]) * blocksize[1]
+
+            n5run_p['--tileWidth'] = '{:.0f}'.format(tw)
+            n5run_p['--tileHeight'] = '{:.0f}'.format(th)
 
             # contrast limits
 
