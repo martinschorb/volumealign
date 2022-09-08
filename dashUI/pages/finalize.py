@@ -26,7 +26,6 @@ previous = 'export'
 dash.register_page(__name__,
                    name='Final post-processing')
 
-
 subpages = [{'label': 'BigDataViewer (BDV) XML', 'value': 'finalize_BDV'},
             {'label': 'Add to MoBIE project', 'value': 'finalize_MoBIE'}
             ]
@@ -51,7 +50,7 @@ page0 = html.Div([html.H4("Choose post-processing target format"),
                   dcc.Dropdown(id={'component': 'subpage_dd', 'module': module},  # persistence=True,
                                options=subpages,
                                value='',
-                               style = {'width': '960px'})
+                               style={'width': '960px'})
                   ])
 
 page.append(page0)
@@ -128,6 +127,7 @@ def finalize_output(dd_value, thispage):
 # collect variables from subpages and make them available to following pages
 
 c_in, c_out = render_selector.subpage_launch(module, subpages)
+
 
 @callback(c_out, c_in)
 def finalize_merge_launch_stores(*inputs):
