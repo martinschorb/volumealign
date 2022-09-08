@@ -47,7 +47,8 @@ app.layout = html.Div([navbar,
           State('render_store', 'data'),
           prevent_initial_callback=True)
 def update_render_store(*inputs):
-    if ctx.triggered[0]['value'] is None:
+
+    if ctx.triggered[0]['value']  in ['', None]:
         raise PreventUpdate
 
     store = inputs[-1]
