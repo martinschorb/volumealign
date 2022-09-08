@@ -254,13 +254,15 @@ def mipmaps_gobutton(mipmapdir, click, click2, run_state, comp_sel, runstep_in, 
             # run_params_generate['output_json'] = os.path.join(params.json_run_dir, 'output_' + module
             #                                                   + params.run_prefix + '.json')
             run_params_generate["input_stack"] = stack
-            run_params_generate["output_stack"] = stack + "_mipmaps"
+            run_params_generate["output_stack"] = stack #+ "_mipmaps"
             run_params_generate["mipmap_prefix"] = "file://" + mipmapdir
 
             param_file = params.json_run_dir + '/' + runstep + '_' + module + '_' + run_prefix + '.json'
             run_params_generate["zstart"] = stackparams['zmin']
             run_params_generate["zend"] = stackparams['zmax']
             run_params_generate["pool_size"] = params.n_cpu_script
+            run_params_generate['output_json'] = os.path.join(params.json_run_dir,
+                                                              'output_apply_' + module + '_' + run_prefix + '.json')
 
             with open(param_file, 'w') as f:
                 json.dump(run_params_generate, f, indent=4)

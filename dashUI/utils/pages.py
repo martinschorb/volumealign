@@ -16,6 +16,7 @@ from dashUI.utils import checks
 from dashUI.utils import helper_functions as hf
 
 from dashUI import params
+from dashUI.index import menu_titles
 
 def init_store(storeinit, module):
     """
@@ -689,10 +690,11 @@ def donelink(module, url='/mipmaps', status='DONE', text=None):
     """
 
     title = ''
-    reg, paths = hf.page_reg()
 
-    if text is None and url.lstrip('/') in paths:
-        title = reg[paths.index(url.lstrip('/'))]["name"]
+    target = url.lstrip('/')
+
+    if target in menu_titles.keys():
+        title = menu_titles[target]
 
     return html.Div([html.H4('Optional follow up computation:'),
                      html.Button(dcc.Link(html.Div(title,className='normallink'), href=url)),

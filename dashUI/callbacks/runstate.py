@@ -220,9 +220,8 @@ def merge_run_state(launch_trigger, status_trigger, launch_in, status_in):
           State({'component': 'donelink_status', 'module': MATCH}, 'children'))
 def show_donelink(status, expected_status):
 
-
     style = {'display': 'none'}
-    if status == [expected_status]:
+    if status == expected_status or status == [expected_status]:
         style = {}
 
     return style
