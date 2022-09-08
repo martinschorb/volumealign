@@ -37,7 +37,6 @@ def test_args2string():
 
     assert args2string(indict) == expectedargs
 
-
 # test launcher and status calls
 @pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_run():
@@ -102,8 +101,6 @@ def test_run():
             assert status(rs1)[0] == 'done'
 
 @pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
-
-
 def test_canceljobs():
     rs1 = dict(run_state0)
 
@@ -130,8 +127,6 @@ def test_canceljobs():
         assert str(rs1['id']) + ' cancelled.' in status(rs1)[0]
 
 @pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
-
-
 def test_localsparkjobs():
     rs1 = dict(run_state0)
 
@@ -207,8 +202,6 @@ def test_localsparkjobs():
 
 # test status of local tasks
 @pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
-
-
 def test_find_activejob():
     rs1 = dict(run_state0)
     rs1['id'] = {'par': [1, 2, 3, 4]}

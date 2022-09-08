@@ -30,7 +30,7 @@ rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rmaddons'
 
 asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
 
-spark_dir = '/g/emcf/software/spark-3.0.0-bin-hadoop3.2'
+spark_dir = '/g/emcf/software/spark/spark-3.3.0-bin-hadoop3'
 
 # derived directories for launchers etc...
 # you can point these to other targets if desired

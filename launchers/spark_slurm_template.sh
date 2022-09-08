@@ -114,11 +114,21 @@ export SPARK_WORKER_MEMORY=$SPARK_MEM
 
 $SPARK_HOME/sbin/start-master.sh
 
-# sleep a tiny little bit to allow master to start
-sleep 5s
+# wait for master to start
+
+wait=1
+
+while [ $wait -gt 0 ]
+  do
+    { # try
+      curl "$MASTER_WEB" > /dev/null && wait=0 && echo "Found spark master, will submit tasks."
+    } || { # catch
+      sleep 20 && echo "Waiting for spark master to become available."
+    }
+  done
 
 #echo Starting slaves
-srun --pack-group=1 $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker $MASTER_URL -d $SPARK_WORKER_DIR &
+srun --het-group=1 $SPARK_HOME/bin/spark-class org.apache.spark.deploy.worker.Worker $MASTER_URL -d $SPARK_WORKER_DIR &
 
 # again, sleep a tiny little bit
 sleep 5s
