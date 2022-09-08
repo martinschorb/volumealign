@@ -532,8 +532,8 @@ for idx in range(params.max_tileviews):
         for dim in ['X', 'Y']:
             # adjust rectangle position in case slice does not cover full volume bounds
             if imparams['min' + dim] == imparams['fullbounds']['min' + dim]:
-                minval = imparams['slicebounds']['min' + dim]
-                maxval = imparams['slicebounds']['max' + dim]
+                minval = imparams['fullbounds']['min' + dim]
+                maxval = imparams['fullbounds']['max' + dim]
             else:
                 minval = imparams['min' + dim]
                 maxval = imparams['max' + dim]
@@ -567,7 +567,7 @@ for idx in range(params.max_tileviews):
 
                 minval, maxval = int(minv / scale + offset), int(maxv / scale + offset)
 
-            outdims[dim] = [minval, maxval].copy()
+                outdims[dim] = [minval, maxval].copy()
 
         return (outdims)
 
