@@ -15,10 +15,10 @@ import numpy as np
 # =============================================================
 # Directory presets
 
-# base_dir = '/g/emcf/software/volumealign/'
+base_dir = '/g/emcf/software/volumealign/'
 
 # for debugging/developing loacally uncomment the next line
-base_dir = os.path.join(os.path.dirname(__file__), '..')
+# base_dir = os.path.join(os.path.dirname(__file__), '..')
 
 render_dir = '/g/emcf/software/render'
 

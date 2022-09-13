@@ -13,8 +13,6 @@ from dash import callback
 from dash.dependencies import Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-
-
 outs = list()
 
 for dim in ['X', 'Y', 'Z']:
@@ -46,8 +44,8 @@ def paramstoouterlimits(annotations, imparams):
     outdims = dict()
 
     for dim in ['X', 'Y']:
-        minval = annotations[dim][0]
-        maxval = annotations[dim][1]
+        minval = annotations[dim][0] # - annotations[dim + '_offset']
+        maxval = annotations[dim][1] # - annotations[dim + '_offset']
 
         outdims[dim] = [minval, maxval]
 
