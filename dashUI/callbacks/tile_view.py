@@ -530,13 +530,16 @@ for idx in range(params.max_tileviews):
         scale = imparams['scale']
 
         for dim in ['X', 'Y']:
+            minval = imparams['min' + dim]
+            maxval = imparams['max' + dim]
+
             # adjust rectangle position in case slice does not cover full volume bounds
             if imparams['min' + dim] == imparams['fullbounds']['min' + dim]:
-                minval = imparams['slicebounds']['min' + dim]
-                maxval = imparams['slicebounds']['max' + dim]
+                minval_im = imparams['slicebounds']['min' + dim]
+                # maxval_im = imparams['slicebounds']['max' + dim]
             else:
-                minval = imparams['min' + dim]
-                maxval = imparams['max' + dim]
+                minval_im = imparams['min' + dim]
+                # maxval_im = imparams['max' + dim]
 
             if annotations in ([], None):
                 outdims[dim] = [minval, maxval]
@@ -563,13 +566,9 @@ for idx in range(params.max_tileviews):
                 if minv > maxv:
                     minv, maxv = maxv, minv
 
-                minval, maxval = int(minv / scale + minval), int(maxv / scale + minval)
+                minval, maxval = int(minv / scale + minval_im), int(maxv / scale + minval_im)
 
                 outdims[dim] = [minval, maxval].copy()
-
-            # offset between full stack bounds and section bounds
-            offset = imparams['fullbounds']['min' + dim] - imparams['slicebounds']['min' + dim]
-            outdims[dim + '_offset'] = offset
 
         return (outdims)
 

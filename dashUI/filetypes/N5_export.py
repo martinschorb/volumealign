@@ -87,6 +87,9 @@ def n5export_stacktoparams(  # stack_sel,
     if thispage == '' or thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
+    if None in [xmin, xmax, ymin, ymax, zmin, zmax]:
+        raise PreventUpdate
+
     out = dict()
     factors = dict()
 

@@ -44,8 +44,15 @@ def paramstoouterlimits(annotations, imparams):
     outdims = dict()
 
     for dim in ['X', 'Y']:
-        minval = annotations[dim][0] # - annotations[dim + '_offset']
-        maxval = annotations[dim][1] # - annotations[dim + '_offset']
+        if annotations[dim][0] <= imparams['slicebounds']['min' + dim]:
+            minval = imparams['fullbounds']['min' + dim]
+        else:
+            minval = annotations[dim][0]
+
+        if annotations[dim][1] >= imparams['slicebounds']['max' + dim]:
+            maxval = imparams['fullbounds']['max' + dim]
+        else:
+            maxval = annotations[dim][1]
 
         outdims[dim] = [minval, maxval]
 
