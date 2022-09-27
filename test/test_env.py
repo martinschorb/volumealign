@@ -78,6 +78,7 @@ def test_paths():
 
 
             # check existence of environment on desired targets (default compute targets)
+
 @pytest.mark.skipif(os.path.exists('dashtest'), reason='Only testing dash UI')
 def test_conda_envs():
     for target in compute_targets:
