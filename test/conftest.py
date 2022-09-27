@@ -32,19 +32,19 @@ def startup_webui():
         s = 404
 
     if s == 200:
-        yield 'server is already running'
+        outfile =  'server is already running'
+    else:
+        outfile = os.path.join(params.base_dir, 'test', 'webui_temp.out')
 
-    outfile = os.path.join(params.base_dir, 'test', 'webui_temp.out')
+        p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
 
-    p = subprocess.Popen(os.path.join(params.base_dir, 'WebUI.sh'), stdout=open(outfile, 'w'))
+        # check for regular running
+        time.sleep(8)
 
-    # check for regular running
-    time.sleep(8)
+        assert p.errors is None
 
-    assert p.errors is None
-
-    assert p.returncode is None
-    assert os.path.exists(outfile)
+        assert p.returncode is None
+        assert os.path.exists(outfile)
 
     yield outfile
 
@@ -79,7 +79,8 @@ def prepare_teststack(request):
     test_stackname = 'testtack'
     in_status = {'logfile': 'out.txt', 'status': 'input'}
 
-    result = fibsem_conv_gobutton(test_stackname, example_tif, 1, test_projname, params.comp_test, 10, 20, dict(in_status), {})
+    result = fibsem_conv_gobutton(test_stackname, example_tif, 1, test_projname, params.comp_test, 10, 20,
+                                  dict(in_status), {})
 
     k = 0
 
@@ -102,4 +103,3 @@ def prepare_teststack(request):
     render = renderapi.connect(**render_params)
 
     renderapi.stack.delete_stack(expectedstackdict['stack'], render=render)
-

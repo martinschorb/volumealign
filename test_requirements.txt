@@ -3,3 +3,6 @@ coverage-badge
 pytest
 pytest-cov
 codecov
+pytest-selenium
+pytest-dependency
+dash[testing]
