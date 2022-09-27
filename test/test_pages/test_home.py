@@ -25,8 +25,8 @@ from helpers import check_link
 @pytest.mark.dependency(depends=["webUI"],
                         scope='session')
 def test_home(thisdash, startup_webui):
-
-    wait = WebDriverWait(thisdash.driver, 10)
+    # need to be generous with timeouts due to large images being requested
+    wait = WebDriverWait(thisdash.driver, 30)
 
     navbar_elem = thisdash.find_element("#navbar")
 

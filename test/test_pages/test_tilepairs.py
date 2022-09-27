@@ -104,9 +104,8 @@ def test_tilepairs(thisdash, startup_webui):
 
     # check 1:  no click -> no update
     # .(click, pairmode, stack, slicedepth, comp_sel, startsection, endsection, owner, project, multi, stacklist)
-    result = tilepairs_execute_gobutton(None, '', '', '', '', '', '', '', '', '', '')
-
-    assert type(result) is dash._callback.NoUpdate
+    with pytest.raises(dash.exceptions.PreventUpdate):
+        result = tilepairs_execute_gobutton(None, '', '', '', '', '', '', '', '', '', '')
 
     # check 2: trigger not go button -> no action, button enabled
     context_value.set(set_callback_context(stack_el, stack_val))

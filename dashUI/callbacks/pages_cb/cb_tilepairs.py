@@ -112,6 +112,6 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
     outstore['owner'] = owner
     outstore['project'] = project
     outstore['stack'] = stack
-    # outstore['tilepairdir'] = tilepairdir
+    outstore['tilepairdir'] = tilepairdir
 
     return True, launch_store, outstore

@@ -323,7 +323,8 @@ def test_conv_fibsem(thisdash, startup_webui):
     # check 1:  new stack -> disabled button
     context_value.set(set_callback_context(stack_el, stack_val))
 
-    result = fibsem_conv_gobutton(stack_val, os.getcwd(), 1, 'test', 'standalone', 10, 10, dict(in_status), {})
+    # .(Input(stack, inpath, click, project, compsel, pxs, zwidth, autocrop, run_state, outstore)
+    result = fibsem_conv_gobutton(stack_val, os.getcwd(), 1, 'test', 'standalone', 10, 10, False, dict(in_status), {})
 
     assert result[0]
     assert result[1] == ''
@@ -332,7 +333,7 @@ def test_conv_fibsem(thisdash, startup_webui):
 
     # check 2:  other stack -> enabled button
     context_value.set(set_callback_context(stack_el, 'test'))
-    result = fibsem_conv_gobutton('test', os.getcwd(), 1, 'test', 'standalone', 10, 10, dict(in_status), {})
+    result = fibsem_conv_gobutton('test', os.getcwd(), 1, 'test', 'standalone', 10, 10, False, dict(in_status), {})
 
     assert not result[0]
     assert result[1] == ''
@@ -342,7 +343,7 @@ def test_conv_fibsem(thisdash, startup_webui):
     # check 3:  bad input directory -> popup text, disabled button
     context_value.set(set_callback_context(dir_el, dir_val))
 
-    result = fibsem_conv_gobutton('test', dir_val, 1, 'test', 'standalone', 10, 10, dict(in_status), {})
+    result = fibsem_conv_gobutton('test', dir_val, 1, 'test', 'standalone', 10, 10, False, dict(in_status), {})
 
     assert result[0]
     assert result[1] == 'Input Data not accessible.'
@@ -351,7 +352,7 @@ def test_conv_fibsem(thisdash, startup_webui):
 
     # check 4:  wrong directory characters
     result = fibsem_conv_gobutton('test', 'this directory/has wrong chars!', 1,
-                                  'test', 'standalone', 10, 10, dict(in_status), {})
+                                  'test', 'standalone', 10, 10, False, dict(in_status), {})
 
     assert result[0]
     assert result[1] == 'Wrong characters in input directory path. Please fix!'
@@ -367,7 +368,8 @@ def test_conv_fibsem(thisdash, startup_webui):
     test_stackname = 'testtack'
 
     prefix = run_prefix()
-    result = fibsem_conv_gobutton(test_stackname, os.getcwd(), 1, test_projname, 'test', 10, 20, dict(in_status), {})
+    result = fibsem_conv_gobutton(test_stackname, os.getcwd(), 1,
+                                  test_projname, 'test', 10, 20, False, dict(in_status), {})
 
     assert result[0]
     assert result[1] == ''
