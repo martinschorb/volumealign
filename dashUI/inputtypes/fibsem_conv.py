@@ -10,6 +10,7 @@ from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 
 import os
+import glob
 import json
 
 from dashUI import params
@@ -40,7 +41,6 @@ owner = "FIBSEM"
 
 store = pages.init_store({}, label)
 
-
 # Pick source directory
 
 
@@ -56,12 +56,10 @@ pathbrowse = pages.path_browse(label)
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
-
 page1.append(html.Div(children=[html.Br(),
                                 dcc.Checklist(options=[
-                                {'label': 'Automatically crop black frame from images', 'value': 'autocrop'}],
-                                              id={'component': 'autocrop', 'module': label})]))
-
+                                    {'label': 'Automatically crop black frame from images', 'value': 'autocrop'}],
+                                    id={'component': 'autocrop', 'module': label})]))
 
 voxsz = html.Div(children=[html.H4("Resolution values"),
                            "x/y (isotropic): ",
@@ -92,7 +90,7 @@ page2 = []
 page2.append(
     html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
-    )
+)
 
 # =============================================
 # Start Button
@@ -127,6 +125,8 @@ collapse_stdout = pages.log_output(label)
 
 
 page2.append(collapse_stdout)
+
+
 # page2.append(html.Div(store))
 
 # =============================================
@@ -186,16 +186,52 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click,
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
 
-        if autocrop == ['autocrop']:
-            run_params['autocrop'] = True
-
         vox_sz = [pxs] * 2
         vox_sz.append(zwidth)
 
         run_params['pxs'] = vox_sz
+        if autocrop == ['autocrop']:
+            run_params['autocrop'] = True
 
-        with open(param_file, 'w') as f:
-            json.dump(run_params, f, indent=4)
+            # parallel execution on cluster
+            if compute_sel in params.comp_clustertypes:
+                numjobs = params.comp_default_num_parallel
+
+                # find number of input files
+                imgdir = os.path.realpath(in_dir)
+                imfiles = glob.glob(os.path.join(in_dir, '*.[Tt][Ii][Ff]'))
+                imfiles.extend(glob.glob(os.path.join(in_dir, '*.[Tt][Ii][Ff][Ff]')))
+                imfiles.sort()
+
+                ntif = len(imfiles)
+
+                splitidx = ntif // numjobs
+
+                if ntif % numjobs != 0:
+                    splitidx += 1
+
+                startidx = list(range(0, ntif, splitidx))
+                endidx = startidx[1:]
+                endidx.append(ntif)
+
+                pfile_base = os.path.splitext(param_file)[0]
+                param_file = []
+
+                for start, end in zip(startidx, endidx):
+                    end -= 1
+                    run_params0 = dict(run_params)
+                    run_params0['startidx'] = start
+                    run_params0['endidx'] = end
+
+                    pfile = pfile_base + '_start' + str(start) + '.json'
+                    param_file.append(pfile)
+
+                    with open(pfile, 'w') as f:
+                        json.dump(run_params0, f, indent=4)
+
+        if type(param_file) is str:
+            with open(param_file, 'w') as f:
+                json.dump(run_params, f, indent=4)
 
         log_file = params.render_log_dir + '/' + 'fibsem_conv_' + run_prefix
         err_file = log_file + '.err'

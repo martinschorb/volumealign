@@ -18,7 +18,7 @@ import numpy as np
 base_dir = '/g/emcf/software/volumealign/'
 
 # for debugging/developing loacally uncomment the next line
-# base_dir = os.path.join(os.path.dirname(__file__), '..')
+base_dir = os.path.join(os.path.dirname(__file__), '..')
 
 render_dir = '/g/emcf/software/render'
 
@@ -76,6 +76,9 @@ comp_test = 'render.embl.de'
 
 comp_clustertypes = ['slurm']
 
+# number of parallel jobs to submit
+comp_default_num_parallel = 2
+
 comp_defaultoptions = ['standalone', 'slurm']
 
 # list remote workstations/login nodes and the remote launch parameters if special (dict or str)
@@ -113,7 +116,7 @@ time_add_buffer = 0.2  # time buffer for job submission (relative)
 n_cpu_script = 4
 mem_per_cpu = 4  # GB
 n_jobs_default = 8
-default_walltime = 5  # min
+default_walltime = 10  # min
 
 # standalone
 
@@ -216,7 +219,7 @@ match_store = {  # 'init_match':{},
     'all_matchcolls': None
 }
 
-# match trial owner default ('flyTEM' in built)
+# match trial owner default ('flyTEM' in-built, do not modify for now!)
 
 mt_owner = 'flyTEM'
 
