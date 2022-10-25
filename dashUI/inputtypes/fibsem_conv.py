@@ -205,6 +205,11 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click,
 
                 ntif = len(imfiles)
 
+                if ntif ==0 :
+                    run_state['status'] = 'wait'
+                    popup = 'No TIF files found in directory.'
+                    return True, popup, out, dash.no_update
+
                 splitidx = ntif // numjobs
 
                 if ntif % numjobs != 0:
