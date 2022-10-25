@@ -61,4 +61,7 @@ def test_home(thisdash, startup_webui):
 
     assert thisdash.driver.current_url == thisdash.server_url + '/'
 
-    assert thisdash.driver.title == home_title
+    wait.until(EC.title_is(home_title))
+
+
+

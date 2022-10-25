@@ -79,7 +79,7 @@ def prepare_teststack(request):
     test_stackname = 'testtack'
     in_status = {'logfile': 'out.txt', 'status': 'input'}
 
-    result = fibsem_conv_gobutton(test_stackname, example_tif, 1, test_projname, params.comp_test, 10, 20,
+    result = fibsem_conv_gobutton(test_stackname, example_tif, 1, test_projname, params.comp_test, 10, 20, False,
                                   dict(in_status), {})
 
     k = 0
