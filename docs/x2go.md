@@ -5,25 +5,41 @@ This tutorial explains how to launch the Render WebUI for running computations.
 It makes use of the graphical login procedure for the EMBL cluster, described [here](https://wiki.embl.de/cluster/Env).
 
 
-## Setting up x2go
+## Setting up the remote Desktop
 
-Before you start, you need to install a client software to connect.
-Just download x2goclient (available for Windows, Linux and Mac from [here](https://wiki.x2go.org/doku.php/doc:installation:x2goclient), (find the installer in ```releases```) and configure your session as follows.
+The connection to a graphical login node of the EMBL cluster uses RDP (["Remote Desktop Protocol"](https://en.wikipedia.org/wiki/Remote_Desktop_Protocol)).
 
-When you first launch the program, you need to set up the connection. Click the white symbol in the top left corner to add a new connection.
+This is the built-in remote control in Microsoft Windows.
 
-![x2go](img/X2go.png "x2go")
+In order to use the connection from a Mac you need to install the client software from [here](https://apps.apple.com/app/microsoft-remote-desktop/id1295203466?mt=12).
+***
 
-Here, you should the following connection details with your user name:
+### MacOS 
 
-![x2go_connect](img/conn_01.png "x2go - connection details")
+To initially set up the connection, click the plus logo to add a new Desktop.
 
-If you want, you can also switch to the `Input/Output` tab to set up the display settings.
+![add remote Desktop](img/ms_add.png "Add remote Desktop")
 
-![x2go_disp](img/conn_disp.png "x2go - display settings")
+Provide the address `login01.cluster.embl.de` and optionally choose your desired display settings for the connection.
+
+![login remote Desktop](img/rdp_login01.png "Add remote Desktop")
+
+### Windows
+Open the software **Remote Desktop Connection**. Provide the address `login01.cluster.embl.de` and optionally choose your desired display settings for the connection.
+
+![connect remote Desktop](img/rdp_win.png "Connect remote Desktop")
 
 
-Once you have set up the connection, you can just launch it by double-clicking its box on the right side of the x2go main window. Put your password and you will get a graphical desktop on EMBL's cluster submission node.
+***
+
+Once you have set up the connection, you can just launch it by double-clicking its entry in the list of the Remote Desktop main window. Put your EMBL login and password, and you will get a graphical desktop on EMBL's cluster submission node.
+
+
+You can ignore the certificate warning that might show up.
+
+![RDP cert](img/rdp_cert.png "RDP certificate warning")
+
+
 
 ## Launching Render
 
@@ -42,52 +58,15 @@ Now, the desktop icon should be there.
 
 When you click the icon the following window appears:
 
-![render_terminal](img/render_terminal.png "x2go - display settings")
+![render_terminal](img/render_terminal.png "remote terminal")
 
-You can now connect to the we address shown with any browser.
+You can now connect to the web address shown with any browser. Be careful **not** to use `CTRL + C` for copying text as this key combination will terminate the server you've just started.
 
-To close the WebUI, just close that window.
+To close the WebUI and terminate the server, just close that window.
 
 ## Interrupting sessions
 
-When you run a long processing, there is no need to stay connected with x2go all the time. You can simply disconnect from the VPN and re-connect at any later time. The session will continue to run as it is.
+When you run a long processing, there is no need to stay connected remotely to the server all the time. You can simply disconnect from the VPN and re-connect at any later time. The session will continue to run as it is.
 
-To follow the formally correct procedure, you can also click the `Pause` button at the bottom of the x2go status frame for your running connection. This will disconnect but not end your session.
-
-![pause](img/x2go_pause.png "x2go - Pause")
-
-
-
-
-## Connection problems
-
-
-IT has upgraded the graphical login node for the cluster.
-Therefore one connection setting has to be modified.
-This only applies for machines where you have already used the X2go connection.
-
-In this case you will get a "Host key cerification failed" error after accepting the (new) host key.
-
-
-To fix this:
-
-MAC:
-
-- open a terminal
-- type and run:
-     open -a Textedit ~/.ssh/known_hosts
-- in this file, remove the line that starts with "login-gui.cluster.embl.de"
-- save the file
-
-
-Windows:
-- open a file explorer
-- go to (type into the address bar) %USERPROFILE%\ssh
-- open the file "known_hosts" with a text editor
-- in this file, remove the line that starts with "login-gui.cluster.embl.de"
-- save the file
-
-
-Now, when connecting, X2go will ask you to accept the (new) host key. Hit yes and the connection should open.
 
 ## Happy processing!
