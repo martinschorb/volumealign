@@ -17,12 +17,10 @@ from dashUI.utils import helper_functions as hf
 module = 'tilepairs'
 
 
-def generate_run_params(run_params, owner, stack, run_prefix, pairmode, slicedepth):
+def generate_run_params(run_params, owner, stack, run_prefix, pairmode, slicedepth, tilepairdir):
     run_params_generate = run_params.copy()
 
     # generate script call...
-
-    tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
 
     if not os.path.exists(tilepairdir):
         os.makedirs(tilepairdir)
@@ -75,9 +73,12 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
 
     tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
 
+    if slicedepth > 1:
+        tilepairdir += '_depth_' + str(slicedepth)
+
     if multi in [None, []]:
         param_file = generate_run_params(run_params, owner, stack,
-                                         run_prefix, pairmode, slicedepth)
+                                         run_prefix, pairmode, slicedepth, tilepairdir)
     else:
         #     prepare multiple runs
         param_file = []
@@ -88,7 +89,7 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
                 currentstack = stackoption['value']
 
                 param_file_current = generate_run_params(run_params, owner, currentstack,
-                                                         run_prefix, pairmode, slicedepth)
+                                                         run_prefix, pairmode, slicedepth, tilepairdir)
 
                 param_file.append(param_file_current)
 
