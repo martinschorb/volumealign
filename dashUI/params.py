@@ -91,9 +91,10 @@ remote_compute = [
     {'login01.cluster.embl.de': {}}]
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
-remote_submission = {}
+remote_submission = {
                      # 'slurm': 'login01.cluster.embl.de',
-                     # 'sparkslurm': 'login01.cluster.embl.de'}
+                     # 'sparkslurm': 'login01.cluster.embl.de'
+                    }
 
 # add remote resources
 
@@ -126,8 +127,8 @@ default_compparams = {'user': user,
 
 # spark
 
-n_cpu_spark = 200
-cpu_pernode_spark = 10
+n_cpu_spark = 300
+cpu_pernode_spark = 15
 
 spark_port = '8080'
 spark_job_port = '4040'
