@@ -32,16 +32,26 @@ Open the software **Remote Desktop Connection**. Provide the address `login01.cl
 
 ***
 
-Once you have set up the connection, you can just launch it by double-clicking its entry in the list of the Remote Desktop main window. Put your EMBL login and password, and you will get a graphical desktop on EMBL's cluster submission node.
-
-
-You can ignore the certificate warning that might show up.
+Once you have set up the connection, you can just launch it by double-clicking its entry in the list of the Remote Desktop main window. You can ignore the certificate warning that might show up.
 
 ![RDP cert](img/rdp_cert.png "RDP certificate warning")
+
+Provide your EMBL login and password in the login window. 
+
+![login remote Desktop](img/xrdp_login.png "Log in")
+
+Now you will get a graphical desktop on EMBL's cluster submission node.
 
 
 
 ## Launching Render
+
+At the moment there is no desktop loaded automatically. To start the desktop, click "Activities" in the top left corner.
+
+![launch Desktop](img/gnome_terminal.png "launch Desktop")
+
+Type `terminal` in the search box and launch the "Xfce Terminal program".
+This will start a terminal session. In there type `xfdesktop` and hit enter to launch the desktop. Keep this terminal window open.
 
 You should find an icon called `Render WebUI` on your desktop.
 
