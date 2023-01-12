@@ -64,17 +64,17 @@ matchtrial = html.Div([html.Br(),
                                               clearable=False),
                                  html.Br(),
                                  html.Div(id=label + 'mtbrowse',
-                                          children=[html.Button('Explore MatchTrial', id=label + 'mt_linkbutton'),
-                                                    html.A('  - ',
-                                                           id=label + 'mt_link',
-                                                           target="_blank"),
-                                                    dcc.Loading(
-                                                        id=label + "link_loading",
-                                                        type="dot",
-                                                        children=html.Div('', id=label + 'mt_jscaller',
-                                                                          style={'display': 'none'})
-                                                    )
-                                                    ]),
+                                          children=dcc.Loading(
+                                              id=label + "link_loading",
+                                              type="dot",
+                                              children=html.Div([
+                                                  html.Button('Explore MatchTrial', id=label + 'mt_linkbutton'),
+                                                  html.A(' ',
+                                                         id=label + 'mt_link',
+                                                         target="_blank")],
+                                                  id=label + 'mt_jscaller')
+                                          )
+                                          ),
                                  html.Br(),
 
                                  html.Br(),
@@ -235,7 +235,7 @@ def sift_pointmatch_IDs(organism, picks):
 
 @callback([Output(label + 'mtselect', 'value'),
            Output(label + 'mt_link', 'href'),
-           Output(label + 'mt_jscaller', 'children')],
+           Output(label + 'mt_link', 'children')],
           [Input(label + 'matchID_dd', 'value'),
            Input(label + 'mt_linkbutton', 'n_clicks'),
            Input({'component': 'matchcoll_dd', 'module': parent}, 'value')],
@@ -263,7 +263,7 @@ def sift_browse_matchTrial(matchID, buttonclick, matchcoll, link1, link2, tile2s
 
         mc_url += 'matchTrialId=' + matchID
 
-        return matchID, mc_url, str(buttonclick)
+        return matchID, mc_url, '  Click here to check and edit  MatchTrial.'
 
     mc_url += 'matchTrialId=' + matchID
 
@@ -278,7 +278,7 @@ clientside_callback(
     }
     """,
     Output(label + 'mt_linkbutton', 'style'),
-    Input(label + 'mt_jscaller', 'children'),
+    Input(label + 'mt_link', 'children'),
     State(label + 'mt_link', 'href')
 )
 
