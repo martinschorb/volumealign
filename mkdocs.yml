@@ -11,7 +11,7 @@ nav:
     - Home: index.md
     - How to:
         - Use it: usage.md
-        - initial setup: x2go.md
+        - initial setup: remote.md
     - About: about.md
     - Status: EMBL_render_status.md
     - Development:
