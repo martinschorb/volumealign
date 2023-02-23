@@ -56,7 +56,7 @@ Type `terminal` in the search box and launch the "Xfce Terminal program".
 This will start a terminal session. In there type 
 
 ```
-cp -r /g/emcf/schorb/code/admin_scripts/autostart ~/.config | xfdesktop
+cp -r /g/emcf/schorb/code/admin_scripts/autostart ~/.config/ | xfdesktop
 ```
 
 and hit enter to launch the desktop. Keep this terminal window open for the duration of this session.
