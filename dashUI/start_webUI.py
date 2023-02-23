@@ -62,11 +62,13 @@ if __name__ == "__main__":
                 print('In order to enable cluster submission, you need to log into this website:\n'
                       'https://pwtools.embl.de/sshkey \n'
                       'and copy the text below into the field for your SSH key. \n'
+                      'Do not use CTRL+C to copy the address, this will close the process.\n'
                       '==============================================')
                 os.system('cat ' + home + '/.ssh/id_rsa.pub')
 
-                print('==============================================')
-                time.sleep(20)
+                print('==============================================\n')
+                print('waiting for 1 minute and will then start the server...')
+                time.sleep(60)
 
         # find port for new user
         if len(users_exist.values()) ==0:
