@@ -114,7 +114,7 @@ time_add_buffer = 0.2  # time buffer for job submission (relative)
 n_cpu_script = 4
 mem_per_cpu = 4  # GB
 n_jobs_default = 8
-default_walltime = 5  # min
+default_walltime = 10  # min
 
 # standalone
 
@@ -129,6 +129,7 @@ default_compparams = {'user': user,
 
 n_cpu_spark = 300
 cpu_pernode_spark = 15
+spark_setupmargin = 5 # minutes to alow for spark setting up
 
 spark_port = '8080'
 spark_job_port = '4040'
