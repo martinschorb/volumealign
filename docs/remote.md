@@ -43,12 +43,6 @@ Provide your EMBL login and password in the login window.
 
 ![login remote Desktop](img/xrdp_login.png "Log in")
 
-Now you will get a graphical desktop on EMBL's cluster submission node.
-
-
-
-## Launching Render
-
 At the moment there is no desktop loaded automatically. To start the desktop, click "Activities" in the top left corner.
 
 ![launch Desktop](img/gnome_terminal.png "launch Desktop")
@@ -61,6 +55,9 @@ cp -r /g/emcf/schorb/code/admin_scripts/autostart ~/.config/ | xfdesktop
 ```
 
 and hit enter to launch the desktop. Keep this terminal window open for the duration of this session.
+
+## Launching Render
+
 
 You should find an icon called `Render WebUI` on your desktop.
 
