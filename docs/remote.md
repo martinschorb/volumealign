@@ -2,17 +2,18 @@
 
 This tutorial explains how to launch the Render WebUI for running computations.
 
-It makes use of the graphical login procedure for the EMBL cluster, described <a href="https://wiki.embl.de/cluster/Env target="_blank">here</a>.
+It makes use of the graphical login procedure for the EMBL cluster, described at https://wiki.embl.de/cluster/Env.
 
 
 ## Setting up the remote Desktop
 
-The connection to a graphical login node of the EMBL cluster uses RDP (<a href="https://en.wikipedia.org/wiki/Remote_Desktop_Protocol target="_blank">"Remote Desktop Protocol"</a>).
+The connection to a graphical login node of the EMBL cluster uses RDP (https://en.wikipedia.org/wiki/Remote_Desktop_Protocol).
 
 This is the built-in remote control in Microsoft Windows.
 
-In order to use the connection from a Mac you need to install the client software from <a href="https://apps.apple.com/app/microsoft-remote-desktop/id1295203466?mt=12 target="_blank">here</a>.
-If you have trouble with the App store, try downloading it <a href="https://www.macupdate.com/app/mac/8431/microsoft-remote-desktop/old-versions target="_blank">here</a>.
+In order to use the connection from a Mac you need to install the client software from https://apps.apple.com/app/microsoft-remote-desktop/id1295203466?mt=12 .
+
+If you have trouble with the App store, try downloading it from https://www.macupdate.com/app/mac/8431/microsoft-remote-desktop/old-versions .
 
 ***
 
@@ -86,7 +87,7 @@ Then, please type your password once for each workstation/computational resource
 Be careful **not** to use `CTRL + C` for copying text as this key combination will terminate the procedure!
 At EMBL, you also need to copy your public key yhat it shows you into the box on this website.
 
-<a href="https://pwtools.embl.de/sshkey" target="_blank">https://pwtools.embl.de/sshkey</a>
+https://pwtools.embl.de/sshkey
 
 ![EMBL_key](img/EMBL_key.png "ssh key upload")
 
