@@ -61,7 +61,7 @@ page1 = [directory_sel, pathbrowse, html.Div(store)]
 
 page2 = []
 page2.append(
-    html.Div(pages.render_selector(label, create=True, owner=True, header='Select target stack:'),
+    html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
     )
 

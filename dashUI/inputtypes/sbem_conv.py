@@ -74,7 +74,7 @@ page1 = [directory_sel, pathbrowse, excludeslice, html.Div(store)]
 
 page2 = []
 page2.append(
-    html.Div(pages.render_selector(label, create=True, owner=True, header='Select target stack:'),
+    html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
 )
 
@@ -132,10 +132,11 @@ page2.append(collapse_stdout)
            ],
           [State({'component': 'project_dd', 'module': label}, 'value'),
            State({'component': 'compute_sel', 'module': label}, 'value'),
+           State({'component': 'badslice_input', 'module': label}, 'value'),
            State({'component': 'store_run_status', 'module': label}, 'data'),
            State({'component': 'store_render_launch', 'module': label}, 'data')],
           prevent_initial_call=True)
-def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_state, outstore):
+def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badslices_in, run_state, outstore):
     ctx = dash.callback_context
 
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
@@ -183,7 +184,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
         sbem_conv_p = launch_jobs.run(target=compute_sel,
                                       pyscript=params.rendermodules_dir +
                                                '/dataimport/generate_EM_tilespecs_from_SBEMImage.py',
-                                      jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
+                                      jsonfile=param_file, logfile=log_file, errfile=err_file)
 
         run_state['status'] = 'running'
         run_state['id'] = sbem_conv_p
@@ -194,6 +195,31 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, run_s
 
         outstore = dash.no_update
         # check launch conditions and enable/disable button
+
+        if len(badslices_in) >1:
+            badslices = badslices_in.split(',')
+
+            for badslice in badslices:
+                badslice.replace(' ', '')
+                if '-' in badslice:
+                    badslices.remove(badslice)
+                    try:
+                        newslices = list(map(int,badslice.split('-')))
+                        badslices.extend(list(range(newslices[0], newslices[1] + 1)))
+                    except ValueError:
+                        run_state['status'] = 'wait'
+                        popup = 'Slice numbers need to be pure integers.'
+                        return but_disabled, popup, out, outstore
+
+            try:
+                badslices = list(map(int, badslices))
+                outstore['bad_slices'] = badslices
+            except ValueError:
+                run_state['status'] = 'wait'
+                popup = 'Slice numbers need to be pure integers.'
+                return but_disabled, popup, out, outstore
+
+
         if any([in_dir == '', in_dir is None]):
             if not (run_state['status'] == 'running'):
                 run_state['status'] = 'wait'
