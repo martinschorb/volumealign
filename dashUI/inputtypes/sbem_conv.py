@@ -10,7 +10,7 @@ from dash import dcc, html, callback
 from dash.dependencies import Input, Output, State
 
 import os
-
+import numpy as np
 import json
 
 from dashUI import params
@@ -63,7 +63,8 @@ excludeslice = html.Div([html.Br(),
                                        dcc.Input(id={'component': 'badslice_input', 'module': label}, type="text",
                                                  debounce=True,
                                                  value='',
-                                                 persistence=True)
+                                                 persistence=True),
+                                       '  (separate by "," or define a range using "-")'
                                        ])
                          ])
 
@@ -128,15 +129,15 @@ page2.append(collapse_stdout)
            ],
           [Input({'component': 'stack_dd', 'module': label}, 'value'),
            Input({'component': 'path_input', 'module': label}, 'value'),
+           Input({'component': 'badslice_input', 'module': label}, 'value'),
            Input(label + 'go', 'n_clicks')
            ],
           [State({'component': 'project_dd', 'module': label}, 'value'),
            State({'component': 'compute_sel', 'module': label}, 'value'),
-           State({'component': 'badslice_input', 'module': label}, 'value'),
            State({'component': 'store_run_status', 'module': label}, 'data'),
            State({'component': 'store_render_launch', 'module': label}, 'data')],
           prevent_initial_call=True)
-def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badslices_in, run_state, outstore):
+def sbem_conv_gobutton(stack_sel, in_dir, badslices_in, click, proj_dd_sel, compute_sel, run_state, outstore):
     ctx = dash.callback_context
 
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
@@ -146,8 +147,9 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badsl
     out = run_state
     log_file = run_state['logfile']
 
-    # outstore = dash.no_update
-    outstore = dict()
+    if type(outstore) is not dict:
+        outstore = dict()
+
     outstore['owner'] = 'SBEM'
     outstore['project'] = proj_dd_sel
     outstore['stack'] = stack_sel
@@ -171,6 +173,9 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badsl
         run_params['image_directory'] = in_dir
         run_params['stack'] = stack_sel
 
+        if 'bad_slices' in outstore.keys():
+            run_params['bad_slices'] = outstore['bad_slices']
+
         with open(param_file, 'w') as f:
             json.dump(run_params, f, indent=4)
 
@@ -193,32 +198,33 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badsl
 
     else:
 
-        outstore = dash.no_update
         # check launch conditions and enable/disable button
 
-        if len(badslices_in) >1:
+        if len(badslices_in) > 1:
             badslices = badslices_in.split(',')
+            badslices_out = badslices[:]
 
             for badslice in badslices:
-                badslice.replace(' ', '')
-                if '-' in badslice:
-                    badslices.remove(badslice)
+                if type(badslice) is str and '-' in badslice:
+                    badslices_out.remove(badslice)
                     try:
-                        newslices = list(map(int,badslice.split('-')))
-                        badslices.extend(list(range(newslices[0], newslices[1] + 1)))
+                        newslices = list(map(int, badslice.split('-')))
+                        badslices_out.extend(list(range(newslices[0], newslices[1] + 1)))
                     except ValueError:
+                        print(badslices)
                         run_state['status'] = 'wait'
                         popup = 'Slice numbers need to be pure integers.'
+                        but_disabled = True
                         return but_disabled, popup, out, outstore
 
             try:
-                badslices = list(map(int, badslices))
-                outstore['bad_slices'] = badslices
+                badslices_out = list(map(int, badslices_out))
+                outstore['bad_slices'] = list(np.unique(badslices_out))
             except ValueError:
                 run_state['status'] = 'wait'
                 popup = 'Slice numbers need to be pure integers.'
+                but_disabled = True
                 return but_disabled, popup, out, outstore
-
 
         if any([in_dir == '', in_dir is None]):
             if not (run_state['status'] == 'running'):
@@ -245,5 +251,6 @@ def sbem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, badsl
                 run_state['status'] = 'wait'
                 popup = 'Directory not accessible.'
                 # pop_display = True
+
 
     return but_disabled, popup, out, outstore
