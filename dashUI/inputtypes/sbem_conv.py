@@ -47,7 +47,7 @@ store = pages.init_store({}, label)
 # Pick source directory
 
 
-directory_sel = html.Div(children=[html.H4("Select dataset root directory:", id='firsth4_'+label),
+directory_sel = html.Div(children=[html.H4("Select dataset root directory:", id='firsth4_' + label),
                                    # html.Script(type="text/javascript",children="alert('test')"),                                   
                                    dcc.Input(id={'component': 'path_input', 'module': label}, type="text",
                                              debounce=True,
@@ -58,7 +58,16 @@ directory_sel = html.Div(children=[html.H4("Select dataset root directory:", id=
 
 pathbrowse = pages.path_browse(label)
 
-page1 = [directory_sel, pathbrowse, html.Div(store)]
+excludeslice = html.Div([html.Br(),
+                         html.Details([html.Summary('Exclude bad slices:'),
+                                       dcc.Input(id={'component': 'badslice_input', 'module': label}, type="text",
+                                                 debounce=True,
+                                                 value='',
+                                                 persistence=True)
+                                       ])
+                         ])
+
+page1 = [directory_sel, pathbrowse, excludeslice, html.Div(store)]
 
 # # ===============================================
 #  RENDER STACK SELECTOR
@@ -67,7 +76,7 @@ page2 = []
 page2.append(
     html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
-    )
+)
 
 # =============================================
 # Start Button
@@ -100,6 +109,8 @@ collapse_stdout = pages.log_output(label)
 
 
 page2.append(collapse_stdout)
+
+
 # page2.extend(store)
 
 # =============================================
