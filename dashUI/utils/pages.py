@@ -49,7 +49,7 @@ def render_selector(module, header='Active stack:', owner=False, create=False, s
 
     :param str module: module/page name
     :param str header: Text to describe the selector's purpose.
-    :param bool owner: Switch to display the owner selector.
+    :param bool or str owner: Switch to display the owner selector.
     :param bool create: Switch to enable generation of new entries (project and stack).
     :param bool show: toggle display.
     :return: HTML page element containing the selectors
