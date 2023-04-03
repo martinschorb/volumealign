@@ -52,7 +52,7 @@ directory_sel = html.Div(children=[html.H4("Select dataset metadata file (*.idoc
                                              persistence=True, className='dir_textinput')
                                    ])
 
-pathbrowse = pages.path_browse(label, show_files=True, file_types='idoc')
+pathbrowse = pages.path_browse(label, show_files=True, file_types=['idoc'])
 
 page1 = [directory_sel, pathbrowse, html.Div(store)]
 
@@ -61,7 +61,7 @@ page1 = [directory_sel, pathbrowse, html.Div(store)]
 
 page2 = []
 page2.append(
-    html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
+    html.Div(pages.render_selector(label, create=True, owner=True, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
     )
 
@@ -168,7 +168,7 @@ def serialem_conv_gobutton(stack_sel, in_dir, click, proj_dd_sel, compute_sel, r
         sbem_conv_p = launch_jobs.run(target=compute_sel,
                                       pyscript=params.rendermodules_dir +
                                                '/dataimport/generate_EM_tilespecs_from_SerialEMmontage.py',
-                                      jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
+                                      jsonfile=param_file, logfile=log_file, errfile=err_file)
 
         run_state['status'] = 'running'
         run_state['id'] = sbem_conv_p

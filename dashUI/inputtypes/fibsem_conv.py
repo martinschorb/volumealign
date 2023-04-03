@@ -90,7 +90,7 @@ page1.append(voxsz)
 
 page2 = []
 page2.append(
-    html.Div(pages.render_selector(label, create=True, owner=owner, header='Select target stack:'),
+    html.Div(pages.render_selector(label, create=True, owner=True, header='Select target stack:'),
              id={'component': 'render_seldiv', 'module': label})
     )
 
@@ -207,7 +207,7 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click,
         tif_conv_p = launch_jobs.run(target=compute_sel,
                                      pyscript=params.rendermodules_dir +
                                               '/dataimport/generate_EM_tilespecs_from_TIFStack.py',
-                                     jsonfile=param_file, run_args=None, logfile=log_file, errfile=err_file)
+                                     jsonfile=param_file, logfile=log_file, errfile=err_file)
 
         run_state['status'] = 'running'
         run_state['id'] = tif_conv_p

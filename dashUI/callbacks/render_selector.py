@@ -135,7 +135,7 @@ def update_proj_dd(owner_sel, newproj_in, thispage, init_store, store_proj, dd_o
     if thispage not in hf.trigger(key='module'):
         raise PreventUpdate
 
-    if owner_sel == '' or owner_sel is None:
+    if owner_sel == '' or type(owner_sel) is not str:
         raise PreventUpdate
 
     out_project = ''
