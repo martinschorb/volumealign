@@ -321,7 +321,7 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
             spark_p = dict()
 
             if comp_sel == 'sparkslurm':
-                spark_p['--time'] = '00:' + str(timelim) + ':00'
+                spark_p['--time'] = '00:' + str(timelim + params.spark_setupmargin) + ':00'
 
                 spark_p['--worker_cpu'] = params.cpu_pernode_spark
                 spark_p['--worker_nodes'] = hf.spark_nodes(n_cpu)
