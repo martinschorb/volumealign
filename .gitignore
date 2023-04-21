@@ -3,6 +3,7 @@ build/
 JSON_parameters/runs/
 .DS_Store
 *.DS_Store
+Thumbs.db
 ._*
 public
 *.egg*
@@ -13,4 +14,5 @@ public
 dist/
 .pytest*
 *dashtest
+*testdata
 dashUI/web_users.json
