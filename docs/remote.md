@@ -19,7 +19,7 @@ If you have trouble with the App store, try downloading it from https://www.macu
 
 ### MacOS 
 
-To initially set up the connection, click the plus logo to add a new Desktop.
+To initially set up the connection, click the plus logo to add a new PC ("Desktop" in older versions).
 
 ![add remote Desktop](img/ms_add.png "Add remote Desktop")
 
