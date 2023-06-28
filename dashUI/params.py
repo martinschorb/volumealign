@@ -15,22 +15,25 @@ import numpy as np
 # =============================================================
 # Directory presets
 
-base_dir = '/g/emcf/software/volumealign/'
+software_base = '/g/emcf/software/'
+# this assumes render,rednermodules-addons,asap are all in the same parent directory
+
+base_dir = os.path.join(software_base, 'volumealign/')
 
 # for debugging/developing loacally uncomment the next line
 # base_dir = os.path.join(os.path.dirname(__file__), '..')
 
-render_dir = '/g/emcf/software/render'
+render_dir = os.path.join(software_base, 'render')
 
-conda_dir = '/g/emcf/software/python/miniconda'
+conda_dir = os.path.join(software_base, 'python', 'miniconda')
 
-render_log_dir = '/g/emcf/software/render-logs'
+render_log_dir = os.path.join(software_base, 'render-logs')
 
-rendermodules_dir = '/g/emcf/schorb/code/rendermodules-addons/rmaddons'
+rendermodules_dir =  os.path.join(software_base, 'rendermodules-addons', 'rmaddons')
 
-asap_dir = '/g/emcf/schorb/code/asap-modules/asap/'
+asap_dir = os.path.join(software_base, 'asap-modules', 'asap')
 
-spark_dir = '/g/emcf/software/spark/spark-3.3.0-bin-hadoop3'
+spark_dir = os.path.join(software_base, 'spark/spark-3.3.0-bin-hadoop3')
 
 # derived directories for launchers etc...
 # you can point these to other targets if desired
