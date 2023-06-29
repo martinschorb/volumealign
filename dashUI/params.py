@@ -110,7 +110,7 @@ for resource in remote_compute:
     comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' + r_name})
     comp_defaultoptions.append(r_name)
 
-min_chunksize = 5e5  # minimum chunk size for n5/zarr export (in bytes)
+min_chunksize = 1e5  # minimum chunk size for n5/zarr export (in bytes)
 
 time_add_buffer = 0.2  # time buffer for job submission (relative)
 

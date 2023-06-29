@@ -294,11 +294,6 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
                 blocksize[idx] = min(blocksize[idx], extent)
                 factors[idx] = min(blocksize[idx], factors[idx])
 
-            tw = np.ceil(tilespecs[0]['width'] / blocksize[0]) * blocksize[0]
-            th = np.ceil(tilespecs[0]['height'] / blocksize[1]) * blocksize[1]
-
-            n5run_p['--tileWidth'] = '{:.0f}'.format(tw)
-            n5run_p['--tileHeight'] = '{:.0f}'.format(th)
 
             # contrast limits
 
@@ -310,6 +305,12 @@ def n5export_execute_gobutton(click, outdir, stack, n_cpu, timelim, comp_sel, ow
             while np.prod(blocksize) < params.min_chunksize:
                 blocksize[0] *= 2
                 blocksize[1] *= 2
+
+            tw = np.ceil(tilespecs[0]['width'] / blocksize[0]) * blocksize[0]
+            th = np.ceil(tilespecs[0]['height'] / blocksize[1]) * blocksize[1]
+
+            n5run_p['--tileWidth'] = '{:.0f}'.format(tw)
+            n5run_p['--tileHeight'] = '{:.0f}'.format(th)
 
             n5run_p['--blockSize'] = ','.join(map(str, blocksize))
             n5run_p['--factors'] = ','.join(map(str, factors))
