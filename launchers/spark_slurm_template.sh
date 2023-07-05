@@ -123,7 +123,7 @@ while [ $wait -gt 0 ]
     { # try
       curl "$MASTER_WEB" > /dev/null && wait=0 && echo "Found spark master, will submit tasks."
     } || { # catch
-      sleep 20 && echo "Waiting for spark master to become available."
+      sleep 10 && echo "Waiting for spark master to become available."
     }
   done
 
