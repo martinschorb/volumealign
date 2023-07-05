@@ -349,7 +349,7 @@ for idx in range(params.max_tileviews):
         if thispage not in hf.trigger(key='module'):
             raise PreventUpdate
 
-        if None in (c_limits, imurl):
+        if None in (c_limits, imurl, leaddict):
             raise PreventUpdate
 
         if 'None' in (c_limits, imurl):
