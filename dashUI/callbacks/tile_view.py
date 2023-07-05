@@ -327,6 +327,8 @@ for idx in range(params.max_tileviews):
 
         if 'normalize' in lead_tile.keys():
             normalize = lead_tile['normalize']
+            url1 += '&normalizeForMatching=true'
+
 
         leadtile = dict(tile=tile, section=section, stack=stack, normalize=normalize)
 
