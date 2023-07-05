@@ -97,7 +97,8 @@ for idx in range(params.max_tileviews):
                 if orig_sec > o_max:
                     orig_sec = o_max
 
-                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) and lead_tile != {}:
+                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) \
+                        and 'tile' in lead_tile.keys():
 
                     tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
