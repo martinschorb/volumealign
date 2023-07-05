@@ -68,9 +68,6 @@ for idx in range(params.max_tileviews):
             if type(lead_tile) is not dict:
                 raise PreventUpdate
 
-            if 'tile' not in lead_tile.keys():
-                raise PreventUpdate
-
             trigger = hf.trigger()
 
             ol = dash.callback_context.outputs_list
@@ -174,7 +171,7 @@ for idx in range(params.max_tileviews):
         :rtype: (list of dict, str)
         """
 
-        if None in (slicenum, owner, project, stack, neighbours, lead_tile):
+        if None in (slicenum, owner, project, stack, neighbours):
             raise PreventUpdate
 
         if 'None' in (owner, project, stack):
@@ -266,9 +263,10 @@ for idx in range(params.max_tileviews):
                State({'component': 'project_dd', 'module': MATCH}, 'value'),
                State({'component': 'stack_dd', 'module': MATCH}, 'value'),
                State({'component': 'tileim_section_in' + idx_str, 'module': MATCH}, 'value'),
+               State({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'data'),
                State('url', 'pathname')
                ], prevent_initial_call=True)
-    def im_view_url(tile, runstore, owner, project, stack, section, thispage):
+    def im_view_url(tile, runstore, owner, project, stack, section, lead_tile, thispage):
         """
         Generates the link to the tile image to display.
 
@@ -325,7 +323,12 @@ for idx in range(params.max_tileviews):
 
         url1 += '?filter=true&scale=' + str(scale1)
 
-        leadtile = dict(tile=tile, section=section, stack=stack)
+        normalize = False
+
+        if 'normalize' in lead_tile.keys():
+            normalize = lead_tile['normalize']
+
+        leadtile = dict(tile=tile, section=section, stack=stack, normalize=normalize)
 
         return imurl, url1, leadtile
 
@@ -333,7 +336,7 @@ for idx in range(params.max_tileviews):
     @callback(Output({'component': 'tileim_image' + idx_str, 'module': MATCH}, 'src'),
               [Input({'component': 'tileim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
                Input({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children')],
-              [State({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'value'),
+              [State({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'data'),
                State('url', 'pathname')]
               )
     def im_view(c_limits, imurl, lead_tile, thispage):
@@ -355,7 +358,7 @@ for idx in range(params.max_tileviews):
         if thispage not in hf.trigger(key='module'):
             raise PreventUpdate
 
-        if None in (c_limits, imurl, lead_tile):
+        if None in (c_limits, imurl):
             raise PreventUpdate
 
         if 'None' in (c_limits, imurl):
@@ -363,9 +366,10 @@ for idx in range(params.max_tileviews):
 
         normstr = ''
 
-        if 'normalize' in lead_tile.keys():
-            if lead_tile['normalize']:
-                normstr = '&normalizeForMatching=true'
+        if type(lead_tile) is dict:
+            if 'normalize' in lead_tile.keys():
+                if lead_tile['normalize']:
+                    normstr = '&normalizeForMatching=true'
 
         imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1]) + normstr
 
