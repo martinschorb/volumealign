@@ -135,7 +135,7 @@ def tilepair_numfromlog(tilepairdir, stack):
 
     if l_out == '':
         return 'no tilepairs'
-    tpairs = l_out[0].partition('NeighborPairs: exit, saved ')[2]
+    tpairs = l_out[0].partition(': exit, saved ')[2]
 
     if tpairs == '':
         return 'no tilepairs'
