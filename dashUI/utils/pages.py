@@ -441,7 +441,7 @@ def boundingbox(module, hidden=False):
     return out
 
 
-def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True):
+def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True, normalize=False):
     """
     Generate tile viewer(s).
 
@@ -451,6 +451,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
     :param bool contrast: toggle display of contrast sliders.
     :param bool neighbours: toggle limitation of secondary panels (idx>0) to only display neighbours of the tile
                             shown in the first viewer.
+    :param bool normalize: toggle display as intended for PointMatch derivation
     :return: list of HTML elements containing the tile view(s) and necessary selectors.
     :rtype: list of html.Div
     """
@@ -526,7 +527,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                                            html.Img(id={'component': 'tileim_image' + idx_str, 'module': module},
                                                     width=params.im_width),
                                            # dcc.Graph(id={'component': 'tileim_image'+idx_str, 'module': module}),
-                                           dcc.Store(data=dict(),
+                                           dcc.Store(data=dict(normalize=normalize),
                                                      id={'component': 'lead_tile' + idx_str, 'module': module}),
                                            html.Br()])
                              ]

@@ -65,7 +65,7 @@ page2 = html.Div([html.Div([html.H4("Select Tilepair source directory:"),
                                options=subpages,
                                value='SIFT'),
                   html.Br(),
-                  pages.tile_view(module, numpanel=2, showlink=True),
+                  pages.tile_view(module, numpanel=2, showlink=True, normalize=True),
                   ])
 
 

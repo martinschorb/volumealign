@@ -327,15 +327,17 @@ for idx in range(params.max_tileviews):
     @callback(Output({'component': 'tileim_image' + idx_str, 'module': MATCH}, 'src'),
               [Input({'component': 'tileim_contrastslider' + idx_str, 'module': MATCH}, 'value'),
                Input({'component': 'tileim_imurl' + idx_str, 'module': MATCH}, 'children')],
-              State('url', 'pathname')
+              [State({'component': 'lead_tile' + idx_str, 'module': MATCH}, 'value'),
+               State('url', 'pathname')]
               )
-    def im_view(c_limits, imurl, thispage):
+    def im_view(c_limits, imurl, leaddict, thispage):
         """
         Generate the tile view.
 
         :param list of int c_limits: Contrast slider values "tileim_contrastslider"
         :param str imurl: initial tile image URL "tileim_imurl" <b>&#8592; im_view_url</b>
         :param str thispage: current page URL
+        :param dict leaddict: Store dict containing the "normalize" switch
         :return: Final URL to the Render image-API "tileim_image" <i>src</i>
         :rtype: str
         """
@@ -353,7 +355,13 @@ for idx in range(params.max_tileviews):
         if 'None' in (c_limits, imurl):
             raise PreventUpdate
 
-        imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1])
+        normstr = ''
+
+        if 'normalize' in leaddict.keys():
+            if leaddict['normalize']:
+                normstr = '&normalizeForMatching=true'
+
+        imurl += '&minIntensity=' + str(c_limits[0]) + '&maxIntensity=' + str(c_limits[1]) + normstr
 
         return imurl
 
