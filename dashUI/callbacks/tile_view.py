@@ -65,6 +65,9 @@ for idx in range(params.max_tileviews):
             if thispage == '' or thispage not in hf.trigger(key='module'):
                 raise PreventUpdate
 
+            if type(lead_tile) is not dict:
+                raise PreventUpdate
+
             if 'tile' not in lead_tile.keys():
                 raise PreventUpdate
 
