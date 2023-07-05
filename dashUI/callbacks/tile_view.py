@@ -201,7 +201,7 @@ for idx in range(params.max_tileviews):
             raise PreventUpdate
 
         t_labels = tiles.copy()
-        tile = tiles[int(len(tiles) / 2 + int(tileim_index))]
+        tile = tiles[int(len(tiles) / 2 + int(tileim_index)) - 1]
 
         if prev_tile is None:
             prev_tile = tile
