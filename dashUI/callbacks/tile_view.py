@@ -321,7 +321,7 @@ for idx in range(params.max_tileviews):
         else:
             scale1 = runstore['mt_params']['scale']
 
-        url1 += '?filter=true&scale=' + str(scale1)
+        url1 += '?filter=true'
 
         normalize = False
 
@@ -329,6 +329,7 @@ for idx in range(params.max_tileviews):
             normalize = lead_tile['normalize']
             url1 += '&normalizeForMatching=true'
 
+        url1 += '&scale=' + str(scale1)
 
         leadtile = dict(tile=tile, section=section, stack=stack, normalize=normalize)
 
