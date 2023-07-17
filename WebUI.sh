@@ -8,9 +8,15 @@ fi
 
 cd "$scriptpath"
 
+softbase=$(cat ./dashUI/params.py | grep software_base)
+softpath=${softbase##*base = }
+
 cstring=$(cat ./dashUI/params.py | grep conda_dir)
 
-condapath=${cstring##*dir = }
+export condapath=${cstring##*dir = }
+
+condapath=`python -c "import os; 
+software_base = os.getenv('softpath'); exec(os.getenv('condapath'))"`
 
 condapath=${condapath#\'}
 condapath=${condapath%\'}
@@ -20,3 +26,4 @@ eval "$($condapath/bin/conda shell.bash hook)"
 conda activate dash-new
 
 python -u dashUI/start_webUI.py
+
