@@ -29,7 +29,8 @@ base_dir = os.path.join(software_base, 'volumealign/')
 
 render_dir = os.path.join(software_base, 'render')
 
-conda_dir = os.path.join(software_base, 'python', 'miniconda')
+# this has to be absolute path!!!
+conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = os.path.join(software_base, 'render-logs')
 
