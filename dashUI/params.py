@@ -19,7 +19,7 @@ software_base = '/g/emcf/software/'
 # this assumes render,rednermodules-addons,asap are all in the same parent directory
 
 # for debugging/developing locally uncomment the next line
-software_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+# software_base = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 print('Software base directory is: ' + software_base)
 
 base_dir = os.path.join(software_base, 'volumealign/')
