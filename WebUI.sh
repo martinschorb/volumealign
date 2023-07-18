@@ -8,15 +8,9 @@ fi
 
 cd "$scriptpath"
 
-softbase=$(cat ./dashUI/params.py | grep software_base)
-softpath=${softbase##*base = }
-
 cstring=$(cat ./dashUI/params.py | grep conda_dir)
 
 export condapath=${cstring##*dir = }
-
-condapath=`python -c "import os; 
-software_base = os.getenv('softpath'); exec(os.getenv('condapath'))"`
 
 condapath=${condapath#\'}
 condapath=${condapath%\'}
