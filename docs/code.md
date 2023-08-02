@@ -22,3 +22,7 @@ Repo: [`rendermodules-addons`](https://git.embl.de/schorb/rendermodules-addons)
 The frontend for users to interact with the services is a [WebUI](dash.md) written in [Potly.dash](https://dash.plotly.com/). It provides visual interaction with some of Render's WebInterfaces, prepares the necessary parameters and launches and controls the client script application.
 
 Most of the parameters are transparently provided to `asap-modules` and `rendermodules-addons` through `JSON` files in the underlying [`argschema`](https://github.com/AllenInstitute/argschema) specification.
+
+#### Killing the server
+
+There is a hidden feature to kill a running server process. This can be achieved by clicking more than 10 times int the top-left corner of the WebUI (similar position to where the help link is located on the right side).

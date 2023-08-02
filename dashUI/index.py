@@ -34,12 +34,17 @@ menu_titles = {'convert': 'Convert & upload',
                'finalize': 'Final post-processing'
                }
 
-navbar = html.Div(id='navbar', className='header', children=html.H1([dcc.Link(href='/', children=title_header),
+navbar = html.Div(id='navbar', className='header', children=html.H1([html.Img(src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                                                                              id="shutdown_image",
+                                                                              style={'float':'left'}),
+                                                                     dcc.Link(href='/', children=title_header),
                                                                      html.A(html.Img(src='assets/help.svg',
                                                                                      id="helplink_image"),
                                                                             href=params.doc_url,
-                                                                            target="_blank")
+                                                                            target="_blank"),
+
                                                                      ], className='header'))
 
 globalstore = html.Div([dcc.Store(id='render_store', data=params.default_store['init_render'], storage_type='session')
                         ])
+

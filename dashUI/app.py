@@ -47,8 +47,7 @@ app.layout = html.Div([navbar,
           State('render_store', 'data'),
           prevent_initial_callback=True)
 def update_render_store(*inputs):
-
-    if ctx.triggered[0]['value']  in ['', None]:
+    if ctx.triggered[0]['value'] in ['', None]:
         raise PreventUpdate
 
     store = inputs[-1]
@@ -58,6 +57,20 @@ def update_render_store(*inputs):
             store[key] = ctx.triggered[0]['value'][key]
 
     return store
+
+
+@callback(Output('shutdown_image', 'style'),
+          Input('shutdown_image', 'n_clicks'),
+          prevent_initial_callback=True)
+def shutdown_server(nclick):
+    if nclick is None:
+        raise PreventUpdate
+
+    if nclick > 10:
+        print('exit server...')
+        os.system('killall python')
+
+    raise PreventUpdate
 
 
 if __name__ == '__main__':
