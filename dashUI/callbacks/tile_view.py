@@ -65,8 +65,6 @@ for idx in range(params.max_tileviews):
             if thispage == '' or thispage not in hf.trigger(key='module'):
                 raise PreventUpdate
 
-            if type(lead_tile) is not dict:
-                raise PreventUpdate
 
             trigger = hf.trigger()
 
@@ -97,21 +95,24 @@ for idx in range(params.max_tileviews):
                 if orig_sec > o_max:
                     orig_sec = o_max
 
-                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None) \
-                        and 'tile' in lead_tile.keys():
-
-                    tp_jsonfiles = hf.jsonfiles(tilepairdir)
-
-                    tiles, slices, positions = hf.neighbours_from_json(tp_jsonfiles, lead_tile['tile'])
-
-                    if tiles in (None, []):
+                if neighbours == 'True' and tileim_idx != '0' and tilepairdir not in ('', None):
+                    if type(lead_tile) is not dict:
                         raise PreventUpdate
 
-                    slices = list(map(int, slices))
+                    if 'tile' in lead_tile.keys():
 
-                    o_val = min(slices)
+                        tp_jsonfiles = hf.jsonfiles(tilepairdir)
 
-                    slicestyle = {'display': 'none'}
+                        tiles, slices, positions = hf.neighbours_from_json(tp_jsonfiles, lead_tile['tile'])
+
+                        if tiles in (None, []):
+                            raise PreventUpdate
+
+                        slices = list(map(int, slices))
+
+                        o_val = min(slices)
+
+                        slicestyle = {'display': 'none'}
 
                 if trigger in ('stack_dd', 'dummystore'):
                     o_val = int((o_max - o_min) / 2) + o_min
