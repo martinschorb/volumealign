@@ -136,7 +136,7 @@ default_compparams = {'user': user,
 # spark
 
 n_cpu_spark = 300
-cpu_pernode_spark = 15
+cpu_pernode_spark = 24
 spark_setupmargin = 5 # minutes to alow for spark setting up
 
 spark_port = '8080'
