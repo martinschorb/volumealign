@@ -136,7 +136,7 @@ for idx in range(params.max_tileviews):
 
                 tilespec = requests.get(url2).json()
 
-                max_int = tilespec['tileSpecs'][0]['maxIntensity']
+                max_int = int(tilespec['tileSpecs'][0]['maxIntensity'])
 
                 return o_val, o_min, o_max, slicestyle, max_int, [0, max_int]
 

@@ -506,6 +506,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                                                             min=0,
                                                             max=500,
                                                             value=[0, 255],
+                                                            step=1,
                                                             marks=None,
                                                             allowCross=False,
                                                             tooltip={"placement": "bottom"}
@@ -597,6 +598,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                                 'module': module},
                                                             min=0,
                                                             max=500,
+                                                            step=1,
                                                             value=[0, 255],
                                                             marks=None,
                                                             allowCross=False,
