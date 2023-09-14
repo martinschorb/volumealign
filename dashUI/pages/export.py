@@ -120,7 +120,7 @@ def export_stacktodir(dir_trigger, trig2, stack_sel, owner, project, allstacks, 
                     return dash.no_update
 
                 url = params.render_base_url + params.render_version + 'owner/' + owner + '/project/' + project \
-                      + '/stack/' + stack + '/z/' + str(int((stacklist[0]['stats']['stackBounds']['maxZ'] -
+                      + '/stack/' + stack + '/z/' + str(int((stacklist[0]['stats']['stackBounds']['maxZ'] +
                                                              stacklist[0]['stats']['stackBounds']['minZ']) / 2)) \
                       + '/render-parameters'
                 try:
