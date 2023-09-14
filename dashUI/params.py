@@ -34,7 +34,7 @@ conda_dir = '/g/emcf/software/python/miniconda'
 
 render_log_dir = os.path.join(software_base, 'render-logs')
 
-rendermodules_dir =  os.path.join(software_base, 'rendermodules-addons', 'rmaddons')
+rendermodules_dir = os.path.join(software_base, 'rendermodules-addons', 'rmaddons')
 
 asap_dir = os.path.join(software_base, 'asap-modules', 'asap')
 
@@ -55,8 +55,9 @@ json_run_dir = os.path.join(base_dir, 'JSON_parameters', 'runs')
 
 json_match_dir = os.path.join(base_dir, 'JSON_parameters', 'MatchTrials')
 
-# default_dir = "/g/"+group
-# defined at the end!
+
+# ==============================================================
+# user and doc presets
 
 # notification and documentation
 user = getpass.getuser()
@@ -64,6 +65,14 @@ email = '@embl.de'
 doc_url = 'https://schorb.embl-community.io/volumealign/usage/'
 
 init_logfile = 'out.txt'  # render_log_dir + 'fancylogfile.log'
+
+# derive group and standard directory
+
+p = subprocess.Popen('id -gn', stdout=subprocess.PIPE, shell=True)
+group = p.communicate()[0].decode(encoding='utf8').strip("\n")
+
+default_dir = "/g/" + group
+
 
 # ==============================================================
 # Compute resources presets
@@ -96,7 +105,8 @@ remote_compute = [
     #                         'mem': 4}},
     {'render.embl.de': {'cpu': 2,
                         'mem': 4}},
-    {'login01.cluster.embl.de': {}}]
+    # {'login01.cluster.embl.de': {}}
+    ]
 
 # dict. If empty, submission and status calls for cluster environments will be issued locally
 remote_submission = {
@@ -107,13 +117,6 @@ remote_submission = {
 # add remote resources
 
 remote_hosts = []
-
-for resource in remote_compute:
-    r_name = list(resource.keys())[0]
-    remote_hosts.append(r_name)
-    comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
-    comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' + r_name})
-    comp_defaultoptions.append(r_name)
 
 min_chunksize = 1e5  # minimum chunk size for n5/zarr export (in bytes)
 
@@ -137,7 +140,7 @@ default_compparams = {'user': user,
 
 n_cpu_spark = 300
 cpu_pernode_spark = 24
-spark_setupmargin = 5 # minutes to alow for spark setting up
+spark_setupmargin = 5  # minutes to alow for spark setting up
 
 spark_port = '8080'
 spark_job_port = '4040'
@@ -226,7 +229,7 @@ match_store = {  # 'init_match':{},
     'all_matchcolls': None
 }
 
-# match trial owner default ('flyTEM' in built)
+# match trial owner default ('flyTEM' built-in)
 
 mt_owner = 'flyTEM'
 
@@ -241,7 +244,7 @@ im_width = 900
 default_tile_scale = 0.5
 
 # controls refresh rate and length of console output
-refresh_interval = 6000  # ms
+refresh_interval = 3000  # ms
 disp_lines = 50  # output lines to display
 
 # =============================================================
@@ -259,8 +262,12 @@ solve_types = ['montage', '3D']
 
 hostname = socket.gethostname()
 
-p = subprocess.Popen('id -gn', stdout=subprocess.PIPE, shell=True)
-group = p.communicate()[0].decode(encoding='utf8').strip("\n")
+for resource in remote_compute:
+    r_name = list(resource.keys())[0]
+    remote_hosts.append(r_name)
+    comp_options.append({'label': 'Remote using ' + r_name, 'value': r_name})
+    comp_options.append({'label': 'Local Spark on ' + r_name, 'value': 'spark::' + r_name})
+    comp_defaultoptions.append(r_name)
 
 v_base_url = '/render-ws/'
 render_version = 'v1/'
@@ -281,4 +288,3 @@ url = render_base_url + render_version + 'owners'
 
 render_owners = requests.get(url).json()
 default_store['init_render']['allowners'] = render_owners
-default_dir = "/g/" + group
