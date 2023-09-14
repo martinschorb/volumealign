@@ -17,7 +17,7 @@ condapath=${condapath%\'}
 
 eval "$($condapath/bin/conda shell.bash hook)"
 
-conda activate dash-new
+conda activate dash
 
 python -u dashUI/start_webUI.py
 
