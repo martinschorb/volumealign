@@ -70,7 +70,7 @@ for idx in range(params.max_tileviews):
 
             ol = dash.callback_context.outputs_list
 
-            thisimtype = tileim_idx = ol[0]['id']['component'].split('_')[0]
+            thisimtype = ol[0]['id']['component'].split('_')[0]
 
             tileim_idx = ol[0]['id']['component'].split('_')[-1]
 
