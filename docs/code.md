@@ -6,9 +6,9 @@ The Basic installation requires the following software:
 
 - the [Render web services](https://github.com/saalfeldlab/render) including the underlying [MongoDB](https://www.mongodb.com/) database. For full functionality, it is necessary to use the current `geometric-descriptor` branch.
 
-- render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): These need to be accessible for all machines that run clients.  For full functionality, it is necessary to use the current `geometric-descriptor` branch.
+- render client scripts from the compiled (mvn) [main repo](https://github.com/saalfeldlab/render): These need to be accessible for all machines that run clients.  For full functionality, it is necessary to use the current `ibeam_msem` branch.
 
-- render-python `renderapi` forked from [Allen Institute](https://github.com/martinschorb/render-python). This is consistent with the original `develop` branch.
+- render-python `renderapi` from [Allen Institute](https://github.com/AllenInstitute/render-python). For full functionality, it is necessary to use the current `develop` branch.
 
 - Asap modules `asap-modules` from [Allen Institute](https://github.com/AllenInstitute/asap-modules). This includes the `BigFeta` global solver.
 

@@ -513,19 +513,20 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                                                     ]),
                                            dcc.Store(id={'component': 'tileim_urlset' + idx_str, 'module': module},
                                                      data={}),
-                                           html.Div(style={'display': 'none'},
-                                                    id={'component': 'tileim_imurl' + idx_str, 'module': module}),
-                                           html.Div(style=linkstyle,
-                                                    id={'component': 'tileim_linkdiv' + idx_str, 'module': module},
-                                                    children=[
-                                                        'Link to Image specs:  ',
-                                                        html.Div(
-                                                            id={'component': 'tileim_link' + idx_str, 'module': module},
-                                                            style={'margin-left': '0.5em'})
-                                                    ]),
-                                           html.Br(),
-                                           html.Img(id={'component': 'tileim_image' + idx_str, 'module': module},
-                                                    width=params.im_width),
+                                           dcc.Loading(type='dot', children=html.Div(
+                                               [html.Div(style={'display': 'none'},
+                                                         id={'component': 'tileim_imurl' + idx_str, 'module': module}),
+                                                html.Div(style=linkstyle,
+                                                         id={'component': 'tileim_linkdiv' + idx_str, 'module': module},
+                                                         children=[
+                                                             'Link to Image specs:  ',
+                                                             html.Div(
+                                                                 id={'component': 'tileim_link' + idx_str, 'module': module},
+                                                                 style={'margin-left': '0.5em'})
+                                                         ]),
+                                                html.Br(),
+                                                html.Img(id={'component': 'tileim_image' + idx_str, 'module': module},
+                                                         width=params.im_width)])),
                                            # dcc.Graph(id={'component': 'tileim_image'+idx_str, 'module': module}),
                                            dcc.Store(data=dict(normalize=normalize),
                                                      id={'component': 'lead_tile' + idx_str, 'module': module}),
@@ -534,7 +535,7 @@ def tile_view(module, numpanel=1, showlink=False, contrast=True, neighbours=True
                             )
                    )
 
-    return dcc.Loading(type='dot', children=html.Div(out))
+    return html.Div(out)
 
 
 def section_view(module, numpanel=1, contrast=True, bbox=False):
@@ -604,13 +605,14 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
                                                     ]),
                                            dcc.Store(id={'component': 'sliceim_urlset' + idx_str, 'module': module},
                                                      data={}),
-                                           html.Div(style={'display': 'none'},
-                                                    id={'component': 'sliceim_imurl' + idx_str, 'module': module}),
-                                           # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},
-                                           #          width=params.im_width),
-                                           dcc.Graph(id={'component': 'sliceim_image' + idx_str, 'module': module},
-                                                     figure=fig,
-                                                     style={'text-align': 'flushleft'}),
+                                           dcc.Loading(type='dot', children=html.Div(
+                                               [html.Div(style={'display': 'none'},
+                                                         id={'component': 'sliceim_imurl' + idx_str, 'module': module}),
+                                                # html.Img(id={'component': 'sliceim_image'+idx_str, 'module': module},
+                                                #          width=params.im_width),
+                                                dcc.Graph(id={'component': 'sliceim_image' + idx_str, 'module': module},
+                                                          figure=fig,
+                                                          style={'text-align': 'flushleft'})])),
                                            dcc.Store(id={'component': 'sliceim_params' + idx_str, 'module': module},
                                                      data={'scale': 1}),
                                            dcc.Store(id={'component': 'sliceim_rectsel' + idx_str, 'module': module},
@@ -632,7 +634,7 @@ def section_view(module, numpanel=1, contrast=True, bbox=False):
     if not bbox:
         out.append(boundingbox(module, hidden=True))
 
-    return dcc.Loading(type='dot', children=html.Div(out))
+    return html.Div(out)
 
 
 def path_browse(module, tf_in=None, create=False, show_files=False, file_types=[]):
