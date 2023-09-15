@@ -52,6 +52,8 @@ This page contains the following elements:
 ### Image stack - FIB-SEM
 
 - **dataset root directory:** the directory path where the images are stored. They should be in aplphabetical order according to the layers.
+- **Automatically crop black frame from images:** Whether empty content of the images (black) should be automatically cropped before import.
+- **Append slices to existing stack:** Whether the current import images should be appended to an already existing stack.
 - **Resolution values:** the pixel sizes in `x/y` and the section spacing in `z` in nm.
 
 ## Generate Tile Pairs
