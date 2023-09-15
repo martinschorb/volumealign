@@ -171,7 +171,7 @@ def sbem_conv_gobutton(stack_sel, in_dir, badslices_in, click, proj_dd_sel, comp
             run_params.update(json.load(f))
 
         run_params['image_directory'] = in_dir
-        run_params['stack'] = stack_sel
+        run_params['output_stack'] = stack_sel
 
         if 'bad_slices' in outstore.keys():
             run_params['bad_slices'] = outstore['bad_slices']
