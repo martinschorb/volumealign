@@ -51,7 +51,8 @@ This page contains the following elements:
 
 ### Image stack - FIB-SEM
 
-- **dataset root directory:** the directory path where the images are stored. They should be in aplphabetical order according to the layers.
+- **dataset root directory:** the directory path where the images are stored. They should be in alphabetical order according to the layers.
+- **browse:** use this dropdown to browse the directory. To move up (`..`) multiple times, you have to close the selector (`x` on the very right) for each additional step up.
 - **Automatically crop black frame from images:** Whether empty content of the images (black) should be automatically cropped before import.
 - **Append slices to existing stack:** Whether the current import images should be appended to an already existing stack.
 - **Resolution values:** the pixel sizes in `x/y` and the section spacing in `z` in nm.
@@ -188,7 +189,7 @@ You can export a Render stack at any time to disk ("materialize").
 
 ![export](img/webui_export_slice.png "VolumeAlign WebUI export")
 
-You can **explore slice** to determine the **volume region to consider**. Just drag the rectangle on top of the image. If you click **Zoom In**, the viewer and region boundary will adapt to the selection. **Reset Zoom** will bring the viewer back to displaying ther entrire setcion.
+You can **explore slice** to determine the **volume region to consider**. Just drag the rectangle on top of the image. If you click **Zoom In**, the viewer and region boundary will adapt to the selection. **Reset Zoom** will bring the viewer back to displaying the entire section.
 
 At the moment, `N5` or `slice images` are available as **output type**.
 
