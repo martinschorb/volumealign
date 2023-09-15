@@ -59,9 +59,11 @@ page1 = [directory_sel, pathbrowse, html.Div(store)]
 
 page1.append(html.Div(children=[html.Br(),
                                 dcc.Checklist(options=[
-                                {'label': 'Automatically crop black frame from images', 'value': 'autocrop'}],
-                                              id={'component': 'autocrop', 'module': label})]))
-
+                                    {'label': 'Automatically crop black frame from images\n', 'value': 'autocrop'}],
+                                    id={'component': 'autocrop', 'module': label}),
+                                dcc.Checklist(options=[
+                                    {'label': 'Append slices to existing stack', 'value': 'append'}],
+                                    id={'component': 'append', 'module': label})])),
 
 voxsz = html.Div(children=[html.H4("Resolution values"),
                            "x/y (isotropic): ",
@@ -150,11 +152,12 @@ page2.append(collapse_stdout)
            State({'component': 'xy_px_input', 'module': label}, 'value'),
            State({'component': 'z_px_input', 'module': label}, 'value'),
            State({'component': 'autocrop', 'module': label}, 'value'),
+           State({'component': 'append', 'module': label}, 'value'),
            State({'component': 'store_run_status', 'module': label}, 'data'),
            State({'component': 'store_render_launch', 'module': label}, 'data')],
           prevent_initial_call=True)
 def fibsem_conv_gobutton(stack_sel, in_dir, click,
-                         proj_dd_sel, compute_sel, pxs, zwidth, autocrop, run_state, outstore):
+                         proj_dd_sel, compute_sel, pxs, zwidth, autocrop, append, run_state, outstore):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]['prop_id'].split('.')[0].partition(label)[2]
     but_disabled = True
@@ -187,7 +190,10 @@ def fibsem_conv_gobutton(stack_sel, in_dir, click,
         run_params['stack'] = stack_sel
 
         if autocrop == ['autocrop']:
-            run_params['autocrop'] = True
+            run_params['autocrop'] = "True"
+
+        if append == ['append']:
+            run_params['append'] = "True"
 
         vox_sz = [pxs] * 2
         vox_sz.append(zwidth)
