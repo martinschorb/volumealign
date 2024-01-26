@@ -6,7 +6,6 @@
 #SBATCH -o <SoS_LOGFILE>
 #SBATCH -e <SoS_ERRFILE>
 # #  --- Master resources ---
-#SBATCH --nodes=1
 #SBATCH --mem-per-cpu=<SoS_MASTER_MEM>
 #SBATCH --cpus-per-task=<SoS_MASTER_CPU>
 #SBATCH --ntasks-per-node=1

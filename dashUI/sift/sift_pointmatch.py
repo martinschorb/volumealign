@@ -42,7 +42,10 @@ compute_table_cols = ['Num_CPUs',
                       # 'MemGB_perCPU',
                       'runtime_minutes']
 
-compute_locations = ['sparkslurm', 'localspark', 'spark::render.embl.de']
+compute_locations = ['sparkslurm', 'localspark']
+
+for rhost in params.remote_hosts:
+    compute_locations.append('spark::' + rhost)
 
 compute_default = 'sparkslurm'
 

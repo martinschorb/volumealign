@@ -107,6 +107,6 @@ cd $LOGDIR
 
 # call the submission
 
-# echo $runscript $PARAMS
+echo $runscript $PARAMS
 
 sbatch $runscript $PARAMS

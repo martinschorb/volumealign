@@ -100,11 +100,11 @@ comp_defaultoptions = ['standalone', 'slurm']
 remote_params = ['user', 'cpu', 'mem']
 
 remote_compute = [
-    # {'pc-emcf-16.embl.de': {'user': 'testuser',
+    # {'some_workstation': {'user': 'testuser',
     #                         'cpu': 2,
     #                         'mem': 4}},
-    {'render.embl.de': {'cpu': 2,
-                        'mem': 4}},
+    # {'10.11.13.109': {'cpu': 96,
+    #                   'mem': '160G'}},
     # {'login01.cluster.embl.de': {}}
     ]
 
@@ -138,8 +138,8 @@ default_compparams = {'user': user,
 
 # spark
 
-n_cpu_spark = 300
-cpu_pernode_spark = 24
+n_cpu_spark = 256
+cpu_pernode_spark = 32
 spark_setupmargin = 5  # minutes to alow for spark setting up
 
 spark_port = '8080'
