@@ -1,6 +1,6 @@
 __pycache__/
 build/
-JSON_parameters/runs/
+JSON_parameters/run*/
 .DS_Store
 *.DS_Store
 Thumbs.db

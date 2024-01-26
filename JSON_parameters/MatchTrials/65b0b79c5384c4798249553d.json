@@ -1,0 +1,10 @@
+{
+    "render": {
+        "owner": "SBEM",
+        "project": "Nedal_midguts",
+        "stack": "ND_20"
+        },
+    "organism":"fly",
+    "MatchTrial":"65b0b79c5384c4798249553d",
+    "type":"3D"
+}
