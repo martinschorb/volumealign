@@ -73,8 +73,11 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
 
     tilepairdir = params.json_run_dir + '/tilepairs_' + run_prefix + '_' + stack + '_' + pairmode
 
+    depth_suffix = ''
+
     if slicedepth > 1:
-        tilepairdir += '_depth_' + str(slicedepth)
+        depth_suffix = '_depth_' + str(slicedepth)
+        tilepairdir += depth_suffix
 
     if multi in [None, []]:
         param_file = generate_run_params(run_params, owner, stack,
@@ -93,7 +96,7 @@ def tilepairs_execute_gobutton(click, pairmode, stack, slicedepth, comp_sel, sta
 
                 param_file.append(param_file_current)
 
-    log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode
+    log_file = params.render_log_dir + '/' + module + '_' + run_prefix + '_' + pairmode + depth_suffix
     err_file = log_file + '.err'
     log_file += '.log'
 
