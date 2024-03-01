@@ -230,7 +230,11 @@ def match_selector(module, newcoll=False):
                                                   style={'margin-right': '1em', 'margin-left': '3em'},
                                                   debounce=True, placeholder="new_mc_owner", persistence=False)],
                                        id={'component': 'new_mc_owner', 'module': module},
-                                       style={'display': 'none'})
+                                       style={'display': 'none'}),
+                              dcc.Clipboard(
+                                  target_id={'component': 'mc_owner_dd', 'module': module},
+                                  title="copy MatchCollection Owner",
+                                  className='copybutton')
                               ], style=dict(display='flex')),
                     html.Br(),
                     html.Div([html.Div(
@@ -247,7 +251,11 @@ def match_selector(module, newcoll=False):
                                                   debounce=True, placeholder="new_mc", persistence=False)],
                                        id={'component': 'new_matchcoll', 'module': module},
                                        style={'display': 'none'}),
-                              html.Br()
+                              html.Br(),
+                              dcc.Clipboard(
+                                  target_id={'component': 'matchcoll_dd', 'module': module},
+                                  title="copy MatchCollection name",
+                                  className='copybutton')
                               ], style=dict(display='flex')),
                     html.Div(id={'component': 'browse_mc_div', 'module': module},
                              children=[html.Br(),
