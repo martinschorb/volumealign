@@ -326,6 +326,9 @@ def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, s
     if dz_weights != []:
         run_params_generate['matrix_assembly']['inverse_dz'] = False
 
+    if comp_sel in params.comp_clustertypes:
+        run_params_generate['n_parallel_jobs'] = params.n_cpu_script
+
     param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '.json'
 
     with open(param_file, 'w') as f:
