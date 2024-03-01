@@ -323,7 +323,12 @@ for idx in range(params.max_tileviews):
         else:
             scale1 = runstore['mt_params']['scale']
 
-        url1 += '?filter=true'
+        if 'FIBSEM' in owner:
+            filter= 'false'
+        else:
+            filter = 'true'
+
+        url1 += '?filter=' + filter
 
         normalize = False
 
