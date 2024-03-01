@@ -213,6 +213,18 @@ transform = html.Div(id=module + 'tformsel_div', children=[html.H4("Select Trans
                                                                         persistence=True,
                                                                         clearable=False, options=tform_options,
                                                                         value='rigid'),
+                                                           html.Br(),
+                                                           html.Details([
+                                                               html.Summary('Range of sections to consider:  '),
+                                                               dcc.Input(
+                                                                   id={'component': 'sec_range', 'module': module},
+                                                                   type='number', min=1,
+                                                                   max=params.max_slicerange,
+                                                                   value=3),
+                                                               dcc.Checklist(['Same weight for all distances.'],
+                                                                             id={'component': 'dz_weights',
+                                                                                 'module': module}
+                                                                             )]),
                                                            html.Details([
                                                                html.Summary("Select Solve type:"),
                                                                dcc.Dropdown(
@@ -252,13 +264,15 @@ page.append(gobutton)
            State({'component': 'compute_sel', 'module': module}, 'value'),
            State({'component': 'startsection', 'module': module}, 'value'),
            State({'component': 'endsection', 'module': module}, 'value'),
+           State({'component': 'sec_range', 'module': module}, 'value'),
+           State({'component': 'dz_weights', 'module': module}, 'value'),
            State({'component': 'store_owner', 'module': module}, 'data'),
            State({'component': 'store_project', 'module': module}, 'data'),
            State({'component': 'stack_dd', 'module': module}, 'value'),
            State({'component': 'mc_owner_dd', 'module': module}, 'value')],
           prevent_initial_call=True)
-def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, startsection, endsection, owner, project,
-                           stack, mc_own):
+def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, startsection, endsection, sec_range,
+                           dz_weights, owner, project, stack, mc_own):
     if not dash.callback_context.triggered:
         raise PreventUpdate
 
@@ -305,6 +319,12 @@ def solve_execute_gobutton(click, matchcoll, outstack, tform, stype, comp_sel, s
 
     run_params_generate['output_stack'].update(rp['render'])
     run_params_generate['output_stack']['name'] = outstack
+
+    run_params_generate['matrix_assembly'] = {}
+    run_params_generate['matrix_assembly']['depth'] = list(range(sec_range))
+
+    if dz_weights != []:
+        run_params_generate['matrix_assembly']['inverse_dz'] = False
 
     param_file = params.json_run_dir + '/' + module + '_' + run_prefix + '.json'
 
