@@ -386,7 +386,7 @@ def substack_sel(module, hidden=False):
     out = html.Div([html.Div(id={'component': '3Dslices', 'module': module},
                              children=['range of sections to consider:  ',
                                        dcc.Input(id={'component': 'sec_input1', 'module': module}, type='number', min=1,
-                                                 max=10, value=1)],
+                                                 max=params.max_slicerange, value=1)],
                              style={'display':'none'}),
                     html.Br(),
                     html.Details([html.Summary('Substack selection'),

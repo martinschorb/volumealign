@@ -247,6 +247,11 @@ default_tile_scale = 0.5
 refresh_interval = 3000  # ms
 disp_lines = 50  # output lines to display
 
+# ===============
+# tilepair maximum 3D range allowed in UI
+
+max_slicerange = 25
+
 # =============================================================
 # solve parameters
 
